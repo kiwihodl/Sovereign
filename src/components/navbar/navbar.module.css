@@ -1,0 +1,17 @@
+.titleContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo {
+    border-radius: 25px;
+    margin-right: 8px;
+}
+
+.title {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
