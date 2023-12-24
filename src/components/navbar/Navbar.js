@@ -11,6 +11,7 @@ const end = (
         label="Login"
         icon="pi pi-user"
         className="p-button-rounded text-white"
+        severity='primary'
     />
 );
 
@@ -29,7 +30,7 @@ const start = (
 
 const Navbar = () => {
     return (
-        <Menubar start={start} end={end} />
+        <Menubar start={start} end={end} className='px-[5%]' />
     );
 };
 
