@@ -10,8 +10,8 @@ const end = (
     <Button
         label="Login"
         icon="pi pi-user"
-        className="p-button-rounded text-white"
-        severity='primary'
+        className="text-[#f8f8ff]"
+        rounded
     />
 );
 
