@@ -5,16 +5,17 @@ import axios from 'axios';
 import { setPubkey, setUsername } from "@/redux/reducers/userReducer";
 import { generateSecretKey, getPublicKey } from 'nostr-tools';
 import { findKind0Username } from "@/utils/nostr";
+import { useToast } from './useToast';
 
 export const useLogin = () => {
     const dispatch = useDispatch();
     const router = useRouter();
+    const { showToast } = useToast();
 
-    // Handle Auto Login
+    // Attempt Auto Login on render
     useEffect(() => {
         const autoLogin = async () => {
             const publicKey = window.localStorage.getItem('pubkey');
-            console.log('Auto logging in with public key:', publicKey);
 
             if (!publicKey) return;
 
@@ -35,10 +36,9 @@ export const useLogin = () => {
         autoLogin();
     }, []);
 
-    // Handle Nostr Login
     const nostrLogin = useCallback(async () => {
         if (!window || !window.nostr) {
-            alert('Nostr is not available');
+            showToast('error', 'Nostr Unavailable', 'Nostr is not available');
             return;
         }
 
@@ -70,24 +70,29 @@ export const useLogin = () => {
                     if (username) dispatch(setUsername(username));
                     router.push('/');
                 } else {
-                    alert('User not created');
+                    console.error('Error creating user:', createUserResponse);
                 }
             } catch (createError) {
                 console.error('Error creating user:', createError);
+                showToast('error', 'Error Creating User', 'Failed to create user');
             }
         }
-    }, [dispatch, router]);
+    }, [dispatch, router, showToast]);
 
-    // Handle Anonymous Login
     const anonymousLogin = useCallback(() => {
-        const secretKey = generateSecretKey();
-        const publicKey = getPublicKey(secretKey);
-
-        dispatch(setPubkey(publicKey));
-        window.localStorage.setItem('pubkey', publicKey);
-        window.localStorage.setItem('seckey', secretKey);
-        router.push('/');
-    }, [dispatch, router]);
+        try {
+            const secretKey = generateSecretKey();
+            const publicKey = getPublicKey(secretKey);
+            
+            dispatch(setPubkey(publicKey));
+            window.localStorage.setItem('pubkey', publicKey);
+            window.localStorage.setItem('seckey', secretKey);
+            router.push('/');
+        } catch (error) {
+            console.error('Error during anonymous login:', error);
+            showToast('error', 'Error Logging In', 'Failed to log in');
+        }
+    }, [dispatch, router, showToast]);
 
     return { nostrLogin, anonymousLogin };
 };
