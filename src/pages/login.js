@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { Button } from 'primereact/button';
 import { useToast } from "@/hooks/useToast";
 import { useNostr } from "@/hooks/useNostr";
+import { generateSecretKey, getPublicKey } from 'nostr-tools'
 import { findKind0Username } from "@/utils/nostr";
 import { setPubkey, setUsername } from "@/redux/reducers/userReducer";
 
@@ -12,6 +13,7 @@ const Login = () => {
     const dispatch = useDispatch();
     const router = useRouter();
     const { showToast } = useToast();
+    const { fetchKind0 } = useNostr();
 
     const nostrLogin = async () => {
         try {
@@ -28,6 +30,7 @@ const Login = () => {
                 const response = await axios.get(`/api/users/${publicKey}`);
                 if (response.status === 200 && response.data) {
                     dispatch(setPubkey(publicKey));
+                    window.localStorage.setItem('pubkey', publicKey);
                     if (response.data.username) {
                         dispatch(setUsername(response.data.username));
                     }
@@ -47,6 +50,7 @@ const Login = () => {
                 const createUserResponse = await axios.post(`/api/users`, payload);
                 if (createUserResponse.status === 201) {
                     dispatch(setPubkey(publicKey));
+                    window.localStorage.setItem('pubkey', publicKey);
                     if (username) {
                         dispatch(setUsername(username));
                     }
@@ -58,6 +62,16 @@ const Login = () => {
         } catch (error) {
             showToast('error', 'Error', error.message || 'An unexpected error occurred');
         }
+    };
+
+    const anonymousLogin = async () => {
+        const secretKey = generateSecretKey();
+        const publicKey = getPublicKey(secretKey);
+
+        dispatch(setPubkey(publicKey));
+        window.localStorage.setItem('pubkey', publicKey);
+        window.localStorage.setItem('seckey', secretKey);
+        router.push('/');
     };
 
     return (
@@ -75,6 +89,7 @@ const Login = () => {
                 icon="pi pi-user"
                 className="text-[#f8f8ff] w-[250px] my-4"
                 rounded
+                onClick={anonymousLogin}
             />
         </div>
     )

@@ -9,7 +9,6 @@ export default async function handler(req, res) {
   try {
     let user;
     if (isPubkey) {
-        console.log('is pub', slug);
       // If slug is a pubkey
       user = await getUserByPubkey(slug);
     } else {

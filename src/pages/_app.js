@@ -3,6 +3,7 @@ import { Provider } from "react-redux";
 import { store } from "@/redux/store";
 import Navbar from '@/components/navbar/Navbar';
 import { ToastProvider } from '@/hooks/useToast';
+import Layout from '@/components/layout';
 import '@/styles/globals.css'
 import 'primereact/resources/themes/lara-dark-indigo/theme.css';
 
@@ -13,8 +14,10 @@ export default function MyApp({
         <Provider store={store}>
             <PrimeReactProvider>
                 <ToastProvider>
-                    <Navbar />
-                    <Component {...pageProps} />
+                    <Layout>
+                        <Navbar />
+                        <Component {...pageProps} />
+                    </Layout>
                 </ToastProvider>
             </PrimeReactProvider>
         </Provider>
