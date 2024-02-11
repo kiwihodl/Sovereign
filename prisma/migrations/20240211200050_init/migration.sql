@@ -3,6 +3,7 @@ CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "pubkey" TEXT NOT NULL,
     "username" TEXT,
+    "avatar" TEXT,
     "roleId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

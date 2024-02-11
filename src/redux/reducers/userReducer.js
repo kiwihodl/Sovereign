@@ -13,23 +13,19 @@ export const initialRelays = [
 export const userSlice = createSlice({
     name: "user",
     initialState: {
-        pubkey: '',
-        username: '',
+        user: {},
         relays: initialRelays,
     },
     reducers: {
         setRelays: (state, action) => {
             state.relays = [...state.relays, action.payload];
         },
-        setPubkey: (state, action) => {
-            state.pubkey = action.payload;
-        },
-        setUsername: (state, action) => {
-            state.username = action.payload;
+        setUser: (state, action) => {
+            state.user = action.payload;
         },
     },
 });
 
-export const { setRelays, setPubkey, setUsername } = userSlice.actions;
+export const { setRelays, setUser } = userSlice.actions;
 
 export default userSlice.reducer;

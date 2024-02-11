@@ -1,8 +1,17 @@
 import Head from 'next/head'
+import React, {useCallback, useEffect, useState} from 'react';
 import CoursesCarousel from '@/components/courses/CoursesCarousel'
 import ResourcesCarousel from '@/components/resources/ResourcesCarousel'
+import { useNostr } from '@/hooks/useNostr'
 
 export default function Home() {
+  const { fetchResources } = useNostr();
+
+  useEffect(() => {
+    console.log('Fetching resources');
+    fetchResources();
+  }, [fetchResources]);
+
   return (
     <>
       <Head>

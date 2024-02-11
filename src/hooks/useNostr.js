@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { SimplePool, relayInit, nip19 } from "nostr-tools";
 import { useDispatch } from "react-redux";
+import { addResource } from "@/redux/reducers/eventsReducer";
 import { initialRelays } from "@/redux/reducers/userReducer";
 
 export const useNostr = () => {
@@ -61,6 +62,36 @@ export const useNostr = () => {
         });
     };
 
+    const fetchResources = async () => {
+        const filter = [{kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
+    
+        const params = {seenOnEnabled: true};
+        const seenEventIds = new Set(); // Set to keep track of event IDs that have been processed
+    
+        const hasPlebdevsTag = (eventData) => {
+            return eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
+        };
+    
+        const sub = pool.current.subscribeMany(relays, filter, {
+            ...params,
+            onevent: (event) => {
+                // Assuming event has a unique identifier under `id` field
+                if (!seenEventIds.has(event.id) && hasPlebdevsTag(event.tags)) {
+                    seenEventIds.add(event.id); // Add event ID to the set to track it's been processed
+                    dispatch(addResource(event));
+                }
+            },
+            onerror: (error) => {
+                console.error("Error fetching resources:", error);
+            },
+            oneose: () => {
+                console.log("Subscription closed");
+                sub.close();
+            }
+        });
+    }
+    
+
     const fetchSingleEvent = async (id) => {
         return new Promise((resolve, reject) => {
             const sub = pool.current.subscribeMany(relays, [{ ids: [id] }]);
@@ -101,6 +132,7 @@ export const useNostr = () => {
         fetchSingleEvent,
         publishEvent,
         fetchKind0,
+        fetchResources,
         getRelayStatuses,
     };
 };

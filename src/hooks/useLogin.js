@@ -1,16 +1,18 @@
 import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
+import { useNostr } from './useNostr';
 import axios from 'axios';
-import { setPubkey, setUsername } from "@/redux/reducers/userReducer";
+import { setUser } from "@/redux/reducers/userReducer";
 import { generateSecretKey, getPublicKey } from 'nostr-tools';
-import { findKind0Username } from "@/utils/nostr";
+import { findKind0Fields } from "@/utils/nostr";
 import { useToast } from './useToast';
 
 export const useLogin = () => {
     const dispatch = useDispatch();
     const router = useRouter();
     const { showToast } = useToast();
+    const { fetchKind0 } = useNostr();
 
     // Attempt Auto Login on render
     useEffect(() => {
@@ -22,11 +24,26 @@ export const useLogin = () => {
             try {
                 const response = await axios.get(`/api/users/${publicKey}`);
                 if (response.status === 200 && response.data) {
-                    dispatch(setPubkey(publicKey));
-                    if (response.data.username) {
-                        dispatch(setUsername(response.data.username));
+                    dispatch(setUser(response.data));
+                } else if (response.status === 204) {
+                    // User not found, create a new user
+                    const kind0 = await fetchKind0([{ authors: [publicKey], kinds: [0] }], {});
+                    const fields = await findKind0Fields(kind0);
+                    const payload = { pubkey: publicKey, ...fields };
+
+                    try {
+                        const createUserResponse = await axios.post(`/api/users`, payload);
+                        if (createUserResponse.status === 201) {
+                            ;
+                            window.localStorage.setItem('pubkey', publicKey);
+                            dispatch(setUser(createUserResponse.data));
+                        } else {
+                            console.error('Error creating user:', createUserResponse);
+                        }
+                    } catch (createError) {
+                        console.error('Error creating user:', createError);
+                        showToast('error', 'Error Creating User', 'Failed to create user');
                     }
-                    router.push('/');
                 }
             } catch (error) {
                 console.error('Error during auto login:', error);
@@ -52,22 +69,21 @@ export const useLogin = () => {
             const response = await axios.get(`/api/users/${publicKey}`);
             if (response.status !== 200) throw new Error('User not found');
 
-            dispatch(setPubkey(publicKey));
             window.localStorage.setItem('pubkey', publicKey);
-            if (response.data.username) dispatch(setUsername(response.data.username));
+            dispatch(setUser(response.data));
             router.push('/');
         } catch (error) {
             // User not found, create a new user
-            const kind0 = await findKind0Username({ authors: [publicKey], kinds: [0] }); // Adjust based on actual implementation
-            const username = kind0 ? kind0 : undefined;
-            const payload = { pubkey: publicKey, ...(username && { username }) };
+            const kind0 = await fetchKind0([{ authors: [publicKey], kinds: [0] }], {});
+            const fields = await findKind0Fields(kind0);
+            const payload = { pubkey: publicKey, ...fields };
 
             try {
                 const createUserResponse = await axios.post(`/api/users`, payload);
                 if (createUserResponse.status === 201) {
-                    dispatch(setPubkey(publicKey));
+                    ;
                     window.localStorage.setItem('pubkey', publicKey);
-                    if (username) dispatch(setUsername(username));
+                    dispatch(setUser(createUserResponse.data));
                     router.push('/');
                 } else {
                     console.error('Error creating user:', createUserResponse);
@@ -77,14 +93,14 @@ export const useLogin = () => {
                 showToast('error', 'Error Creating User', 'Failed to create user');
             }
         }
-    }, [dispatch, router, showToast]);
+    }, [dispatch, router, showToast, fetchKind0]);
 
     const anonymousLogin = useCallback(() => {
         try {
             const secretKey = generateSecretKey();
             const publicKey = getPublicKey(secretKey);
-            
-            dispatch(setPubkey(publicKey));
+
+            dispatch(setUser({ pubkey: publicKey }));
             window.localStorage.setItem('pubkey', publicKey);
             window.localStorage.setItem('seckey', secretKey);
             router.push('/');

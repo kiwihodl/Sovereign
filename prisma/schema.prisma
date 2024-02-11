@@ -11,6 +11,7 @@ model User {
     id        Int        @id @default(autoincrement())
     pubkey    String     @unique
     username  String?    @unique
+    avatar    String?
     purchased Purchase[]
     role      Role?      @relation(fields: [roleId], references: [id])
     roleId    Int?
