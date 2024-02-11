@@ -1,9 +1,8 @@
 import React from 'react';
-import { useAutoLogin } from '@/hooks/useAutoLogin';
+import { useLogin } from '@/hooks/useLogin';
 
 const Layout = ({ children }) => {
-  useAutoLogin(); 
-  console.log('Layout');
+  useLogin(); 
 
   return <>{children}</>;
 };
