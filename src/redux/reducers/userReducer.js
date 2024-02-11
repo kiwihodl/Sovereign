@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialRelays = [
+export const initialRelays = [
     "wss://nos.lol/",
     "wss://relay.damus.io/",
     "wss://relay.snort.social/",
@@ -14,6 +14,7 @@ export const userSlice = createSlice({
     name: "user",
     initialState: {
         pubkey: '',
+        username: '',
         relays: initialRelays,
     },
     reducers: {
@@ -22,10 +23,13 @@ export const userSlice = createSlice({
         },
         setPubkey: (state, action) => {
             state.pubkey = action.payload;
-        }
+        },
+        setUsername: (state, action) => {
+            state.username = action.payload;
+        },
     },
 });
 
-export const { setRelays, setPubkey } = userSlice.actions;
+export const { setRelays, setPubkey, setUsername } = userSlice.actions;
 
 export default userSlice.reducer;

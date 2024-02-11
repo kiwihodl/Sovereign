@@ -29,6 +29,21 @@ export const getUserById = async (id) => {
     });
 };
 
+export const getUserByPubkey = async (pubkey) => {
+    return await prisma.user.findUnique({
+        where: { pubkey },
+        include: {
+            role: true, // Include related role
+            purchased: {
+                include: {
+                    course: true, // Include course details in purchases
+                    resource: true, // Include resource details in purchases
+                },
+            },
+        },
+    });
+}
+
 export const createUser = async (data) => {
     return await prisma.user.create({
         data,

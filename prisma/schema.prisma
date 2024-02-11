@@ -3,9 +3,13 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+generator client {
+  provider = "prisma-client-js"
+}
+
 model User {
     id        Int        @id @default(autoincrement())
-    npub      String     @unique
+    pubkey    String     @unique
     username  String?    @unique
     purchased Purchase[]
     role      Role?      @relation(fields: [roleId], references: [id])
