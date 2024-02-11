@@ -16,14 +16,29 @@ model User {
 
 model Role {
     id    Int    @id @default(autoincrement())
-    name  String @unique
+    subscribed  Boolean @default(false)
     users User[]
 }
+
+model Purchase {
+    id          Int       @id @default(autoincrement())
+    user        User      @relation(fields: [userId], references: [id])
+    userId      Int
+    course      Course?   @relation(fields: [courseId], references: [id])
+    courseId    Int?
+    resource    Resource? @relation(fields: [resourceId], references: [id])
+    resourceId  Int?
+    amountPaid  Int       // in satoshis
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+}
+
 
 model Course {
     id          Int        @id @default(autoincrement())
     title       String
     description String
+    image       String
     isFree      Boolean    @default(false)
     resources   Resource[]
     purchases   Purchase[]
@@ -33,24 +48,14 @@ model Course {
 }
 
 model Resource {
-    id        Int      @id @default(autoincrement())
+    id        Int        @id @default(autoincrement())
     title     String
-    content   String // Markdown content
-    course    Course?  @relation(fields: [courseId], references: [id])
-    noteId    String?  @unique
+    content   String     // Markdown content
+    image     String?
+    course    Course?    @relation(fields: [courseId], references: [id])
     courseId  Int?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-}
-
-model Purchase {
-    id          Int      @id @default(autoincrement())
-    user        User     @relation(fields: [userId], references: [id])
-    userId      Int
-    course      Course   @relation(fields: [courseId], references: [id])
-    courseId    Int
-    amountPaid  Int // in satoshis
-    paymentType String // Webln or NWC
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+    purchases Purchase[]
+    noteId    String?    @unique
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
 }
