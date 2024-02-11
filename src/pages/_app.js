@@ -1,18 +1,19 @@
 import { PrimeReactProvider } from 'primereact/api';
+import { Provider } from "react-redux";
+import { store } from "@/redux/store";
 import Navbar from '@/components/navbar/Navbar';
-import { SessionProvider } from "next-auth/react"
 import '@/styles/globals.css'
 import 'primereact/resources/themes/lara-dark-indigo/theme.css';
 
 export default function MyApp({
-    Component, pageProps: { session, ...pageProps }
-  }) {
+    Component, pageProps: { ...pageProps }
+}) {
     return (
-        <SessionProvider session={pageProps.session}>
+        <Provider store={store}>
             <PrimeReactProvider>
                 <Navbar />
                 <Component {...pageProps} />
             </PrimeReactProvider>
-        </SessionProvider>
+        </Provider>
     );
 }
