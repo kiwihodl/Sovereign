@@ -66,7 +66,6 @@ export const useNostr = () => {
         const filter = [{kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
     
         const params = {seenOnEnabled: true};
-        const seenEventIds = new Set(); // Set to keep track of event IDs that have been processed
     
         const hasPlebdevsTag = (eventData) => {
             return eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
@@ -75,9 +74,7 @@ export const useNostr = () => {
         const sub = pool.current.subscribeMany(relays, filter, {
             ...params,
             onevent: (event) => {
-                // Assuming event has a unique identifier under `id` field
-                if (!seenEventIds.has(event.id) && hasPlebdevsTag(event.tags)) {
-                    seenEventIds.add(event.id); // Add event ID to the set to track it's been processed
+                if (hasPlebdevsTag(event.tags)) {
                     dispatch(addResource(event));
                 }
             },
