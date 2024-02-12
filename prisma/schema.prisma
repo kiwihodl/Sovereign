@@ -44,7 +44,7 @@ model Course {
     title       String
     description String
     image       String
-    isFree      Boolean    @default(false)
+    price       Int        @default(0)
     resources   Resource[]
     purchases   Purchase[]
     noteId      String?    @unique
@@ -59,6 +59,7 @@ model Resource {
     image     String?
     course    Course?    @relation(fields: [courseId], references: [id])
     courseId  Int?
+    price     Int        @default(0)
     purchases Purchase[]
     noteId    String?    @unique
     createdAt DateTime   @default(now())
