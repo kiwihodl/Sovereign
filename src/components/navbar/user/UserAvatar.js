@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, { useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useImageProxy } from '@/hooks/useImageProxy';
@@ -26,7 +26,7 @@ const UserAvatar = () => {
 
     let userAvatar;
 
-    if (user) {
+    if (user && Object.keys(user).length > 0) {
         // User exists, show username or pubkey
         const displayName = user.username || user.pubkey;
 

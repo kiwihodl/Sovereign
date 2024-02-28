@@ -23,18 +23,20 @@ export const useLogin = () => {
 
             try {
                 const response = await axios.get(`/api/users/${publicKey}`);
+                console.log('auto login response:', response);
                 if (response.status === 200 && response.data) {
                     dispatch(setUser(response.data));
                 } else if (response.status === 204) {
                     // User not found, create a new user
                     const kind0 = await fetchKind0([{ authors: [publicKey], kinds: [0] }], {});
+                    console.log('kind0:', kind0);
                     const fields = await findKind0Fields(kind0);
                     const payload = { pubkey: publicKey, ...fields };
 
                     try {
                         const createUserResponse = await axios.post(`/api/users`, payload);
+                        console.log('create user response:', createUserResponse);
                         if (createUserResponse.status === 201) {
-                            ;
                             window.localStorage.setItem('pubkey', publicKey);
                             dispatch(setUser(createUserResponse.data));
                         } else {

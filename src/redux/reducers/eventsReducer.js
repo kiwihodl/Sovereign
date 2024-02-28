@@ -1,13 +1,19 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-// Helper function to add single or multiple items
+// Helper function to add single or multiple items without duplicates
 const addItems = (state, action, key) => {
+  const existingIds = new Set(state[key].map(item => item.id));
+  
   if (Array.isArray(action.payload)) {
-    // If payload is an array, spread it into the existing array
-    state[key] = [...state[key], ...action.payload];
+    // Filter out duplicates based on the id
+    const uniqueItems = action.payload.filter(item => !existingIds.has(item.id));
+    // If payload is an array, spread it into the existing array without duplicates
+    state[key] = [...state[key], ...uniqueItems];
   } else {
-    // If payload is a single item, push it into the array
-    state[key].push(action.payload);
+    // If payload is a single item, push it into the array if it's not a duplicate
+    if (!existingIds.has(action.payload.id)) {
+      state[key].push(action.payload);
+    }
   }
 };
 
@@ -24,7 +30,6 @@ export const eventsSlice = createSlice({
     addCourse: (state, action) => {
       addItems(state, action, 'courses');
     },
-    // If you need to set the entire array at once, keep these or adjust as necessary
     setResources: (state, action) => {
       state.resources = action.payload;
     },
@@ -34,6 +39,5 @@ export const eventsSlice = createSlice({
   },
 });
 
-// Exports
 export const { addResource, addCourse, setResources, setCourses } = eventsSlice.actions;
 export default eventsSlice.reducer;

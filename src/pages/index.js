@@ -5,12 +5,12 @@ import ResourcesCarousel from '@/components/resources/ResourcesCarousel'
 import { useNostr } from '@/hooks/useNostr'
 
 export default function Home() {
-  const { fetchResources } = useNostr();
+  const { fetchResources, fetchCourses } = useNostr();
 
   useEffect(() => {
-    console.log('Fetching resources');
     fetchResources();
-  }, [fetchResources]);
+    fetchCourses();
+  }, [fetchResources, fetchCourses]);
 
   return (
     <>

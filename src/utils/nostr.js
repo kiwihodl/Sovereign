@@ -27,9 +27,10 @@ export const findKind0Fields = async (kind0) => {
     return fields;
 }
 
-export const parseResourceEvent = (event) => {
+export const parseEvent = (event) => {
     // Initialize an object to store the extracted data
     const eventData = {
+        id: event.id,
         content: event.content || '',
         title: '',
         summary: '',
