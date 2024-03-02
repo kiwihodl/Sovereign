@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from 'primereact/button';
 import { Carousel } from 'primereact/carousel';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
