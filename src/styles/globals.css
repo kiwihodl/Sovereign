@@ -8,3 +8,13 @@
   @tailwind components;
   @tailwind utilities;
 }
+
+.p-tabmenu .p-tabmenu-nav {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link {
+  background-color: transparent !important;
+  border: none !important;
+}

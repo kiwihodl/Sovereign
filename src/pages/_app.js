@@ -6,6 +6,7 @@ import { ToastProvider } from '@/hooks/useToast';
 import Layout from '@/components/Layout';
 import '@/styles/globals.css'
 import 'primereact/resources/themes/lara-dark-indigo/theme.css';
+import Sidebar from '@/components/sidebar/Sidebar';
 
 export default function MyApp({
     Component, pageProps: { ...pageProps }
@@ -15,8 +16,15 @@ export default function MyApp({
             <PrimeReactProvider>
                 <ToastProvider>
                     <Layout>
-                        <Navbar />
-                        <Component {...pageProps} />
+                        <div className="flex flex-col min-h-screen">
+                            <Navbar />
+                            <div style={{ display: 'flex', flex: '1' }}>
+                                <Sidebar />
+                                <div style={{ flex: 1 }}>
+                                    <Component {...pageProps} />
+                                </div>
+                            </div>
+                        </div>
                     </Layout>
                 </ToastProvider>
             </PrimeReactProvider>

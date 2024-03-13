@@ -7,7 +7,7 @@ import { useImageProxy } from '@/hooks/useImageProxy';
 import { parseEvent } from '@/utils/nostr';
 import { formatTimestampToHowLongAgo } from '@/utils/time';
 
-export default function ResourcesCarousel() {
+export default function WorkshopsCarousel() {
     const resources = useSelector((state) => state.events.resources);
     const [processedResources, setProcessedResources] = useState([]);
     const { returnImageProxy } = useImageProxy();
@@ -24,7 +24,7 @@ export default function ResourcesCarousel() {
 
     const resourceTemplate = (resource) => {
         return (
-            <div onClick={() => router.push(`/resource/${resource.id}`)} className="flex flex-col items-center w-full px-4 cursor-pointer">
+            <div onClick={() => router.push(`/resource/${resource.id}`)} className="flex flex-col items-center w-full px-4 cursor-pointer mt-8">
                 <div className="w-86 h-60 bg-gray-200 overflow-hidden rounded-md shadow-lg">
                     <Image
                         alt="resource thumbnail"
@@ -49,7 +49,7 @@ export default function ResourcesCarousel() {
 
     return (
         <>
-            <h1 className="text-2xl font-bold ml-[6%] my-4">Resources</h1>
+            <h1 className="text-2xl ml-[6%] mt-4">workshops</h1>
             <Carousel value={processedResources} numVisible={3} itemTemplate={resourceTemplate} />
         </>
     );

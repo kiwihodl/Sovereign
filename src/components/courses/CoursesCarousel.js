@@ -26,7 +26,7 @@ export default function CoursesCarousel() {
 
     const courseTemplate = (course) => {
         return (
-            <div onClick={() => router.push(`/course/${course.id}`)} className="flex flex-col items-center w-full px-4 cursor-pointer">
+            <div onClick={() => router.push(`/course/${course.id}`)} className="flex flex-col items-center w-full px-4 cursor-pointer mt-8">
                 <div className="w-86 h-60 bg-gray-200 overflow-hidden rounded-md shadow-lg">
                     <Image
                         alt="resource thumbnail"
@@ -40,10 +40,6 @@ export default function CoursesCarousel() {
                     <h4 className="mb-1 font-bold text-xl">{course.title}</h4>
                     <p className='truncate'>{course.summary}</p>
                     <p className="text-sm mt-1 text-gray-400">Published: {formatTimestampToHowLongAgo(course.published_at)}</p>
-                    {/* <div className="flex flex-row items-center justify-center gap-2">
-                        <Button icon="pi pi-search" rounded />
-                        <Button icon="pi pi-star-fill" rounded severity="success" />
-                    </div> */}
                 </div>
             </div>
         );
@@ -51,7 +47,7 @@ export default function CoursesCarousel() {
 
     return (
         <>
-            <h1 className="text-2xl font-bold ml-[6%] my-4">Courses</h1>
+            <h1 className="text-2xl ml-[6%] mt-4">courses</h1>
             <Carousel value={processedCourses} numVisible={3} itemTemplate={courseTemplate} />
         </>
     );
