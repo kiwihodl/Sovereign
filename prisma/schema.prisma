@@ -41,9 +41,6 @@ model Purchase {
 
 model Course {
     id          Int        @id @default(autoincrement())
-    title       String
-    description String
-    image       String
     price       Int        @default(0)
     resources   Resource[]
     purchases   Purchase[]
@@ -54,9 +51,6 @@ model Course {
 
 model Resource {
     id        Int        @id @default(autoincrement())
-    title     String
-    content   String     // Markdown content
-    image     String?
     course    Course?    @relation(fields: [courseId], references: [id])
     courseId  Int?
     price     Int        @default(0)
