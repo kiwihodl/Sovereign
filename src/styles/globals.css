@@ -18,3 +18,8 @@
   background-color: transparent !important;
   border: none !important;
 }
+
+.p-menubar-button .p-icon {
+  display: none !important;
+}
+

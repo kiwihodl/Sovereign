@@ -9,6 +9,7 @@ import { formatTimestampToHowLongAgo } from '@/utils/time';
 
 export default function WorkshopsCarousel() {
     const resources = useSelector((state) => state.events.resources);
+    console.log(resources);
     const [processedResources, setProcessedResources] = useState([]);
     const { returnImageProxy } = useImageProxy();
 
@@ -24,7 +25,7 @@ export default function WorkshopsCarousel() {
 
     const resourceTemplate = (resource) => {
         return (
-            <div onClick={() => router.push(`/resource/${resource.id}`)} className="flex flex-col items-center w-full px-4 cursor-pointer mt-8">
+            <div onClick={() => router.push(`/details/${resource.id}`)} className="flex flex-col items-center w-full px-4 cursor-pointer mt-8">
                 <div className="w-86 h-60 bg-gray-200 overflow-hidden rounded-md shadow-lg">
                     <Image
                         alt="resource thumbnail"

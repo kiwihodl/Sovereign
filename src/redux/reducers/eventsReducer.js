@@ -5,15 +5,16 @@ const addItems = (state, action, key) => {
   const existingIds = new Set(state[key].map(item => item.id));
   
   if (Array.isArray(action.payload)) {
+    console.log('action.payload', action.payload);
     // Filter out duplicates based on the id
     const uniqueItems = action.payload.filter(item => !existingIds.has(item.id));
     // If payload is an array, spread it into the existing array without duplicates
-    state[key] = [...state[key], ...uniqueItems];
+    state[key] = [...state[key], ...action.payload];
   } else {
     // If payload is a single item, push it into the array if it's not a duplicate
-    if (!existingIds.has(action.payload.id)) {
+    // if (!existingIds.has(action.payload.id)) {
       state[key].push(action.payload);
-    }
+    // }
   }
 };
 
