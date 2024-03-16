@@ -23,6 +23,8 @@ export const eventsSlice = createSlice({
   initialState: {
     resources: [],
     courses: [],
+    workshops: [],
+    streams: [],
   },
   reducers: {
     addResource: (state, action) => {
@@ -30,6 +32,12 @@ export const eventsSlice = createSlice({
     },
     addCourse: (state, action) => {
       addItems(state, action, 'courses');
+    },
+    addWorkshop: (state, action) => {
+      addItems(state, action, 'workshops');
+    },
+    addStream: (state, action) => {
+      addItems(state, action, 'streams');
     },
     setResources: (state, action) => {
       state.resources = action.payload;
@@ -40,5 +48,5 @@ export const eventsSlice = createSlice({
   },
 });
 
-export const { addResource, addCourse, setResources, setCourses } = eventsSlice.actions;
+export const { addResource, addCourse, setResources, setCourses, addWorkshop, addStream } = eventsSlice.actions;
 export default eventsSlice.reducer;

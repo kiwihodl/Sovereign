@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { SimplePool, relayInit, nip19 } from "nostr-tools";
 import { useDispatch } from "react-redux";
-import { addResource, addCourse } from "@/redux/reducers/eventsReducer";
+import { addResource, addCourse, addWorkshop, addStream } from "@/redux/reducers/eventsReducer";
 import { initialRelays } from "@/redux/reducers/userReducer";
 
 export const useNostr = () => {
@@ -88,6 +88,32 @@ export const useNostr = () => {
         });
     }
 
+    const fetchWorkshops = async () => {
+        const filter = [{kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
+    
+        const params = {seenOnEnabled: true};
+    
+        const hasRequiredTags = (eventData) => {
+            return eventData.some(([tag, value]) => tag === "t" && value === "plebdevs") && eventData.some(([tag, value]) => tag === "t" && value === "workshop");
+        };
+    
+        const sub = pool.current.subscribeMany(relays, filter, {
+            ...params,
+            onevent: (event) => {
+                if (hasRequiredTags(event.tags)) {
+                    dispatch(addWorkshop(event));
+                }
+            },
+            onerror: (error) => {
+                console.error("Error fetching workshops:", error);
+            },
+            oneose: () => {
+                console.log("Subscription closed");
+                sub.close();
+            }
+        });
+    }
+
     const fetchCourses = async () => {
         const filter = [{kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
     
@@ -106,6 +132,32 @@ export const useNostr = () => {
             },
             onerror: (error) => {
                 console.error("Error fetching courses:", error);
+            },
+            oneose: () => {
+                console.log("Subscription closed");
+                sub.close();
+            }
+        });
+    }
+
+    const fetchStreams = async () => {
+        const filter = [{kinds: [30311], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
+    
+        const params = {seenOnEnabled: true};
+    
+        const hasRequiredTags = (eventData) => {
+            return eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
+        };
+    
+        const sub = pool.current.subscribeMany(relays, filter, {
+            ...params,
+            onevent: (event) => {
+                if (hasRequiredTags(event.tags)) {
+                    dispatch(addStream(event));
+                }
+            },
+            onerror: (error) => {
+                console.error("Error fetching streams:", error);
             },
             oneose: () => {
                 console.log("Subscription closed");
@@ -159,6 +211,7 @@ export const useNostr = () => {
         fetchKind0,
         fetchResources,
         fetchCourses,
+        fetchWorkshops,
         getRelayStatuses,
     };
 };

@@ -23,3 +23,6 @@
   display: none !important;
 }
 
+.p-button .pi.pi-bolt {
+  color: yellow;
+}

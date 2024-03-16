@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useNostr } from '@/hooks/useNostr';
-import { parseEvent } from '@/utils/nostr';
+import { parseEvent, findKind0Fields, hexToNpub } from '@/utils/nostr';
 import { useImageProxy } from '@/hooks/useImageProxy';
+import { Button } from 'primereact/button';
+import { Tag } from 'primereact/tag';
 import Image from 'next/image';
 import 'primeicons/primeicons.css';
 
 export default function Details() {
     const [event, setEvent] = useState(null);
     const [processedEvent, setProcessedEvent] = useState({});
+    const [author, setAuthor] = useState(null);
 
     const { returnImageProxy } = useImageProxy();
-    const { fetchSingleEvent } = useNostr();
+    const { fetchSingleEvent, fetchKind0 } = useNostr();
 
     const router = useRouter();
 
@@ -31,31 +34,80 @@ export default function Details() {
     }, [router.isReady, router.query]);
 
     useEffect(() => {
+        const fetchAuthor = async (pubkey) => {
+            const author = await fetchKind0([{ authors: [pubkey], kinds: [0] }], {});
+            const fields = await findKind0Fields(author);
+            console.log('fields:', fields);
+            if (fields) {
+                setAuthor(fields);
+            }
+        }
         if (event) {
-            const { id, content, title, summary, image, published_at } = parseEvent(event);
-            setProcessedEvent({ id, content, title, summary, image, published_at });
+            fetchAuthor(event.pubkey);
+        }
+    }, [event]);
+
+    useEffect(() => {
+        if (event) {
+            const { id, pubkey, content, title, summary, image, published_at } = parseEvent(event);
+            setProcessedEvent({ id, pubkey, content, title, summary, image, published_at });
         }
     }, [event]);
 
     return (
         <div className='flex flex-row justify-between m-4'>
             <i className='pi pi-arrow-left cursor-pointer hover:opacity-75' onClick={() => router.push('/')} />
+            <div className='flex flex-col items-start'>
+                <div className='flex flex-row justify-start w-full'>
+                    <Tag className='mr-2' value="Primary"></Tag>
+                    <Tag className='mr-2' severity="success" value="Success"></Tag>
+                    <Tag className='mr-2' severity="info" value="Info"></Tag>
+                    <Tag className='mr-2' severity="warning" value="Warning"></Tag>
+                    <Tag className='mr-2' severity="danger" value="Danger"></Tag>
+                </div>
+                <h1 className='text-4xl mt-6'>{processedEvent?.title}</h1>
+                <p className='text-xl mt-6'>{processedEvent?.summary}</p>
+                <div className='flex flex-row w-full mt-6 items-center'>
+                    <Image
+                        alt="resource thumbnail"
+                        src={returnImageProxy(author?.avatar)}
+                        width={50}
+                        height={50}
+                        className="rounded-full mr-4"
+                    />
+                    <p className='text-lg'>
+                        Created by{' '}
+                        <a rel='noreferrer noopener' target='_blank' className='text-blue-500 hover:underline'>
+                            {author?.username}
+                        </a>
+                    </p>
+                </div>
+            </div>
             <div className='flex flex-col'>
-                {
-                    processedEvent && (
-                        <>
-                            <Image
-                                alt="resource thumbnail"
-                                src={returnImageProxy(processedEvent.image)}
-                                width={344}
-                                height={194}
-                                className="w-full h-full object-cover object-center rounded-lg"
-                            />
-                            <h2>{processedEvent.title}</h2>
-                            <p>{processedEvent.summary}</p>
-                        </>
-                    )
-                }
+                {processedEvent && (
+                    <div className='flex flex-col items-center justify-between rounded-lg h-72 p-4 bg-gray-700 drop-shadow-md'>
+                        <Image
+                            alt="resource thumbnail"
+                            src={returnImageProxy(processedEvent.image)}
+                            width={344}
+                            height={194}
+                            className="object-cover object-center rounded-lg"
+                        />
+                        <Button
+                            icon="pi pi-bolt"
+                            label="100 sats"
+                            severity="success"
+                            outlined
+                            pt={{
+                                button: {
+                                    icon: ({ context }) => ({
+                                        className: 'bg-yellow-500'
+                                    })
+                                }
+                            }}
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -1,3 +1,5 @@
+import { nip19 } from "nostr-tools";
+
 export const findKind0Fields = async (kind0) => {
     let fields = {}
 
@@ -31,6 +33,7 @@ export const parseEvent = (event) => {
     // Initialize an object to store the extracted data
     const eventData = {
         id: event.id,
+        pubkey: event.pubkey || '',
         content: event.content || '',
         title: '',
         summary: '',
@@ -53,9 +56,17 @@ export const parseEvent = (event) => {
             case 'published_at':
                 eventData.published_at = tag[1];
                 break;
-            // Add cases for any other data you need to extract
+            case 'author':
+                eventData.author = tag[1];
+                break;
+            default:
+                break;
         }
     });
 
     return eventData;
 };
+
+export const hexToNpub = (hex) => {
+    return nip19.npubEncode(hex);
+}
