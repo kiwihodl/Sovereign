@@ -18,9 +18,9 @@ export default function MyApp({
                     <Layout>
                         <div className="flex flex-col min-h-screen">
                             <Navbar />
-                            <div style={{ display: 'flex', flex: '1' }}>
+                            <div className='flex'>
                                 <Sidebar />
-                                <div style={{ flex: 1 }}>
+                                <div className='max-w-[85vw]'>
                                     <Component {...pageProps} />
                                 </div>
                             </div>

@@ -3,7 +3,7 @@ import { TabMenu } from 'primereact/tabmenu';
 
 export default function MenuTab({items}) {
     return (
-        <div className="w-full">
+        <div className="w-[100%]">
             <TabMenu 
                 className='w-full bg-transparent border-none'
                 model={items}

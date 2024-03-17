@@ -26,7 +26,7 @@ export default function CoursesCarousel() {
 
     const courseTemplate = (course) => {
         return (
-            <div onClick={() => router.push(`/details/${course.id}`)} className="flex flex-col items-center w-full px-4 cursor-pointer mt-8">
+            <div onClick={() => router.push(`/details/${course.id}`)} className="flex flex-col items-center w-full mx-auto px-4 cursor-pointer mt-8">
                 <div className="w-86 h-60 bg-gray-200 overflow-hidden rounded-md shadow-lg">
                     <Image
                         alt="resource thumbnail"
@@ -36,7 +36,7 @@ export default function CoursesCarousel() {
                         className="w-full h-full object-cover object-center"
                     />
                 </div>
-                <div className='flex flex-col justify-start w-[426px]'>
+                <div className='flex flex-col justify-start max-w-[426px]'>
                     <h4 className="mb-1 font-bold text-xl">{course.title}</h4>
                     <p className='truncate'>{course.summary}</p>
                     <p className="text-sm mt-1 text-gray-400">Published: {formatTimestampToHowLongAgo(course.published_at)}</p>

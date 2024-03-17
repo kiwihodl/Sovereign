@@ -12,7 +12,7 @@ const Sidebar = () => {
     };
 
     return (
-        <div className='max-mob:hidden max-tab:hidden w-72 bg-gray-800 p-4'>
+        <div className='max-mob:hidden max-tab:hidden w-[15vw] bg-gray-800 p-4 h-screen'>
             <div onClick={() => router.push('/')} className={`w-full cursor-pointer hover:bg-gray-700 rounded-lg ${isActive('/') ? 'bg-gray-700' : ''}`}>
                 <p className="p-2 my-2 pl-5 rounded-md font-bold"><i className="pi pi-home" /> Home</p>
             </div>
