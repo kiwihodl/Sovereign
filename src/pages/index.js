@@ -2,6 +2,7 @@ import Head from 'next/head'
 import React, {useCallback, useEffect, useState} from 'react';
 import CoursesCarousel from '@/components/courses/CoursesCarousel'
 import WorkshopsCarousel from '@/components/workshops/WorkshopsCarousel'
+import HeroBanner from '@/components/banner/HeroBanner';
 import { useNostr } from '@/hooks/useNostr'
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
+        <HeroBanner text="Welcome to Nostr!" />
         <CoursesCarousel />
         <WorkshopsCarousel />
       </main>

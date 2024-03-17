@@ -13,6 +13,8 @@ const Navbar = () => {
 
     const menu = useRef(null);
 
+    const navbarHeight = '60px';
+
     const menuItems = [
         {
             label: 'Home',
@@ -85,10 +87,18 @@ const Navbar = () => {
     );
 
     return (
-        <Menubar
-            start={start}
-            end={UserAvatar}
-            className='px-[2%] bg-gray-800 border-t-0 border-l-0 border-r-0 rounded-none' />
+        <>
+            <div className='w-[100vw] h-fit'>
+                <Menubar
+                    start={start}
+                    end={UserAvatar}
+                    className='px-[2%] bg-gray-800 border-t-0 border-l-0 border-r-0 rounded-none fixed z-10 w-[100vw]' 
+                    style={{ height: navbarHeight }}
+                />
+            </div>
+            {/* Placeholder div with the same height as the Navbar */}
+            <div style={{ height: navbarHeight }}></div>
+        </>
     );
 };
 

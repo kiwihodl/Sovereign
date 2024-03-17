@@ -59,7 +59,7 @@ const Profile = () => {
 
     return (
         <>
-            <div className="flex flex-col justify-center px-12">
+            <div className="w-[85vw] flex flex-col justify-center mx-auto">
                 <div className="relative flex w-full items-center justify-center">
                     {user.avatar && (
                         <Image

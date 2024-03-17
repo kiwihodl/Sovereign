@@ -55,8 +55,8 @@ export default function Details() {
     }, [event]);
 
     return (
-        <div className='flex flex-row justify-between m-4'>
-            <i className='pi pi-arrow-left cursor-pointer hover:opacity-75' onClick={() => router.push('/')} />
+        <div className='w-[80vw] flex flex-row justify-between mx-auto mt-4'>
+            <i className='pi pi-arrow-left pl-8 cursor-pointer hover:opacity-75' onClick={() => router.push('/')} />
             <div className='flex flex-col items-start'>
                 <div className='flex flex-row justify-start w-full'>
                     <Tag className='mr-2' value="Primary"></Tag>

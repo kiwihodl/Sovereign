@@ -8,6 +8,24 @@ import { useImageProxy } from '@/hooks/useImageProxy';
 import { parseEvent } from '@/utils/nostr';
 import { formatTimestampToHowLongAgo } from '@/utils/time';
 
+const responsiveOptions = [
+    {
+        breakpoint: '1199px',
+        numVisible: 3,
+        numScroll: 1
+    },
+    {
+        breakpoint: '767px',
+        numVisible: 2,
+        numScroll: 1
+    },
+    {
+        breakpoint: '575px',
+        numVisible: 1,
+        numScroll: 1
+    }
+];
+
 export default function CoursesCarousel() {
     const courses = useSelector((state) => state.events.courses);
     const [processedCourses, setProcessedCourses] = useState([]);
@@ -48,7 +66,7 @@ export default function CoursesCarousel() {
     return (
         <>
             <h1 className="text-2xl ml-[6%] mt-4">courses</h1>
-            <Carousel value={processedCourses} numVisible={3} itemTemplate={courseTemplate} />
+            <Carousel value={processedCourses} numVisible={3} itemTemplate={courseTemplate} responsiveOptions={responsiveOptions} />
         </>
     );
 }

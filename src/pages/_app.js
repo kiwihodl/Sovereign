@@ -15,12 +15,12 @@ export default function MyApp({
         <Provider store={store}>
             <PrimeReactProvider>
                 <ToastProvider>
-                    <Layout>
+                <Layout>
                         <div className="flex flex-col min-h-screen">
                             <Navbar />
                             <div className='flex'>
                                 <Sidebar />
-                                <div className='max-w-[85vw]'>
+                                <div className='max-w-[100vw] pl-[15vw]'>
                                     <Component {...pageProps} />
                                 </div>
                             </div>
