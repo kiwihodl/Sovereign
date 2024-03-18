@@ -28,15 +28,15 @@ const HeroBanner = () => {
                 quality={100}
             />
             <div className="absolute text-center text-white text-2xl">
-                <p className='text-4xl'>Learn how to code</p>
-                <p className='text-4xl pt-4'>
+                <p className='text-4xl max-tab:text-2xl max-mob:text-2xl'>Learn how to code</p>
+                <p className='text-4xl pt-4 max-tab:text-2xl max-mob:text-2xl'>
                     Build{' '}
-                    <span className={`text-4xl pt-4 transition-opacity duration-500 ${fade ? 'opacity-100' : 'opacity-0'}`}>
+                    <span className={`text-4xl max-tab:text-2xl max-mob:text-2xl pt-4 transition-opacity duration-500 ${fade ? 'opacity-100' : 'opacity-0'}`}>
                         {options[currentOption]}
                     </span>
                     {' '}apps
                 </p>
-                <p className='text-4xl pt-4'>Become a Bitcoin developer</p>
+                <p className='text-4xl pt-4 max-tab:text-2xl max-mob:text-2xl'>Become a Bitcoin developer</p>
             </div>
         </div>
     );

@@ -58,8 +58,8 @@ const Profile = () => {
 
 
     return (
-        <>
-            <div className="w-[85vw] flex flex-col justify-center mx-auto">
+        <div className="max-tab:w-[100vw] max-mob:w-[100vw]">
+            <div className="w-[85vw] flex flex-col justify-center mx-auto max-tab:w-[100vw] max-mob:w-[100vw]">
                 <div className="relative flex w-full items-center justify-center">
                     {user.avatar && (
                         <Image
@@ -77,20 +77,20 @@ const Profile = () => {
 
 
                 <h1 className="text-center text-2xl my-2">{user.username}</h1>
-                <h2 className="text-center text-xl my-2">{user.pubkey}</h2>
+                <h2 className="text-center text-xl my-2 truncate max-tab:px-4 max-mob:px-4">{user.pubkey}</h2>
                 <div className="flex flex-col w-1/2 mx-auto my-4 justify-between items-center">
                     <h2>Subscription</h2>
-                    <p>You currently have no active subscription</p>
+                    <p className="text-center">You currently have no active subscription</p>
                     <Button label="Subscribe" className="p-button-raised p-button-success w-auto my-2 text-[#f8f8ff]" />
                 </div>
             </div>
-            <DataTable emptyMessage="No purchases" value={purchases} tableStyle={{ minWidth: '10rem' }}>
+            <DataTable emptyMessage="No purchases" value={purchases} tableStyle={{ minWidth: '100%'}}>
                 <Column field="cost" header="Cost"></Column>
                 <Column field="name" header="Name"></Column>
                 <Column field="category" header="Category"></Column>
                 <Column field="date" header="Date"></Column>
             </DataTable>
-        </>
+        </div>
     )
 }
 

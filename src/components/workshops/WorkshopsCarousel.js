@@ -7,6 +7,24 @@ import { useImageProxy } from '@/hooks/useImageProxy';
 import { parseEvent } from '@/utils/nostr';
 import { formatTimestampToHowLongAgo } from '@/utils/time';
 
+const responsiveOptions = [
+    {
+        breakpoint: '1199px',
+        numVisible: 3,
+        numScroll: 1
+    },
+    {
+        breakpoint: '767px',
+        numVisible: 2,
+        numScroll: 1
+    },
+    {
+        breakpoint: '575px',
+        numVisible: 1,
+        numScroll: 1
+    }
+];
+
 export default function WorkshopsCarousel() {
     const workshops = useSelector((state) => state.events.resources);
     const [processedWorkshops, setProcessedWorkshops] = useState([]);
@@ -25,7 +43,7 @@ export default function WorkshopsCarousel() {
     const workshopTemplate = (workshop) => {
         return (
             <div onClick={() => router.push(`/details/${workshop.id}`)} className="flex flex-col items-center w-full mx-auto px-4 cursor-pointer mt-8">
-                <div className="w-86 h-60 bg-gray-200 overflow-hidden rounded-md shadow-lg">
+                <div className="w-86 h-60 bg-gray-200 overflow-hidden rounded-md shadow-lg max-tab:w-[264px] max-mob:w-[244px]">
                     <Image
                         alt="resource thumbnail"
                         src={returnImageProxy(workshop.image)}
@@ -34,7 +52,7 @@ export default function WorkshopsCarousel() {
                         className="w-full h-full object-cover object-center"
                     />
                 </div>
-                <div className='flex flex-col justify-start max-w-[426px]'>
+                <div className='flex flex-col justify-start max-w-[426px] max-tab:w-[264px] max-mob:w-[244px]'>
                     <h4 className="mb-1 font-bold text-xl">{workshop.title}</h4>
                     <p className='truncate'>{workshop.summary}</p>
                     <p className="text-sm mt-1 text-gray-400">Published: {formatTimestampToHowLongAgo(workshop.published_at)}</p>
@@ -46,7 +64,7 @@ export default function WorkshopsCarousel() {
     return (
         <>
             <h1 className="text-2xl ml-[6%] mt-4">workshops</h1>
-            <Carousel value={processedWorkshops} numVisible={2} itemTemplate={workshopTemplate} />
+            <Carousel value={processedWorkshops} numVisible={2} itemTemplate={workshopTemplate} responsiveOptions={responsiveOptions} />
         </>
     );
 }
