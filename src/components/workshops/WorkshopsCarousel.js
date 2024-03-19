@@ -74,7 +74,7 @@ export default function WorkshopsCarousel() {
         const { width, height } = calculateImageDimensions();
         return (
             <div style={{width: width < 768 ? "auto" : width}} onClick={() => router.push(`/details/${workshop.id}`)} className="flex flex-col items-center mx-auto px-4 cursor-pointer mt-8 rounded-md shadow-lg">
-                <div style={{maxWidth: width}} className="max-tab:h-auto max-mob:h-auto">
+                <div style={{maxWidth: width, minWidth: width}} className="max-tab:h-auto max-mob:h-auto">
                     <Image
                         alt="resource thumbnail"
                         src={returnImageProxy(workshop.image)}
