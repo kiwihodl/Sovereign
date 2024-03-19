@@ -4,19 +4,21 @@ import Image from 'next/image';
 const HeroBanner = () => {
     const options = ['Bitcoin', 'Lightning', 'Nostr'];
     const [currentOption, setCurrentOption] = useState(0);
-    const [fade, setFade] = useState(true);
+    const [isFlipping, setIsFlipping] = useState(false);
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setFade(false);
+            setIsFlipping(true);
             setTimeout(() => {
                 setCurrentOption((prevOption) => (prevOption + 1) % options.length);
-                setFade(true);
-            }, 700); // Half the interval time
-        }, 1500); // Change text every 2 seconds
-
+                setTimeout(() => {
+                    setIsFlipping(false);
+                }, 400); // Start preparing to flip back a bit before the halfway point
+            }, 400); // Update slightly before the midpoint for smoother transition
+        }, 2500); // Increased to provide a slight pause between animations for readability
+    
         return () => clearInterval(interval);
-    }, []);
+    }, []);    
 
     return (
         <div className="relative flex justify-center items-center">
@@ -27,16 +29,16 @@ const HeroBanner = () => {
                 height={1080}
                 quality={100}
             />
-            <div className="absolute text-center text-white text-2xl">
-                <p className='text-4xl max-tab:text-2xl max-mob:text-2xl'>Learn how to code</p>
-                <p className='text-4xl pt-4 max-tab:text-2xl max-mob:text-2xl'>
+            <div className="absolute text-center text-white text-xl">
+                <p className='text-4xl max-tab:text-xl max-mob:text-xl'>Learn how to code</p>
+                <p className='text-4xl pt-4 max-tab:text-xl max-mob:text-xl max-tab:pt-2 max-mob:pt-2'>
                     Build{' '}
-                    <span className={`text-4xl max-tab:text-2xl max-mob:text-2xl pt-4 transition-opacity duration-500 ${fade ? 'opacity-100' : 'opacity-0'}`}>
+                    <span className={`text-4xl max-tab:text-xl max-mob:text-xl inline-block w-40 text-center max-tab:w-24 max-mob:w-24 ${isFlipping ? 'flip-enter-active' : ''}`}>
                         {options[currentOption]}
                     </span>
                     {' '}apps
                 </p>
-                <p className='text-4xl pt-4 max-tab:text-2xl max-mob:text-2xl'>Become a Bitcoin developer</p>
+                <p className='text-4xl pt-4 max-tab:text-xl max-mob:text-xl max-tab:pt-2 max-mob:pt-2'>Become a Bitcoin developer</p>
             </div>
         </div>
     );

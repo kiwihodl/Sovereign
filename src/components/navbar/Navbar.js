@@ -68,11 +68,11 @@ const Navbar = () => {
 
     const start = (
         <div className='flex items-center'>
-            <div className='hidden max-tab:block max-mob:block max-tab:px-6 max-mob:px-6'>
+            {/* <div className='hidden max-tab:block max-mob:block max-tab:px-6 max-mob:px-6'>
                 <i className="pi pi-bars text-xl pt-1"
                     onClick={(e) => menu.current.toggle(e)}></i>
                 <Menu model={menuItems} popup ref={menu} />
-            </div>
+            </div> */}
             <div onClick={() => router.push('/')} className="flex flex-row items-center justify-center cursor-pointer">
                 <Image
                     alt="logo"
@@ -92,7 +92,7 @@ const Navbar = () => {
                 <Menubar
                     start={start}
                     end={UserAvatar}
-                    className='px-[2%] bg-gray-800 border-t-0 border-l-0 border-r-0 rounded-none fixed z-10 w-[100vw]' 
+                    className='px-[2%] py-[2%] bg-gray-800 border-t-0 border-l-0 border-r-0 rounded-none fixed z-10 w-[100vw] max-tab:px-[5%] max-mob:px-[5%]'
                     style={{ height: navbarHeight }}
                 />
             </div>

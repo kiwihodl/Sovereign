@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from 'primereact/button';
 import { Carousel } from 'primereact/carousel';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
@@ -38,31 +37,29 @@ export default function CoursesCarousel() {
     useEffect(() => {
         // Update the state to the current window width
         setScreenWidth(window.innerWidth);
-    
+
         const handleResize = () => {
             // Update the state to the new window width when it changes
             setScreenWidth(window.innerWidth);
         };
-    
+
         window.addEventListener('resize', handleResize);
-    
+
         // Remove the event listener on cleanup
         return () => window.removeEventListener('resize', handleResize);
     }, []); // The empty array ensures this effect only runs once, similar to componentDidMount
-    
 
-    // Function to calculate image dimensions based on screenWidth
+
     const calculateImageDimensions = () => {
         if (screenWidth >= 1200) {
             // Large screens
-            return { width: 344, height: 194 };
+            return { width: 426, height: 240 };
         } else if (screenWidth >= 768 && screenWidth < 1200) {
             // Medium screens
-            return { width: 300, height: 169 };
+            return { width: 344, height: 194 };
         } else {
-            console.log('screenWidth:', screenWidth);
             // Small screens
-            return { width: screenWidth - 30, height: (screenWidth - 30) * (9 / 16) };
+            return { width: screenWidth - 50, height: (screenWidth - 50) * (9 / 16) };
         }
     };
 
@@ -77,24 +74,32 @@ export default function CoursesCarousel() {
 
     const courseTemplate = (course) => {
         const { width, height } = calculateImageDimensions();
-        console.log('width:', width);
-        console.log('height:', height);
-
         return (
-            <div onClick={() => router.push(`/details/${course.id}`)} className="flex flex-col items-center w-full mx-auto px-4 cursor-pointer mt-8">
-                <div className="w-86 h-60 bg-gray-200 overflow-hidden rounded-md shadow-lg max-tab:w-[100vw] max-mob:w-[100vw] max-tab:h-auto max-mob:h-auto">
+            <div style={{width: width < 768 ? "auto" : width}} onClick={() => router.push(`/details/${course.id}`)} className="flex flex-col items-center mx-auto px-4 cursor-pointer mt-8 rounded-md shadow-lg">
+                <div style={{maxWidth: width}} className="max-tab:h-auto max-mob:h-auto">
                     <Image
                         alt="resource thumbnail"
                         src={returnImageProxy(course.image)}
                         quality={100}
                         width={width}
                         height={height}
+                        className="w-full h-full object-cover object-center rounded-md"
                     />
-                </div>
-                <div className='flex flex-col justify-start max-w-[426px] max-tab:w-[100vw] max-mob:w-[100vw]'>
-                    <h4 className="mb-1 font-bold text-xl">{course.title}</h4>
-                    <p className='truncate'>{course.summary}</p>
-                    <p className="text-sm mt-1 text-gray-400">Published: {formatTimestampToHowLongAgo(course.published_at)}</p>
+                    <div className='flex flex-col justify-start'>
+                        <h4 className="mb-1 font-bold text-2xl font-blinker">{course.title}</h4>
+                        <p style={{
+                            display: '-webkit-box',
+                            WebkitBoxOrient: 'vertical',
+                            WebkitLineClamp: 3,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'prewrap',
+                            font: '400 1rem/1.5 Blinker, sans-serif'
+                        }}>
+                            {course.summary}
+                        </p>
+                        <p className="text-sm mt-1 text-gray-400">Published: {formatTimestampToHowLongAgo(course.published_at)}</p>
+                    </div>
                 </div>
             </div>
         );

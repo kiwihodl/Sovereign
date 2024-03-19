@@ -9,6 +9,11 @@
   @tailwind utilities;
 }
 
+body {
+  font-family: 'Blinker', sans-serif;
+}
+
+
 .p-tabmenu .p-tabmenu-nav {
   background-color: transparent !important;
   border: none !important;
@@ -25,4 +30,24 @@
 
 .p-button .pi.pi-bolt {
   color: yellow;
+}
+
+/* hero banner animation */
+@keyframes flip {
+  0%, 100% {
+    transform: rotateX(0);
+    opacity: 1;
+  }
+  45%, 60% { /* Adjusted for quicker opacity transition */
+    transform: rotateX(180deg);
+    opacity: 0;
+  }
+}
+
+.flip-enter-active, .flip-exit-active {
+  animation-name: flip;
+  animation-duration: 800ms; /* Keep as is for smooth transition */
+  animation-timing-function: ease-in-out;
+  transform-origin: center center;
+  animation-fill-mode: forwards; /* Ensures the end state of the animation is retained */
 }

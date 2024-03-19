@@ -6,6 +6,7 @@ import { Button } from 'primereact/button';
 import { Menu } from 'primereact/menu';
 import { useSelector, useDispatch } from 'react-redux';
 import { setUser } from '@/redux/reducers/userReducer';
+import useWindowWidth from '@/hooks/useWindowWidth';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import styles from '../navbar.module.css';
@@ -15,6 +16,7 @@ const UserAvatar = () => {
     const dispatch = useDispatch();
     const user = useSelector((state) => state.user.user);
     const { returnImageProxy } = useImageProxy();
+    const windowWidth = useWindowWidth();
 
     const menu = useRef(null);
 
@@ -71,6 +73,7 @@ const UserAvatar = () => {
                 className="text-[#f8f8ff]"
                 rounded
                 onClick={() => router.push('/login')}
+                size={windowWidth < 768 ? 'small' : 'normal'}
             />
         );
     }
