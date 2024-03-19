@@ -5,10 +5,11 @@ import { Menu } from 'primereact/menu';
 import { Column } from 'primereact/column';
 import { useSelector } from "react-redux";
 import { useImageProxy } from "@/hooks/useImageProxy";
+import useLocalStorage from "@/hooks/useLocalStorage";
 import Image from "next/image";
 
 const Profile = () => {
-    const user = useSelector((state) => state.user.user);
+    const [user, setUser] = useLocalStorage('user', {});
     const { returnImageProxy } = useImageProxy();
     const menu = useRef(null);
 
@@ -61,22 +62,20 @@ const Profile = () => {
         <div className="max-tab:w-[100vw] max-mob:w-[100vw]">
             <div className="w-[85vw] flex flex-col justify-center mx-auto max-tab:w-[100vw] max-mob:w-[100vw]">
                 <div className="relative flex w-full items-center justify-center">
-                    {user.avatar && (
                         <Image
                             alt="user's avatar"
-                            src={returnImageProxy(user.avatar)}
+                            src={user?.avatar ? returnImageProxy(user.avatar) : `https://secure.gravatar.com/avatar/${user.pubkey}?s=90&d=identicon`}
                             width={100}
                             height={100}
                             className="rounded-full my-4"
                         />
-                    )}
                     <i className="pi pi-ellipsis-h absolute right-24 text-2xl my-4 cursor-pointer hover:opacity-75"
                        onClick={(e) => menu.current.toggle(e)}></i>
                     <Menu model={menuItems} popup ref={menu} />
                 </div>
 
 
-                <h1 className="text-center text-2xl my-2">{user.username}</h1>
+                <h1 className="text-center text-2xl my-2">{user.username || "Anon"}</h1>
                 <h2 className="text-center text-xl my-2 truncate max-tab:px-4 max-mob:px-4">{user.pubkey}</h2>
                 <div className="flex flex-col w-1/2 mx-auto my-4 justify-between items-center">
                     <h2>Subscription</h2>

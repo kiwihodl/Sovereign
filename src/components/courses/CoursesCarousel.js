@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { Carousel } from 'primereact/carousel';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import { useSelector } from 'react-redux';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { parseEvent } from '@/utils/nostr';
 import { formatTimestampToHowLongAgo } from '@/utils/time';
+import { useNostr } from '@/hooks/useNostr';
 
 const responsiveOptions = [
     {
@@ -27,13 +27,20 @@ const responsiveOptions = [
 
 
 export default function CoursesCarousel() {
-    const courses = useSelector((state) => state.events.courses);
     const [processedCourses, setProcessedCourses] = useState([]);
+    const [screenWidth, setScreenWidth] = useState(null);
+    const [courses, setCourses] = useState([]);
+    const router = useRouter();
+    const { fetchCourses, events } = useNostr();
     const { returnImageProxy } = useImageProxy();
 
-    const router = useRouter();
-
-    const [screenWidth, setScreenWidth] = useState(null);
+    useEffect(() => {
+        if (events && events.courses && events.courses.length > 0) {
+            setCourses(events.courses);
+        } else {
+            fetchCourses();
+        }
+    }, [events]);
 
     useEffect(() => {
         // Update the state to the current window width
@@ -60,7 +67,7 @@ export default function CoursesCarousel() {
             return { width: 344, height: 194 };
         } else {
             // Small screens
-            return { width: screenWidth - 50, height: (screenWidth - 50) * (9 / 16) };
+            return { width: screenWidth - 120, height: (screenWidth - 120) * (9 / 16) };
         }
     };
 
@@ -109,7 +116,7 @@ export default function CoursesCarousel() {
     return (
         <>
             <h2 className="ml-[6%] mt-4">courses</h2>
-            <Carousel value={processedCourses} numVisible={2} itemTemplate={courseTemplate} responsiveOptions={responsiveOptions} />
+            <Carousel value={[...processedCourses, ...processedCourses]} numVisible={2} itemTemplate={courseTemplate} responsiveOptions={responsiveOptions} />
         </>
     );
 }

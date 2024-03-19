@@ -10,6 +10,7 @@ module.exports = {
       screens: {
         'max-mob': {'max': '475px'},
         'max-tab': {'max': '768px'},
+        'max-lap': {'max': '1440px'},
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

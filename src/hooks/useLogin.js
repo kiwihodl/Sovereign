@@ -1,15 +1,12 @@
 import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useDispatch } from 'react-redux';
 import { useNostr } from './useNostr';
 import axios from 'axios';
-import { setUser } from "@/redux/reducers/userReducer";
 import { generateSecretKey, getPublicKey } from 'nostr-tools';
 import { findKind0Fields } from "@/utils/nostr";
 import { useToast } from './useToast';
 
 export const useLogin = () => {
-    const dispatch = useDispatch();
     const router = useRouter();
     const { showToast } = useToast();
     const { fetchKind0 } = useNostr();
@@ -17,7 +14,8 @@ export const useLogin = () => {
     // Attempt Auto Login on render
     useEffect(() => {
         const autoLogin = async () => {
-            const publicKey = window.localStorage.getItem('pubkey');
+            const user = window.localStorage.getItem('user');
+            const publicKey = JSON.parse(user)?.pubkey;
 
             if (!publicKey) return;
 
@@ -25,20 +23,26 @@ export const useLogin = () => {
                 const response = await axios.get(`/api/users/${publicKey}`);
                 console.log('auto login response:', response);
                 if (response.status === 200 && response.data) {
-                    dispatch(setUser(response.data));
+                    window.localStorage.setItem('user', JSON.stringify(response.data));
                 } else if (response.status === 204) {
                     // User not found, create a new user
                     const kind0 = await fetchKind0([{ authors: [publicKey], kinds: [0] }], {});
+
                     console.log('kind0:', kind0);
-                    const fields = await findKind0Fields(kind0);
+
+                    let fields = null;
+
+                    if (kind0) {
+                        fields = await findKind0Fields(kind0);
+                    }
+
                     const payload = { pubkey: publicKey, ...fields };
 
                     try {
                         const createUserResponse = await axios.post(`/api/users`, payload);
                         console.log('create user response:', createUserResponse);
                         if (createUserResponse.status === 201) {
-                            window.localStorage.setItem('pubkey', publicKey);
-                            dispatch(setUser(createUserResponse.data));
+                            window.localStorage.setItem('user', JSON.stringify(createUserResponse.data));
                         } else {
                             console.error('Error creating user:', createUserResponse);
                         }
@@ -70,9 +74,8 @@ export const useLogin = () => {
         try {
             const response = await axios.get(`/api/users/${publicKey}`);
             if (response.status !== 200) throw new Error('User not found');
-
-            window.localStorage.setItem('pubkey', publicKey);
-            dispatch(setUser(response.data));
+;
+            window.localStorage.setItem('user', JSON.stringify(response.data));
             router.push('/');
         } catch (error) {
             // User not found, create a new user
@@ -83,9 +86,7 @@ export const useLogin = () => {
             try {
                 const createUserResponse = await axios.post(`/api/users`, payload);
                 if (createUserResponse.status === 201) {
-                    ;
-                    window.localStorage.setItem('pubkey', publicKey);
-                    dispatch(setUser(createUserResponse.data));
+                    window.localStorage.setItem('user', JSON.stringify(createUserResponse.data));
                     router.push('/');
                 } else {
                     console.error('Error creating user:', createUserResponse);
@@ -95,22 +96,22 @@ export const useLogin = () => {
                 showToast('error', 'Error Creating User', 'Failed to create user');
             }
         }
-    }, [dispatch, router, showToast, fetchKind0]);
+    }, [router, showToast, fetchKind0]);
 
     const anonymousLogin = useCallback(() => {
         try {
             const secretKey = generateSecretKey();
             const publicKey = getPublicKey(secretKey);
+            // need to fix with byteToHex
+            const hexSecretKey = secretKey.toString('hex');
 
-            dispatch(setUser({ pubkey: publicKey }));
-            window.localStorage.setItem('pubkey', publicKey);
-            window.localStorage.setItem('seckey', secretKey);
+            window.localStorage.setItem('user', JSON.stringify({ pubkey: publicKey, secretKey: hexSecretKey }));
             router.push('/');
         } catch (error) {
             console.error('Error during anonymous login:', error);
             showToast('error', 'Error Logging In', 'Failed to log in');
         }
-    }, [dispatch, router, showToast]);
+    }, [router, showToast]);
 
     return { nostrLogin, anonymousLogin };
 };

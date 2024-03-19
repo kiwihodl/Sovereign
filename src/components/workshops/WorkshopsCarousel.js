@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Carousel } from 'primereact/carousel';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import { useSelector } from 'react-redux';
+import { useNostr } from '@/hooks/useNostr';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { parseEvent } from '@/utils/nostr';
 import { formatTimestampToHowLongAgo } from '@/utils/time';
@@ -26,12 +26,20 @@ const responsiveOptions = [
 ];
 
 export default function WorkshopsCarousel() {
-    const workshops = useSelector((state) => state.events.resources);
     const [processedWorkshops, setProcessedWorkshops] = useState([]);
     const [screenWidth, setScreenWidth] = useState(null);
+    const [workshops, setWorkshops] = useState([]);
+    const router = useRouter();
+    const { fetchWorkshops, events } = useNostr();
     const { returnImageProxy } = useImageProxy();
 
-    const router = useRouter();
+    useEffect(() => {
+        if (events && events.workshops && events.workshops.length > 0) {
+            setWorkshops(events.workshops);
+        } else {
+            fetchWorkshops();
+        }
+    }, [events]);
 
     useEffect(() => {
         // Update the state to the current window width
@@ -58,7 +66,7 @@ export default function WorkshopsCarousel() {
             return { width: 344, height: 194 };
         } else {
             // Small screens
-            return { width: screenWidth - 50, height: (screenWidth - 50) * (9 / 16) };
+            return { width: screenWidth - 120, height: (screenWidth - 120) * (9 / 16) };
         }
     };
 
@@ -106,7 +114,7 @@ export default function WorkshopsCarousel() {
     return (
         <>
             <h2 className="ml-[6%] mt-4">workshops</h2>
-            <Carousel value={processedWorkshops} numVisible={2} itemTemplate={workshopTemplate} responsiveOptions={responsiveOptions} />
+            <Carousel value={[...processedWorkshops, ...processedWorkshops]} numVisible={2} itemTemplate={workshopTemplate} responsiveOptions={responsiveOptions} />
         </>
     );
 }

@@ -1,18 +1,10 @@
 import Head from 'next/head'
-import React, {useCallback, useEffect, useState} from 'react';
+import React from 'react';
 import CoursesCarousel from '@/components/courses/CoursesCarousel'
 import WorkshopsCarousel from '@/components/workshops/WorkshopsCarousel'
 import HeroBanner from '@/components/banner/HeroBanner';
-import { useNostr } from '@/hooks/useNostr'
 
 export default function Home() {
-  const { fetchResources, fetchCourses } = useNostr();
-
-  useEffect(() => {
-    fetchResources();
-    fetchCourses();
-  }, [fetchResources, fetchCourses]);
-
   return (
     <>
       <Head>

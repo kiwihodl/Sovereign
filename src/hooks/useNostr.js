@@ -1,14 +1,25 @@
 import { useState, useEffect, useRef } from "react";
-import { SimplePool, relayInit, nip19 } from "nostr-tools";
-import { useDispatch } from "react-redux";
-import { addResource, addCourse, addWorkshop, addStream } from "@/redux/reducers/eventsReducer";
-import { initialRelays } from "@/redux/reducers/userReducer";
+import { SimplePool } from "nostr-tools";
+
+const initialRelays = [
+    "wss://nos.lol/",
+    "wss://relay.damus.io/",
+    "wss://relay.snort.social/",
+    "wss://relay.nostr.band/",
+    "wss://nostr.mutinywallet.com/",
+    "wss://relay.mutinywallet.com/",
+    "wss://relay.primal.net/"
+];
 
 export const useNostr = () => {
     const [relays, setRelays] = useState(initialRelays);
     const [relayStatuses, setRelayStatuses] = useState({});
-
-    const dispatch = useDispatch();
+    const [events, setEvents] = useState({
+        resources: [],
+        workshops: [],
+        courses: [],
+        streams: []
+    });
 
     const pool = useRef(new SimplePool({ seenOnEnabled: true }));
     const subscriptions = useRef([]);
@@ -33,6 +44,56 @@ export const useNostr = () => {
         // Ensure the relays are connected before using them
         await Promise.all(newRelays.map(relay => pool.current.ensureRelay(relay)));
     };
+
+    const fetchEvents = async (filter, updateDataField, hasRequiredTags) => {
+        try {
+            const sub = pool.current.subscribeMany(relays, filter, {
+                onevent: (event) => {
+                    if (hasRequiredTags(event.tags)) {
+                        setEvents(prevData => ({
+                            ...prevData,
+                            [updateDataField]: [...prevData[updateDataField], event]
+                        }));
+                    }
+                },
+                onerror: (error) => {
+                    setError(error);
+                    console.error(`Error fetching ${updateDataField}:`, error);
+                },
+                oneose: () => {
+                    console.log("Subscription closed");
+                    sub.close();
+                }
+            });
+        } catch (error) {
+            setError(error);
+        }
+    };
+
+    // Fetch resources, workshops, courses, and streams with appropriate filters and update functions
+    const fetchResources = () => {
+        const filter = [{kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
+        const hasRequiredTags = (eventData) => eventData.some(([tag, value]) => tag === "t" && value === "plebdevs") && eventData.some(([tag, value]) => tag === "t" && value === "resource");
+        fetchEvents(filter, 'resources', hasRequiredTags);
+    };
+
+    const fetchWorkshops = () => {
+        const filter = [{kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
+        const hasRequiredTags = (eventData) => eventData.some(([tag, value]) => tag === "t" && value === "plebdevs") && eventData.some(([tag, value]) => tag === "t" && value === "resource");
+        fetchEvents(filter, 'workshops', hasRequiredTags);
+    }
+
+    const fetchCourses = () => {
+        const filter = [{kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
+        const hasRequiredTags = (eventData) => eventData.some(([tag, value]) => tag === "t" && value === "plebdevs") && eventData.some(([tag, value]) => tag === "t" && value === "course");
+        fetchEvents(filter, 'courses', hasRequiredTags);
+    }
+
+    const fetchStreams = () => {
+        const filter = [{kinds: [30311], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
+        const hasRequiredTags = (eventData) => eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
+        fetchEvents(filter, 'streams', hasRequiredTags);
+    }
 
     const fetchKind0 = async (criteria, params) => {
         return new Promise((resolve, reject) => {
@@ -62,110 +123,6 @@ export const useNostr = () => {
         });
     };
 
-    const fetchResources = async () => {
-        const filter = [{kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
-    
-        const params = {seenOnEnabled: true};
-    
-        const hasRequiredTags = (eventData) => {
-            return eventData.some(([tag, value]) => tag === "t" && value === "plebdevs") && eventData.some(([tag, value]) => tag === "t" && value === "resource");
-        };
-    
-        const sub = pool.current.subscribeMany(relays, filter, {
-            ...params,
-            onevent: (event) => {
-                if (hasRequiredTags(event.tags)) {
-                    dispatch(addResource(event));
-                }
-            },
-            onerror: (error) => {
-                console.error("Error fetching resources:", error);
-            },
-            oneose: () => {
-                console.log("Subscription closed");
-                sub.close();
-            }
-        });
-    }
-
-    const fetchWorkshops = async () => {
-        const filter = [{kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
-    
-        const params = {seenOnEnabled: true};
-    
-        const hasRequiredTags = (eventData) => {
-            return eventData.some(([tag, value]) => tag === "t" && value === "plebdevs") && eventData.some(([tag, value]) => tag === "t" && value === "workshop");
-        };
-    
-        const sub = pool.current.subscribeMany(relays, filter, {
-            ...params,
-            onevent: (event) => {
-                if (hasRequiredTags(event.tags)) {
-                    dispatch(addWorkshop(event));
-                }
-            },
-            onerror: (error) => {
-                console.error("Error fetching workshops:", error);
-            },
-            oneose: () => {
-                console.log("Subscription closed");
-                sub.close();
-            }
-        });
-    }
-
-    const fetchCourses = async () => {
-        const filter = [{kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
-    
-        const params = {seenOnEnabled: true};
-    
-        const hasRequiredTags = (eventData) => {
-            return eventData.some(([tag, value]) => tag === "t" && value === "plebdevs") && eventData.some(([tag, value]) => tag === "t" && value === "course");
-        };
-    
-        const sub = pool.current.subscribeMany(relays, filter, {
-            ...params,
-            onevent: (event) => {
-                if (hasRequiredTags(event.tags)) {
-                    dispatch(addCourse(event));
-                }
-            },
-            onerror: (error) => {
-                console.error("Error fetching courses:", error);
-            },
-            oneose: () => {
-                console.log("Subscription closed");
-                sub.close();
-            }
-        });
-    }
-
-    const fetchStreams = async () => {
-        const filter = [{kinds: [30311], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
-    
-        const params = {seenOnEnabled: true};
-    
-        const hasRequiredTags = (eventData) => {
-            return eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
-        };
-    
-        const sub = pool.current.subscribeMany(relays, filter, {
-            ...params,
-            onevent: (event) => {
-                if (hasRequiredTags(event.tags)) {
-                    dispatch(addStream(event));
-                }
-            },
-            onerror: (error) => {
-                console.error("Error fetching streams:", error);
-            },
-            oneose: () => {
-                console.log("Subscription closed");
-                sub.close();
-            }
-        });
-    }
-
     const fetchSingleEvent = async (id) => {
         return new Promise((resolve, reject) => {
             const sub = pool.current.subscribeMany(relays, [{ ids: [id] }], {
@@ -181,7 +138,7 @@ export const useNostr = () => {
                 }
             });
         });
-    };
+    }
 
     const publishEvent = async (event) => {
         try {
@@ -212,6 +169,8 @@ export const useNostr = () => {
         fetchResources,
         fetchCourses,
         fetchWorkshops,
+        fetchStreams,
         getRelayStatuses,
+        events
     };
 };

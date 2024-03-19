@@ -110,7 +110,7 @@ export default function Details() {
                                 />
                                 <Button
                                     icon="pi pi-bolt"
-                                    label="100 sats"
+                                    label="Zap"
                                     severity="success"
                                     outlined
                                     pt={{
