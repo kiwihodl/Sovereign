@@ -18,6 +18,11 @@ module.exports = {
       fontFamily: {
         'blinker': ['Blinker', 'sans-serif'],
       },
+      fontSize: {
+        'h1': ['2.25rem', { lineHeight: '2.5rem' }],
+        'h2': ['1.5rem', { lineHeight: '2rem' }],
+        'h3': ['1.25rem', { lineHeight: '1.75rem' }],
+      },
     },
   },
   plugins: [],

@@ -10,9 +10,20 @@
 }
 
 body {
-  font-family: 'Blinker', sans-serif;
+  @apply font-blinker;
 }
 
+h1 {
+  @apply text-h1 font-blinker;
+}
+
+h2 {
+  @apply text-h2 font-blinker;
+}
+
+h3 {
+  @apply text-h3 font-blinker;
+}
 
 .p-tabmenu .p-tabmenu-nav {
   background-color: transparent !important;

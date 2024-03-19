@@ -9,12 +9,12 @@ import { formatTimestampToHowLongAgo } from '@/utils/time';
 
 const responsiveOptions = [
     {
-        breakpoint: '1199px',
+        breakpoint: '3000px',
         numVisible: 3,
         numScroll: 1
     },
     {
-        breakpoint: '767px',
+        breakpoint: '1462px',
         numVisible: 2,
         numScroll: 1
     },
@@ -105,7 +105,7 @@ export default function WorkshopsCarousel() {
 
     return (
         <>
-            <h1 className="text-2xl ml-[6%] mt-4">workshops</h1>
+            <h2 className="ml-[6%] mt-4">workshops</h2>
             <Carousel value={processedWorkshops} numVisible={2} itemTemplate={workshopTemplate} responsiveOptions={responsiveOptions} />
         </>
     );

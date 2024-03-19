@@ -9,12 +9,12 @@ import { formatTimestampToHowLongAgo } from '@/utils/time';
 
 const responsiveOptions = [
     {
-        breakpoint: '1199px',
+        breakpoint: '3000px',
         numVisible: 3,
         numScroll: 1
     },
     {
-        breakpoint: '767px',
+        breakpoint: '1462px',
         numVisible: 2,
         numScroll: 1
     },
@@ -24,6 +24,7 @@ const responsiveOptions = [
         numScroll: 1
     }
 ];
+
 
 export default function CoursesCarousel() {
     const courses = useSelector((state) => state.events.courses);
@@ -107,7 +108,7 @@ export default function CoursesCarousel() {
 
     return (
         <>
-            <h1 className="text-2xl ml-[6%] mt-4">courses</h1>
+            <h2 className="ml-[6%] mt-4">courses</h2>
             <Carousel value={processedCourses} numVisible={2} itemTemplate={courseTemplate} responsiveOptions={responsiveOptions} />
         </>
     );
