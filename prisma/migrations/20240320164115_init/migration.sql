@@ -35,6 +35,7 @@ CREATE TABLE "Purchase" (
 -- CreateTable
 CREATE TABLE "Course" (
     "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
     "price" INTEGER NOT NULL DEFAULT 0,
     "noteId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -46,6 +47,7 @@ CREATE TABLE "Course" (
 -- CreateTable
 CREATE TABLE "Resource" (
     "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
     "courseId" INTEGER,
     "price" INTEGER NOT NULL DEFAULT 0,
     "noteId" TEXT,
@@ -78,6 +80,12 @@ ALTER TABLE "Purchase" ADD CONSTRAINT "Purchase_courseId_fkey" FOREIGN KEY ("cou
 
 -- AddForeignKey
 ALTER TABLE "Purchase" ADD CONSTRAINT "Purchase_resourceId_fkey" FOREIGN KEY ("resourceId") REFERENCES "Resource"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Course" ADD CONSTRAINT "Course_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Resource" ADD CONSTRAINT "Resource_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Resource" ADD CONSTRAINT "Resource_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course"("id") ON DELETE SET NULL ON UPDATE CASCADE;

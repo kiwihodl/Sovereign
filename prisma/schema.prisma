@@ -8,15 +8,17 @@ generator client {
 }
 
 model User {
-    id        Int        @id @default(autoincrement())
-    pubkey    String     @unique
-    username  String?    @unique
-    avatar    String?
-    purchased Purchase[]
-    role      Role?      @relation(fields: [roleId], references: [id])
-    roleId    Int?
-    createdAt DateTime   @default(now())
-    updatedAt DateTime   @updatedAt
+    id         Int        @id @default(autoincrement())
+    pubkey     String     @unique
+    username   String?    @unique
+    avatar     String?
+    purchased  Purchase[]
+    courses    Course[]   // Relation field added for courses created by the user
+    resources  Resource[] // Relation field added for resources created by the user
+    role       Role?      @relation(fields: [roleId], references: [id])
+    roleId     Int?
+    createdAt  DateTime   @default(now())
+    updatedAt  DateTime   @updatedAt
 }
 
 model Role {
@@ -41,6 +43,8 @@ model Purchase {
 
 model Course {
     id          Int        @id @default(autoincrement())
+    userId      Int        // Field added to link a course to a user
+    user        User       @relation(fields: [userId], references: [id]) // Relation setup for user
     price       Int        @default(0)
     resources   Resource[]
     purchases   Purchase[]
@@ -51,6 +55,8 @@ model Course {
 
 model Resource {
     id        Int        @id @default(autoincrement())
+    userId    Int        // Field added to link a resource to a user
+    user      User       @relation(fields: [userId], references: [id]) // Relation setup for user
     course    Course?    @relation(fields: [courseId], references: [id])
     courseId  Int?
     price     Int        @default(0)
