@@ -22,7 +22,7 @@ const UserAvatar = () => {
 
     const handleLogout = () => {
         window.localStorage.removeItem('user');
-        router.push('/');
+        router.push('/').then(() => window.location.reload());
     }
 
     let userAvatar;

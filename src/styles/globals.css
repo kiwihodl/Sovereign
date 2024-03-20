@@ -70,3 +70,13 @@ h3 {
   height: auto;
   aspect-ratio: 16 / 9;
 }
+
+/* Hide scrollbars globally (need to be cautious with this approach) */
+.p-tabmenu .p-tabmenu-nav {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.p-tabmenu .p-tabmenu-nav::-webkit-scrollbar {
+  display: none;
+}

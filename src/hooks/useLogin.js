@@ -76,7 +76,7 @@ export const useLogin = () => {
             if (response.status !== 200) throw new Error('User not found');
 ;
             window.localStorage.setItem('user', JSON.stringify(response.data));
-            router.push('/');
+            router.push('/').then(() => window.location.reload());
         } catch (error) {
             // User not found, create a new user
             const kind0 = await fetchKind0([{ authors: [publicKey], kinds: [0] }], {});
@@ -87,7 +87,7 @@ export const useLogin = () => {
                 const createUserResponse = await axios.post(`/api/users`, payload);
                 if (createUserResponse.status === 201) {
                     window.localStorage.setItem('user', JSON.stringify(createUserResponse.data));
-                    router.push('/');
+                    router.push('/').then(() => window.location.reload());
                 } else {
                     console.error('Error creating user:', createUserResponse);
                 }
@@ -106,7 +106,7 @@ export const useLogin = () => {
             const hexSecretKey = secretKey.toString('hex');
 
             window.localStorage.setItem('user', JSON.stringify({ pubkey: publicKey, secretKey: hexSecretKey }));
-            router.push('/');
+            router.push('/').then(() => window.location.reload());
         } catch (error) {
             console.error('Error during anonymous login:', error);
             showToast('error', 'Error Logging In', 'Failed to log in');
