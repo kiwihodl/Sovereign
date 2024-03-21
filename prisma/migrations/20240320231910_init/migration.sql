@@ -1,10 +1,10 @@
 -- CreateTable
 CREATE TABLE "User" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "pubkey" TEXT NOT NULL,
     "username" TEXT,
     "avatar" TEXT,
-    "roleId" INTEGER,
+    "roleId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -13,7 +13,7 @@ CREATE TABLE "User" (
 
 -- CreateTable
 CREATE TABLE "Role" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "subscribed" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Role_pkey" PRIMARY KEY ("id")
@@ -21,10 +21,10 @@ CREATE TABLE "Role" (
 
 -- CreateTable
 CREATE TABLE "Purchase" (
-    "id" SERIAL NOT NULL,
-    "userId" INTEGER NOT NULL,
-    "courseId" INTEGER,
-    "resourceId" INTEGER,
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "courseId" TEXT,
+    "resourceId" TEXT,
     "amountPaid" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -34,8 +34,8 @@ CREATE TABLE "Purchase" (
 
 -- CreateTable
 CREATE TABLE "Course" (
-    "id" SERIAL NOT NULL,
-    "userId" INTEGER NOT NULL,
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
     "price" INTEGER NOT NULL DEFAULT 0,
     "noteId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -46,9 +46,9 @@ CREATE TABLE "Course" (
 
 -- CreateTable
 CREATE TABLE "Resource" (
-    "id" SERIAL NOT NULL,
-    "userId" INTEGER NOT NULL,
-    "courseId" INTEGER,
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "courseId" TEXT,
     "price" INTEGER NOT NULL DEFAULT 0,
     "noteId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

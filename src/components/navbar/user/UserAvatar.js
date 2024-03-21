@@ -6,14 +6,14 @@ import { useImageProxy } from '@/hooks/useImageProxy';
 import { Button } from 'primereact/button';
 import { Menu } from 'primereact/menu';
 import useWindowWidth from '@/hooks/useWindowWidth';
-import useLocalStorage from '@/hooks/useLocalStorage';
+import {useLocalStorageWithEffect} from '@/hooks/useLocalStorage';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import styles from '../navbar.module.css';
 
 const UserAvatar = () => {
     const router = useRouter();
-    const [user, setUser] = useLocalStorage('user', {});
+    const [user, setUser] = useLocalStorageWithEffect('user', {});
     const [isClient, setIsClient] = useState(false);
     const { returnImageProxy } = useImageProxy();
     const windowWidth = useWindowWidth();
@@ -35,7 +35,6 @@ const UserAvatar = () => {
     if (!isClient) {
         return null; // Or return a loader/spinner/placeholder
     } else if (user && Object.keys(user).length > 0) {
-        console.log('ahhhhh s:', user);
         // User exists, show username or pubkey
         const displayName = user.username || user.pubkey.slice(0, 10) + '...';
 

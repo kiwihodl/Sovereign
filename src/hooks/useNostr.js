@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { SimplePool } from "nostr-tools";
+import { SimplePool, nip19, verifyEvent } from "nostr-tools";
+import { Relay } from 'nostr-tools/relay'
 
 const initialRelays = [
     "wss://nos.lol/",
@@ -140,14 +141,76 @@ export const useNostr = () => {
         });
     }
 
-    const publishEvent = async (event) => {
+    const publishEvent = async (relay, signedEvent) => {
+        console.log('publishing event to', relay);
+        return new Promise((resolve, reject) => {
+            const timeout = 3000
+            const wsRelay = new window.WebSocket(relay)
+            let timer
+            let isMessageSentSuccessfully = false
+        
+            function timedout () {
+              clearTimeout(timer)
+              wsRelay.close()
+              reject(new Error(`relay timeout for ${relay}`))
+            }
+        
+            timer = setTimeout(timedout, timeout)
+        
+            wsRelay.onopen = function () {
+              clearTimeout(timer)
+              timer = setTimeout(timedout, timeout)
+              wsRelay.send(JSON.stringify(['EVENT', signedEvent]))
+            }
+        
+            wsRelay.onmessage = function (msg) {
+              const m = JSON.parse(msg.data)
+              if (m[0] === 'OK') {
+                isMessageSentSuccessfully = true
+                clearTimeout(timer)
+                wsRelay.close()
+                console.log('Successfully sent event to', relay)
+                resolve()
+              }
+            }
+        
+            wsRelay.onerror = function (error) {
+              clearTimeout(timer)
+              console.log(error)
+              reject(new Error(`relay error: Failed to send to ${relay}`))
+            }
+        
+            wsRelay.onclose = function () {
+              clearTimeout(timer)
+              if (!isMessageSentSuccessfully) {
+                reject(new Error(`relay error: Failed to send to ${relay}`))
+              }
+            }
+          })
+    };
+
+
+    const publishAll = async (signedEvent) => {
         try {
-            const publishPromises = pool.current.publish(relays, event);
-            await Promise.all(publishPromises);
+            const promises = relays.map(relay => publishEvent(relay, signedEvent));
+            const results = await Promise.allSettled(promises)
+            const successfulRelays = []
+            const failedRelays = []
+
+            results.forEach((result, i) => {
+                if (result.status === 'fulfilled') {
+                    successfulRelays.push(relays[i])
+                } else {
+                    failedRelays.push(relays[i])
+                }
+            })
+
+            return { successfulRelays, failedRelays }
         } catch (error) {
-            console.error("Error publishing event:", error);
+            console.error('Error publishing event:', error);
         }
     };
+    
 
     useEffect(() => {
         getRelayStatuses(); // Get initial statuses on mount
@@ -164,7 +227,7 @@ export const useNostr = () => {
     return {
         updateRelays,
         fetchSingleEvent,
-        publishEvent,
+        publishAll,
         fetchKind0,
         fetchResources,
         fetchCourses,
