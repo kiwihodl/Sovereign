@@ -8,7 +8,7 @@ const Create = () => {
     const [activeIndex, setActiveIndex] = useState(0); // State to track the active tab index
     const homeItems = [
         { label: 'Course', icon: 'pi pi-desktop' },
-        { label: 'Workshop', icon: 'pi pi-cog' },
+        { label: 'Workshop', icon: 'pi pi-video' },
         { label: 'Resource', icon: 'pi pi-book' },
     ];
 
@@ -27,7 +27,7 @@ const Create = () => {
     };
 
     return (
-        <div className="w-fit mx-auto mt-8 flex flex-col justify-center">
+        <div className="w-fit mx-auto my-8 flex flex-col justify-center">
             <h2 className="text-center mb-8">Create a {homeItems[activeIndex].label}</h2>
             <MenuTab items={homeItems} activeIndex={activeIndex} onTabChange={setActiveIndex} />
             {renderForm()}

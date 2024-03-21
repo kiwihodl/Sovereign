@@ -12,18 +12,8 @@ const CourseForm = () => {
     const [checked, setChecked] = useState(false);
     const [price, setPrice] = useState(0);
     const [text, setText] = useState('');
-    const [resources, setResources] = useState(['']); // Start with one empty resource
-
-    const addResource = () => {
-        setResources([...resources, '']); // Add another empty resource
-    };
-
-    const handleResourceChange = (value, index) => {
-        const updatedResources = resources.map((resource, i) => 
-            i === index ? value : resource
-        );
-        setResources(updatedResources);
-    };
+    const [resources, setResources] = useState(['']);
+    const [topics, setTopics] = useState(['']);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -33,10 +23,39 @@ const CourseForm = () => {
             isPaidResource: checked,
             price: checked ? price : null,
             content: text,
-            resources // Add the resources to the payload
+            topics: topics.map(topic => topic.trim().toLowerCase()),
+            resources: resources.map(resource => resource.trim())
         };
         console.log(payload);
     }
+
+    const addResource = () => {
+        setResources([...resources, '']); // Add an empty string to the resources array
+    };
+
+    const removeResource = (index) => {
+        const updatedResources = resources.filter((_, i) => i !== index);
+        setResources(updatedResources);
+    };
+
+    const handleResourceChange = (value, index) => {
+        const updatedResources = resources.map((resource, i) => i === index ? value : resource);
+        setResources(updatedResources);
+    };
+
+    const handleTopicChange = (index, value) => {
+        const updatedTopics = topics.map((topic, i) => i === index ? value : topic);
+        setTopics(updatedTopics);
+    };
+
+    const addTopic = () => {
+        setTopics([...topics, '']); // Add an empty string to the topics array
+    };
+
+    const removeTopic = (index) => {
+        const updatedTopics = topics.filter((_, i) => i !== index);
+        setTopics(updatedTopics);
+    };
 
     return (
         <form onSubmit={handleSubmit}>
@@ -59,15 +78,33 @@ const CourseForm = () => {
                     )}
                 </div>
             </div>
-            {resources.map((resource, index) => (
-                <div key={index} className="p-inputgroup flex-1 mt-8">
-                    <InputText value={resource} onChange={(e) => handleResourceChange(e.target.value, index)} placeholder={`Resource #${index + 1}`} />
+            <div className="mt-8 flex-col w-full">
+                {resources.map((resource, index) => (
+                    <div key={index} className="p-inputgroup flex-1 mt-8">
+                        <InputText value={resource} onChange={(e) => handleResourceChange(e.target.value, index)} placeholder={`Resource #${index + 1}`} className="w-full" />
+                        {index > 0 && ( // Only render the minus button if the index is greater than 0
+                            <Button icon="pi pi-times" className="p-button-danger" onClick={() => removeResource(index)} />
+                        )}
+                    </div>
+                ))}
+                <div className="w-full flex flex-row items-end justify-end py-2">
+                    <Button type="button" icon="pi pi-plus" onClick={addResource} />
                 </div>
-            ))}
-            <div className="flex justify-center mt-4">
-                <Button type="button" onClick={addResource} label="Add Resource" />
             </div>
 
+            <div className="mt-8 flex-col w-full">
+                {topics.map((topic, index) => (
+                    <div className="p-inputgroup flex-1" key={index}>
+                        <InputText value={topic} onChange={(e) => handleTopicChange(index, e.target.value)} placeholder="Topic" className="w-full mt-2" />
+                        {index > 0 && (
+                            <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={() => removeTopic(index)} />
+                        )}
+                    </div>
+                ))}
+                <div className="w-full flex flex-row items-end justify-end py-2">
+                    <Button icon="pi pi-plus" onClick={addTopic} />
+                </div>
+            </div>
             <div className="flex justify-center mt-8">
                 <Button type="submit" severity="success" outlined label="Submit" />
             </div>

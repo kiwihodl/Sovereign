@@ -9,6 +9,7 @@ import { nip04, verifyEvent, nip19 } from "nostr-tools";
 import { useNostr } from "@/hooks/useNostr";
 import { v4 as uuidv4 } from 'uuid';
 import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
+import EditorHeader from "./Editor/EditorHeader";
 import 'primeicons/primeicons.css';
 
 const ResourceForm = () => {
@@ -108,6 +109,39 @@ const ResourceForm = () => {
         setTopics(updatedTopics);
     };
 
+    // Define custom toolbar for the editor
+    const customToolbar = (
+        <div id="toolbar">
+            {/* Include existing toolbar items */}
+            <span className="ql-formats">
+                <select className="ql-header" defaultValue="">
+                    <option value="1">Heading</option>
+                    <option value="2">Subheading</option>
+                    <option value="">Normal</option>
+                </select>
+            </span>
+            <span className="ql-formats">
+                <button className="ql-bold"></button>
+                <button className="ql-italic"></button>
+                <button className="ql-underline"></button>
+            </span>
+            <span className="ql-formats">
+                <button className="ql-list" value="ordered"></button>
+                <button className="ql-list" value="bullet"></button>
+                <button className="ql-indent" value="-1"></button>
+                <button className="ql-indent" value="+1"></button>
+            </span>
+            <span className="ql-formats">
+                <button className="ql-link"></button>
+                <button className="ql-image"></button>
+                <button className="ql-video"></button> {/* This is your custom video button */}
+            </span>
+            <span className="ql-formats">
+                <button className="ql-clean"></button>
+            </span>
+        </div>
+    );
+
     return (
         <form onSubmit={handleSubmit}>
             <div className="p-inputgroup flex-1">
@@ -128,7 +162,12 @@ const ResourceForm = () => {
             </div>
             <div className="p-inputgroup flex-1 flex-col mt-8">
                 <span>Content</span>
-                <Editor value={text} onTextChange={(e) => setText(e.htmlValue)} style={{ height: '320px' }} />
+                <Editor
+                    value={text}
+                    onTextChange={(e) => setText(e.htmlValue)}
+                    style={{ height: '320px' }}
+                    headerTemplate={<EditorHeader quill={null} />}
+                />
             </div>
             <div className="mt-8 flex-col w-full">
                 {topics.map((topic, index) => (
