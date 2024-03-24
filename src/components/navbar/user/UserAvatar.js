@@ -48,6 +48,11 @@ const UserAvatar = () => {
                         command: () => router.push('/profile')
                     },
                     {
+                        label: 'Create',
+                        icon: 'pi pi-book',
+                        command: () => router.push('/create')
+                    },
+                    {
                         label: 'Logout',
                         icon: 'pi pi-power-off',
                         command: handleLogout

@@ -18,9 +18,9 @@ const Profile = () => {
 
     const homeItems = [
         { label: 'All', icon: 'pi pi-star' },
-        { label: 'Courses', icon: 'pi pi-desktop' },
-        { label: 'Workshops', icon: 'pi pi-video' },
         { label: 'Resources', icon: 'pi pi-book' },
+        { label: 'Workshops', icon: 'pi pi-video' },
+        { label: 'Courses', icon: 'pi pi-desktop' }
     ];
 
     const purchases = [

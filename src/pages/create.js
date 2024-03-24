@@ -7,9 +7,9 @@ import CourseForm from "@/components/forms/CourseForm";
 const Create = () => {
     const [activeIndex, setActiveIndex] = useState(0); // State to track the active tab index
     const homeItems = [
-        { label: 'Course', icon: 'pi pi-desktop' },
-        { label: 'Workshop', icon: 'pi pi-video' },
         { label: 'Resource', icon: 'pi pi-book' },
+        { label: 'Workshop', icon: 'pi pi-video' },
+        { label: 'Course', icon: 'pi pi-desktop' }
     ];
 
     // Function to render the correct form based on the active tab
