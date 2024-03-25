@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { InputText } from "primereact/inputtext";
 import { InputNumber } from "primereact/inputnumber";
 import { InputSwitch } from "primereact/inputswitch";
-import { Editor } from "primereact/editor";
+import { useToast } from "@/hooks/useToast";
 import { Button } from "primereact/button";
+import { v4 as uuidv4 } from 'uuid';
 import 'primeicons/primeicons.css';
 
 const CourseForm = () => {
@@ -13,7 +14,10 @@ const CourseForm = () => {
     const [price, setPrice] = useState(0);
     const [text, setText] = useState('');
     const [resources, setResources] = useState(['']);
+    const [coverImage, setCoverImage] = useState('');
     const [topics, setTopics] = useState(['']);
+
+    const showToast = useToast();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -26,6 +30,7 @@ const CourseForm = () => {
             topics: topics.map(topic => topic.trim().toLowerCase()),
             resources: resources.map(resource => resource.trim())
         };
+
         console.log(payload);
     }
 
@@ -64,6 +69,9 @@ const CourseForm = () => {
             </div>
             <div className="p-inputgroup flex-1 mt-8">
                 <InputText value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" />
+            </div>
+            <div className="p-inputgroup flex-1 mt-8">
+                <InputText value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="Cover Image URL" />
             </div>
 
             <div className="p-inputgroup flex-1 mt-8 flex-col">

@@ -19,7 +19,8 @@ const ResourceForm = () => {
     const [checked, setChecked] = useState(false);
     const [price, setPrice] = useState(0);
     const [text, setText] = useState('');
-    const [topics, setTopics] = useState(['']); // Initialize with an empty string to show one input by default
+    const [coverImage, setCoverImage] = useState('');
+    const [topics, setTopics] = useState(['']);
 
     const [user] = useLocalStorageWithEffect('user', {});
 
@@ -28,14 +29,14 @@ const ResourceForm = () => {
     const { publishAll } = useNostr();
 
     const handleSubmit = (e) => {
-        e.preventDefault(); // Prevents the default form submission mechanism
+        e.preventDefault();
         const payload = {
             title,
             summary,
             isPaidResource: checked,
             price: checked ? price : null,
             content: text,
-            topics: topics.map(topic => topic.trim().toLowerCase()) // Process topics as they are
+            topics: topics.map(topic => topic.trim().toLowerCase())
         };
 
         if (checked) {
@@ -244,6 +245,9 @@ const ResourceForm = () => {
             </div>
             <div className="p-inputgroup flex-1 mt-8">
                 <InputText value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" />
+            </div>
+            <div className="p-inputgroup flex-1 mt-8">
+                <InputText value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="Cover Image URL" />
             </div>
 
             <div className="p-inputgroup flex-1 mt-8 flex-col">
