@@ -1,9 +1,7 @@
 import prisma from "../prisma";
 
-const client = new prisma.PrismaClient();
-
 export const getAllCourses = async () => {
-    return await client.course.findMany({
+    return await prisma.course.findMany({
         include: {
             resources: true, // Include related resources
             purchases: true, // Include related purchases
@@ -12,7 +10,7 @@ export const getAllCourses = async () => {
 };
 
 export const getCourseById = async (id) => {
-    return await client.course.findUnique({
+    return await prisma.course.findUnique({
         where: { id },
         include: {
             resources: true, // Include related resources
@@ -22,20 +20,20 @@ export const getCourseById = async (id) => {
 };
 
 export const createCourse = async (data) => {
-    return await client.course.create({
+    return await prisma.course.create({
         data,
     });
 };
 
 export const updateCourse = async (id, data) => {
-    return await client.course.update({
+    return await prisma.course.update({
         where: { id },
         data,
     });
 };
 
 export const deleteCourse = async (id) => {
-    return await client.course.delete({
+    return await prisma.course.delete({
         where: { id },
     });
 };

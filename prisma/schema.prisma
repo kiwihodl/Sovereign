@@ -15,6 +15,7 @@ model User {
     purchased  Purchase[]
     courses    Course[]   // Relation field added for courses created by the user
     resources  Resource[] // Relation field added for resources created by the user
+    drafts     Draft[]    // Relation field added for drafts created by the user
     role       Role?      @relation(fields: [roleId], references: [id])
     roleId     String?
     createdAt  DateTime   @default(now())
@@ -64,3 +65,19 @@ model Resource {
     createdAt DateTime  @default(now())
     updatedAt DateTime  @updatedAt
 }
+
+model Draft {
+    id        String    @id @default(uuid())
+    userId    String
+    user      User      @relation(fields: [userId], references: [id])
+    type      String
+    title     String
+    summary   String
+    content   String
+    image     String?
+    price     Int?      @default(0)
+    topics    String[]
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+}
+

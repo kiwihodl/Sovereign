@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { SimplePool, nip19, verifyEvent } from "nostr-tools";
-import { Relay } from 'nostr-tools/relay'
+import { useToast } from "./useToast";
 
 const initialRelays = [
     "wss://nos.lol/",
@@ -21,6 +21,8 @@ export const useNostr = () => {
         courses: [],
         streams: []
     });
+
+    const {showToast} = useToast();
 
     const pool = useRef(new SimplePool({ seenOnEnabled: true }));
     const subscriptions = useRef([]);
@@ -200,8 +202,10 @@ export const useNostr = () => {
             results.forEach((result, i) => {
                 if (result.status === 'fulfilled') {
                     successfulRelays.push(relays[i])
+                    showToast('success', `published to ${relays[i]}`)
                 } else {
                     failedRelays.push(relays[i])
+                    showToast('error', `failed to publish to ${relays[i]}`)
                 }
             })
 
