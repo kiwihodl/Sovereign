@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import React from 'react';
-import CoursesCarousel from '@/components/courses/CoursesCarousel'
-import WorkshopsCarousel from '@/components/workshops/WorkshopsCarousel'
+import CoursesCarousel from '@/components/content/carousels/CoursesCarousel'
+import WorkshopsCarousel from '@/components/content/carousels/WorkshopsCarousel'
 import HeroBanner from '@/components/banner/HeroBanner';
 
 export default function Home() {

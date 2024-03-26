@@ -17,7 +17,7 @@ const CourseForm = () => {
     const [coverImage, setCoverImage] = useState('');
     const [topics, setTopics] = useState(['']);
 
-    const {showToast} = useToast();
+    const { showToast } = useToast();
 
     const handleSubmit = (e) => {
         e.preventDefault();

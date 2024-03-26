@@ -5,7 +5,7 @@ const { id } = req.query;
 
   if (req.method === 'GET') {
     try {
-      const resource = await getAllDraftsByUserId(parseInt(id));
+      const resource = await getAllDraftsByUserId(id);
         if (resource) {
             res.status(200).json(resource);
         } else {

@@ -6,22 +6,13 @@ import { Column } from 'primereact/column';
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useRouter } from "next/router";
 import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
-import MenuTab from "@/components/menutab/MenuTab";
+import UserContent from '@/components/profile/UserContent';
 import Image from "next/image";
 
 const Profile = () => {
-    const [activeIndex, setActiveIndex] = useState(0);
     const [user, setUser] = useLocalStorageWithEffect('user', {});
     const { returnImageProxy } = useImageProxy();
     const menu = useRef(null);
-    const router = useRouter();
-
-    const homeItems = [
-        { label: 'All', icon: 'pi pi-star' },
-        { label: 'Resources', icon: 'pi pi-book' },
-        { label: 'Workshops', icon: 'pi pi-video' },
-        { label: 'Courses', icon: 'pi pi-desktop' }
-    ];
 
     const purchases = [
         // {
@@ -106,13 +97,7 @@ const Profile = () => {
                     <Column field="category" header="Category"></Column>
                     <Column field="date" header="Date"></Column>
                 </DataTable>
-                <div className="border-y-2 border-gray-300 mt-12">
-                    <h2 className="text-center my-4">Your Content</h2>
-                </div>
-                <div className="flex flex-row w-full justify-between px-4">
-                    <MenuTab items={homeItems} activeIndex={activeIndex} onTabChange={setActiveIndex} />
-                    <Button onClick={() => router.push('/create')} label="Create" severity="success" outlined className="mt-2" />
-                </div>
+                <UserContent />
             </div>
         )
     )
