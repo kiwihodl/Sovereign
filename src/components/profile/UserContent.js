@@ -4,70 +4,21 @@ import { useRouter } from "next/router";
 import { Button } from "primereact/button";
 import MenuTab from "@/components/menutab/MenuTab";
 import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
-import { useImageProxy } from "@/hooks/useImageProxy";
-import useResponsiveImageDimensions from "@/hooks/useResponsiveImageDimensions";
+import { useNostr } from "@/hooks/useNostr";
 import ContentList from "@/components/content/lists/ContentList";
-
-const fakeProducts = [
-    {
-      id: 'p1',
-      name: 'Eco-Friendly Water Bottle',
-      image: 'eco-friendly-water-bottle.jpg',
-      category: 'Kitchenware',
-      rating: 4,
-      price: 19.99,
-      inventoryStatus: 'INSTOCK'
-    },
-    {
-      id: 'p2',
-      name: 'Wireless Bluetooth Headphones',
-      image: 'wireless-bluetooth-headphones.jpg',
-      category: 'Electronics',
-      rating: 5,
-      price: 89.99,
-      inventoryStatus: 'LOWSTOCK'
-    },
-    {
-      id: 'p3',
-      name: 'Organic Cotton T-Shirt',
-      image: 'organic-cotton-t-shirt.jpg',
-      category: 'Apparel',
-      rating: 3,
-      price: 29.99,
-      inventoryStatus: 'OUTOFSTOCK'
-    },
-    {
-      id: 'p4',
-      name: 'Smartwatch Fitness Tracker',
-      image: 'smartwatch-fitness-tracker.jpg',
-      category: 'Wearables',
-      rating: 4,
-      price: 49.99,
-      inventoryStatus: 'INSTOCK'
-    },
-    {
-      id: 'p5',
-      name: 'Sustainable Bamboo Sunglasses',
-      image: 'sustainable-bamboo-sunglasses.jpg',
-      category: 'Accessories',
-      rating: 4,
-      price: 34.99,
-      inventoryStatus: 'INSTOCK'
-    }
-  ];
+import { parseEvent } from "@/utils/nostr";
+import { useToast } from "@/hooks/useToast";
 
 const UserContent = () => {
     const [activeIndex, setActiveIndex] = useState(0);
-    const [content, setContent] = useState([]);
-
+    const [drafts, setDrafts] = useState([]);
     const [user, setUser] = useLocalStorageWithEffect('user', {});
-    const { returnImageProxy } = useImageProxy();
-    const { width, height } = useResponsiveImageDimensions();
-
+    const { fetchCourses, fetchResources, fetchWorkshops, events } = useNostr();
     const router = useRouter();
+    const { showToast } = useToast();
 
-    const homeItems = [
-        { label: 'Publised', icon: 'pi pi-verified' },
+    const contentItems = [
+        { label: 'Published', icon: 'pi pi-verified' },
         { label: 'Drafts', icon: 'pi pi-file-edit' },
         { label: 'Resources', icon: 'pi pi-book' },
         { label: 'Workshops', icon: 'pi pi-video' },
@@ -75,15 +26,56 @@ const UserContent = () => {
     ];
 
     useEffect(() => {
-        axios.get(`/api/drafts/all/${user.id}`)
-            .then(res => {
-                console.log(res.data);
-                setContent(res.data);
-            })
-            .catch(err => {
-                console.error(err);
-            });
+        if (user && user.id) {
+            fetchAllContent();
+        }
     }, [user]);
+
+    const fetchAllContent = async () => {
+        try {
+            // Fetch drafts from the database
+            const draftsResponse = await axios.get(`/api/drafts/all/${user.id}`);
+            const drafts = draftsResponse.data;
+
+            // Fetch resources, workshops, and courses from Nostr
+            fetchResources();
+            fetchWorkshops();
+            fetchCourses();
+
+            if (drafts.length > 0) {
+                setDrafts(drafts);
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('error', 'Error', 'Failed to fetch content');
+        }
+    };
+
+    const getContentByIndex = (index) => {
+        switch (index) {
+            case 0:
+                return []
+            case 1:
+                return drafts;
+            case 2:
+                return events.resources.map(resource => {
+                    const { id, content, title, summary, image, published_at } = parseEvent(resource);
+                    return { id, content, title, summary, image, published_at };
+                });
+            case 3:
+                return events.workshops.map(workshop => {
+                    const { id, content, title, summary, image, published_at } = parseEvent(workshop);
+                    return { id, content, title, summary, image, published_at };
+                })
+            case 4:
+                return events.courses.map(course => {
+                    const { id, content, title, summary, image, published_at } = parseEvent(course);
+                    return { id, content, title, summary, image, published_at };
+                })
+            default:
+                return [];
+        }
+    };
 
     return (
         <div className="w-[90vw] mx-auto max-tab:w-[100vw] max-mob:w-[100vw]">
@@ -91,14 +83,18 @@ const UserContent = () => {
                 <h2 className="text-center my-4">Your Content</h2>
             </div>
             <div className="flex flex-row w-full justify-between px-4">
-                <MenuTab items={homeItems} activeIndex={activeIndex} onTabChange={setActiveIndex} />
+                <MenuTab items={contentItems} activeIndex={activeIndex} onTabChange={setActiveIndex} />
                 <Button onClick={() => router.push('/create')} label="Create" severity="success" outlined className="mt-2" />
             </div>
             <div className="w-full mx-auto my-8">
-                <ContentList content={content} />
+                <div className="w-full mx-auto my-8">
+                    {getContentByIndex(activeIndex).length > 0 && (
+                        <ContentList content={getContentByIndex(activeIndex)} />
+                    )}
+                </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default UserContent;
