@@ -1,14 +1,27 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import useResponsiveImageDimensions from "@/hooks/useResponsiveImageDimensions";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { useImageProxy } from "@/hooks/useImageProxy";
+import { useNostr } from "@/hooks/useNostr";
 
 const CourseTemplate = (course) => {
+    const [zaps, setZaps] = useState([]);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
     const { width, height } = useResponsiveImageDimensions();
+    const {events, fetchZapsForEvent} = useNostr();
+
+    useEffect(() => {
+        if (events && events.zaps) {
+            console.log('zaps:', events.zaps);
+            setZaps(events.zaps);
+        } else {
+            fetchZapsForEvent(course.id);
+        }
+    }, [events]);
+
     return (
         <div style={{width: width < 768 ? "auto" : width}} onClick={() => router.push(`/details/${course.id}`)} className="flex flex-col items-center mx-auto px-4 cursor-pointer mt-8 rounded-md shadow-lg">
             <div style={{maxWidth: width, minWidth: width}} className="max-tab:h-auto max-mob:h-auto">

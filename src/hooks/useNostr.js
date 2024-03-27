@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { SimplePool, nip19, verifyEvent } from "nostr-tools";
+import { SimplePool, nip19, verifyEvent, nip57 } from "nostr-tools";
 import axios from "axios";
 import { useToast } from "./useToast";
 
@@ -20,7 +20,8 @@ export const useNostr = () => {
         resources: [],
         workshops: [],
         courses: [],
-        streams: []
+        streams: [],
+        zaps: []
     });
 
     const { showToast } = useToast();
@@ -53,6 +54,9 @@ export const useNostr = () => {
         try {
             const sub = pool.current.subscribeMany(relays, filter, {
                 onevent: async (event) => {
+                    if (event.kind === 9735) {
+                        console.log('event:', event);
+                    }
                     const shouldInclude = await hasRequiredTags(event.tags);
                     if (shouldInclude) {
                         setEvents(prevData => ({
@@ -74,6 +78,84 @@ export const useNostr = () => {
             setError(error);
         }
     };
+
+    // zaps
+    // 1. get the author from the content
+    // 2. get the author's kind0
+    // 3. get the author's lud16 if available
+    // 4. Make a get request to the lud16 endpoint and ensure that allowNostr is true
+    // 5. Create zap request event and sign it
+    // 6. Send to the callback url as a get req with the nostr event as a query param
+    // 7. get the invoice back and pay it with webln
+    // 8. listen for the zap receipt event and update the UI
+
+    const zapEvent = async (event) => {
+        const kind0 = await fetchKind0([{ authors: [event.pubkey], kinds: [0] }], {});
+
+        if (Object.keys(kind0).length === 0) {
+            console.error('Error fetching kind0');
+            return;
+        }
+
+        if (kind0?.lud16) {
+            const lud16Username = kind0.lud16.split('@')[0];
+            const lud16Domain = kind0.lud16.split('@')[1];
+
+            const lud16Url = `https://${lud16Domain}/.well-known/lnurlp/${lud16Username}`;
+
+            const response = await axios.get(lud16Url);
+
+            if (response.data.allowsNostr) {
+                const zapReq = nip57.makeZapRequest({
+                    profile: event.pubkey,
+                    event: event.id,
+                    amount: 1000,
+                    relays: relays,
+                    comment: 'Plebdevs Zap'
+                });
+
+                console.log('zapReq:', zapReq);
+
+                const signedEvent = await window?.nostr.signEvent(zapReq);
+                
+                const callbackUrl = response.data.callback;
+
+                const zapRequestAPICall = `${callbackUrl}?amount=${1000}&nostr=${encodeURI(JSON.stringify(signedEvent))}`;
+
+                const invoiceResponse = await axios.get(zapRequestAPICall);
+
+                if (invoiceResponse?.data?.pr) {
+                    const invoice = invoiceResponse.data.pr;
+
+                    const enabled = await window?.webln?.enable();
+
+                    console.log('webln enabled:', enabled);
+
+                    const payInvoiceResponse = await window?.webln?.sendPayment(invoice);
+
+                    console.log('payInvoiceResponse:', payInvoiceResponse);
+                } else {
+                    console.error('Error fetching invoice');
+                    showToast('error', 'Error', 'Error fetching invoice');
+                }
+            }
+        } else if (kind0?.lud06) {
+            // handle lnurlpay
+        } else {
+            showToast('error', 'Error', 'User has no Lightning Address or LNURL');
+            return;
+        }
+    
+    }
+
+    const fetchZapsForEvent = async (eventId) => {
+        const filter = [{ kinds: [9735] }];
+        const hasRequiredTags = async (eventData) => {
+            const hasEtag = eventData.some(([tag, value]) => tag === "e" && value === eventId);
+            return hasEtag;
+        };
+        fetchEvents(filter, 'zaps', hasRequiredTags);
+    }
 
     // Fetch resources, workshops, courses, and streams with appropriate filters and update functions
     const fetchResources = async () => {
@@ -288,6 +370,8 @@ export const useNostr = () => {
         fetchCourses,
         fetchWorkshops,
         // fetchStreams,
+        zapEvent,
+        fetchZapsForEvent,
         getRelayStatuses,
         events
     };

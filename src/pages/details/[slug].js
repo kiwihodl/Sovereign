@@ -27,9 +27,17 @@ export default function Details() {
     const [author, setAuthor] = useState(null);
 
     const { returnImageProxy } = useImageProxy();
-    const { fetchSingleEvent, fetchKind0 } = useNostr();
+    const { fetchSingleEvent, fetchKind0, zapEvent } = useNostr();
 
     const router = useRouter();
+
+    const handleZapEvent = async () => {
+        if (!event) return;
+
+        const response = await zapEvent(event);
+
+        console.log('zap response:', response);
+    }
 
     useEffect(() => {
         if (router.isReady) {
@@ -112,6 +120,7 @@ export default function Details() {
                                     label="Zap"
                                     severity="success"
                                     outlined
+                                    onClick={handleZapEvent}
                                     pt={{
                                         button: {
                                             icon: ({ context }) => ({
