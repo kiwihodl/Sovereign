@@ -28,7 +28,7 @@ const CourseForm = () => {
             price: checked ? price : null,
             content: text,
             topics: topics.map(topic => topic.trim().toLowerCase()),
-            resources: resources.map(resource => resource.trim())
+            topics: [...topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'course']
         };
 
         console.log(payload);

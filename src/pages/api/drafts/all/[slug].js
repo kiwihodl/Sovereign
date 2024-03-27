@@ -1,15 +1,15 @@
 import { getAllDraftsByUserId } from "@/db/models/draftModels";
 
 export default async function handler(req, res) {
-const { id } = req.query;
+const { slug } = req.query;
 
   if (req.method === 'GET') {
     try {
-      const resource = await getAllDraftsByUserId(id);
-        if (resource) {
-            res.status(200).json(resource);
+      const drafts = await getAllDraftsByUserId(slug);
+        if (drafts) {
+            res.status(200).json(drafts);
         } else {
-            res.status(404).json({ error: 'Resource not found' });
+            res.status(404).json({ error: 'Drafts not found' });
         }
     } catch (error) {
       res.status(400).json({ error: error.message });

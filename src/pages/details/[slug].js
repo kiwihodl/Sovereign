@@ -50,7 +50,6 @@ export default function Details() {
         const fetchAuthor = async (pubkey) => {
             const author = await fetchKind0([{ authors: [pubkey], kinds: [0] }], {});
             const fields = await findKind0Fields(author);
-            console.log('fields:', fields);
             if (fields) {
                 setAuthor(fields);
             }

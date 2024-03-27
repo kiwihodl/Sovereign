@@ -1,11 +1,11 @@
 import { getCourseById, updateCourse, deleteCourse } from "@/db/models/courseModels";
 
 export default async function handler(req, res) {
-  const { id } = req.query;
+  const { slug } = req.query;
 
   if (req.method === 'GET') {
     try {
-      const course = await getCourseById(parseInt(id));
+      const course = await getCourseById(slug);
       if (course) {
         res.status(200).json(course);
       } else {
@@ -16,14 +16,14 @@ export default async function handler(req, res) {
     }
   } else if (req.method === 'PUT') {
     try {
-      const course = await updateCourse(parseInt(id), req.body);
+      const course = await updateCourse(slug, req.body);
       res.status(200).json(course);
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
   } else if (req.method === 'DELETE') {
     try {
-      await deleteCourse(parseInt(id));
+      await deleteCourse(slug);
       res.status(204).end();
     } catch (error) {
       res.status(500).json({ error: error.message });

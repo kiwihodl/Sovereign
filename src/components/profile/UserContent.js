@@ -33,9 +33,11 @@ const UserContent = () => {
 
     const fetchAllContent = async () => {
         try {
+            console.log(user.id)
             // Fetch drafts from the database
             const draftsResponse = await axios.get(`/api/drafts/all/${user.id}`);
             const drafts = draftsResponse.data;
+            console.log('drafts:', drafts);
 
             // Fetch resources, workshops, and courses from Nostr
             fetchResources();

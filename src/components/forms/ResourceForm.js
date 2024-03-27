@@ -21,7 +21,7 @@ const ResourceForm = () => {
     const [price, setPrice] = useState(0);
     const [text, setText] = useState('');
     const [coverImage, setCoverImage] = useState('');
-    const [topics, setTopics] = useState(['']);
+    const [topics, setTopics] = useState([]);
 
     const [user] = useLocalStorageWithEffect('user', {});
 
@@ -49,7 +49,7 @@ const ResourceForm = () => {
             content: text,
             image: coverImage,
             user: userResponse.data.id,
-            topics: topics.map(topic => topic.trim().toLowerCase())
+            topics: [...topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'resource']
         };
 
         if (payload && payload.user) {

@@ -49,7 +49,7 @@ const WorkshopForm = () => {
             isPaidResource: checked,
             price: checked ? price : null,
             embedCode,
-            topics: topics.map(topic => topic.trim().toLowerCase()) // Include topics in the payload
+            topics: [...topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'workshop']
         };
         console.log(payload);
 

@@ -26,7 +26,6 @@ const responsiveOptions = [
 
 export default function WorkshopsCarousel() {
     const [processedWorkshops, setProcessedWorkshops] = useState([]);
-    const [screenWidth, setScreenWidth] = useState(null);
     const [workshops, setWorkshops] = useState([]);
     const router = useRouter();
     const { fetchWorkshops, events } = useNostr();
@@ -39,35 +38,6 @@ export default function WorkshopsCarousel() {
             fetchWorkshops();
         }
     }, [events]);
-
-    useEffect(() => {
-        // Update the state to the current window width
-        setScreenWidth(window.innerWidth);
-
-        const handleResize = () => {
-            // Update the state to the new window width when it changes
-            setScreenWidth(window.innerWidth);
-        };
-
-        window.addEventListener('resize', handleResize);
-
-        // Remove the event listener on cleanup
-        return () => window.removeEventListener('resize', handleResize);
-    }, []); // The empty array ensures this effect only runs once, similar to componentDidMount
-
-
-    const calculateImageDimensions = () => {
-        if (screenWidth >= 1200) {
-            // Large screens
-            return { width: 426, height: 240 };
-        } else if (screenWidth >= 768 && screenWidth < 1200) {
-            // Medium screens
-            return { width: 344, height: 194 };
-        } else {
-            // Small screens
-            return { width: screenWidth - 120, height: (screenWidth - 120) * (9 / 16) };
-        }
-    };
 
     useEffect(() => {
         const processWorkshops = workshops.map(workshop => {

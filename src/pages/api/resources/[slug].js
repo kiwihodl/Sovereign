@@ -1,11 +1,11 @@
 import { getResourceById, updateResource, deleteResource } from "@/db/models/resourceModels";
 
 export default async function handler(req, res) {
-  const { id } = req.query;
+  const { slug } = req.query;
 
   if (req.method === 'GET') {
     try {
-      const resource = await getResourceById(parseInt(id));
+      const resource = await getResourceById(slug);
       if (resource) {
         res.status(200).json(resource);
       } else {
@@ -16,14 +16,14 @@ export default async function handler(req, res) {
     }
   } else if (req.method === 'PUT') {
     try {
-      const resource = await updateResource(parseInt(id), req.body);
+      const resource = await updateResource(slug, req.body);
       res.status(200).json(resource);
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
   } else if (req.method === 'DELETE') {
     try {
-      await deleteResource(parseInt(id));
+      await deleteResource(slug);
       res.status(204).end();
     } catch (error) {
       res.status(500).json({ error: error.message });

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { SimplePool, nip19, verifyEvent } from "nostr-tools";
+import axios from "axios";
 import { useToast } from "./useToast";
 
 const initialRelays = [
@@ -22,7 +23,7 @@ export const useNostr = () => {
         streams: []
     });
 
-    const {showToast} = useToast();
+    const { showToast } = useToast();
 
     const pool = useRef(new SimplePool({ seenOnEnabled: true }));
     const subscriptions = useRef([]);
@@ -51,8 +52,9 @@ export const useNostr = () => {
     const fetchEvents = async (filter, updateDataField, hasRequiredTags) => {
         try {
             const sub = pool.current.subscribeMany(relays, filter, {
-                onevent: (event) => {
-                    if (hasRequiredTags(event.tags)) {
+                onevent: async (event) => {
+                    const shouldInclude = await hasRequiredTags(event.tags);
+                    if (shouldInclude) {
                         setEvents(prevData => ({
                             ...prevData,
                             [updateDataField]: [...prevData[updateDataField], event]
@@ -74,29 +76,78 @@ export const useNostr = () => {
     };
 
     // Fetch resources, workshops, courses, and streams with appropriate filters and update functions
-    const fetchResources = () => {
-        const filter = [{kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
-        const hasRequiredTags = (eventData) => eventData.some(([tag, value]) => tag === "t" && value === "plebdevs") && eventData.some(([tag, value]) => tag === "t" && value === "resource");
+    const fetchResources = async () => {
+        const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
+        const hasRequiredTags = async (eventData) => {
+            const hasPlebDevs = eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
+            const hasResource = eventData.some(([tag, value]) => tag === "t" && value === "resource");
+            if (hasPlebDevs && hasResource) {
+                const resourceId = eventData.find(([tag]) => tag === "d")?.[1];
+                if (resourceId) {
+                    try {
+                        const response = await axios.get(`/api/resources/${resourceId}`);
+                        return response.status === 200;
+                    } catch (error) {
+                        // Handle 404 or other errors gracefully
+                        return false;
+                    }
+                }
+            }
+            return false;
+        };
         fetchEvents(filter, 'resources', hasRequiredTags);
     };
 
-    const fetchWorkshops = () => {
-        const filter = [{kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
-        const hasRequiredTags = (eventData) => eventData.some(([tag, value]) => tag === "t" && value === "plebdevs") && eventData.some(([tag, value]) => tag === "t" && value === "resource");
+    const fetchWorkshops = async () => {
+        const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
+        const hasRequiredTags = async (eventData) => {
+            const hasPlebDevs = eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
+            const hasWorkshop = eventData.some(([tag, value]) => tag === "t" && value === "workshop");
+            if (hasPlebDevs && hasWorkshop) {
+                const workshopId = eventData.find(([tag]) => tag === "d")?.[1];
+                if (workshopId) {
+                   try {
+                        const response = await axios.get(`/api/resources/${workshopId}`);
+                        return response.status === 200;
+                   } catch (error) {
+                        // Handle 404 or other errors gracefully
+                        return false;
+                   }
+                }
+            }
+            return false;
+        };
         fetchEvents(filter, 'workshops', hasRequiredTags);
-    }
+    };
 
-    const fetchCourses = () => {
-        const filter = [{kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
-        const hasRequiredTags = (eventData) => eventData.some(([tag, value]) => tag === "t" && value === "plebdevs") && eventData.some(([tag, value]) => tag === "t" && value === "course");
+    const fetchCourses = async () => {
+        const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
+        const hasRequiredTags = async (eventData) => {
+            const hasPlebDevs = eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
+            const hasCourse = eventData.some(([tag, value]) => tag === "t" && value === "course");
+            if (hasPlebDevs && hasCourse) {
+                const courseId = eventData.find(([tag]) => tag === "d")?.[1];
+                if (courseId) {
+                    // try {
+                    //     const response = await axios.get(`/api/resources/${courseId}`);
+                    //     return response.status === 200;
+                    // } catch (error) {
+                    //     // Handle 404 or other errors gracefully
+                    //     return false;
+                    // }
+                    return true;
+                }
+            }
+            return false;
+        };
         fetchEvents(filter, 'courses', hasRequiredTags);
-    }
+    };
 
-    const fetchStreams = () => {
-        const filter = [{kinds: [30311], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
-        const hasRequiredTags = (eventData) => eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
-        fetchEvents(filter, 'streams', hasRequiredTags);
-    }
+    // const fetchStreams = () => {
+    //     const filter = [{kinds: [30311], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
+    //     const hasRequiredTags = (eventData) => eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
+    //     fetchEvents(filter, 'streams', hasRequiredTags);
+    // }
 
     const fetchKind0 = async (criteria, params) => {
         return new Promise((resolve, reject) => {
@@ -150,45 +201,45 @@ export const useNostr = () => {
             const wsRelay = new window.WebSocket(relay)
             let timer
             let isMessageSentSuccessfully = false
-        
-            function timedout () {
-              clearTimeout(timer)
-              wsRelay.close()
-              reject(new Error(`relay timeout for ${relay}`))
-            }
-        
-            timer = setTimeout(timedout, timeout)
-        
-            wsRelay.onopen = function () {
-              clearTimeout(timer)
-              timer = setTimeout(timedout, timeout)
-              wsRelay.send(JSON.stringify(['EVENT', signedEvent]))
-            }
-        
-            wsRelay.onmessage = function (msg) {
-              const m = JSON.parse(msg.data)
-              if (m[0] === 'OK') {
-                isMessageSentSuccessfully = true
+
+            function timedout() {
                 clearTimeout(timer)
                 wsRelay.close()
-                console.log('Successfully sent event to', relay)
-                resolve()
-              }
+                reject(new Error(`relay timeout for ${relay}`))
             }
-        
+
+            timer = setTimeout(timedout, timeout)
+
+            wsRelay.onopen = function () {
+                clearTimeout(timer)
+                timer = setTimeout(timedout, timeout)
+                wsRelay.send(JSON.stringify(['EVENT', signedEvent]))
+            }
+
+            wsRelay.onmessage = function (msg) {
+                const m = JSON.parse(msg.data)
+                if (m[0] === 'OK') {
+                    isMessageSentSuccessfully = true
+                    clearTimeout(timer)
+                    wsRelay.close()
+                    console.log('Successfully sent event to', relay)
+                    resolve()
+                }
+            }
+
             wsRelay.onerror = function (error) {
-              clearTimeout(timer)
-              console.log(error)
-              reject(new Error(`relay error: Failed to send to ${relay}`))
-            }
-        
-            wsRelay.onclose = function () {
-              clearTimeout(timer)
-              if (!isMessageSentSuccessfully) {
+                clearTimeout(timer)
+                console.log(error)
                 reject(new Error(`relay error: Failed to send to ${relay}`))
-              }
             }
-          })
+
+            wsRelay.onclose = function () {
+                clearTimeout(timer)
+                if (!isMessageSentSuccessfully) {
+                    reject(new Error(`relay error: Failed to send to ${relay}`))
+                }
+            }
+        })
     };
 
 
@@ -214,7 +265,7 @@ export const useNostr = () => {
             console.error('Error publishing event:', error);
         }
     };
-    
+
 
     useEffect(() => {
         getRelayStatuses(); // Get initial statuses on mount
@@ -236,7 +287,7 @@ export const useNostr = () => {
         fetchResources,
         fetchCourses,
         fetchWorkshops,
-        fetchStreams,
+        // fetchStreams,
         getRelayStatuses,
         events
     };
