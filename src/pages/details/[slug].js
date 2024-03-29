@@ -134,7 +134,7 @@ export default function Details() {
                     </div>
                 </div>
             </div>
-            <div className='w-[75vw] mx-auto mt-32 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
+            <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
                 {
                     processedEvent?.content && <MarkdownContent content={processedEvent.content} />
                 }

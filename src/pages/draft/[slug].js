@@ -229,7 +229,7 @@ export default function Details() {
             <div className='w-[75vw] mx-auto flex flex-row justify-end mt-12'>
                 <Button onClick={handleSubmit} label="Publish" severity='success' outlined className="w-auto my-2" />
             </div>
-            <div className='w-[75vw] mx-auto mt-24 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
+            <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
                 {
                     draft?.content && <MarkdownContent content={draft.content} />
                 }
