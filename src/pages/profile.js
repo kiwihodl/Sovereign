@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
 import UserContent from '@/components/profile/UserContent';
 import Image from "next/image";
+import BitcoinConnectButton from '@/components/profile/BitcoinConnect';
 
 const Profile = () => {
     const [user, setUser] = useLocalStorageWithEffect('user', {});
@@ -85,6 +86,10 @@ const Profile = () => {
 
                     <h1 className="text-center text-2xl my-2">{user.username || "Anon"}</h1>
                     <h2 className="text-center text-xl my-2 truncate max-tab:px-4 max-mob:px-4">{user.pubkey}</h2>
+                    <div className="flex flex-col w-1/2 mx-auto my-4 justify-between items-center">
+                        <h2>Connect Your Lightning Wallet</h2>
+                        <BitcoinConnectButton />
+                    </div>
                     <div className="flex flex-col w-1/2 mx-auto my-4 justify-between items-center">
                         <h2>Subscription</h2>
                         <p className="text-center">You currently have no active subscription</p>

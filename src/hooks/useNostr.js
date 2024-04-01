@@ -54,9 +54,6 @@ export const useNostr = () => {
         try {
             const sub = pool.current.subscribeMany(relays, filter, {
                 onevent: async (event) => {
-                    if (event.kind === 9735) {
-                        console.log('event:', event);
-                    }
                     const shouldInclude = await hasRequiredTags(event.tags);
                     if (shouldInclude) {
                         setEvents(prevData => ({
@@ -149,12 +146,8 @@ export const useNostr = () => {
     }
 
     const fetchZapsForEvent = async (eventId) => {
-        const filter = [{ kinds: [9735] }];
-        const hasRequiredTags = async (eventData) => {
-            const hasEtag = eventData.some(([tag, value]) => tag === "e" && value === eventId);
-            return hasEtag;
-        };
-        fetchEvents(filter, 'zaps', hasRequiredTags);
+        const filter = [{ kinds: [9735], "#e": [eventId] }];
+        fetchEvents(filter, 'zaps', () => true);
     }
 
     // Fetch resources, workshops, courses, and streams with appropriate filters and update functions

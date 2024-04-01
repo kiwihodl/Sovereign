@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useNostr } from '@/hooks/useNostr';
@@ -6,6 +7,7 @@ import { useImageProxy } from '@/hooks/useImageProxy';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import 'primeicons/primeicons.css';
 
 import ReactMarkdown from 'react-markdown';
@@ -21,10 +23,18 @@ const MarkdownContent = ({ content }) => {
     );
 };
 
+const BitcoinConnectPayButton = dynamic(
+    () => import('@getalby/bitcoin-connect-react').then((mod) => mod.PayButton),
+    {
+        ssr: false,
+    }
+);
+
 export default function Details() {
     const [event, setEvent] = useState(null);
     const [processedEvent, setProcessedEvent] = useState({});
     const [author, setAuthor] = useState(null);
+    const [bitcoinConnect, setBitcoinConnect] = useState(false);
 
     const { returnImageProxy } = useImageProxy();
     const { fetchSingleEvent, fetchKind0, zapEvent } = useNostr();
@@ -38,6 +48,16 @@ export default function Details() {
 
         console.log('zap response:', response);
     }
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const bitcoinConnectConfig = window.localStorage.getItem('bc:config');
+
+        if (bitcoinConnectConfig) {
+            setBitcoinConnect(true);
+        }
+    }, []);
 
     useEffect(() => {
         if (router.isReady) {
@@ -115,20 +135,25 @@ export default function Details() {
                                     height={194}
                                     className="object-cover object-center rounded-lg"
                                 />
-                                <Button
-                                    icon="pi pi-bolt"
-                                    label="Zap"
-                                    severity="success"
-                                    outlined
-                                    onClick={handleZapEvent}
-                                    pt={{
-                                        button: {
-                                            icon: ({ context }) => ({
-                                                className: 'bg-yellow-500'
-                                            })
-                                        }
-                                    }}
-                                />
+                                {bitcoinConnect ? (
+                                        <BitcoinConnectPayButton onClick={handleZapEvent} />
+                                    ) : (
+
+                                        <Button
+                                            icon="pi pi-bolt"
+                                            label="Zap"
+                                            severity="success"
+                                            outlined
+                                            onClick={handleZapEvent}
+                                            pt={{
+                                                button: {
+                                                    icon: ({ context }) => ({
+                                                        className: 'bg-yellow-500'
+                                                    })
+                                                }
+                                            }}
+                                        />
+                                    )}
                             </div>
                         )}
                     </div>
