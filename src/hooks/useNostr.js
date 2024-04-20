@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef } from "react";
-import { SimplePool, nip19, verifyEvent, nip57 } from "nostr-tools";
-import axios from "axios";
-import { useToast } from "./useToast";
+import { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
+import { SimplePool, nip57 } from 'nostr-tools';
 
-const initialRelays = [
+const defaultRelays = [
     "wss://nos.lol/",
     "wss://relay.damus.io/",
     "wss://relay.snort.social/",
@@ -13,359 +12,296 @@ const initialRelays = [
     "wss://relay.primal.net/"
 ];
 
-export const useNostr = () => {
-    const [relays, setRelays] = useState(initialRelays);
-    const [relayStatuses, setRelayStatuses] = useState({});
-    const [events, setEvents] = useState({
-        resources: [],
-        workshops: [],
-        courses: [],
-        streams: [],
-        zaps: []
-    });
-
-    const { showToast } = useToast();
-
-    const pool = useRef(new SimplePool({ seenOnEnabled: true }));
-    const subscriptions = useRef([]);
-
-    const getRelayStatuses = () => {
-        if (pool.current && pool.current._conn) {
-            const statuses = {};
-
-            for (const url in pool.current._conn) {
-                const relay = pool.current._conn[url];
-                statuses[url] = relay.status; // Assuming 'status' is an accessible field in Relay object
-            }
-
-            setRelayStatuses(statuses);
-        }
-    };
-
-    const updateRelays = async (newRelays) => {
-        // Set new relays
-        setRelays(newRelays);
-
-        // Ensure the relays are connected before using them
-        await Promise.all(newRelays.map(relay => pool.current.ensureRelay(relay)));
-    };
-
-    const fetchEvents = async (filter, updateDataField, hasRequiredTags) => {
-        try {
-            const sub = pool.current.subscribeMany(relays, filter, {
-                onevent: async (event) => {
-                    const shouldInclude = await hasRequiredTags(event.tags);
-                    if (shouldInclude) {
-                        setEvents(prevData => ({
-                            ...prevData,
-                            [updateDataField]: [...prevData[updateDataField], event]
-                        }));
-                    }
-                },
-                onerror: (error) => {
-                    setError(error);
-                    console.error(`Error fetching ${updateDataField}:`, error);
-                },
-                oneose: () => {
-                    console.log("Subscription closed");
-                    sub.close();
-                }
-            });
-        } catch (error) {
-            setError(error);
-        }
-    };
-
-    // zaps
-    // 1. get the author from the content
-    // 2. get the author's kind0
-    // 3. get the author's lud16 if available
-    // 4. Make a get request to the lud16 endpoint and ensure that allowNostr is true
-    // 5. Create zap request event and sign it
-    // 6. Send to the callback url as a get req with the nostr event as a query param
-    // 7. get the invoice back and pay it with webln
-    // 8. listen for the zap receipt event and update the UI
-
-    const zapEvent = async (event) => {
-        const kind0 = await fetchKind0([{ authors: [event.pubkey], kinds: [0] }], {});
-
-        if (Object.keys(kind0).length === 0) {
-            console.error('Error fetching kind0');
-            return;
-        }
-
-        if (kind0?.lud16) {
-            const lud16Username = kind0.lud16.split('@')[0];
-            const lud16Domain = kind0.lud16.split('@')[1];
-
-            const lud16Url = `https://${lud16Domain}/.well-known/lnurlp/${lud16Username}`;
-
-            const response = await axios.get(lud16Url);
-
-            if (response.data.allowsNostr) {
-                const zapReq = nip57.makeZapRequest({
-                    profile: event.pubkey,
-                    event: event.id,
-                    amount: 1000,
-                    relays: relays,
-                    comment: 'Plebdevs Zap'
-                });
-
-                console.log('zapReq:', zapReq);
-
-                const signedEvent = await window?.nostr.signEvent(zapReq);
-                
-                const callbackUrl = response.data.callback;
-
-                const zapRequestAPICall = `${callbackUrl}?amount=${1000}&nostr=${encodeURI(JSON.stringify(signedEvent))}`;
-
-                const invoiceResponse = await axios.get(zapRequestAPICall);
-
-                if (invoiceResponse?.data?.pr) {
-                    const invoice = invoiceResponse.data.pr;
-
-                    const enabled = await window?.webln?.enable();
-
-                    console.log('webln enabled:', enabled);
-
-                    const payInvoiceResponse = await window?.webln?.sendPayment(invoice);
-
-                    console.log('payInvoiceResponse:', payInvoiceResponse);
-                } else {
-                    console.error('Error fetching invoice');
-                    showToast('error', 'Error', 'Error fetching invoice');
-                }
-            }
-        } else if (kind0?.lud06) {
-            // handle lnurlpay
-        } else {
-            showToast('error', 'Error', 'User has no Lightning Address or LNURL');
-            return;
-        }
-    
-    }
-
-    const fetchZapsForEvent = async (eventId) => {
-        const filter = [{ kinds: [9735], "#e": [eventId] }];
-        fetchEvents(filter, 'zaps', () => true);
-    }
-
-    // Fetch resources, workshops, courses, and streams with appropriate filters and update functions
-    const fetchResources = async () => {
-        const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
-        const hasRequiredTags = async (eventData) => {
-            const hasPlebDevs = eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
-            const hasResource = eventData.some(([tag, value]) => tag === "t" && value === "resource");
-            if (hasPlebDevs && hasResource) {
-                const resourceId = eventData.find(([tag]) => tag === "d")?.[1];
-                if (resourceId) {
-                    try {
-                        const response = await axios.get(`/api/resources/${resourceId}`);
-                        return response.status === 200;
-                    } catch (error) {
-                        // Handle 404 or other errors gracefully
-                        return false;
-                    }
-                }
-            }
-            return false;
-        };
-        fetchEvents(filter, 'resources', hasRequiredTags);
-    };
-
-    const fetchWorkshops = async () => {
-        const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
-        const hasRequiredTags = async (eventData) => {
-            const hasPlebDevs = eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
-            const hasWorkshop = eventData.some(([tag, value]) => tag === "t" && value === "workshop");
-            if (hasPlebDevs && hasWorkshop) {
-                const workshopId = eventData.find(([tag]) => tag === "d")?.[1];
-                if (workshopId) {
-                   try {
-                        const response = await axios.get(`/api/resources/${workshopId}`);
-                        return response.status === 200;
-                   } catch (error) {
-                        // Handle 404 or other errors gracefully
-                        return false;
-                   }
-                }
-            }
-            return false;
-        };
-        fetchEvents(filter, 'workshops', hasRequiredTags);
-    };
-
-    const fetchCourses = async () => {
-        const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
-        const hasRequiredTags = async (eventData) => {
-            const hasPlebDevs = eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
-            const hasCourse = eventData.some(([tag, value]) => tag === "t" && value === "course");
-            if (hasPlebDevs && hasCourse) {
-                const courseId = eventData.find(([tag]) => tag === "d")?.[1];
-                if (courseId) {
-                    // try {
-                    //     const response = await axios.get(`/api/resources/${courseId}`);
-                    //     return response.status === 200;
-                    // } catch (error) {
-                    //     // Handle 404 or other errors gracefully
-                    //     return false;
-                    // }
-                    return true;
-                }
-            }
-            return false;
-        };
-        fetchEvents(filter, 'courses', hasRequiredTags);
-    };
-
-    // const fetchStreams = () => {
-    //     const filter = [{kinds: [30311], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
-    //     const hasRequiredTags = (eventData) => eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
-    //     fetchEvents(filter, 'streams', hasRequiredTags);
-    // }
-
-    const fetchKind0 = async (criteria, params) => {
-        return new Promise((resolve, reject) => {
-            const events = [];
-            const timeoutDuration = 1000;
-
-            const sub = pool.current.subscribeMany(relays, criteria, {
-                ...params,
-                onevent: (event) => {
-                    events.push(event);
-                },
-                onerror: (error) => {
-                    reject(error);
-                }
-            });
-
-            // Set a timeout to sort and resolve with the most recent event
-            setTimeout(() => {
-                if (events.length === 0) {
-                    resolve(null);  // or reject based on your needs
-                } else {
-                    events.sort((a, b) => b.created_at - a.created_at); // Sort in descending order
-                    const mostRecentEventContent = JSON.parse(events[0].content);
-                    resolve(mostRecentEventContent);
-                }
-            }, timeoutDuration);
-        });
-    };
-
-    const fetchSingleEvent = async (id) => {
-        return new Promise((resolve, reject) => {
-            const sub = pool.current.subscribeMany(relays, [{ ids: [id] }], {
-                onevent: (event) => {
-                    resolve(event);
-                },
-                onerror: (error) => {
-                    reject(error);
-                },
-                oneose: () => {
-                    console.log("Subscription closed");
-                    sub.close();
-                }
-            });
-        });
-    }
-
-    const publishEvent = async (relay, signedEvent) => {
-        console.log('publishing event to', relay);
-        return new Promise((resolve, reject) => {
-            const timeout = 3000
-            const wsRelay = new window.WebSocket(relay)
-            let timer
-            let isMessageSentSuccessfully = false
-
-            function timedout() {
-                clearTimeout(timer)
-                wsRelay.close()
-                reject(new Error(`relay timeout for ${relay}`))
-            }
-
-            timer = setTimeout(timedout, timeout)
-
-            wsRelay.onopen = function () {
-                clearTimeout(timer)
-                timer = setTimeout(timedout, timeout)
-                wsRelay.send(JSON.stringify(['EVENT', signedEvent]))
-            }
-
-            wsRelay.onmessage = function (msg) {
-                const m = JSON.parse(msg.data)
-                if (m[0] === 'OK') {
-                    isMessageSentSuccessfully = true
-                    clearTimeout(timer)
-                    wsRelay.close()
-                    console.log('Successfully sent event to', relay)
-                    resolve()
-                }
-            }
-
-            wsRelay.onerror = function (error) {
-                clearTimeout(timer)
-                console.log(error)
-                reject(new Error(`relay error: Failed to send to ${relay}`))
-            }
-
-            wsRelay.onclose = function () {
-                clearTimeout(timer)
-                if (!isMessageSentSuccessfully) {
-                    reject(new Error(`relay error: Failed to send to ${relay}`))
-                }
-            }
-        })
-    };
-
-
-    const publishAll = async (signedEvent) => {
-        try {
-            const promises = relays.map(relay => publishEvent(relay, signedEvent));
-            const results = await Promise.allSettled(promises)
-            const successfulRelays = []
-            const failedRelays = []
-
-            results.forEach((result, i) => {
-                if (result.status === 'fulfilled') {
-                    successfulRelays.push(relays[i])
-                    showToast('success', `published to ${relays[i]}`)
-                } else {
-                    failedRelays.push(relays[i])
-                    showToast('error', `failed to publish to ${relays[i]}`)
-                }
-            })
-
-            return { successfulRelays, failedRelays }
-        } catch (error) {
-            console.error('Error publishing event:', error);
-        }
-    };
-
+export function useNostr() {
+    const [pool, setPool] = useState(null);
 
     useEffect(() => {
-        getRelayStatuses(); // Get initial statuses on mount
-
-        // Copy current subscriptions to a local variable inside the effect
-        const currentSubscriptions = subscriptions.current;
+        const newPool = new SimplePool({ verifyEvent: () => true });
+        setPool(newPool);
 
         return () => {
-            // Use the local variable in the cleanup function
-            currentSubscriptions.forEach((sub) => sub.unsub());
+            newPool.close(defaultRelays);
         };
     }, []);
 
-    return {
-        updateRelays,
-        fetchSingleEvent,
-        publishAll,
-        fetchKind0,
-        fetchResources,
-        fetchCourses,
-        fetchWorkshops,
-        // fetchStreams,
-        zapEvent,
-        fetchZapsForEvent,
-        getRelayStatuses,
-        events
-    };
-};
+    const connect = useCallback(async () => {
+        if (!pool) return;
+
+        try {
+            await Promise.all(defaultRelays.map((url) => pool.ensureRelay(url)));
+        } catch (error) {
+            console.error('Error connecting to relays:', error);
+        }
+    }, [pool]);
+
+    const disconnect = useCallback(() => {
+        if (!pool) return;
+
+        pool.close(defaultRelays);
+    }, [pool]);
+
+    const subscribe = useCallback(
+        (filters, opts) => {
+            if (!pool) return;
+
+            return pool.subscribeMany(defaultRelays, filters, {
+                ...opts,
+                onclose: () => {
+                    opts.onclose?.();
+                    connect();
+                },
+            });
+        },
+        [pool, connect]
+    );
+
+    const publish = useCallback(
+        async (event) => {
+            if (!pool) return;
+
+            try {
+                await Promise.any(pool.publish(defaultRelays, event));
+                console.log('Published event to at least one relay');
+            } catch (error) {
+                console.error('Failed to publish event:', error);
+            }
+        },
+        [pool]
+    );
+
+    const fetchSingleEvent = useCallback(
+        async (id) => {
+            try {
+                if (!pool || !pool.connected) {
+                    console.warn('Pool is not connected. Skipping fetchSingleEvent.');
+                    return null;
+                }
+    
+                const event = await pool.get(defaultRelays, {
+                    ids: [id],
+                });
+                return event;
+            } catch (error) {
+                console.error('Failed to fetch event:', error);
+                return null;
+            }
+        },
+        [pool]
+    );
+
+    const fetchZapsForEvent = useCallback(
+        async (id) => {
+            try {
+                if (!pool || !pool.connected) {
+                    console.warn('Pool is not connected. Skipping fetchZapsForEvent.');
+                    return [];
+                }
+    
+                const filter = [{ kinds: [9735], '#e': [id] }];
+                const zaps = await pool.querySync(defaultRelays, filter);
+                console.log('zaps:', zaps);
+                return zaps;
+            } catch (error) {
+                console.error('Failed to fetch zaps for event:', error);
+                return [];
+            }
+        },
+        [pool]
+    );
+
+    const fetchKind0 = useCallback(
+        async (publicKey) => {
+            try {
+                if (!pool || !pool.connected) {
+                    console.warn('Pool is not connected. Skipping fetchKind0.');
+                    return [];
+                }
+                
+                const filter = [{ authors: [publicKey], kinds: [0] }];
+                const kind0 = await pool.querySync(defaultRelays, filter);
+                return kind0;
+            } catch (error) {
+                console.error('Failed to fetch kind 0 for event:', error);
+                return [];
+            }
+        },
+        [pool]
+    );
+
+    const zapEvent = useCallback(
+        async (event) => {
+            const kind0 = await fetchKind0(event.pubkey);
+
+            if (kind0.length === 0) {
+                console.error('Error fetching kind0');
+                return;
+            }
+
+            const profile = kind0[0];
+
+            if (profile.lud16) {
+                const lud16Username = profile.lud16.split('@')[0];
+                const lud16Domain = profile.lud16.split('@')[1];
+                const lud16Url = `https://${lud16Domain}/.well-known/lnurlp/${lud16Username}`;
+
+                try {
+                    const response = await axios.get(lud16Url);
+
+                    if (response.data.allowsNostr) {
+                        const zapReq = nip57.makeZapRequest({
+                            profile: event.pubkey,
+                            event: event.id,
+                            amount: 1000,
+                            relays: defaultRelays,
+                            comment: 'Plebdevs Zap',
+                        });
+
+                        console.log('zapReq:', zapReq);
+
+                        const signedEvent = await window?.nostr?.signEvent(zapReq);
+                        const callbackUrl = response.data.callback;
+                        const zapRequestAPICall = `${callbackUrl}?amount=${1000}&nostr=${encodeURI(
+                            JSON.stringify(signedEvent)
+                        )}`;
+
+                        const invoiceResponse = await axios.get(zapRequestAPICall);
+
+                        if (invoiceResponse?.data?.pr) {
+                            const invoice = invoiceResponse.data.pr;
+                            const enabled = await window?.webln?.enable();
+                            console.log('webln enabled:', enabled);
+                            const payInvoiceResponse = await window?.webln?.sendPayment(invoice);
+                            console.log('payInvoiceResponse:', payInvoiceResponse);
+                        } else {
+                            console.error('Error fetching invoice');
+                            // showToast('error', 'Error', 'Error fetching invoice');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching lud16 data:', error);
+                }
+            } else if (profile.lud06) {
+                // handle lnurlpay
+            } else {
+                // showToast('error', 'Error', 'User has no Lightning Address or LNURL');
+            }
+        },
+        [fetchKind0]
+    );
+
+    const fetchResources = useCallback(async () => {
+        const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
+        const hasRequiredTags = (eventData) => {
+            const hasPlebDevs = eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
+            const hasResource = eventData.some(([tag, value]) => tag === "t" && value === "resource");
+            return hasPlebDevs && hasResource;
+        };
+    
+        return new Promise((resolve, reject) => {
+            let resources = [];
+    
+            const subscription = subscribe(
+                filter,
+                {
+                    onevent: (event) => {
+                        if (hasRequiredTags(event.tags)) {
+                            resources.push(event);
+                        }
+                    },
+                    onerror: (error) => {
+                        console.error('Error fetching resources:', error);
+                        subscription?.close();
+                        resolve(resources);
+                    },
+                    onclose: () => {
+                        resolve(resources);
+                    },
+                },
+                2000 // Adjust the timeout value as needed
+            );
+    
+            setTimeout(() => {
+                subscription?.close();
+                resolve(resources);
+            }, 2000); // Adjust the timeout value as needed
+        });
+    }, [subscribe]);
+    
+    const fetchWorkshops = useCallback(async () => {
+        const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
+        const hasRequiredTags = (eventData) => {
+            const hasPlebDevs = eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
+            const hasWorkshop = eventData.some(([tag, value]) => tag === "t" && value === "workshop");
+            return hasPlebDevs && hasWorkshop;
+        };
+    
+        return new Promise((resolve, reject) => {
+            let workshops = [];
+    
+            const subscription = subscribe(
+                filter,
+                {
+                    onevent: (event) => {
+                        if (hasRequiredTags(event.tags)) {
+                            workshops.push(event);
+                        }
+                    },
+                    onerror: (error) => {
+                        console.error('Error fetching workshops:', error);
+                        subscription?.close();
+                        resolve(workshops);
+                    },
+                    onclose: () => {
+                        resolve(workshops);
+                    },
+                },
+                2000 // Adjust the timeout value as needed
+            );
+    
+            setTimeout(() => {
+                subscription?.close();
+                resolve(workshops);
+            }, 2000); // Adjust the timeout value as needed
+        });
+    }, [subscribe]);
+    
+    const fetchCourses = useCallback(async () => {
+        const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
+        const hasRequiredTags = (eventData) => {
+            const hasPlebDevs = eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
+            const hasCourse = eventData.some(([tag, value]) => tag === "t" && value === "course");
+            return hasPlebDevs && hasCourse;
+        };
+    
+        return new Promise((resolve, reject) => {
+            let courses = [];
+    
+            const subscription = subscribe(
+                filter,
+                {
+                    onevent: (event) => {
+                        if (hasRequiredTags(event.tags)) {
+                            courses.push(event);
+                        }
+                    },
+                    onerror: (error) => {
+                        console.error('Error fetching courses:', error);
+                        subscription?.close();
+                        resolve(courses);
+                    },
+                    onclose: () => {
+                        resolve(courses);
+                    },
+                },
+                2000 // Adjust the timeout value as needed
+            );
+    
+            setTimeout(() => {
+                subscription?.close();
+                resolve(courses);
+            }, 2000); // Adjust the timeout value as needed
+        });
+    }, [subscribe]);
+
+    return { subscribe, publish, fetchSingleEvent, fetchZapsForEvent, fetchResources, fetchWorkshops, fetchCourses, zapEvent };
+}

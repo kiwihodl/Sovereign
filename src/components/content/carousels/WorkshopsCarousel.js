@@ -28,16 +28,21 @@ export default function WorkshopsCarousel() {
     const [processedWorkshops, setProcessedWorkshops] = useState([]);
     const [workshops, setWorkshops] = useState([]);
     const router = useRouter();
-    const { fetchWorkshops, events } = useNostr();
+    const { fetchWorkshops } = useNostr();
     const { returnImageProxy } = useImageProxy();
 
     useEffect(() => {
-        if (events && events.workshops && events.workshops.length > 0) {
-            setWorkshops(events.workshops);
-        } else {
-            fetchWorkshops();
-        }
-    }, [events]);
+        const fetch = async () => {
+            try {
+                const workshops = await fetchWorkshops();
+                console.log('workshops:', workshops);
+                setWorkshops(workshops);
+            } catch (error) {
+                console.error('Error fetching workshops:', error);
+            }
+        };
+        fetch();
+    }, [fetchWorkshops]);
 
     useEffect(() => {
         const processWorkshops = workshops.map(workshop => {

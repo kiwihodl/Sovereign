@@ -26,15 +26,20 @@ const responsiveOptions = [
 export default function CoursesCarousel() {
     const [processedCourses, setProcessedCourses] = useState([]);
     const [courses, setCourses] = useState([]);
-    const { fetchCourses, events } = useNostr();
+    const { fetchCourses } = useNostr();
 
     useEffect(() => {
-        if (events && events.courses && events.courses.length > 0) {
-            setCourses(events.courses);
-        } else {
-            fetchCourses();
-        }
-    }, [events]);
+        const fetch = async () => {
+            try {
+                const courses = await fetchCourses();
+                console.log('courses:', courses);
+                setCourses(courses);
+            } catch (error) {
+                console.error('Error fetching courses:', error);
+            }
+        };
+        fetch();
+    }, [fetchCourses]);
 
     useEffect(() => {
         const processCourses = courses.map(course => {

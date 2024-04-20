@@ -28,16 +28,21 @@ export default function ResourcesCarousel() {
     const [processedResources, setProcessedResources] = useState([]);
     const [resources, setResources] = useState([]);
     const router = useRouter();
-    const { fetchResources, events } = useNostr();
+    const { fetchResources } = useNostr();
     const { returnImageProxy } = useImageProxy();
 
     useEffect(() => {
-        if (events && events.resources && events.resources.length > 0) {
-            setResources(events.resources);
-        } else {
-            fetchResources();
-        }
-    }, [events]);
+        const fetch = async () => {
+            try {
+                const resources = await fetchResources();
+                console.log('resources:', resources);
+                setResources(resources);
+            } catch (error) {
+                console.error('Error fetching resources:', error);
+            }
+        };
+        fetch();
+    }, [fetchResources]);
 
     useEffect(() => {
         const processResources = resources.map(resource => {

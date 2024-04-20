@@ -13,15 +13,20 @@ const CourseTemplate = (course) => {
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
     const { width, height } = useResponsiveImageDimensions();
-    const {events, fetchZapsForEvent} = useNostr();
+    const { fetchZapsForEvent } = useNostr();
 
     useEffect(() => {
-        if (events && events.zaps.length > 0) {
-            setZaps(events.zaps);
-        } else {
-            fetchZapsForEvent(course.id);
-        }
-    }, [events]);
+        const fetchZaps = async () => {
+            try {
+                const zaps = await fetchZapsForEvent(course.id);
+                console.log('zaps:', zaps);
+                setZaps(zaps);
+            } catch (error) {
+                console.error('Error fetching zaps:', error);
+            }
+        };
+        fetchZaps();
+    }, [fetchZapsForEvent, course]);
 
     useEffect(() => {
         if (zaps.length > 0) {
