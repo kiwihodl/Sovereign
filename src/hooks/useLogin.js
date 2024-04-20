@@ -26,7 +26,7 @@ export const useLogin = () => {
                     window.localStorage.setItem('user', JSON.stringify(response.data));
                 } else if (response.status === 204) {
                     // User not found, create a new user
-                    const kind0 = await fetchKind0([{ authors: [publicKey], kinds: [0] }], {});
+                    const kind0 = await fetchKind0(publicKey);
 
                     console.log('kind0:', kind0);
 
@@ -79,7 +79,7 @@ export const useLogin = () => {
             router.push('/').then(() => window.location.reload());
         } catch (error) {
             // User not found, create a new user
-            const kind0 = await fetchKind0([{ authors: [publicKey], kinds: [0] }], {});
+            const kind0 = await fetchKind0(publicKey);
             const fields = await findKind0Fields(kind0);
             const payload = { pubkey: publicKey, ...fields };
 

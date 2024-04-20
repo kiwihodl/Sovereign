@@ -28,6 +28,7 @@ const Course = () => {
         const getCourse = async () => {
             if (slug) {
                 const fetchedCourse = await fetchSingleEvent(slug);
+                console.log('fetched course:', fetchedCourse);
                 const formattedCourse = parseEvent(fetchedCourse);
                 setCourse(formattedCourse);
             }

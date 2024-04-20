@@ -5,26 +5,29 @@ import Layout from '@/components/Layout';
 import '@/styles/globals.css'
 import 'primereact/resources/themes/lara-dark-indigo/theme.css';
 import Sidebar from '@/components/sidebar/Sidebar';
+import { NostrProvider } from '@/context/NostrContext';
 
 export default function MyApp({
     Component, pageProps: { ...pageProps }
 }) {
     return (
         <PrimeReactProvider>
-            <ToastProvider>
-                <Layout>
-                    <div className="flex flex-col min-h-screen">
-                        <Navbar />
-                        {/* <div className='flex'> */}
-                        {/* <Sidebar /> */}
-                        {/* <div className='max-w-[100vw] pl-[15vw]'> */}
-                        <div className='max-w-[100vw]'>
-                            <Component {...pageProps} />
+            <NostrProvider>
+                <ToastProvider>
+                    <Layout>
+                        <div className="flex flex-col min-h-screen">
+                            <Navbar />
+                            {/* <div className='flex'> */}
+                            {/* <Sidebar /> */}
+                            {/* <div className='max-w-[100vw] pl-[15vw]'> */}
+                            <div className='max-w-[100vw]'>
+                                <Component {...pageProps} />
+                            </div>
+                            {/* </div> */}
                         </div>
-                        {/* </div> */}
-                    </div>
-                </Layout>
-            </ToastProvider>
+                    </Layout>
+                </ToastProvider>
+            </NostrProvider>
         </PrimeReactProvider>
     );
 }

@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 import axios from 'axios';
-import { SimplePool, nip57 } from 'nostr-tools';
+import { nip57 } from 'nostr-tools';
+import { NostrContext } from '@/context/NostrContext';
 
 const defaultRelays = [
     "wss://nos.lol/",
@@ -10,50 +11,19 @@ const defaultRelays = [
     "wss://nostr.mutinywallet.com/",
     "wss://relay.mutinywallet.com/",
     "wss://relay.primal.net/"
-];
+  ];
 
 export function useNostr() {
-    const [pool, setPool] = useState(null);
-
-    useEffect(() => {
-        const newPool = new SimplePool({ verifyEvent: () => true });
-        setPool(newPool);
-
-        return () => {
-            newPool.close(defaultRelays);
-        };
-    }, []);
-
-    const connect = useCallback(async () => {
-        if (!pool) return;
-
-        try {
-            await Promise.all(defaultRelays.map((url) => pool.ensureRelay(url)));
-        } catch (error) {
-            console.error('Error connecting to relays:', error);
-        }
-    }, [pool]);
-
-    const disconnect = useCallback(() => {
-        if (!pool) return;
-
-        pool.close(defaultRelays);
-    }, [pool]);
+    const pool = useContext(NostrContext);
 
     const subscribe = useCallback(
         (filters, opts) => {
-            if (!pool) return;
-
-            return pool.subscribeMany(defaultRelays, filters, {
-                ...opts,
-                onclose: () => {
-                    opts.onclose?.();
-                    connect();
-                },
-            });
+          if (!pool) return;
+    
+          return pool.subscribeMany(defaultRelays, filters, opts);
         },
-        [pool, connect]
-    );
+        [pool]
+      );
 
     const publish = useCallback(
         async (event) => {
@@ -72,11 +42,6 @@ export function useNostr() {
     const fetchSingleEvent = useCallback(
         async (id) => {
             try {
-                if (!pool || !pool.connected) {
-                    console.warn('Pool is not connected. Skipping fetchSingleEvent.');
-                    return null;
-                }
-    
                 const event = await pool.get(defaultRelays, {
                     ids: [id],
                 });
@@ -92,12 +57,7 @@ export function useNostr() {
     const fetchZapsForEvent = useCallback(
         async (id) => {
             try {
-                if (!pool || !pool.connected) {
-                    console.warn('Pool is not connected. Skipping fetchZapsForEvent.');
-                    return [];
-                }
-    
-                const filter = [{ kinds: [9735], '#e': [id] }];
+                const filter = { kinds: [9735], '#e': [id] };
                 const zaps = await pool.querySync(defaultRelays, filter);
                 console.log('zaps:', zaps);
                 return zaps;
@@ -112,14 +72,9 @@ export function useNostr() {
     const fetchKind0 = useCallback(
         async (publicKey) => {
             try {
-                if (!pool || !pool.connected) {
-                    console.warn('Pool is not connected. Skipping fetchKind0.');
-                    return [];
-                }
-                
-                const filter = [{ authors: [publicKey], kinds: [0] }];
+                const filter = { authors: [publicKey], kinds: [0] };
                 const kind0 = await pool.querySync(defaultRelays, filter);
-                return kind0;
+                return JSON.parse(kind0[0].content);
             } catch (error) {
                 console.error('Failed to fetch kind 0 for event:', error);
                 return [];
@@ -303,5 +258,5 @@ export function useNostr() {
         });
     }, [subscribe]);
 
-    return { subscribe, publish, fetchSingleEvent, fetchZapsForEvent, fetchResources, fetchWorkshops, fetchCourses, zapEvent };
+    return { subscribe, publish, fetchSingleEvent, fetchZapsForEvent, fetchKind0, fetchResources, fetchWorkshops, fetchCourses, zapEvent };
 }

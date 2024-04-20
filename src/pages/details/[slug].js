@@ -76,8 +76,9 @@ export default function Details() {
 
     useEffect(() => {
         const fetchAuthor = async (pubkey) => {
-            const author = await fetchKind0([{ authors: [pubkey], kinds: [0] }], {});
+            const author = await fetchKind0(pubkey);
             const fields = await findKind0Fields(author);
+            console.log('fields:', fields);
             if (fields) {
                 setAuthor(fields);
             }
@@ -85,7 +86,7 @@ export default function Details() {
         if (event) {
             fetchAuthor(event.pubkey);
         }
-    }, [event]);
+    }, [fetchKind0, event]);
 
     useEffect(() => {
         if (event) {
