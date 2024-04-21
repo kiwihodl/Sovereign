@@ -1,14 +1,47 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import useResponsiveImageDimensions from "@/hooks/useResponsiveImageDimensions";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { useImageProxy } from "@/hooks/useImageProxy";
+import { useNostr } from "@/hooks/useNostr";
+import {getSatAmountFromInvoice} from "@/utils/lightning";
 
 const WorkshopTemplate = (workshop) => {
+    const [zaps, setZaps] = useState([]);
+    const [zapAmount, setZapAmount] = useState(null);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
     const { width, height } = useResponsiveImageDimensions();
+
+    const { fetchZapsForEvent } = useNostr();
+
+    useEffect(() => {
+        const fetchZaps = async () => {
+            try {
+                const zaps = await fetchZapsForEvent(workshop.id);
+                setZaps(zaps);
+            } catch (error) {
+                console.error('Error fetching zaps:', error);
+            }
+        };
+        fetchZaps();
+    }, [fetchZapsForEvent, workshop]);
+
+    useEffect(() => {
+        if (zaps.length > 0) {
+            zaps.map((zap) => {
+                const bolt11Tag = zap.tags.find(tag => tag[0] === 'bolt11');
+                const invoice = bolt11Tag ? bolt11Tag[1] : null;
+
+                if (invoice) {
+                    const amount = getSatAmountFromInvoice(invoice);
+                    setZapAmount(zapAmount + amount);
+                }
+            })   
+        }
+    }, [zaps]);
+
     return (
         <div style={{width: width < 768 ? "auto" : width}} onClick={() => router.push(`/details/${workshop.id}`)} className="flex flex-col items-center mx-auto px-4 cursor-pointer mt-8 rounded-md shadow-lg">
             <div style={{maxWidth: width, minWidth: width}} className="max-tab:h-auto max-mob:h-auto">
@@ -33,7 +66,10 @@ const WorkshopTemplate = (workshop) => {
                     }}>
                         {workshop.summary}
                     </p>
-                    <p className="text-sm mt-1 text-gray-400">Published: {formatTimestampToHowLongAgo(workshop.published_at)}</p>
+                    <div className="flex flex-row justify-between w-full">
+                        <p className="text-sm mt-1 text-gray-400">Published: {formatTimestampToHowLongAgo(workshop.published_at)}</p>
+                        <p className="pr-2"><i className="pi pi-bolt"></i> {zapAmount}</p>
+                    </div>
                 </div>
             </div>
         </div>

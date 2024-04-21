@@ -19,7 +19,6 @@ const CourseTemplate = (course) => {
         const fetchZaps = async () => {
             try {
                 const zaps = await fetchZapsForEvent(course.id);
-                console.log('zaps:', zaps);
                 setZaps(zaps);
             } catch (error) {
                 console.error('Error fetching zaps:', error);
