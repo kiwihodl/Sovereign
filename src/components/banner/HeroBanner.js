@@ -39,16 +39,16 @@ const HeroBanner = () => {
                 quality={100}
                 className='opacity-70'
             />
-            <div className="absolute text-center text-white text-xl h-full flex flex-col justify-evenly">
-                <p className='text-2xl md:text-3xl lg:text-4xl xl:text-5xl'>Learn how to code</p>
-                <p className='text-2xl md:text-3xl lg:text-4xl xl:text-5xl'>
+            <div className="max-mob:min-w-full max-tab:min-w-[38%] min-w-[35%] absolute text-center text-white text-xl h-full flex flex-col justify-evenly">
+                <p className='text-xl md:text-3xl lg:text-4xl xl:text-5xl'>Learn how to code</p>
+                <p className='text-xl md:text-3xl lg:text-4xl xl:text-5xl'>
                     Build{' '}
-                    <span className={`inline-block w-[35%] ${isFlipping ? 'flip-enter-active' : ''} ${getColorClass(options[currentOption])}`}>
+                    <span className={`inline-block w-[50%] ${isFlipping ? 'flip-enter-active' : ''} ${getColorClass(options[currentOption])}`}>
                         {options[currentOption]}
                     </span>
-                    {' '}apps
+                    {' '}Apps
                 </p>
-                <p className='text-2xl md:text-3xl lg:text-4xl xl:text-5xl'>Become a Bitcoin developer</p>
+                <p className='text-xl md:text-3xl lg:text-4xl xl:text-5xl'>Become a developer</p>
             </div>
 
         </div>

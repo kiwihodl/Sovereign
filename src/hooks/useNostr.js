@@ -92,11 +92,9 @@ export function useNostr() {
                 return;
             }
 
-            const profile = kind0[0];
-
-            if (profile.lud16) {
-                const lud16Username = profile.lud16.split('@')[0];
-                const lud16Domain = profile.lud16.split('@')[1];
+            if (kind0.lud16) {
+                const lud16Username = kind0.lud16.split('@')[0];
+                const lud16Domain = kind0.lud16.split('@')[1];
                 const lud16Url = `https://${lud16Domain}/.well-known/lnurlp/${lud16Username}`;
 
                 try {

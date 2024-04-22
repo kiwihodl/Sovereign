@@ -40,10 +40,14 @@ const ResourceTemplate = (resource) => {
 
   return (
     <div
-      onClick={() => router.push(`/details/${resource.id}`)}
       className="flex flex-col items-center mx-auto px-4 cursor-pointer mt-8 rounded-md"
     >
-      <div className="relative w-full h-0" style={{ paddingBottom: "56.25%" }}>
+        {/* Wrap the image in a div with a relative class with a padding-bottom of 56.25% representing the aspect ratio of 16:9 */}
+      <div 
+        onClick={() => router.push(`/details/${resource.id}`)}
+        className="relative w-full h-0 hover:opacity-80 transition-opacity duration-300"
+        style={{ paddingBottom: "56.25%"}}
+      >
         <Image
           alt="resource thumbnail"
           src={returnImageProxy(resource.image)}

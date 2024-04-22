@@ -40,10 +40,13 @@ const CourseTemplate = (course) => {
 
   return (
     <div
-      onClick={() => router.push(`/details/${course.id}`)}
       className="flex flex-col items-center mx-auto px-4 cursor-pointer mt-8 rounded-md"
     >
-      <div className="relative w-full h-0" style={{ paddingBottom: "56.25%" }}>
+      <div 
+        onClick={() => router.push(`/details/${course.id}`)}
+        className="relative w-full h-0 hover:opacity-80 transition-opacity duration-300"
+        style={{ paddingBottom: "56.25%"}}
+        >
         <Image
           alt="course thumbnail"
           src={returnImageProxy(course.image)}
