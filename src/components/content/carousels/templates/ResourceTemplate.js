@@ -40,7 +40,7 @@ const ResourceTemplate = (resource) => {
 
   return (
     <div
-      className="flex flex-col items-center mx-auto px-4 cursor-pointer mt-8 rounded-md"
+      className="flex flex-col items-center mx-auto px-4 mt-8 rounded-md"
     >
         {/* Wrap the image in a div with a relative class with a padding-bottom of 56.25% representing the aspect ratio of 16:9 */}
       <div 
@@ -66,8 +66,8 @@ const ResourceTemplate = (resource) => {
           <p className="text-xs text-gray-400">
             {formatTimestampToHowLongAgo(resource.published_at)}
           </p>
-          <p className="text-xs">
-            <i className="pi pi-bolt"></i> {zapAmount}
+          <p className="text-xs cursor-pointer">
+          <i className="pi pi-bolt text-yellow-300"></i> {zapAmount}
           </p>
         </div>
       </div>

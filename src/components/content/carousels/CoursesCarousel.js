@@ -3,6 +3,7 @@ import { Carousel } from 'primereact/carousel';
 import { parseEvent } from '@/utils/nostr';
 import { useNostr } from '@/hooks/useNostr';
 import CourseTemplate from '@/components/content/carousels/templates/CourseTemplate';
+import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 
 const responsiveOptions = [
     {
@@ -22,38 +23,38 @@ const responsiveOptions = [
     }
 ];
 
-
 export default function CoursesCarousel() {
     const [processedCourses, setProcessedCourses] = useState([]);
-    const [courses, setCourses] = useState([]);
+    const [loading, setLoading] = useState(true);
     const { fetchCourses } = useNostr();
 
     useEffect(() => {
         const fetch = async () => {
+            setLoading(true);
             try {
-                const courses = await fetchCourses();
-                console.log('courses:', courses);
-                setCourses(courses);
+                const fetchedCourses = await fetchCourses();
+                if (fetchedCourses && fetchedCourses.length > 0) {
+                    const processed = fetchedCourses.map(course => parseEvent(course));
+                    setProcessedCourses(processed);
+                } else {
+                    console.log('No courses fetched or empty array returned');
+                }
+                setLoading(false);
             } catch (error) {
                 console.error('Error fetching courses:', error);
+                setLoading(false);
             }
-        };
+        };        
         fetch();
-    }, [fetchCourses]);
-
-    useEffect(() => {
-        const processCourses = courses.map(course => {
-            const { id, content, title, summary, image, published_at } = parseEvent(course);
-            return { id, content, title, summary, image, published_at };
-        }
-        );
-        setProcessedCourses(processCourses);
-    }, [courses]);
+    }, [fetchCourses]); 
 
     return (
         <>
-            <h2 className="ml-[6%] mt-4">courses</h2>
-            <Carousel value={[...processedCourses, ...processedCourses]} numVisible={2} itemTemplate={CourseTemplate} responsiveOptions={responsiveOptions} />
+            <h2 className="ml-[6%] mt-4">Courses</h2>
+            <Carousel value={loading ? [{}, {}, {}] : [...processedCourses, ...processedCourses]} 
+                      numVisible={2} 
+                      itemTemplate={loading ? TemplateSkeleton : CourseTemplate}
+                      responsiveOptions={responsiveOptions} />
         </>
     );
 }

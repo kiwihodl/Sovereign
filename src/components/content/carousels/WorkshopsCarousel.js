@@ -5,6 +5,7 @@ import { useNostr } from '@/hooks/useNostr';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { parseEvent } from '@/utils/nostr';
 import WorkshopTemplate from '@/components/content/carousels/templates/WorkshopTemplate';
+import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 
 const responsiveOptions = [
     {
@@ -26,36 +27,36 @@ const responsiveOptions = [
 
 export default function WorkshopsCarousel() {
     const [processedWorkshops, setProcessedWorkshops] = useState([]);
-    const [workshops, setWorkshops] = useState([]);
-    const router = useRouter();
+    const [loading, setLoading] = useState(true);
     const { fetchWorkshops } = useNostr();
-    const { returnImageProxy } = useImageProxy();
 
     useEffect(() => {
         const fetch = async () => {
+            setLoading(true);
             try {
-                const workshops = await fetchWorkshops();
-                console.log('workshops:', workshops);
-                setWorkshops(workshops);
+                const fetchedWorkshops = await fetchWorkshops();
+                if (fetchedWorkshops && fetchedWorkshops.length > 0) {
+                    const processed = fetchedWorkshops.map(workshop => parseEvent(workshop));
+                    setProcessedWorkshops(processed);
+                } else {
+                    console.log('No workshops fetched or empty array returned');
+                }
+                setLoading(false);
             } catch (error) {
                 console.error('Error fetching workshops:', error);
+                setLoading(false);
             }
         };
         fetch();
     }, [fetchWorkshops]);
 
-    useEffect(() => {
-        const processWorkshops = workshops.map(workshop => {
-            const { id, content, title, summary, image, published_at } = parseEvent(workshop);
-            return { id, content, title, summary, image, published_at };
-        });
-        setProcessedWorkshops(processWorkshops);
-    }, [workshops]);
-
     return (
         <>
-            <h2 className="ml-[6%] mt-4">workshops</h2>
-            <Carousel value={[...processedWorkshops, ...processedWorkshops]} numVisible={2} itemTemplate={WorkshopTemplate} responsiveOptions={responsiveOptions} />
+            <h2 className="ml-[6%] mt-4">Workshops</h2>
+            <Carousel value={loading ? [{}, {}, {}] : [...processedWorkshops, ...processedWorkshops]}
+                      numVisible={2}
+                      itemTemplate={loading ? TemplateSkeleton : WorkshopTemplate}
+                      responsiveOptions={responsiveOptions} />
         </>
     );
 }

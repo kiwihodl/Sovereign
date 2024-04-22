@@ -5,6 +5,7 @@ import { useNostr } from '@/hooks/useNostr';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { parseEvent } from '@/utils/nostr';
 import ResourceTemplate from '@/components/content/carousels/templates/ResourceTemplate';
+import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 
 const responsiveOptions = [
     {
@@ -26,36 +27,36 @@ const responsiveOptions = [
 
 export default function ResourcesCarousel() {
     const [processedResources, setProcessedResources] = useState([]);
-    const [resources, setResources] = useState([]);
-    const router = useRouter();
+    const [loading, setLoading] = useState(true);
     const { fetchResources } = useNostr();
-    const { returnImageProxy } = useImageProxy();
 
     useEffect(() => {
         const fetch = async () => {
+            setLoading(true);
             try {
-                const resources = await fetchResources();
-                console.log('resources:', resources);
-                setResources(resources);
+                const fetchedResources = await fetchResources();
+                if (fetchedResources && fetchedResources.length > 0) {
+                    const processed = fetchedResources.map(resource => parseEvent(resource));
+                    setProcessedResources(processed);
+                } else {
+                    console.log('No resources fetched or empty array returned');
+                }
+                setLoading(false);
             } catch (error) {
                 console.error('Error fetching resources:', error);
+                setLoading(false);
             }
         };
         fetch();
     }, [fetchResources]);
 
-    useEffect(() => {
-        const processResources = resources.map(resource => {
-            const { id, content, title, summary, image, published_at } = parseEvent(resource);
-            return { id, content, title, summary, image, published_at };
-        });
-        setProcessedResources(processResources);
-    }, [resources]);
-
     return (
         <>
-            <h2 className="ml-[6%] mt-4">resources</h2>
-            <Carousel value={[...processedResources, ...processedResources]} numVisible={2} itemTemplate={ResourceTemplate} responsiveOptions={responsiveOptions} />
+            <h2 className="ml-[6%] mt-4">Resources</h2>
+            <Carousel value={loading ? [{}, {}, {}] : [...processedResources, ...processedResources]}
+                      numVisible={2}
+                      itemTemplate={loading ? TemplateSkeleton : ResourceTemplate}
+                      responsiveOptions={responsiveOptions} />
         </>
     );
 }

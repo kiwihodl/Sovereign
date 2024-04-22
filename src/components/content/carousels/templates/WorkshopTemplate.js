@@ -40,7 +40,7 @@ const WorkshopTemplate = (workshop) => {
 
   return (
     <div
-      className="flex flex-col items-center mx-auto px-4 cursor-pointer mt-8 rounded-md"
+      className="flex flex-col items-center mx-auto px-4 mt-8 rounded-md"
     >
       <div 
         onClick={() => router.push(`/details/${workshop.id}`)}
@@ -65,8 +65,8 @@ const WorkshopTemplate = (workshop) => {
           <p className="text-xs text-gray-400">
             {formatTimestampToHowLongAgo(workshop.published_at)}
           </p>
-          <p className="text-xs">
-            <i className="pi pi-bolt"></i> {zapAmount}
+          <p className="text-xs cursor-pointer">
+          <i className="pi pi-bolt text-yellow-300"></i> {zapAmount}
           </p>
         </div>
       </div>
