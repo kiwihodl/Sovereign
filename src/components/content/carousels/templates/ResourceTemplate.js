@@ -16,7 +16,7 @@ const ResourceTemplate = (resource) => {
   useEffect(() => {
     const fetchZaps = async () => {
       try {
-        const zaps = await fetchZapsForEvent(resource.id);
+        const zaps = await fetchZapsForEvent(resource);
         setZaps(zaps);
       } catch (error) {
         console.error("Error fetching zaps:", error);
@@ -45,7 +45,7 @@ const ResourceTemplate = (resource) => {
         {/* Wrap the image in a div with a relative class with a padding-bottom of 56.25% representing the aspect ratio of 16:9 */}
       <div 
         onClick={() => router.push(`/details/${resource.id}`)}
-        className="relative w-full h-0 hover:opacity-80 transition-opacity duration-300"
+        className="relative w-full h-0 hover:opacity-80 transition-opacity duration-300 cursor-pointer"
         style={{ paddingBottom: "56.25%"}}
       >
         <Image

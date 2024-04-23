@@ -35,6 +35,7 @@ export const parseEvent = (event) => {
         id: event.id,
         pubkey: event.pubkey || '',
         content: event.content || '',
+        kind: event.kind || '',
         title: '',
         summary: '',
         image: '',
@@ -58,6 +59,9 @@ export const parseEvent = (event) => {
                 break;
             case 'author':
                 eventData.author = tag[1];
+                break;
+            case 'd':
+                eventData.d = tag[1];
                 break;
             default:
                 break;

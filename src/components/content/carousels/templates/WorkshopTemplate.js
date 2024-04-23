@@ -16,7 +16,7 @@ const WorkshopTemplate = (workshop) => {
   useEffect(() => {
     const fetchZaps = async () => {
       try {
-        const zaps = await fetchZapsForEvent(workshop.id);
+        const zaps = await fetchZapsForEvent(workshop);
         setZaps(zaps);
       } catch (error) {
         console.error("Error fetching zaps:", error);
@@ -44,7 +44,7 @@ const WorkshopTemplate = (workshop) => {
     >
       <div 
         onClick={() => router.push(`/details/${workshop.id}`)}
-        className="relative w-full h-0 hover:opacity-80 transition-opacity duration-300"
+        className="relative w-full h-0 hover:opacity-80 transition-opacity duration-300 cursor-pointer"
         style={{ paddingBottom: "56.25%"}}
         >
         <Image

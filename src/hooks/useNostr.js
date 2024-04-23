@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useContext } from 'react';
 import axios from 'axios';
-import { nip57 } from 'nostr-tools';
+import { nip57, nip19 } from 'nostr-tools';
 import { NostrContext } from '@/context/NostrContext';
+import { lnurlEncode } from '@/utils/lnurl';
 
 const defaultRelays = [
     "wss://nos.lol/",
@@ -11,19 +12,19 @@ const defaultRelays = [
     "wss://nostr.mutinywallet.com/",
     "wss://relay.mutinywallet.com/",
     "wss://relay.primal.net/"
-  ];
+];
 
 export function useNostr() {
     const pool = useContext(NostrContext);
 
     const subscribe = useCallback(
         (filters, opts) => {
-          if (!pool) return;
-    
-          return pool.subscribeMany(defaultRelays, filters, opts);
+            if (!pool) return;
+
+            return pool.subscribeMany(defaultRelays, filters, opts);
         },
         [pool]
-      );
+    );
 
     const publish = useCallback(
         async (event) => {
@@ -55,11 +56,16 @@ export function useNostr() {
     );
 
     const fetchZapsForEvent = useCallback(
-        async (id) => {
+        async (event) => {
             try {
-                const filter = { kinds: [9735], '#e': [id] };
-                const zaps = await pool.querySync(defaultRelays, filter);
-                console.log('zaps:', zaps);
+                let zaps = [];
+                const paramaterizedFilter = { kinds: [9735], '#a': [`${event.kind}:${event.id}:${event.d}`] };
+                const paramaterizedZaps = await pool.querySync(defaultRelays, paramaterizedFilter);
+                console.log('paramaterizedZaps:', paramaterizedZaps);
+                const filter = { kinds: [9735], '#e': [event.id] };
+                const zapsForEvent = await pool.querySync(defaultRelays, filter);
+                console.log('zapsForEvent:', zapsForEvent);
+                zaps = zaps.concat(paramaterizedZaps, zapsForEvent);
                 return zaps;
             } catch (error) {
                 console.error('Failed to fetch zaps for event:', error);
@@ -84,7 +90,7 @@ export function useNostr() {
     );
 
     const zapEvent = useCallback(
-        async (event) => {
+        async (event, amount, comment) => {
             const kind0 = await fetchKind0(event.pubkey);
 
             if (kind0.length === 0) {
@@ -104,16 +110,41 @@ export function useNostr() {
                         const zapReq = nip57.makeZapRequest({
                             profile: event.pubkey,
                             event: event.id,
-                            amount: 1000,
+                            amount: amount,
                             relays: defaultRelays,
-                            comment: 'Plebdevs Zap',
+                            comment: comment ? comment : 'Plebdevs Zap',
                         });
 
-                        console.log('zapReq:', zapReq);
+                        const user = window.localStorage.getItem('user');
+
+                        const pubkey = JSON.parse(user).pubkey;
+
+                        const lnurl = lnurlEncode(lud16Url)
+
+                        console.log('lnurl:', lnurl);
+
+                        console.log('pubkey:', pubkey);
+
+                        // const zapRequest = {
+                        //     kind: 9734,
+                        //     content: "",
+                        //     tags: [
+                        //         ["relays", defaultRelays[4], defaultRelays[5]],
+                        //         ["amount", amount.toString()],
+                        //         //   ["lnurl", lnurl],
+                        //         ["e", event.id],
+                        //         ["p", event.pubkey],
+                        //         // ["a", `${event.kind}:${event.id}:${event.d}`],
+                        //     ],
+                        //     created_at: Math.floor(Date.now() / 1000)
+                        // }
+
+                        console.log('zapRequest:', zapReq);
 
                         const signedEvent = await window?.nostr?.signEvent(zapReq);
+                        console.log('signedEvent:', signedEvent);
                         const callbackUrl = response.data.callback;
-                        const zapRequestAPICall = `${callbackUrl}?amount=${1000}&nostr=${encodeURI(
+                        const zapRequestAPICall = `${callbackUrl}?amount=${amount}&nostr=${encodeURI(
                             JSON.stringify(signedEvent)
                         )}`;
 
@@ -149,10 +180,10 @@ export function useNostr() {
             const hasResource = eventData.some(([tag, value]) => tag === "t" && value === "resource");
             return hasPlebDevs && hasResource;
         };
-    
+
         return new Promise((resolve, reject) => {
             let resources = [];
-    
+
             const subscription = subscribe(
                 filter,
                 {
@@ -172,14 +203,14 @@ export function useNostr() {
                 },
                 2000 // Adjust the timeout value as needed
             );
-    
+
             setTimeout(() => {
                 subscription?.close();
                 resolve(resources);
             }, 2000); // Adjust the timeout value as needed
         });
     }, [subscribe]);
-    
+
     const fetchWorkshops = useCallback(async () => {
         const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
         const hasRequiredTags = (eventData) => {
@@ -187,10 +218,10 @@ export function useNostr() {
             const hasWorkshop = eventData.some(([tag, value]) => tag === "t" && value === "workshop");
             return hasPlebDevs && hasWorkshop;
         };
-    
+
         return new Promise((resolve, reject) => {
             let workshops = [];
-    
+
             const subscription = subscribe(
                 filter,
                 {
@@ -210,14 +241,14 @@ export function useNostr() {
                 },
                 2000 // Adjust the timeout value as needed
             );
-    
+
             setTimeout(() => {
                 subscription?.close();
                 resolve(workshops);
             }, 2000); // Adjust the timeout value as needed
         });
     }, [subscribe]);
-    
+
     const fetchCourses = useCallback(async () => {
         const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
         const hasRequiredTags = (eventData) => {
@@ -225,10 +256,10 @@ export function useNostr() {
             const hasCourse = eventData.some(([tag, value]) => tag === "t" && value === "course");
             return hasPlebDevs && hasCourse;
         };
-    
+
         return new Promise((resolve, reject) => {
             let courses = [];
-    
+
             const subscription = subscribe(
                 filter,
                 {
@@ -248,7 +279,7 @@ export function useNostr() {
                 },
                 2000 // Adjust the timeout value as needed
             );
-    
+
             setTimeout(() => {
                 subscription?.close();
                 resolve(courses);
