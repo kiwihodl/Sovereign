@@ -43,6 +43,11 @@ h3 {
   color: yellow;
 }
 
+.p-overlaypanel-content {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 /* hero banner animation */
 @keyframes flip {
   0%, 100% {

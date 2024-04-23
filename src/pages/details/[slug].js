@@ -6,8 +6,11 @@ import { parseEvent, findKind0Fields, hexToNpub } from '@/utils/nostr';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
+import { nip19 } from 'nostr-tools';
+import { useLocalStorageWithEffect } from '@/hooks/useLocalStorage';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import 'primeicons/primeicons.css';
 
 import ReactMarkdown from 'react-markdown';
@@ -35,7 +38,10 @@ export default function Details() {
     const [processedEvent, setProcessedEvent] = useState({});
     const [author, setAuthor] = useState(null);
     const [bitcoinConnect, setBitcoinConnect] = useState(false);
+    const [nAddress, setNAddress] = useState(null);
 
+    const [user] = useLocalStorageWithEffect('user', {});
+    console.log('user:', user);
     const { returnImageProxy } = useImageProxy();
     const { fetchSingleEvent, fetchKind0, zapEvent } = useNostr();
 
@@ -90,10 +96,22 @@ export default function Details() {
 
     useEffect(() => {
         if (event) {
-            const { id, pubkey, content, title, summary, image, published_at } = parseEvent(event);
-            setProcessedEvent({ id, pubkey, content, title, summary, image, published_at });
+            const { id, pubkey, content, title, summary, image, published_at, d } = parseEvent(event);
+            setProcessedEvent({ id, pubkey, content, title, summary, image, published_at, d });
         }
     }, [event]);
+
+    useEffect(() => {
+        if (processedEvent?.d) {
+            const naddr = nip19.naddrEncode({
+                pubkey: processedEvent.pubkey,
+                kind: processedEvent.kind,
+                identifier: processedEvent.d,
+            });
+            console.log('naddr:', naddr);
+            setNAddress(naddr);
+        }
+    }, [processedEvent]);
 
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
@@ -137,29 +155,39 @@ export default function Details() {
                                     className="object-cover object-center rounded-lg"
                                 />
                                 {bitcoinConnect ? (
-                                        <BitcoinConnectPayButton onClick={handleZapEvent} />
-                                    ) : (
+                                    <BitcoinConnectPayButton onClick={handleZapEvent} />
+                                ) : (
 
-                                        <Button
-                                            icon="pi pi-bolt"
-                                            label="Zap"
-                                            severity="success"
-                                            outlined
-                                            onClick={handleZapEvent}
-                                            pt={{
-                                                button: {
-                                                    icon: ({ context }) => ({
-                                                        className: 'bg-yellow-500'
-                                                    })
-                                                }
-                                            }}
-                                        />
-                                    )}
+                                    <Button
+                                        icon="pi pi-bolt"
+                                        label="Zap"
+                                        severity="success"
+                                        outlined
+                                        onClick={handleZapEvent}
+                                        pt={{
+                                            button: {
+                                                icon: ({ context }) => ({
+                                                    className: 'bg-yellow-500'
+                                                })
+                                            }
+                                        }}
+                                    />
+                                )}
                             </div>
                         )}
                     </div>
                 </div>
             </div>
+            {typeof window !== 'undefined' && nAddress !== null && (
+                <div className='px-24'>
+                    <ZapThreadsWrapper
+                        anchor={nAddress}
+                        user={user?.pubkey || null}
+                        relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://nostr.mutinywallet.com/, wss://relay.mutinywallet.com/, wss://relay.primal.net/"
+                        disable=""
+                    />
+                </div>
+            )}
             <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
                 {
                     processedEvent?.content && <MarkdownContent content={processedEvent.content} />

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
@@ -7,36 +7,25 @@ import { useNostr } from "@/hooks/useNostr";
 import { getSatAmountFromInvoice } from "@/utils/lightning";
 
 const ResourceTemplate = (resource) => {
-  const [zaps, setZaps] = useState([]);
   const [zapAmount, setZapAmount] = useState(null);
   const router = useRouter();
   const { returnImageProxy } = useImageProxy();
-  const { fetchZapsForEvent } = useNostr();
 
   useEffect(() => {
-    const fetchZaps = async () => {
-      try {
-        const zaps = await fetchZapsForEvent(resource);
-        setZaps(zaps);
-      } catch (error) {
-        console.error("Error fetching zaps:", error);
-      }
-    };
-    fetchZaps();
-  }, [fetchZapsForEvent, resource]);
-
-  useEffect(() => {
-    if (zaps.length > 0) {
-      zaps.map((zap) => {
-        const bolt11Tag = zap.tags.find((tag) => tag[0] === "bolt11");
+    if (!resource || !resource.zaps) return;
+    
+    let total = 0;
+    resource.zaps.forEach((zap) => {
+        const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
         const invoice = bolt11Tag ? bolt11Tag[1] : null;
         if (invoice) {
-          const amount = getSatAmountFromInvoice(invoice);
-          setZapAmount(zapAmount + amount);
+            const amount = getSatAmountFromInvoice(invoice);
+            total += amount;
         }
-      });
-    }
-  }, [zaps]);
+    });
+    setZapAmount(total);
+}, [resource]);
+
 
   return (
     <div

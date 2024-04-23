@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
@@ -8,35 +8,25 @@ import { getSatAmountFromInvoice } from "@/utils/lightning";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
 
 const CourseTemplate = (course) => {
-    const [zaps, setZaps] = useState([]);
     const [zapAmount, setZapAmount] = useState(null);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
-    const { fetchZapsForEvent } = useNostr();
 
     useEffect(() => {
-        const fetchZaps = async () => {
-            try {
-                const zaps = await fetchZapsForEvent(course);
-                // console.log('zaps:', zaps);
-                if (zaps.length > 0) {
-                    let total = 0;
-                    zaps.map((zap) => {
-                        const bolt11Tag = zap.tags.find((tag) => tag[0] === "bolt11");
-                        const invoice = bolt11Tag ? bolt11Tag[1] : null;
-                        if (invoice) {
-                            const amount = getSatAmountFromInvoice(invoice);
-                            total += amount;
-                        }
-                    });
-                    setZapAmount(total);
-                }
-            } catch (error) {
-                console.error("Error fetching zaps:", error);
+        if (!course || !course.zaps) return;
+        
+        let total = 0;
+        course.zaps.forEach((zap) => {
+            const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
+            const invoice = bolt11Tag ? bolt11Tag[1] : null;
+            if (invoice) {
+                const amount = getSatAmountFromInvoice(invoice);
+                total += amount;
             }
-        };
-        fetchZaps();
-    }, [fetchZapsForEvent, course]);
+        });
+        setZapAmount(total);
+    }, [course]);
+
 
     return (
         <div

@@ -9,7 +9,7 @@ const ZapDisplay = ({ zapAmount, event }) => {
             <p className="text-xs cursor-pointer" onClick={(e) => op.current.toggle(e)}>
                 <i className="pi pi-bolt text-yellow-300"></i> {zapAmount}
             </p>
-            <OverlayPanel ref={op}>
+            <OverlayPanel className='w-[40%] h-[40%]' ref={op}>
                 <ZapForm event={event} />
             </OverlayPanel>
         </>

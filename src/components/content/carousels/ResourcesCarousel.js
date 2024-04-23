@@ -28,7 +28,7 @@ const responsiveOptions = [
 export default function ResourcesCarousel() {
     const [processedResources, setProcessedResources] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { fetchResources } = useNostr();
+    const { fetchResources, fetchZapsForEvents } = useNostr();
 
     useEffect(() => {
         const fetch = async () => {
@@ -36,19 +36,35 @@ export default function ResourcesCarousel() {
             try {
                 const fetchedResources = await fetchResources();
                 if (fetchedResources && fetchedResources.length > 0) {
-                    const processed = fetchedResources.map(resource => parseEvent(resource));
-                    setProcessedResources(processed);
+                    const processedResources = fetchedResources.map(resource => parseEvent(resource));
+    
+                    const allZaps = await fetchZapsForEvents(processedResources);
+    
+                    const resourcesWithZaps = processedResources.map(resource => {
+                        const relevantZaps = allZaps.filter(zap => {
+                            const eTagMatches = zap.tags.find(tag => tag[0] === 'e' && tag[1] === resource.id);
+                            const aTag = zap.tags.find(tag => tag[0] === 'a');
+                            const aTagMatches = aTag && resource.d === aTag[1].split(':').pop();
+                            return eTagMatches || aTagMatches;
+                        });
+                        return {
+                            ...resource,
+                            zaps: relevantZaps
+                        };
+                    });
+    
+                    setProcessedResources(resourcesWithZaps);
                 } else {
                     console.log('No resources fetched or empty array returned');
                 }
-                setLoading(false);
             } catch (error) {
                 console.error('Error fetching resources:', error);
-                setLoading(false);
             }
-        };
+            setLoading(false);
+        };        
         fetch();
-    }, [fetchResources]);
+    }, [fetchResources, fetchZapsForEvents]); // Assuming fetchZapsForEvents is adjusted to handle resources
+    
 
     return (
         <>

@@ -13,7 +13,10 @@ const UserContent = () => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [drafts, setDrafts] = useState([]);
     const [user, setUser] = useLocalStorageWithEffect('user', {});
-    const { fetchCourses, fetchResources, fetchWorkshops, events } = useNostr();
+    const [courses, setCourses] = useState([]);
+    const [resources, setResources] = useState([]);
+    const [workshops, setWorkshops] = useState([]);
+    const { fetchCourses, fetchResources, fetchWorkshops } = useNostr();
     const router = useRouter();
     const { showToast } = useToast();
 
@@ -40,12 +43,21 @@ const UserContent = () => {
             console.log('drafts:', drafts);
 
             // Fetch resources, workshops, and courses from Nostr
-            fetchResources();
-            fetchWorkshops();
-            fetchCourses();
+            const resources = await fetchResources();
+            const workshops = await fetchWorkshops();
+            const courses = await fetchCourses();
 
             if (drafts.length > 0) {
                 setDrafts(drafts);
+            }
+            if (resources.length > 0) {
+                setResources(resources);
+            }
+            if (workshops.length > 0) {
+                setWorkshops(workshops);
+            }
+            if (courses.length > 0) {
+                setCourses(courses);
             }
         } catch (err) {
             console.error(err);
@@ -60,17 +72,17 @@ const UserContent = () => {
             case 1:
                 return drafts;
             case 2:
-                return events.resources.map(resource => {
+                return resources.map(resource => {
                     const { id, content, title, summary, image, published_at } = parseEvent(resource);
                     return { id, content, title, summary, image, published_at };
                 });
             case 3:
-                return events.workshops.map(workshop => {
+                return workshops.map(workshop => {
                     const { id, content, title, summary, image, published_at } = parseEvent(workshop);
                     return { id, content, title, summary, image, published_at };
                 })
             case 4:
-                return events.courses.map(course => {
+                return courses.map(course => {
                     const { id, content, title, summary, image, published_at } = parseEvent(course);
                     return { id, content, title, summary, image, published_at };
                 })

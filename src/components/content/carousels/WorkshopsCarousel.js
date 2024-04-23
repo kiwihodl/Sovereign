@@ -28,7 +28,7 @@ const responsiveOptions = [
 export default function WorkshopsCarousel() {
     const [processedWorkshops, setProcessedWorkshops] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { fetchWorkshops } = useNostr();
+    const { fetchWorkshops, fetchZapsForEvents } = useNostr();
 
     useEffect(() => {
         const fetch = async () => {
@@ -36,19 +36,35 @@ export default function WorkshopsCarousel() {
             try {
                 const fetchedWorkshops = await fetchWorkshops();
                 if (fetchedWorkshops && fetchedWorkshops.length > 0) {
-                    const processed = fetchedWorkshops.map(workshop => parseEvent(workshop));
-                    setProcessedWorkshops(processed);
+                    const processedWorkshops = fetchedWorkshops.map(workshop => parseEvent(workshop));
+    
+                    const allZaps = await fetchZapsForEvents(processedWorkshops);
+    
+                    const workshopsWithZaps = processedWorkshops.map(workshop => {
+                        const relevantZaps = allZaps.filter(zap => {
+                            const eTagMatches = zap.tags.find(tag => tag[0] === 'e' && tag[1] === workshop.id);
+                            const aTag = zap.tags.find(tag => tag[0] === 'a');
+                            const aTagMatches = aTag && workshop.d === aTag[1].split(':').pop();
+                            return eTagMatches || aTagMatches;
+                        });
+                        return {
+                            ...workshop,
+                            zaps: relevantZaps
+                        };
+                    });
+    
+                    setProcessedWorkshops(workshopsWithZaps);
                 } else {
                     console.log('No workshops fetched or empty array returned');
                 }
-                setLoading(false);
             } catch (error) {
                 console.error('Error fetching workshops:', error);
-                setLoading(false);
             }
-        };
+            setLoading(false);
+        };        
         fetch();
-    }, [fetchWorkshops]);
+    }, [fetchWorkshops, fetchZapsForEvents]); // Assuming fetchZapsForEvents is adjusted to handle workshops
+    
 
     return (
         <>

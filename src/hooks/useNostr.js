@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useContext } from 'react';
+import { useState, useEffect, useCallback, useContext, useRef } from 'react';
 import axios from 'axios';
 import { nip57, nip19 } from 'nostr-tools';
 import { NostrContext } from '@/context/NostrContext';
@@ -16,14 +16,38 @@ const defaultRelays = [
 
 export function useNostr() {
     const pool = useContext(NostrContext);
+    const subscriptionQueue = useRef([]);
+    const lastSubscriptionTime = useRef(0);
+    const throttleDelay = 2000;
+
+    const processSubscriptionQueue = useCallback(() => {
+        if (subscriptionQueue.current.length === 0) return;
+
+        const currentTime = Date.now();
+        if (currentTime - lastSubscriptionTime.current < throttleDelay) {
+            setTimeout(processSubscriptionQueue, throttleDelay);
+            return;
+        }
+
+        const subscription = subscriptionQueue.current.shift();
+        subscription();
+
+        lastSubscriptionTime.current = currentTime;
+        setTimeout(processSubscriptionQueue, throttleDelay);
+    }, [throttleDelay]);
 
     const subscribe = useCallback(
         (filters, opts) => {
             if (!pool) return;
 
-            return pool.subscribeMany(defaultRelays, filters, opts);
+            const subscriptionFn = () => {
+                return pool.subscribeMany(defaultRelays, filters, opts);
+            };
+
+            subscriptionQueue.current.push(subscriptionFn);
+            processSubscriptionQueue();
         },
-        [pool]
+        [pool, processSubscriptionQueue]
     );
 
     const publish = useCallback(
@@ -43,8 +67,18 @@ export function useNostr() {
     const fetchSingleEvent = useCallback(
         async (id) => {
             try {
-                const event = await pool.get(defaultRelays, {
-                    ids: [id],
+                const event = await new Promise((resolve, reject) => {
+                    subscribe(
+                        [{ ids: [id] }],
+                        {
+                            onevent: (event) => {
+                                resolve(event);
+                            },
+                            onerror: (error) => {
+                                reject(error);
+                            },
+                        }
+                    );
                 });
                 return event;
             } catch (error) {
@@ -52,20 +86,33 @@ export function useNostr() {
                 return null;
             }
         },
-        [pool]
+        [subscribe]
     );
 
-    const fetchZapsForEvent = useCallback(
-        async (event) => {
+    const querySyncQueue = useRef([]);
+    const lastQuerySyncTime = useRef(0);
+
+    const processQuerySyncQueue = useCallback(() => {
+        if (querySyncQueue.current.length === 0) return;
+
+        const currentTime = Date.now();
+        if (currentTime - lastQuerySyncTime.current < throttleDelay) {
+            setTimeout(processQuerySyncQueue, throttleDelay);
+            return;
+        }
+
+        const querySync = querySyncQueue.current.shift();
+        querySync();
+
+        lastQuerySyncTime.current = currentTime;
+        setTimeout(processQuerySyncQueue, throttleDelay);
+    }, [throttleDelay]);
+
+    const fetchZapsForParamaterizedEvent = useCallback(
+        async (kind, id, d) => {
             try {
-                let zaps = [];
-                const paramaterizedFilter = { kinds: [9735], '#a': [`${event.kind}:${event.id}:${event.d}`] };
-                const paramaterizedZaps = await pool.querySync(defaultRelays, paramaterizedFilter);
-                console.log('paramaterizedZaps:', paramaterizedZaps);
-                const filter = { kinds: [9735], '#e': [event.id] };
-                const zapsForEvent = await pool.querySync(defaultRelays, filter);
-                console.log('zapsForEvent:', zapsForEvent);
-                zaps = zaps.concat(paramaterizedZaps, zapsForEvent);
+                const filters = { kinds: [9735], '#a': [`${kind}:${id}:${d}`] };
+                const zaps = await pool.querySync(defaultRelays, filters);
                 return zaps;
             } catch (error) {
                 console.error('Failed to fetch zaps for event:', error);
@@ -75,18 +122,117 @@ export function useNostr() {
         [pool]
     );
 
+    const fetchZapsForNonParameterizedEvent = useCallback(
+        async (id) => {
+            try {
+                const filters = { kinds: [9735], '#e': [id] };
+                const zaps = await pool.querySync(defaultRelays, filters);
+                return zaps;
+            } catch (error) {
+                console.error('Failed to fetch zaps for event:', error);
+                return [];
+            }
+        },
+        [pool]
+    );
+
+    const fetchZapsForEvent = useCallback(
+        async (event) => {
+            const querySyncFn = async () => {
+                try {
+                    const parameterizedZaps = await fetchZapsForParamaterizedEvent(event.kind, event.id, event.d);
+                    const nonParameterizedZaps = await fetchZapsForNonParameterizedEvent(event.id);
+                    return [...parameterizedZaps, ...nonParameterizedZaps];
+                } catch (error) {
+                    console.error('Failed to fetch zaps for event:', error);
+                    return [];
+                }
+            };
+
+            return new Promise((resolve) => {
+                querySyncQueue.current.push(async () => {
+                    const zaps = await querySyncFn();
+                    resolve(zaps);
+                });
+                processQuerySyncQueue();
+            });
+        },
+        [fetchZapsForParamaterizedEvent, fetchZapsForNonParameterizedEvent, processQuerySyncQueue]
+    );
+
+    const fetchZapsForEvents = useCallback(
+        async (events) => {
+            const querySyncFn = async () => {
+                try {
+                    // Collect all #a and #e tag values from the list of events
+                    let aTags = [];
+                    let eTags = [];
+                    events.forEach(event => {
+                        aTags.push(`${event.kind}:${event.id}:${event.d}`);
+                        eTags.push(event.id);
+                    });
+    
+                    // Create filters for batch querying
+                    const filterA = { kinds: [9735], '#a': aTags };
+                    const filterE = { kinds: [9735], '#e': eTags };
+    
+                    // Perform batch queries
+                    const [zapsA, zapsE] = await Promise.all([
+                        pool.querySync(defaultRelays, filterA),
+                        pool.querySync(defaultRelays, filterE)
+                    ]);
+    
+                    // Combine results and filter out duplicates
+                    const combinedZaps = [...zapsA];
+                    const existingIds = new Set(zapsA.map(zap => zap.id));
+                    zapsE.forEach(zap => {
+                        if (!existingIds.has(zap.id)) {
+                            combinedZaps.push(zap);
+                            existingIds.add(zap.id);
+                        }
+                    });
+    
+                    return combinedZaps;
+                } catch (error) {
+                    console.error('Failed to fetch zaps for events:', error);
+                    return [];
+                }
+            };
+    
+            return new Promise((resolve) => {
+                querySyncQueue.current.push(async () => {
+                    const zaps = await querySyncFn();
+                    resolve(zaps);
+                });
+                processQuerySyncQueue();
+            });
+        },
+        [pool, processQuerySyncQueue]
+    );    
+
     const fetchKind0 = useCallback(
         async (publicKey) => {
             try {
-                const filter = { authors: [publicKey], kinds: [0] };
-                const kind0 = await pool.querySync(defaultRelays, filter);
-                return JSON.parse(kind0[0].content);
+                const kind0 = await new Promise((resolve, reject) => {
+                    subscribe(
+                        [{ authors: [publicKey], kinds: [0] }],
+                        {
+                            onevent: (event) => {
+                                resolve(JSON.parse(event.content));
+                            },
+                            onerror: (error) => {
+                                reject(error);
+                            },
+                        }
+                    );
+                });
+                return kind0;
             } catch (error) {
                 console.error('Failed to fetch kind 0 for event:', error);
                 return [];
             }
         },
-        [pool]
+        [subscribe]
     );
 
     const zapEvent = useCallback(
@@ -107,13 +253,13 @@ export function useNostr() {
                     const response = await axios.get(lud16Url);
 
                     if (response.data.allowsNostr) {
-                        const zapReq = nip57.makeZapRequest({
-                            profile: event.pubkey,
-                            event: event.id,
-                            amount: amount,
-                            relays: defaultRelays,
-                            comment: comment ? comment : 'Plebdevs Zap',
-                        });
+                        // const zapReq = nip57.makeZapRequest({
+                        //     profile: event.pubkey,
+                        //     event: event.id,
+                        //     amount: amount,
+                        //     relays: defaultRelays,
+                        //     comment: comment ? comment : 'Plebdevs Zap',
+                        // });
 
                         const user = window.localStorage.getItem('user');
 
@@ -125,19 +271,19 @@ export function useNostr() {
 
                         console.log('pubkey:', pubkey);
 
-                        // const zapRequest = {
-                        //     kind: 9734,
-                        //     content: "",
-                        //     tags: [
-                        //         ["relays", defaultRelays[4], defaultRelays[5]],
-                        //         ["amount", amount.toString()],
-                        //         //   ["lnurl", lnurl],
-                        //         ["e", event.id],
-                        //         ["p", event.pubkey],
-                        //         // ["a", `${event.kind}:${event.id}:${event.d}`],
-                        //     ],
-                        //     created_at: Math.floor(Date.now() / 1000)
-                        // }
+                        const zapReq = {
+                            kind: 9734,
+                            content: "",
+                            tags: [
+                                ["relays", defaultRelays[4], defaultRelays[5]],
+                                ["amount", amount.toString()],
+                                //   ["lnurl", lnurl],
+                                ["e", event.id],
+                                ["p", event.pubkey],
+                                ["a", `${event.kind}:${event.id}:${event.d}`],
+                            ],
+                            created_at: Math.floor(Date.now() / 1000)
+                        }
 
                         console.log('zapRequest:', zapReq);
 
@@ -167,7 +313,7 @@ export function useNostr() {
             } else if (profile.lud06) {
                 // handle lnurlpay
             } else {
-                // showToast('error', 'Error', 'User has no Lightning Address or LNURL');
+                showToast('error', 'Error', 'User has no Lightning Address or LNURL');
             }
         },
         [fetchKind0]
@@ -287,5 +433,5 @@ export function useNostr() {
         });
     }, [subscribe]);
 
-    return { subscribe, publish, fetchSingleEvent, fetchZapsForEvent, fetchKind0, fetchResources, fetchWorkshops, fetchCourses, zapEvent };
+    return { subscribe, publish, fetchSingleEvent, fetchZapsForEvent, fetchKind0, fetchResources, fetchWorkshops, fetchCourses, zapEvent, fetchZapsForEvents };
 }
