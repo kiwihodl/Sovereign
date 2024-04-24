@@ -166,33 +166,45 @@ export function useNostr() {
                 try {
                     // Collect all #a and #e tag values from the list of events
                     let aTags = [];
+                    let aTagsAlt = [];
                     let eTags = [];
                     events.forEach(event => {
                         aTags.push(`${event.kind}:${event.id}:${event.d}`);
+                        aTagsAlt.push(`${event.kind}:${event.pubkey}:${event.d}`);
                         eTags.push(event.id);
                     });
     
                     // Create filters for batch querying
                     const filterA = { kinds: [9735], '#a': aTags };
                     const filterE = { kinds: [9735], '#e': eTags };
+                    const filterAAlt = { kinds: [9735], '#a': aTagsAlt };
     
                     // Perform batch queries
-                    const [zapsA, zapsE] = await Promise.all([
-                        pool.querySync(defaultRelays, filterA),
-                        pool.querySync(defaultRelays, filterE)
-                    ]);
-    
-                    // Combine results and filter out duplicates
-                    const combinedZaps = [...zapsA];
-                    const existingIds = new Set(zapsA.map(zap => zap.id));
-                    zapsE.forEach(zap => {
-                        if (!existingIds.has(zap.id)) {
-                            combinedZaps.push(zap);
-                            existingIds.add(zap.id);
+                    // const [zapsA, zapsE] = await Promise.all([
+                    //     pool.querySync(defaultRelays, filterA),
+                    //     pool.querySync(defaultRelays, filterE)
+                    // ]);
+                    let allZaps = []
+
+                    await new Promise((resolve) => pool.subscribeMany(defaultRelays, [filterA, filterE, filterAAlt], {
+                        onerror: (error) => {
+                            console.error('Failed to fetch zaps for events:', error);
+                            resolve([]);
+                        },
+                        onevent: (event) => {
+                            allZaps.push(event);
+                        },
+                        oneose: () => {
+                            resolve(allZaps);
                         }
-                    });
-    
-                    return combinedZaps;
+                    }))
+
+                    // remove any duplicates
+                    allZaps = allZaps.filter((zap, index, self) => index === self.findIndex((t) => (
+                        t.id === zap.id
+                    )))
+
+                    return allZaps;
                 } catch (error) {
                     console.error('Failed to fetch zaps for events:', error);
                     return [];
@@ -275,12 +287,12 @@ export function useNostr() {
                             kind: 9734,
                             content: "",
                             tags: [
-                                ["relays", defaultRelays[4], defaultRelays[5]],
+                                ["relays", defaultRelays.join(",")],
                                 ["amount", amount.toString()],
                                 //   ["lnurl", lnurl],
                                 ["e", event.id],
                                 ["p", event.pubkey],
-                                ["a", `${event.kind}:${event.id}:${event.d}`],
+                                ["a", `${event.kind}:${event.pubkey}:${event.d}`],
                             ],
                             created_at: Math.floor(Date.now() / 1000)
                         }

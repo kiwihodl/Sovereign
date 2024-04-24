@@ -64,36 +64,53 @@ const CourseForm = () => {
         const createdAt = Math.floor(Date.now() / 1000); // UNIX timestamp
         const eventKind = 30050; // Custom kind for a course list
 
+        // Publish unpublished drafts as NIP-23 events
+        const publishedLessons = await Promise.all(
+            lessons.map(async (lesson) => {
+                console.log('lesson:', lesson);
+                if (lesson.type === 'draft') {
+                    const draftEvent = {
+                        kind: 30023,
+                        created_at: createdAt,
+                        content: lesson.content,
+                        tags: [
+                            ["d", lesson.id],
+                            ["title", lesson.title],
+                            // Add other metadata tags as needed
+                        ],
+                        pubkey: pubkey,
+                    };
+                    console.log('draftEvent:', draftEvent);
+                    return draftEvent;
+                }
+            }));
+
         const tags = [
             ["title", title],
             ["summary", summary],
             ["price", checked ? price.toString() : "free"],
             ["image", coverImage],
-            ...lessons.map(lesson => ["a", lesson.id, lesson.title.toLowerCase()]),
+            ...publishedLessons.map(lesson => ["a", `30023:${lesson.id}:${lesson.id}`]),
             ...topics.map(topic => ["topic", topic.trim().toLowerCase()])
         ];
 
         const content = JSON.stringify({ description: "Course content details" }); // Placeholder content
 
-        const eventData = JSON.stringify([0, pubkey, createdAt, eventKind, tags, content]);
-
-        const nostrEvent = {
-            id: '', // ID would typically be a hash of eventData, to be filled in after eventData is signed
-            pubkey,
-            created_at: createdAt,
+        const courseEvent = {
             kind: eventKind,
-            tags,
-            content,
-            sig: '', // Signature to be generated externally
+            created_at: createdAt,
+            content: content,
+            tags: tags,
+            pubkey: pubkey,
         };
 
-        console.log(nostrEvent); // Logging the event
+        console.log('courseEvent:', courseEvent);
     };
 
     const handleLessonChange = (e, index) => {
         const selectedLessonId = e.value;
         const selectedLesson = getContentOptions(index).flatMap(group => group.items).find(lesson => lesson.value === selectedLessonId);
-    
+
         const updatedLessons = lessons.map((lesson, i) =>
             i === index ? { ...lesson, id: selectedLessonId, title: selectedLesson.label.props.content.title } : lesson
         );
@@ -112,11 +129,11 @@ const CourseForm = () => {
     const removeLesson = (index) => {
         const updatedLessons = lessons.filter((_, i) => i !== index);
         const updatedSelectedLessons = selectedLessons.filter((_, i) => i !== index);
-        
+
         if (updatedLessons.length === 0) {
             updatedLessons.push({ id: uuidv4(), title: 'Select a lesson' });
         }
-        
+
         setLessons(updatedLessons);
         setSelectedLessons(updatedSelectedLessons);
     };
@@ -140,7 +157,7 @@ const CourseForm = () => {
             label: <ContentDropdownItem content={draft} onSelect={(content) => handleLessonSelect(content, index)} selected={lessons[index] && lessons[index].id === draft.id} />,
             value: draft.id
         }));
-    
+
         const resourceOptions = resources.map(resource => {
             const { id, title, summary, image, published_at } = parseEvent(resource);
             return {
@@ -148,7 +165,7 @@ const CourseForm = () => {
                 value: id
             };
         });
-    
+
         const workshopOptions = workshops.map(workshop => {
             const { id, title, summary, image, published_at } = parseEvent(workshop);
             return {
@@ -156,7 +173,7 @@ const CourseForm = () => {
                 value: id
             };
         });
-    
+
         return [
             {
                 label: 'Drafts',
