@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Carousel } from 'primereact/carousel';
-import { useRouter } from 'next/router';
 import { useNostr } from '@/hooks/useNostr';
-import { useImageProxy } from '@/hooks/useImageProxy';
 import { parseEvent } from '@/utils/nostr';
 import ResourceTemplate from '@/components/content/carousels/templates/ResourceTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
@@ -27,12 +25,10 @@ const responsiveOptions = [
 
 export default function ResourcesCarousel() {
     const [processedResources, setProcessedResources] = useState([]);
-    const [loading, setLoading] = useState(true);
     const { fetchResources, fetchZapsForEvents } = useNostr();
 
     useEffect(() => {
         const fetch = async () => {
-            setLoading(true);
             try {
                 const fetchedResources = await fetchResources();
                 if (fetchedResources && fetchedResources.length > 0) {
@@ -60,7 +56,6 @@ export default function ResourcesCarousel() {
             } catch (error) {
                 console.error('Error fetching resources:', error);
             }
-            setLoading(false);
         };        
         fetch();
     }, [fetchResources, fetchZapsForEvents]); // Assuming fetchZapsForEvents is adjusted to handle resources
@@ -69,9 +64,9 @@ export default function ResourcesCarousel() {
     return (
         <>
             <h2 className="ml-[6%] mt-4">Resources</h2>
-            <Carousel value={loading ? [{}, {}, {}] : [...processedResources, ...processedResources]}
+            <Carousel value={!processedResources.length > 0 ? [{}, {}, {}] : [...processedResources, ...processedResources]}
                       numVisible={2}
-                      itemTemplate={loading ? TemplateSkeleton : ResourceTemplate}
+                      itemTemplate={!processedResources.length > 0 ? TemplateSkeleton : ResourceTemplate}
                       responsiveOptions={responsiveOptions} />
         </>
     );

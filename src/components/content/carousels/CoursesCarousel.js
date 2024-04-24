@@ -25,22 +25,20 @@ const responsiveOptions = [
 
 export default function CoursesCarousel() {
     const [processedCourses, setProcessedCourses] = useState([]);
-    const [loading, setLoading] = useState(true);
     const { fetchCourses, fetchZapsForEvents } = useNostr();
 
     useEffect(() => {
         const fetch = async () => {
-            setLoading(true);
             try {
                 const fetchedCourses = await fetchCourses();
                 if (fetchedCourses && fetchedCourses.length > 0) {
                     // First process the courses to be ready for display
                     const processedCourses = fetchedCourses.map(course => parseEvent(course));
-                    
+
                     // Fetch zaps for all processed courses at once
                     const allZaps = await fetchZapsForEvents(processedCourses);
                     console.log('allZaps:', allZaps);
-    
+
                     // Process zaps to associate them with their respective courses
                     const coursesWithZaps = processedCourses.map(course => {
                         const relevantZaps = allZaps.filter(zap => {
@@ -54,7 +52,7 @@ export default function CoursesCarousel() {
                             zaps: relevantZaps
                         };
                     });
-    
+
                     setProcessedCourses(coursesWithZaps);
                 } else {
                     console.log('No courses fetched or empty array returned');
@@ -62,18 +60,20 @@ export default function CoursesCarousel() {
             } catch (error) {
                 console.error('Error fetching courses:', error);
             }
-            setLoading(false);
-        };        
+        };
         fetch();
     }, [fetchCourses, fetchZapsForEvents]);
 
     return (
         <>
             <h2 className="ml-[6%] mt-4">Courses</h2>
-            <Carousel value={loading ? [{}, {}, {}] : [...processedCourses, ...processedCourses]} 
-                      numVisible={2} 
-                      itemTemplate={loading ? TemplateSkeleton : CourseTemplate}
-                      responsiveOptions={responsiveOptions} />
+            <div className={"min-h-[384px]"}>
+                <Carousel
+                    value={!processedCourses.length > 0 ? [{}, {}, {}] : [...processedCourses, ...processedCourses]}
+                    numVisible={2}
+                    itemTemplate={!processedCourses.length > 0 ? TemplateSkeleton : CourseTemplate}
+                    responsiveOptions={responsiveOptions} />
+            </div>
         </>
     );
 }

@@ -27,12 +27,10 @@ const responsiveOptions = [
 
 export default function WorkshopsCarousel() {
     const [processedWorkshops, setProcessedWorkshops] = useState([]);
-    const [loading, setLoading] = useState(true);
     const { fetchWorkshops, fetchZapsForEvents } = useNostr();
 
     useEffect(() => {
         const fetch = async () => {
-            setLoading(true);
             try {
                 const fetchedWorkshops = await fetchWorkshops();
                 if (fetchedWorkshops && fetchedWorkshops.length > 0) {
@@ -60,7 +58,6 @@ export default function WorkshopsCarousel() {
             } catch (error) {
                 console.error('Error fetching workshops:', error);
             }
-            setLoading(false);
         };        
         fetch();
     }, [fetchWorkshops, fetchZapsForEvents]); // Assuming fetchZapsForEvents is adjusted to handle workshops
@@ -69,9 +66,9 @@ export default function WorkshopsCarousel() {
     return (
         <>
             <h2 className="ml-[6%] mt-4">Workshops</h2>
-            <Carousel value={loading ? [{}, {}, {}] : [...processedWorkshops, ...processedWorkshops]}
+            <Carousel value={!processedWorkshops.length > 0 ? [{}, {}, {}] : [...processedWorkshops, ...processedWorkshops]}
                       numVisible={2}
-                      itemTemplate={loading ? TemplateSkeleton : WorkshopTemplate}
+                      itemTemplate={!processedWorkshops.length > 0 ? TemplateSkeleton : WorkshopTemplate}
                       responsiveOptions={responsiveOptions} />
         </>
     );
