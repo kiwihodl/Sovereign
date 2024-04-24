@@ -39,7 +39,7 @@ export default function Details() {
 
     const router = useRouter();
 
-    const {showToast} = useToast();
+    const { showToast } = useToast();
 
     const { publishAll } = useNostr();
 
@@ -60,7 +60,7 @@ export default function Details() {
 
     const handleSubmit = async () => {
         if (draft) {
-            const {unsignedEvent, type} = buildEvent(draft);
+            const { unsignedEvent, type } = buildEvent(draft);
 
             if (unsignedEvent) {
                 await publishEvent(unsignedEvent, type);
@@ -117,7 +117,7 @@ export default function Details() {
         const NewDTag = uuidv4();
         let event = {};
         let type;
-    
+
         switch (draft?.type) {
             case 'resource':
                 event = {
@@ -173,7 +173,7 @@ export default function Details() {
                 event = null;
                 type = 'unknown';
         }
-    
+
         return { unsignedEvent: event, type };
     };
 
@@ -184,11 +184,14 @@ export default function Details() {
                 <div className='w-[75vw] mx-auto flex flex-row items-start justify-between max-tab:flex-col max-mob:flex-col max-tab:w-[95vw] max-mob:w-[95vw]'>
                     <div className='flex flex-col items-start max-w-[45vw] max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
                         <div className='pt-2 flex flex-row justify-start w-full'>
-                            <Tag className='mr-2' value="Primary"></Tag>
-                            <Tag className='mr-2' severity="success" value="Success"></Tag>
-                            <Tag className='mr-2' severity="info" value="Info"></Tag>
-                            <Tag className='mr-2' severity="warning" value="Warning"></Tag>
-                            <Tag className='mr-2' severity="danger" value="Danger"></Tag>
+                            {/* List out topics */}
+                            {draft?.topics && draft.topics.map((topic, index) => {
+                                if (topic === "plebdevs") return;
+                                return (
+                                    <Tag className='mr-2 text-white' key={index} value={topic}></Tag>
+                                )
+                            })
+                            }
                         </div>
                         <h1 className='text-4xl mt-6'>{draft?.title}</h1>
                         <p className='text-xl mt-6'>{draft?.summary}</p>

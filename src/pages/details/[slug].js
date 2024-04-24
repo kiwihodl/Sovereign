@@ -96,8 +96,8 @@ export default function Details() {
 
     useEffect(() => {
         if (event) {
-            const { id, pubkey, content, title, summary, image, published_at, d } = parseEvent(event);
-            setProcessedEvent({ id, pubkey, content, title, summary, image, published_at, d });
+            const { id, pubkey, content, title, summary, image, published_at, d, topics } = parseEvent(event);
+            setProcessedEvent({ id, pubkey, content, title, summary, image, published_at, d, topics });
         }
     }, [event]);
 
@@ -116,15 +116,16 @@ export default function Details() {
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
             <div className='w-full flex flex-row justify-between max-tab:flex-col max-mob:flex-col'>
-                {/* <i className='pi pi-arrow-left pl-8 cursor-pointer hover:opacity-75 max-tab:pl-2 max-mob:pl-2' onClick={() => router.push('/')} /> */}
+                <i className='pi pi-arrow-left pl-8 cursor-pointer hover:opacity-75 max-tab:pl-2 max-mob:pl-2' onClick={() => router.push('/')} />
                 <div className='w-[75vw] mx-auto flex flex-row items-start justify-between max-tab:flex-col max-mob:flex-col max-tab:w-[95vw] max-mob:w-[95vw]'>
                     <div className='flex flex-col items-start max-w-[45vw] max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
                         <div className='pt-2 flex flex-row justify-start w-full'>
-                            <Tag className='mr-2' value="Primary"></Tag>
-                            <Tag className='mr-2' severity="success" value="Success"></Tag>
-                            <Tag className='mr-2' severity="info" value="Info"></Tag>
-                            <Tag className='mr-2' severity="warning" value="Warning"></Tag>
-                            <Tag className='mr-2' severity="danger" value="Danger"></Tag>
+                            {processedEvent && processedEvent.topics && processedEvent.topics.length > 0 && (
+                                processedEvent.topics.map((topic, index) => (
+                                    <Tag className='mr-2 text-white' key={index} value={topic}></Tag>
+                                ))
+                            )
+                            }
                         </div>
                         <h1 className='text-4xl mt-6'>{processedEvent?.title}</h1>
                         <p className='text-xl mt-6'>{processedEvent?.summary}</p>

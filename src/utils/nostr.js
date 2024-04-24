@@ -40,6 +40,7 @@ export const parseEvent = (event) => {
         summary: '',
         image: '',
         published_at: '',
+        topics: [], // Added to hold all topics
     };
 
     // Iterate over the tags array to extract data
@@ -62,6 +63,9 @@ export const parseEvent = (event) => {
                 break;
             case 'd':
                 eventData.d = tag[1];
+                break;
+            case 't':
+                tag[1] !== "plebdevs" && eventData.topics.push(tag[1]);
                 break;
             default:
                 break;

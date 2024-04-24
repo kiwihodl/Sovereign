@@ -7,6 +7,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        white: "#f8f8ff"
+      },
       screens: {
         'max-mob': {'max': '475px'},
         'max-tab': {'max': '768px'},

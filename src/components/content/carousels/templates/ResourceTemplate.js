@@ -50,7 +50,7 @@ const ResourceTemplate = (resource) => {
         <h4 className="mb-1 font-bold text-lg font-blinker line-clamp-2">
           {resource.title}
         </h4>
-        <p className="text-sm text-gray-500 line-clamp-2">{resource.summary}</p>
+        <p className="text-sm text-gray-500 min-h-[40px] line-clamp-2">{resource.summary}</p>
         <div className="flex flex-row justify-between items-center mt-2">
           <p className="text-xs text-gray-400">
             {formatTimestampToHowLongAgo(resource.published_at)}
