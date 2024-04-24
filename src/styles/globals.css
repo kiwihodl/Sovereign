@@ -48,6 +48,11 @@ h3 {
   height: 100% !important;
 }
 
+.p-dropdown-items-wrapper {
+  max-width: 80vw !important;
+  max-height: 400px !important;
+}
+
 /* hero banner animation */
 @keyframes flip {
   0%, 100% {

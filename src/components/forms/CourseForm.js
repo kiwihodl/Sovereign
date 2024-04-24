@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { InputText } from "primereact/inputtext";
 import { InputNumber } from "primereact/inputnumber";
 import { InputSwitch } from "primereact/inputswitch";
-import { useToast } from "@/hooks/useToast";
 import { Button } from "primereact/button";
+import { Dropdown } from "primereact/dropdown";
 import { v4 as uuidv4 } from 'uuid';
+import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
+import { useNostr } from "@/hooks/useNostr";
+import { parseEvent } from "@/utils/nostr";
+import ContentDropdownItem from "@/components/content/dropdowns/ContentDropdownItem";
 import 'primeicons/primeicons.css';
 
 const CourseForm = () => {
@@ -12,40 +17,117 @@ const CourseForm = () => {
     const [summary, setSummary] = useState('');
     const [checked, setChecked] = useState(false);
     const [price, setPrice] = useState(0);
-    const [text, setText] = useState('');
-    const [resources, setResources] = useState(['']);
     const [coverImage, setCoverImage] = useState('');
+    const [lessons, setLessons] = useState([{ id: uuidv4(), title: 'Select a lesson' }]);
+    const [selectedLessons, setSelectedLessons] = useState([]);
     const [topics, setTopics] = useState(['']);
+    const [user, setUser] = useLocalStorageWithEffect('user', {});
+    const [drafts, setDrafts] = useState([]);
+    const [resources, setResources] = useState([]);
+    const [workshops, setWorkshops] = useState([]);
+    const { fetchResources, fetchWorkshops } = useNostr();
+    const [pubkey, setPubkey] = useState('');
 
-    const { showToast } = useToast();
+    const fetchAllContent = async () => {
+        try {
+            // Fetch drafts from the database
+            const draftsResponse = await axios.get(`/api/drafts/all/${user.id}`);
+            const drafts = draftsResponse.data;
 
-    const handleSubmit = (e) => {
+            // Fetch resources and workshops from Nostr
+            const resources = await fetchResources();
+            const workshops = await fetchWorkshops();
+
+            if (drafts.length > 0) {
+                setDrafts(drafts);
+            }
+            if (resources.length > 0) {
+                setResources(resources);
+            }
+            if (workshops.length > 0) {
+                setWorkshops(workshops);
+            }
+        } catch (err) {
+            console.error(err);
+            // Handle error
+        }
+    };
+
+    useEffect(() => {
+        if (user && user.id) {
+            fetchAllContent();
+        }
+    }, [user]);
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const payload = {
-            title,
-            summary,
-            isPaidResource: checked,
-            price: checked ? price : null,
-            content: text,
-            topics: topics.map(topic => topic.trim().toLowerCase()),
-            topics: [...topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'course']
+        const createdAt = Math.floor(Date.now() / 1000); // UNIX timestamp
+        const eventKind = 30050; // Custom kind for a course list
+
+        const tags = [
+            ["title", title],
+            ["summary", summary],
+            ["price", checked ? price.toString() : "free"],
+            ["image", coverImage],
+            ...lessons.map(lesson => ["a", lesson.id, lesson.title.toLowerCase()]),
+            ...topics.map(topic => ["topic", topic.trim().toLowerCase()])
+        ];
+
+        const content = JSON.stringify({ description: "Course content details" }); // Placeholder content
+
+        const eventData = JSON.stringify([0, pubkey, createdAt, eventKind, tags, content]);
+
+        const nostrEvent = {
+            id: '', // ID would typically be a hash of eventData, to be filled in after eventData is signed
+            pubkey,
+            created_at: createdAt,
+            kind: eventKind,
+            tags,
+            content,
+            sig: '', // Signature to be generated externally
         };
 
-        console.log(payload);
-    }
-
-    const addResource = () => {
-        setResources([...resources, '']); // Add an empty string to the resources array
+        console.log(nostrEvent); // Logging the event
     };
 
-    const removeResource = (index) => {
-        const updatedResources = resources.filter((_, i) => i !== index);
-        setResources(updatedResources);
+    const handleLessonChange = (e, index) => {
+        const selectedLessonId = e.value;
+        const selectedLesson = getContentOptions(index).flatMap(group => group.items).find(lesson => lesson.value === selectedLessonId);
+    
+        const updatedLessons = lessons.map((lesson, i) =>
+            i === index ? { ...lesson, id: selectedLessonId, title: selectedLesson.label.props.content.title } : lesson
+        );
+        setLessons(updatedLessons);
     };
 
-    const handleResourceChange = (value, index) => {
-        const updatedResources = resources.map((resource, i) => i === index ? value : resource);
-        setResources(updatedResources);
+    const handleLessonSelect = (content) => {
+        setSelectedLessons([...selectedLessons, content]);
+        addLesson();
+    };
+
+    const addLesson = () => {
+        setLessons([...lessons, { id: uuidv4(), title: 'Select a lesson' }]);
+    };
+
+    const removeLesson = (index) => {
+        const updatedLessons = lessons.filter((_, i) => i !== index);
+        const updatedSelectedLessons = selectedLessons.filter((_, i) => i !== index);
+        
+        if (updatedLessons.length === 0) {
+            updatedLessons.push({ id: uuidv4(), title: 'Select a lesson' });
+        }
+        
+        setLessons(updatedLessons);
+        setSelectedLessons(updatedSelectedLessons);
+    };
+
+    const addTopic = () => {
+        setTopics([...topics, '']);
+    };
+
+    const removeTopic = (index) => {
+        const updatedTopics = topics.filter((_, i) => i !== index);
+        setTopics(updatedTopics);
     };
 
     const handleTopicChange = (index, value) => {
@@ -53,14 +135,45 @@ const CourseForm = () => {
         setTopics(updatedTopics);
     };
 
-    const addTopic = () => {
-        setTopics([...topics, '']); // Add an empty string to the topics array
+    const getContentOptions = (index) => {
+        const draftOptions = drafts.map(draft => ({
+            label: <ContentDropdownItem content={draft} onSelect={(content) => handleLessonSelect(content, index)} selected={lessons[index] && lessons[index].id === draft.id} />,
+            value: draft.id
+        }));
+    
+        const resourceOptions = resources.map(resource => {
+            const { id, title, summary, image, published_at } = parseEvent(resource);
+            return {
+                label: <ContentDropdownItem content={{ id, title, summary, image, published_at }} onSelect={(content) => handleLessonSelect(content, index)} selected={lessons[index] && lessons[index].id === id} />,
+                value: id
+            };
+        });
+    
+        const workshopOptions = workshops.map(workshop => {
+            const { id, title, summary, image, published_at } = parseEvent(workshop);
+            return {
+                label: <ContentDropdownItem content={{ id, title, summary, image, published_at }} onSelect={(content) => handleLessonSelect(content, index)} selected={lessons[index] && lessons[index].id === id} />,
+                value: id
+            };
+        });
+    
+        return [
+            {
+                label: 'Drafts',
+                items: draftOptions
+            },
+            {
+                label: 'Resources',
+                items: resourceOptions
+            },
+            {
+                label: 'Workshops',
+                items: workshopOptions
+            }
+        ];
     };
 
-    const removeTopic = (index) => {
-        const updatedTopics = topics.filter((_, i) => i !== index);
-        setTopics(updatedTopics);
-    };
+    const lessonOptions = getContentOptions();
 
     return (
         <form onSubmit={handleSubmit}>
@@ -73,48 +186,52 @@ const CourseForm = () => {
             <div className="p-inputgroup flex-1 mt-8">
                 <InputText value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="Cover Image URL" />
             </div>
-
             <div className="p-inputgroup flex-1 mt-8 flex-col">
                 <p className="py-2">Paid Course</p>
                 <InputSwitch checked={checked} onChange={(e) => setChecked(e.value)} />
-                <div className="p-inputgroup flex-1 py-4">
-                    {checked && (
-                        <>
-                            <i className="pi pi-bolt p-inputgroup-addon text-2xl text-yellow-500"></i>
-                            <InputNumber value={price} onValueChange={(e) => setPrice(e.value)} placeholder="Price (sats)" />
-                        </>
-                    )}
-                </div>
+                {checked && (
+                    <div className="p-inputgroup flex-1 py-4">
+                        <InputNumber value={price} onValueChange={(e) => setPrice(e.value)} placeholder="Price (sats)" />
+                    </div>
+                )}
             </div>
             <div className="mt-8 flex-col w-full">
-                {resources.map((resource, index) => (
-                    <div key={index} className="p-inputgroup flex-1 mt-8">
-                        <InputText value={resource} onChange={(e) => handleResourceChange(e.target.value, index)} placeholder={`Resource #${index + 1}`} className="w-full" />
-                        {index > 0 && ( // Only render the minus button if the index is greater than 0
-                            <Button icon="pi pi-times" className="p-button-danger" onClick={() => removeResource(index)} />
-                        )}
-                    </div>
-                ))}
-                <div className="w-full flex flex-row items-end justify-end py-2">
-                    <Button type="button" icon="pi pi-plus" onClick={addResource} />
+                <div className="mt-8 flex-col w-full">
+                    {selectedLessons.map((lesson, index) => (
+                        <div key={lesson.id} className="p-inputgroup flex-1 mt-8">
+                            <ContentDropdownItem content={lesson} selected={true} />
+                            <Button icon="pi pi-times" className="p-button-danger" onClick={() => removeLesson(index)} />
+                        </div>
+                    ))}
+                    {lessons.map((lesson, index) => (
+                        <div key={lesson.id} className="p-inputgroup flex-1 mt-8">
+                            <Dropdown
+                                value={lesson.title}
+                                options={getContentOptions(index)}
+                                onChange={(e) => handleLessonChange(e, index)}
+                                placeholder="Select a Lesson"
+                                itemTemplate={(option) => option.label}
+                                optionLabel="label"
+                                optionGroupLabel="label"
+                                optionGroupChildren="items"
+                            />
+                        </div>
+                    ))}
                 </div>
             </div>
-
             <div className="mt-8 flex-col w-full">
                 {topics.map((topic, index) => (
-                    <div className="p-inputgroup flex-1" key={index}>
-                        <InputText value={topic} onChange={(e) => handleTopicChange(index, e.target.value)} placeholder="Topic" className="w-full mt-2" />
+                    <div key={index} className="p-inputgroup flex-1 mt-8">
+                        <InputText value={topic} onChange={(e) => handleTopicChange(index, e.target.value)} placeholder={`Topic #${index + 1}`} className="w-full" />
                         {index > 0 && (
                             <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={() => removeTopic(index)} />
                         )}
                     </div>
                 ))}
-                <div className="w-full flex flex-row items-end justify-end py-2">
-                    <Button icon="pi pi-plus" onClick={addTopic} />
-                </div>
+                <Button type="button" icon="pi pi-plus" onClick={addTopic} className="p-button-outlined mt-2" />
             </div>
             <div className="flex justify-center mt-8">
-                <Button type="submit" severity="success" outlined label="Submit" />
+                <Button type="submit" label="Submit" className="p-button-raised p-button-success" />
             </div>
         </form>
     );
