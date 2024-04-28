@@ -5,7 +5,7 @@ import { InputNumber } from "primereact/inputnumber";
 import { InputSwitch } from "primereact/inputswitch";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, v4 } from 'uuid';
 import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
 import { useNostr } from "@/hooks/useNostr";
 import { parseEvent } from "@/utils/nostr";
@@ -25,7 +25,7 @@ const CourseForm = () => {
     const [drafts, setDrafts] = useState([]);
     const [resources, setResources] = useState([]);
     const [workshops, setWorkshops] = useState([]);
-    const { fetchResources, fetchWorkshops } = useNostr();
+    const { fetchResources, fetchWorkshops, publish, fetchSingleEvent } = useNostr();
     const [pubkey, setPubkey] = useState('');
 
     const fetchAllContent = async () => {
@@ -59,52 +59,130 @@ const CourseForm = () => {
         }
     }, [user]);
 
+    console.log('lessons', selectedLessons);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const createdAt = Math.floor(Date.now() / 1000); // UNIX timestamp
-        const eventKind = 30050; // Custom kind for a course list
 
-        // Publish unpublished drafts as NIP-23 events
-        const publishedLessons = await Promise.all(
-            lessons.map(async (lesson) => {
-                console.log('lesson:', lesson);
-                if (lesson.type === 'draft') {
-                    const draftEvent = {
-                        kind: 30023,
-                        created_at: createdAt,
+        // Set aside a list for all of the final ids in order
+        const finalIds = [];
+
+        // Iterate over selectedLessons and process each lesson
+        for (const lesson of selectedLessons) {
+            if (lesson.published_at) {
+                // If the lesson is already published, add its id to finalIds
+                finalIds.push(lesson.id);
+            } else {
+                // If the lesson is unpublished, create an event and sign it
+                let event;
+                if (lesson.price) {
+                    event = {
+                        kind: 30402,
                         content: lesson.content,
+                        created_at: Math.floor(Date.now() / 1000),
                         tags: [
-                            ["d", lesson.id],
-                            ["title", lesson.title],
-                            // Add other metadata tags as needed
-                        ],
-                        pubkey: pubkey,
+                            ['d', lesson.id],
+                            ['title', lesson.title],
+                            ['summary', lesson.summary],
+                            ['image', lesson.image],
+                            ['t', ...lesson.topics],
+                            ['published_at', Math.floor(Date.now() / 1000).toString()],
+                            ['price', lesson.price],
+                            ['location', `https://plebdevs.com/${lesson.topics[1]}/${lesson.id}`],
+                        ]
                     };
-                    console.log('draftEvent:', draftEvent);
-                    return draftEvent;
+                } else {
+                    event = {
+                        kind: 30023,
+                        content: lesson.content,
+                        created_at: Math.floor(Date.now() / 1000),
+                        tags: [
+                            ['d', lesson.id],
+                            ['title', lesson.title],
+                            ['summary', lesson.summary],
+                            ['image', lesson.image],
+                            ['t', ...lesson.topics],
+                            ['published_at', Math.floor(Date.now() / 1000).toString()]
+                        ]
+                    };
                 }
-            }));
 
-        const tags = [
-            ["title", title],
-            ["summary", summary],
-            ["price", checked ? price.toString() : "free"],
-            ["image", coverImage],
-            ...publishedLessons.map(lesson => ["a", `30023:${lesson.id}:${lesson.id}`]),
-            ...topics.map(topic => ["topic", topic.trim().toLowerCase()])
-        ];
+                // Sign the event
+                const signedEvent = await window?.nostr?.signEvent(event);
 
-        const content = JSON.stringify({ description: "Course content details" }); // Placeholder content
+                // Add the signed event's id to finalIds
+                finalIds.push(signedEvent.id);
 
-        const courseEvent = {
-            kind: eventKind,
-            created_at: createdAt,
-            content: content,
-            tags: tags,
-            pubkey: pubkey,
-        };
+                // Publish the lesson (uncomment the line below if you want to publish immediately)
+                // await publish(signedEvent);
+            }
+        }
 
-        console.log('courseEvent:', courseEvent);
+        console.log('finalIds:', finalIds);
+
+        const testIds = ["8e364adf6b81ef34d30f42bf0356a9b362bf928e178d7bcd4baa912623f6b3ee", "41bcee8f1293ee3cc221f5bc1417ee3f5accfa90ccec8db4f9eda7e8ffef5c30"]
+
+        // Fetch all of the lessons from Nostr by their ids
+        const fetchedLessons = await Promise.all(
+            testIds.map(async (id) => {
+                const lesson = await fetchSingleEvent(id);
+                return lesson;
+            })
+        );
+
+        console.log('fetchedLessons:', fetchedLessons);
+
+        // // Parse the fields from the lessons to get all of the necessary information
+        const parsedLessons = fetchedLessons.map((lesson) => {
+            const { id, pubkey, content, title, summary, image, published_at, d, topics } = parseEvent(lesson);
+            return {
+                id,
+                pubkey,
+                content,
+                title,
+                summary,
+                image,
+                published_at,
+                d,
+                topics
+            };
+        });
+
+        if (parsedLessons.length === selectedLessons.length) {
+            // Create a new course event
+            const courseEvent = {
+                kind: 30005,
+                created_at: Math.floor(Date.now() / 1000),
+                content: JSON.stringify({
+                    title,
+                    summary,
+                    price,
+                    topics,
+                }),
+                tags: [
+                    ['d', uuidv4()],
+                    ['name', title],
+                    ['picture', coverImage],
+                    ['about', summary],
+                    parsedLessons.map((lesson) => ['a', `${lesson.kind}:${lesson.pubkey}:${lesson.d}`]),
+                ],
+            };
+
+            console.log('courseEvent:', courseEvent);
+        }
+
+        // Publish the course event using Nostr
+        // await publishCourse(courseEvent);
+
+        // Reset the form fields after publishing the course
+        setTitle('');
+        setSummary('');
+        setChecked(false);
+        setPrice(0);
+        setCoverImage('');
+        setLessons([{ id: uuidv4(), title: 'Select a lesson' }]);
+        setSelectedLessons([]);
+        setTopics(['']);
     };
 
     const handleLessonChange = (e, index) => {

@@ -25,7 +25,7 @@ const ContentDropdownItem = ({ content, onSelect, selected }) => {
                     </div>
                 </div>
             </div>
-        )
+        );
     }
 
     return (

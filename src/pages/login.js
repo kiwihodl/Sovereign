@@ -22,6 +22,13 @@ const Login = () => {
                 rounded
                 onClick={anonymousLogin}
             />
+            <Button
+                label={"login with email"}
+                icon="pi pi-envelope"
+                className="text-[#f8f8ff] w-[250px] my-4"
+                rounded
+                onClick={anonymousLogin}
+            />
         </div>
     )
 }

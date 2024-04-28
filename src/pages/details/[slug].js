@@ -39,7 +39,6 @@ export default function Details() {
     const [author, setAuthor] = useState(null);
     const [bitcoinConnect, setBitcoinConnect] = useState(false);
     const [nAddress, setNAddress] = useState(null);
-
     const [user] = useLocalStorageWithEffect('user', {});
     console.log('user:', user);
     const { returnImageProxy } = useImageProxy();
@@ -156,23 +155,26 @@ export default function Details() {
                                     className="object-cover object-center rounded-lg"
                                 />
                                 {bitcoinConnect ? (
-                                    <BitcoinConnectPayButton onClick={handleZapEvent} />
+                                    <div>
+                                        <BitcoinConnectPayButton onClick={handleZapEvent} />
+                                    </div>
                                 ) : (
-
-                                    <Button
-                                        icon="pi pi-bolt"
-                                        label="Zap"
-                                        severity="success"
-                                        outlined
-                                        onClick={handleZapEvent}
-                                        pt={{
-                                            button: {
-                                                icon: ({ context }) => ({
-                                                    className: 'bg-yellow-500'
-                                                })
-                                            }
-                                        }}
-                                    />
+                                    <div>
+                                        <Button
+                                            icon="pi pi-bolt"
+                                            label="Zap"
+                                            severity="success"
+                                            outlined
+                                            onClick={handleZapEvent}
+                                            pt={{
+                                                button: {
+                                                    icon: ({ context }) => ({
+                                                        className: 'bg-yellow-500'
+                                                    })
+                                                }
+                                            }}
+                                        />
+                                    </div>
                                 )}
                             </div>
                         )}
