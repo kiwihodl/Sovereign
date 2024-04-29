@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useNostr } from '@/hooks/useNostr';
 import { parseEvent, findKind0Fields, hexToNpub } from '@/utils/nostr';
-import { verifyEvent, nip19 } from 'nostr-tools';
+import { verifyEvent, nip19, nip04 } from 'nostr-tools';
 import { v4 as uuidv4 } from 'uuid';
 import { useLocalStorageWithEffect } from '@/hooks/useLocalStorage';
 import { useImageProxy } from '@/hooks/useImageProxy';
@@ -31,7 +31,8 @@ export default function Details() {
     const [draft, setDraft] = useState(null);
 
     const { returnImageProxy } = useImageProxy();
-    const { fetchSingleEvent, fetchKind0 } = useNostr();
+
+    const { publish, fetchSingleEvent } = useNostr();
 
     const [user] = useLocalStorageWithEffect('user', {});
 
@@ -40,8 +41,6 @@ export default function Details() {
     const router = useRouter();
 
     const { showToast } = useToast();
-
-    const { publishAll } = useNostr();
 
     useEffect(() => {
         if (router.isReady) {
@@ -60,7 +59,7 @@ export default function Details() {
 
     const handleSubmit = async () => {
         if (draft) {
-            const { unsignedEvent, type } = buildEvent(draft);
+            const { unsignedEvent, type } = await buildEvent(draft);
 
             if (unsignedEvent) {
                 await publishEvent(unsignedEvent, type);
@@ -110,26 +109,55 @@ export default function Details() {
             return;
         }
 
-        await publishAll(signedEvent);
+        await publish(signedEvent);
+
+        // check if the event is published
+        const publishedEvent = await fetchSingleEvent(signedEvent.id);
+
+        console.log('publishedEvent:', publishedEvent);
+
+        if (publishedEvent) {
+            // show success message
+            showToast('success', 'Success', `${type} published successfully.`);
+            // delete the draft
+            await axios.delete(`/api/drafts/${draft.id}`)
+                .then(res => {
+                    if (res.status === 204) {
+                        showToast('success', 'Success', 'Draft deleted successfully.');
+                        router.push(`/profile`);
+                    } else {
+                        showToast('error', 'Error', 'Failed to delete draft.');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                });
+        }
     }
 
-    const buildEvent = (draft) => {
+    const buildEvent = async (draft) => {
         const NewDTag = uuidv4();
         let event = {};
         let type;
+        let encryptedContent;
+        console.log('draft:', draft);
 
         switch (draft?.type) {
             case 'resource':
+                if (draft?.price) {
+                    // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
+                    encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY ,process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
+                }
                 event = {
                     kind: draft?.price ? 30402 : 30023, // Determine kind based on if price is present
-                    content: draft.content,
+                    content: draft?.price ? encryptedContent : draft.content,
                     created_at: Math.floor(Date.now() / 1000),
                     tags: [
                         ['d', NewDTag],
                         ['title', draft.title],
                         ['summary', draft.summary],
                         ['image', draft.image],
-                        ['t', ...draft.topics],
+                        ...draft.topics.map(topic => ['t', topic]),
                         ['published_at', Math.floor(Date.now() / 1000).toString()],
                         // Include price and location tags only if price is present
                         ...(draft?.price ? [['price', draft.price], ['location', `https://plebdevs.com/resource/${draft.id}`]] : []),
@@ -138,16 +166,20 @@ export default function Details() {
                 type = 'resource';
                 break;
             case 'workshop':
+                if (draft?.price) {
+                    // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
+                    encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY ,process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
+                }
                 event = {
-                    kind: 30023,
-                    content: draft.content,
+                    kind: draft?.price ? 30402 : 30023,
+                    content: draft?.price ? encryptedContent : draft.content,
                     created_at: Math.floor(Date.now() / 1000),
                     tags: [
                         ['d', NewDTag],
                         ['title', draft.title],
                         ['summary', draft.summary],
                         ['image', draft.image],
-                        ['t', ...draft.topics],
+                        ...draft.topics.map(topic => ['t', topic]),
                         ['published_at', Math.floor(Date.now() / 1000).toString()],
                     ]
                 };
@@ -163,7 +195,7 @@ export default function Details() {
                         ['title', draft.title],
                         ['summary', draft.summary],
                         ['image', draft.image],
-                        ['t', ...draft.topics],
+                        ...draft.topics.map(topic => ['t', topic]),
                         ['published_at', Math.floor(Date.now() / 1000).toString()],
                     ]
                 };

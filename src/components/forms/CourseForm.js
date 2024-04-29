@@ -85,7 +85,7 @@ const CourseForm = () => {
                             ['title', lesson.title],
                             ['summary', lesson.summary],
                             ['image', lesson.image],
-                            ['t', ...lesson.topics],
+                            ...lesson.topics.map(topic => ['t', topic]),
                             ['published_at', Math.floor(Date.now() / 1000).toString()],
                             ['price', lesson.price],
                             ['location', `https://plebdevs.com/${lesson.topics[1]}/${lesson.id}`],
@@ -101,7 +101,7 @@ const CourseForm = () => {
                             ['title', lesson.title],
                             ['summary', lesson.summary],
                             ['image', lesson.image],
-                            ['t', ...lesson.topics],
+                            ...lesson.topics.map(topic => ['t', topic]),
                             ['published_at', Math.floor(Date.now() / 1000).toString()]
                         ]
                     };
@@ -134,9 +134,10 @@ const CourseForm = () => {
 
         // // Parse the fields from the lessons to get all of the necessary information
         const parsedLessons = fetchedLessons.map((lesson) => {
-            const { id, pubkey, content, title, summary, image, published_at, d, topics } = parseEvent(lesson);
+            const { id, kind, pubkey, content, title, summary, image, published_at, d, topics } = parseEvent(lesson);
             return {
                 id,
+                kind,
                 pubkey,
                 content,
                 title,
@@ -153,26 +154,24 @@ const CourseForm = () => {
             const courseEvent = {
                 kind: 30005,
                 created_at: Math.floor(Date.now() / 1000),
-                content: JSON.stringify({
-                    title,
-                    summary,
-                    price,
-                    topics,
-                }),
+                content: "",
                 tags: [
                     ['d', uuidv4()],
                     ['name', title],
                     ['picture', coverImage],
                     ['about', summary],
-                    parsedLessons.map((lesson) => ['a', `${lesson.kind}:${lesson.pubkey}:${lesson.d}`]),
+                    ...parsedLessons.map((lesson) => ['a', `${lesson.kind}:${lesson.pubkey}:${lesson.d}`]),
                 ],
             };
 
             console.log('courseEvent:', courseEvent);
+
+            // Sign the course event
+            const signedCourseEvent = await window?.nostr?.signEvent(courseEvent);
+            // Publish the course event using Nostr
+            // await publish(signedCourseEvent);
         }
 
-        // Publish the course event using Nostr
-        // await publishCourse(courseEvent);
 
         // Reset the form fields after publishing the course
         setTitle('');

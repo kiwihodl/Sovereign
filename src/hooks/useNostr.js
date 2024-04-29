@@ -332,10 +332,12 @@ export function useNostr() {
     );
 
     const fetchResources = useCallback(async () => {
-        const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
-        const hasRequiredTags = (eventData) => {
-            const hasPlebDevs = eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
-            const hasResource = eventData.some(([tag, value]) => tag === "t" && value === "resource");
+        const filter = [{ kinds: [30023, 30402], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
+        const hasRequiredTags = (tags) => {
+            const hasPlebDevs = tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
+            // Check if 'resource' tag exists
+            const hasResource = tags.some(([tag, value]) => tag === "t" && value === "resource");
+            // Return true if both tags exist
             return hasPlebDevs && hasResource;
         };
 
@@ -370,10 +372,12 @@ export function useNostr() {
     }, [subscribe]);
 
     const fetchWorkshops = useCallback(async () => {
-        const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
-        const hasRequiredTags = (eventData) => {
-            const hasPlebDevs = eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
-            const hasWorkshop = eventData.some(([tag, value]) => tag === "t" && value === "workshop");
+        const filter = [{ kinds: [30023, 30402], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
+        const hasRequiredTags = (tags) => {
+            const hasPlebDevs = tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
+
+            const hasWorkshop = tags.some(([tag, value]) => tag === "t" && value === "workshop");
+            
             return hasPlebDevs && hasWorkshop;
         };
 
@@ -384,6 +388,9 @@ export function useNostr() {
                 filter,
                 {
                     onevent: (event) => {
+                        if (event.id === "fe63bb28f3e560046f3653edff75fb1d816412e5a7a1dfdddca5494d94ff22c9") {
+                            console.log('event:!!!!', event);
+                        }
                         if (hasRequiredTags(event.tags)) {
                             workshops.push(event);
                         }
@@ -409,9 +416,14 @@ export function useNostr() {
 
     const fetchCourses = useCallback(async () => {
         const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
-        const hasRequiredTags = (eventData) => {
-            const hasPlebDevs = eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
-            const hasCourse = eventData.some(([tag, value]) => tag === "t" && value === "course");
+        const hasRequiredTags = (tags) => {
+            const hasPlebDevs = tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
+
+            const hasCourse = tags.some(([tag, value]) => tag === "t" && value === "course");
+
+            console.log('hasPlebDevs:', hasPlebDevs);
+            console.log('hasCourse:', hasCourse);
+
             return hasPlebDevs && hasCourse;
         };
 
