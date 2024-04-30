@@ -57,8 +57,10 @@ export function useNostr() {
             try {
                 await Promise.any(pool.publish(defaultRelays, event));
                 console.log('Published event to at least one relay');
+                return true;
             } catch (error) {
                 console.error('Failed to publish event:', error);
+                return false;
             }
         },
         [pool]
@@ -388,9 +390,6 @@ export function useNostr() {
                 filter,
                 {
                     onevent: (event) => {
-                        if (event.id === "fe63bb28f3e560046f3653edff75fb1d816412e5a7a1dfdddca5494d94ff22c9") {
-                            console.log('event:!!!!', event);
-                        }
                         if (hasRequiredTags(event.tags)) {
                             workshops.push(event);
                         }
@@ -420,9 +419,6 @@ export function useNostr() {
             const hasPlebDevs = tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
 
             const hasCourse = tags.some(([tag, value]) => tag === "t" && value === "course");
-
-            console.log('hasPlebDevs:', hasPlebDevs);
-            console.log('hasCourse:', hasCourse);
 
             return hasPlebDevs && hasCourse;
         };

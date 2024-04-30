@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import router from 'next/router';
+import { useRouter } from 'next/router';
 import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputSwitch } from 'primereact/inputswitch';

@@ -8,6 +8,7 @@ import { Dropdown } from "primereact/dropdown";
 import { v4 as uuidv4, v4 } from 'uuid';
 import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
 import { useNostr } from "@/hooks/useNostr";
+import {nip19} from "nostr-tools"
 import { parseEvent } from "@/utils/nostr";
 import ContentDropdownItem from "@/components/content/dropdowns/ContentDropdownItem";
 import 'primeicons/primeicons.css';
@@ -113,19 +114,28 @@ const CourseForm = () => {
                 // Add the signed event's id to finalIds
                 finalIds.push(signedEvent.id);
 
-                // Publish the lesson (uncomment the line below if you want to publish immediately)
-                // await publish(signedEvent);
+                const published = await publish(signedEvent);
+
+                if (published) {
+                    // delete the draft
+                    axios.delete(`/api/drafts/${lesson.id}`)
+                    .then((response) => {
+                        console.log('Draft deleted:', response);
+                    })
+                    .catch((error) => {
+                        console.error('Error deleting draft:', error);
+                    });
+                }
             }
         }
 
         console.log('finalIds:', finalIds);
 
-        const testIds = ["8e364adf6b81ef34d30f42bf0356a9b362bf928e178d7bcd4baa912623f6b3ee", "41bcee8f1293ee3cc221f5bc1417ee3f5accfa90ccec8db4f9eda7e8ffef5c30"]
-
         // Fetch all of the lessons from Nostr by their ids
         const fetchedLessons = await Promise.all(
-            testIds.map(async (id) => {
+            finalIds.map(async (id) => {
                 const lesson = await fetchSingleEvent(id);
+                console.log('got lesson:', lesson);
                 return lesson;
             })
         );
@@ -152,7 +162,7 @@ const CourseForm = () => {
         if (parsedLessons.length === selectedLessons.length) {
             // Create a new course event
             const courseEvent = {
-                kind: 30005,
+                kind: 30004,
                 created_at: Math.floor(Date.now() / 1000),
                 content: "",
                 tags: [
@@ -164,24 +174,22 @@ const CourseForm = () => {
                 ],
             };
 
-            console.log('courseEvent:', courseEvent);
-
             // Sign the course event
             const signedCourseEvent = await window?.nostr?.signEvent(courseEvent);
+            console.log('signedCourseEvent:', signedCourseEvent);
             // Publish the course event using Nostr
-            // await publish(signedCourseEvent);
+            await publish(signedCourseEvent);
+
+            // Reset the form fields after publishing the course
+            setTitle('');
+            setSummary('');
+            setChecked(false);
+            setPrice(0);
+            setCoverImage('');
+            setLessons([{ id: uuidv4(), title: 'Select a lesson' }]);
+            setSelectedLessons([]);
+            setTopics(['']);
         }
-
-
-        // Reset the form fields after publishing the course
-        setTitle('');
-        setSummary('');
-        setChecked(false);
-        setPrice(0);
-        setCoverImage('');
-        setLessons([{ id: uuidv4(), title: 'Select a lesson' }]);
-        setSelectedLessons([]);
-        setTopics(['']);
     };
 
     const handleLessonChange = (e, index) => {
