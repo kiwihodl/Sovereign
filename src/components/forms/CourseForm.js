@@ -8,7 +8,7 @@ import { Dropdown } from "primereact/dropdown";
 import { v4 as uuidv4, v4 } from 'uuid';
 import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
 import { useNostr } from "@/hooks/useNostr";
-import {nip19} from "nostr-tools"
+import { nip19 } from "nostr-tools"
 import { parseEvent } from "@/utils/nostr";
 import ContentDropdownItem from "@/components/content/dropdowns/ContentDropdownItem";
 import 'primeicons/primeicons.css';
@@ -119,12 +119,12 @@ const CourseForm = () => {
                 if (published) {
                     // delete the draft
                     axios.delete(`/api/drafts/${lesson.id}`)
-                    .then((response) => {
-                        console.log('Draft deleted:', response);
-                    })
-                    .catch((error) => {
-                        console.error('Error deleting draft:', error);
-                    });
+                        .then((response) => {
+                            console.log('Draft deleted:', response);
+                        })
+                        .catch((error) => {
+                            console.error('Error deleting draft:', error);
+                        });
                 }
             }
         }
@@ -178,17 +178,22 @@ const CourseForm = () => {
             const signedCourseEvent = await window?.nostr?.signEvent(courseEvent);
             console.log('signedCourseEvent:', signedCourseEvent);
             // Publish the course event using Nostr
-            await publish(signedCourseEvent);
+            const published = await publish(signedCourseEvent);
 
-            // Reset the form fields after publishing the course
-            setTitle('');
-            setSummary('');
-            setChecked(false);
-            setPrice(0);
-            setCoverImage('');
-            setLessons([{ id: uuidv4(), title: 'Select a lesson' }]);
-            setSelectedLessons([]);
-            setTopics(['']);
+            if (published) {
+
+                // Reset the form fields after publishing the course
+                setTitle('');
+                setSummary('');
+                setChecked(false);
+                setPrice(0);
+                setCoverImage('');
+                setLessons([{ id: uuidv4(), title: 'Select a lesson' }]);
+                setSelectedLessons([]);
+                setTopics(['']);
+            } else {
+                // Handle error
+            }
         }
     };
 

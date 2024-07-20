@@ -32,7 +32,7 @@ export default function Details() {
 
     const { returnImageProxy } = useImageProxy();
 
-    const { publish, fetchSingleEvent } = useNostr();
+    const { publishCourse, publishResource, fetchSingleEvent } = useNostr();
 
     const [user] = useLocalStorageWithEffect('user', {});
 
@@ -109,18 +109,25 @@ export default function Details() {
             return;
         }
 
-        await publish(signedEvent);
+        let published;
 
-        // check if the event is published
-        const publishedEvent = await fetchSingleEvent(signedEvent.id);
+        if (type === 'resource' || type === 'workshop') {
+            published = await publishResource(signedEvent);
+        } else if (type === 'course') {
+            published = await publishCourse(signedEvent);
+        }
 
-        console.log('publishedEvent:', publishedEvent);
-
-        if (publishedEvent) {
-            // show success message
-            showToast('success', 'Success', `${type} published successfully.`);
-            // delete the draft
-            await axios.delete(`/api/drafts/${draft.id}`)
+        if (published) {
+            // check if the event is published
+            const publishedEvent = await fetchSingleEvent(signedEvent.id);
+            
+            console.log('publishedEvent:', publishedEvent);
+            
+            if (publishedEvent) {
+                // show success message
+                showToast('success', 'Success', `${type} published successfully.`);
+                // delete the draft
+                await axios.delete(`/api/drafts/${draft.id}`)
                 .then(res => {
                     if (res.status === 204) {
                         showToast('success', 'Success', 'Draft deleted successfully.');
@@ -132,6 +139,7 @@ export default function Details() {
                 .catch(err => {
                     console.error(err);
                 });
+            }
         }
     }
 

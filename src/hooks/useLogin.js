@@ -61,42 +61,46 @@ export const useLogin = () => {
 
     const nostrLogin = useCallback(async () => {
         if (!window || !window.nostr) {
-            showToast('error', 'Nostr Unavailable', 'Nostr is not available');
-            return;
+          showToast('error', 'Nostr Unavailable', 'Nostr is not available');
+          return;
         }
-
+      
         const publicKey = await window.nostr.getPublicKey();
         if (!publicKey) {
-            alert('Failed to obtain public key');
-            return;
+          showToast('error', 'Public Key Error', 'Failed to obtain public key');
+          return;
         }
-
+      
         try {
-            const response = await axios.get(`/api/users/${publicKey}`);
-            if (response.status !== 200) throw new Error('User not found');
-;
-            window.localStorage.setItem('user', JSON.stringify(response.data));
-            router.push('/').then(() => window.location.reload());
-        } catch (error) {
+          const response = await axios.get(`/api/users/${publicKey}`);
+          let userData;
+      
+          if (response.status === 204) {
             // User not found, create a new user
             const kind0 = await fetchKind0(publicKey);
-            const fields = await findKind0Fields(kind0);
-            const payload = { pubkey: publicKey, ...fields };
-
-            try {
-                const createUserResponse = await axios.post(`/api/users`, payload);
-                if (createUserResponse.status === 201) {
-                    window.localStorage.setItem('user', JSON.stringify(createUserResponse.data));
-                    router.push('/').then(() => window.location.reload());
-                } else {
-                    console.error('Error creating user:', createUserResponse);
-                }
-            } catch (createError) {
-                console.error('Error creating user:', createError);
-                showToast('error', 'Error Creating User', 'Failed to create user');
+      
+            let fields = {};
+            if (kind0) {
+              fields = await findKind0Fields(kind0);
             }
+      
+            const payload = { pubkey: publicKey, ...fields };
+            const createUserResponse = await axios.post(`/api/users`, payload);
+            if (createUserResponse.status !== 201) {
+              throw new Error('Failed to create user');
+            }
+            userData = createUserResponse.data;
+          } else {
+            userData = response.data;
+          }
+      
+          window.localStorage.setItem('user', JSON.stringify(userData));
+          router.push('/').then(() => window.location.reload());
+        } catch (error) {
+          console.error('Error during login:', error);
+          showToast('error', 'Login Error', error.message || 'Failed to log in');
         }
-    }, [router, showToast, fetchKind0]);
+      }, [router, showToast, fetchKind0]);
 
     const anonymousLogin = useCallback(() => {
         try {

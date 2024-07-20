@@ -13,6 +13,8 @@ const initialRelays = [
     "wss://relay.primal.net/"
 ];
 
+const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY;
+
 export const useNostr = () => {
     const [relays, setRelays] = useState(initialRelays);
     const [relayStatuses, setRelayStatuses] = useState({});
@@ -159,7 +161,7 @@ export const useNostr = () => {
 
     // Fetch resources, workshops, courses, and streams with appropriate filters and update functions
     const fetchResources = async () => {
-        const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
+        const filter = [{ kinds: [30023], authors: [AUTHOR_PUBKEY] }];
         const hasRequiredTags = async (eventData) => {
             const hasPlebDevs = eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
             const hasResource = eventData.some(([tag, value]) => tag === "t" && value === "resource");
@@ -181,7 +183,7 @@ export const useNostr = () => {
     };
 
     const fetchWorkshops = async () => {
-        const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
+        const filter = [{ kinds: [30023], authors: [AUTHOR_PUBKEY] }];
         const hasRequiredTags = async (eventData) => {
             const hasPlebDevs = eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
             const hasWorkshop = eventData.some(([tag, value]) => tag === "t" && value === "workshop");
@@ -203,7 +205,7 @@ export const useNostr = () => {
     };
 
     const fetchCourses = async () => {
-        const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
+        const filter = [{ kinds: [30023], authors: [AUTHOR_PUBKEY] }];
         const hasRequiredTags = async (eventData) => {
             const hasPlebDevs = eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
             const hasCourse = eventData.some(([tag, value]) => tag === "t" && value === "course");
@@ -226,7 +228,7 @@ export const useNostr = () => {
     };
 
     // const fetchStreams = () => {
-    //     const filter = [{kinds: [30311], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"]}];
+    //     const filter = [{kinds: [30311], authors: [AUTHOR_PUBKEY]}];
     //     const hasRequiredTags = (eventData) => eventData.some(([tag, value]) => tag === "t" && value === "plebdevs");
     //     fetchEvents(filter, 'streams', hasRequiredTags);
     // }

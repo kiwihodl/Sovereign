@@ -14,6 +14,8 @@ const defaultRelays = [
     "wss://relay.primal.net/"
 ];
 
+const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY;
+
 export function useNostr() {
     const pool = useContext(NostrContext);
     const subscriptionQueue = useRef([]);
@@ -175,12 +177,12 @@ export function useNostr() {
                         aTagsAlt.push(`${event.kind}:${event.pubkey}:${event.d}`);
                         eTags.push(event.id);
                     });
-    
+
                     // Create filters for batch querying
                     const filterA = { kinds: [9735], '#a': aTags };
                     const filterE = { kinds: [9735], '#e': eTags };
                     const filterAAlt = { kinds: [9735], '#a': aTagsAlt };
-    
+
                     // Perform batch queries
                     // const [zapsA, zapsE] = await Promise.all([
                     //     pool.querySync(defaultRelays, filterA),
@@ -212,7 +214,7 @@ export function useNostr() {
                     return [];
                 }
             };
-    
+
             return new Promise((resolve) => {
                 querySyncQueue.current.push(async () => {
                     const zaps = await querySyncFn();
@@ -222,32 +224,33 @@ export function useNostr() {
             });
         },
         [pool, processQuerySyncQueue]
-    );    
+    );
 
     const fetchKind0 = useCallback(
         async (publicKey) => {
-            try {
-                const kind0 = await new Promise((resolve, reject) => {
-                    subscribe(
-                        [{ authors: [publicKey], kinds: [0] }],
-                        {
-                            onevent: (event) => {
-                                resolve(JSON.parse(event.content));
-                            },
-                            onerror: (error) => {
-                                reject(error);
-                            },
-                        }
-                    );
-                });
-                return kind0;
-            } catch (error) {
-                console.error('Failed to fetch kind 0 for event:', error);
-                return [];
-            }
+          return new Promise((resolve) => {
+            const timeout = setTimeout(() => {
+              resolve(null); // Resolve with null if no event is received within the timeout
+            }, 10000); // 10 seconds timeout
+      
+            subscribe(
+              [{ authors: [publicKey], kinds: [0] }],
+              {
+                onevent: (event) => {
+                  clearTimeout(timeout);
+                  resolve(JSON.parse(event.content));
+                },
+                onerror: (error) => {
+                  clearTimeout(timeout);
+                  console.error('Error fetching kind 0:', error);
+                  resolve(null);
+                },
+              }
+            );
+          });
         },
         [subscribe]
-    );
+      );
 
     const zapEvent = useCallback(
         async (event, amount, comment) => {
@@ -334,7 +337,7 @@ export function useNostr() {
     );
 
     const fetchResources = useCallback(async () => {
-        const filter = [{ kinds: [30023, 30402], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
+        const filter = [{ kinds: [30023, 30402], authors: [AUTHOR_PUBKEY] }];
         const hasRequiredTags = (tags) => {
             const hasPlebDevs = tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
             // Check if 'resource' tag exists
@@ -374,12 +377,12 @@ export function useNostr() {
     }, [subscribe]);
 
     const fetchWorkshops = useCallback(async () => {
-        const filter = [{ kinds: [30023, 30402], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
+        const filter = [{ kinds: [30023, 30402], authors: [AUTHOR_PUBKEY] }];
         const hasRequiredTags = (tags) => {
             const hasPlebDevs = tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
 
             const hasWorkshop = tags.some(([tag, value]) => tag === "t" && value === "workshop");
-            
+
             return hasPlebDevs && hasWorkshop;
         };
 
@@ -414,7 +417,7 @@ export function useNostr() {
     }, [subscribe]);
 
     const fetchCourses = useCallback(async () => {
-        const filter = [{ kinds: [30023], authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"] }];
+        const filter = [{ kinds: [30023], authors: [AUTHOR_PUBKEY] }];
         const hasRequiredTags = (tags) => {
             const hasPlebDevs = tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
 
@@ -453,5 +456,94 @@ export function useNostr() {
         });
     }, [subscribe]);
 
-    return { subscribe, publish, fetchSingleEvent, fetchZapsForEvent, fetchKind0, fetchResources, fetchWorkshops, fetchCourses, zapEvent, fetchZapsForEvents };
+    const publishResource = useCallback(
+        async (resourceEvent) => {
+          const published = await publish(resourceEvent);
+      
+          if (published) {
+            const { id, kind, pubkey, content, title, summary, image, published_at, d, topics } = parseEvent(resourceEvent);
+
+            const user = window.localStorage.getItem('user');
+            const userId = JSON.parse(user).id;
+      
+            const payload = {
+              
+            };
+      
+            if (payload && payload.user) {
+              try {
+                const response = await axios.post('/api/resources', payload);
+                
+                if (response.status === 201) {
+                  try {
+                    const deleteResponse = await axios.delete(`/api/drafts/${resourceEvent.id}`);
+                    
+                    if (deleteResponse.status === 204) {
+                      return true;
+                    }
+                  } catch (error) {
+                    console.error('Error deleting draft:', error);
+                    return false;
+                  }
+                }
+              } catch (error) {
+                console.error('Error creating resource:', error);
+                return false;
+              }
+            }
+          }
+      
+          return false;
+        },
+        [publish]
+      );
+
+
+      const publishCourse = useCallback(
+        async (courseEvent) => {
+          const published = await publish(courseEvent);
+      
+          if (published) {
+            const user = window.localStorage.getItem('user');
+            const pubkey = JSON.parse(user).pubkey;
+      
+            const payload = {
+              title: courseEvent.title,
+              summary: courseEvent.summary,
+              type: 'course',
+              content: courseEvent.content,
+              image: courseEvent.image,
+              user: pubkey,
+              topics: [...courseEvent.topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'course']
+            };
+      
+            if (payload && payload.user) {
+              try {
+                const response = await axios.post('/api/courses', payload);
+                
+                if (response.status === 201) {
+                  try {
+                    const deleteResponse = await axios.delete(`/api/drafts/${courseEvent.id}`);
+                    
+                    if (deleteResponse.status === 204) {
+                      return true;
+                    }
+                  } catch (error) {
+                    console.error('Error deleting draft:', error);
+                    return false;
+                  }
+                }
+              } catch (error) {
+                console.error('Error creating course:', error);
+                return false;
+              }
+            }
+          }
+      
+          return false;
+        },
+        [publish]
+      );
+
+    return { subscribe, publish, fetchSingleEvent, fetchZapsForEvent, fetchKind0, fetchResources, fetchWorkshops, fetchCourses, zapEvent, fetchZapsForEvents, publishResource, publishCourse };
 }
