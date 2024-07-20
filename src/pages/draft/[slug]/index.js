@@ -18,10 +18,20 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 
 const MarkdownContent = ({ content }) => {
+    // Function to strip HTML tags
+    const stripHtml = (html) => {
+        let tmp = document.createElement("DIV");
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || "";
+    };
+
+    // Strip HTML tags from the content
+    const plainContent = stripHtml(content);
+
     return (
         <div>
             <ReactMarkdown rehypePlugins={[rehypeRaw]} className='markdown-content'>
-                {content}
+                {plainContent}
             </ReactMarkdown>
         </div>
     );
@@ -148,7 +158,6 @@ export default function Details() {
         let event = {};
         let type;
         let encryptedContent;
-        console.log('draft:', draft);
 
         switch (draft?.type) {
             case 'resource':
@@ -243,12 +252,14 @@ export default function Details() {
                                 height={50}
                                 className="rounded-full mr-4"
                             />
-                            <p className='text-lg'>
+                            {user && user?.pubkey && (
+                                <p className='text-lg'>
                                 Created by{' '}
-                                <a rel='noreferrer noopener' target='_blank' className='text-blue-500 hover:underline'>
-                                    {user?.username}
+                                <a href={`https://nostr.com/${hexToNpub(user?.pubkey)}`} rel='noreferrer noopener' target='_blank' className='text-blue-500 hover:underline'>
+                                    {user?.username || user?.pubkey.slice(0, 10)}{'... '}
                                 </a>
                             </p>
+                                )}
                         </div>
                     </div>
                     <div className='flex flex-col max-tab:mt-12 max-mob:mt-12'>
@@ -270,7 +281,10 @@ export default function Details() {
                 </div>
             </div>
             <div className='w-[75vw] mx-auto flex flex-row justify-end mt-12'>
-                <Button onClick={handleSubmit} label="Publish" severity='success' outlined className="w-auto my-2" />
+                <div className='w-[15vw] flex flex-row justify-between'>
+                    <Button onClick={() => router.push(`/draft/${draft?.id}/edit`)} label="Edit" severity='warning' outlined className="w-auto my-2" />
+                    <Button onClick={handleSubmit} label="Publish" severity='success' outlined className="w-auto my-2" />
+                </div>
             </div>
             <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
                 {

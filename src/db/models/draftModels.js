@@ -33,9 +33,15 @@ export const createDraft = async (data) => {
 
 
 export const updateDraft = async (id, data) => {
+    const { user, ...otherData } = data;
     return await prisma.draft.update({
         where: { id },
-        data,
+        data: {
+            ...otherData,
+            user: user ? {
+                connect: { id: user }
+            } : undefined
+        },
     });
 };
 

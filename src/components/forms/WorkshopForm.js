@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { InputText } from 'primereact/inputtext';
@@ -9,20 +9,30 @@ import { useToast } from '@/hooks/useToast';
 import { useLocalStorageWithEffect } from '@/hooks/useLocalStorage';
 import 'primeicons/primeicons.css';
 
-const WorkshopForm = () => {
-    const [title, setTitle] = useState('');
-    const [summary, setSummary] = useState('');
-    const [price, setPrice] = useState(0);
-    const [isPaidResource, setIsPaidResource] = useState(false);
-    const [videoUrl, setVideoUrl] = useState('');
-    const [coverImage, setCoverImage] = useState('');
-    const [topics, setTopics] = useState(['']);
+const WorkshopForm = ({ draft = null }) => {
+    const [title, setTitle] = useState(draft?.title || '');
+    const [summary, setSummary] = useState(draft?.summary || '');
+    const [price, setPrice] = useState(draft?.price || 0);
+    const [isPaidResource, setIsPaidResource] = useState(draft?.price ? true : false);
+    const [videoUrl, setVideoUrl] = useState(draft?.content || '');
+    const [coverImage, setCoverImage] = useState(draft?.image || '');
+    const [topics, setTopics] = useState(draft?.topics || ['']);
 
     const router = useRouter();
-
     const [user] = useLocalStorageWithEffect('user', {});
-
     const { showToast } = useToast();
+
+    useEffect(() => {
+        if (draft) {
+            setTitle(draft.title);
+            setSummary(draft.summary);
+            setPrice(draft.price || 0);
+            setIsPaidResource(draft.price ? true : false);
+            setVideoUrl(draft.content);
+            setCoverImage(draft.image);
+            setTopics(draft.topics || ['']);
+        }
+    }, [draft]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -59,10 +69,13 @@ const WorkshopForm = () => {
         };
 
         if (payload && payload.user) {
-            axios.post('/api/drafts', payload)
+            const url = draft ? `/api/drafts/${draft.id}` : '/api/drafts';
+            const method = draft ? 'put' : 'post';
+
+            axios[method](url, payload)
                 .then(response => {
-                    if (response.status === 201) {
-                        showToast('success', 'Success', 'Workshop saved as draft.');
+                    if (response.status === 200 || response.status === 201) {
+                        showToast('success', 'Success', draft ? 'Workshop updated successfully.' : 'Workshop saved as draft.');
 
                         if (response.data?.id) {
                             router.push(`/draft/${response.data.id}`);
@@ -71,6 +84,7 @@ const WorkshopForm = () => {
                 })
                 .catch(error => {
                     console.error(error);
+                    showToast('error', 'Error', 'Failed to save workshop. Please try again.');
                 });
         }
     };
@@ -85,11 +99,13 @@ const WorkshopForm = () => {
         setTopics(updatedTopics);
     };
 
-    const addTopic = () => {
+    const addTopic = (e) => {
+        e.preventDefault();
         setTopics([...topics, '']); // Add an empty string to the topics array
     };
 
-    const removeTopic = (index) => {
+    const removeTopic = (e, index) => {
+        e.preventDefault();
         const updatedTopics = topics.filter((_, i) => i !== index);
         setTopics(updatedTopics);
     };
@@ -125,7 +141,7 @@ const WorkshopForm = () => {
                     <div className="p-inputgroup flex-1" key={index}>
                         <InputText value={topic} onChange={(e) => handleTopicChange(index, e.target.value)} placeholder="Topic" className="w-full mt-2" />
                         {index > 0 && (
-                            <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={() => removeTopic(index)} />
+                            <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={(e) => removeTopic(e, index)} />
                         )}
                     </div>
                 ))}
@@ -134,7 +150,7 @@ const WorkshopForm = () => {
                 </div>
             </div>
             <div className="flex justify-center mt-8">
-                <Button type="submit" severity="success" outlined label="Submit" />
+                <Button type="submit" severity="success" outlined label={draft ? "Update" : "Submit"} />
             </div>
         </form>
     );

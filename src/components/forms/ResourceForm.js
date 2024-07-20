@@ -1,46 +1,53 @@
-import React, { use, useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { InputText } from "primereact/inputtext";
 import { InputNumber } from "primereact/inputnumber";
 import { InputSwitch } from "primereact/inputswitch";
 import { Editor } from "primereact/editor";
 import { Button } from "primereact/button";
-import { nip04, verifyEvent, nip19 } from "nostr-tools";
 import { useRouter } from "next/router";
 import { useNostr } from "@/hooks/useNostr";
-import { v4 as uuidv4 } from 'uuid';
 import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
 import EditorHeader from "./Editor/EditorHeader";
 import { useToast } from "@/hooks/useToast";
 import 'primeicons/primeicons.css';
 
-const ResourceForm = () => {
-    const [title, setTitle] = useState('');
-    const [summary, setSummary] = useState('');
-    const [isPaidResource, setIsPaidResource] = useState(false);
-    const [price, setPrice] = useState(0);
-    const [text, setText] = useState('');
-    const [coverImage, setCoverImage] = useState('');
-    const [topics, setTopics] = useState([]);
+const ResourceForm = ({ draft = null }) => {
+    const [title, setTitle] = useState(draft?.title || '');
+    const [summary, setSummary] = useState(draft?.summary || '');
+    const [isPaidResource, setIsPaidResource] = useState(draft?.price ? true : false);
+    const [price, setPrice] = useState(draft?.price || 0);
+    const [text, setText] = useState(draft?.content || '');
+    const [coverImage, setCoverImage] = useState(draft?.image || '');
+    const [topics, setTopics] = useState(draft?.topics || ['']);
 
     const [user] = useLocalStorageWithEffect('user', {});
-
     const { showToast } = useToast();
-
     const { publishAll } = useNostr();
-
     const router = useRouter();
+
+    useEffect(() => {
+        if (draft) {
+            setTitle(draft.title);
+            setSummary(draft.summary);
+            setIsPaidResource(draft.price ? true : false);
+            setPrice(draft.price || 0);
+            setText(draft.content);
+            setCoverImage(draft.image);
+            setTopics(draft.topics || []);
+        }
+    }, [draft]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         const userResponse = await axios.get(`/api/users/${user.pubkey}`);
-
+    
         if (!userResponse.data) {
             showToast('error', 'Error', 'User not found', 'Please try again.');
             return;
         }
-
+    
         const payload = {
             title,
             summary,
@@ -48,16 +55,23 @@ const ResourceForm = () => {
             price: isPaidResource ? price : null,
             content: text,
             image: coverImage,
-            user: userResponse.data.id,
             topics: [...topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'resource']
         };
-
-        if (payload && payload.user) {
-            axios.post('/api/drafts', payload)
+    
+        if (!draft) {
+            // Only include user when creating a new draft
+            payload.user = userResponse.data.id;
+        }
+    
+        if (payload) {
+            const url = draft ? `/api/drafts/${draft.id}` : '/api/drafts';
+            const method = draft ? 'put' : 'post';
+    
+            axios[method](url, payload)
                 .then(response => {
-                    if (response.status === 201) {
-                        showToast('success', 'Success', 'Resource saved as draft.');
-
+                    if (response.status === 200 || response.status === 201) {
+                        showToast('success', 'Success', draft ? 'Resource updated successfully.' : 'Resource saved as draft.');
+    
                         if (response.data?.id) {
                             router.push(`/draft/${response.data.id}`);
                         }
@@ -65,6 +79,7 @@ const ResourceForm = () => {
                 })
                 .catch(error => {
                     console.error(error);
+                    showToast('error', 'Error', 'Failed to save resource. Please try again.');
                 });
         }
     };
@@ -219,11 +234,13 @@ const ResourceForm = () => {
         setTopics(updatedTopics);
     };
 
-    const addTopic = () => {
+    const addTopic = (e) => {
+        e.preventDefault();
         setTopics([...topics, '']); // Add an empty string to the topics array
     };
 
-    const removeTopic = (index) => {
+    const removeTopic = (e, index) => {
+        e.preventDefault();
         const updatedTopics = topics.filter((_, i) => i !== index);
         setTopics(updatedTopics);
     };
@@ -296,7 +313,7 @@ const ResourceForm = () => {
                     <div className="p-inputgroup flex-1" key={index}>
                         <InputText value={topic} onChange={(e) => handleTopicChange(index, e.target.value)} placeholder="Topic" className="w-full mt-2" />
                         {index > 0 && (
-                            <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={() => removeTopic(index)} />
+                            <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={(e) => removeTopic(e, index)} />
                         )}
                     </div>
                 ))}
@@ -305,7 +322,7 @@ const ResourceForm = () => {
                 </div>
             </div>
             <div className="flex justify-center mt-8">
-                <Button type="submit" label="Submit" className="p-button-success" />
+                <Button type="submit" severity="success" outlined label={draft ? "Update" : "Submit"} />
             </div>
         </form>
     );

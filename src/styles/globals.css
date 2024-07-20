@@ -90,3 +90,25 @@ h3 {
 .p-tabmenu .p-tabmenu-nav::-webkit-scrollbar {
   display: none;
 }
+
+/* markdown content display styles */
+.markdown-content {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+}
+
+.markdown-content h1, .markdown-content h2 {
+  padding-bottom: 0.3em;
+}
+
+.markdown-content pre {
+  border-radius: 3px;
+  padding: 16px;
+  overflow: auto;
+}
+
+.markdown-content code {
+  border-radius: 3px;
+  font-size: 85%;
+  margin: 0;
+}
