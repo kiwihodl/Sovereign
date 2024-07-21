@@ -9,21 +9,24 @@ const Button = dynamic(
   }
 );
 
+let initialized = false;
+
+export async function initializeBitcoinConnect() {
+  if (!initialized) {
+    const { init } = await import('@getalby/bitcoin-connect-react');
+    init({
+      appName: "PlebDevs",
+      filters: ["nwc"],
+      showBalance: false
+    });
+    initialized = true;
+  }
+}
+
 const BitcoinConnectButton = () => {
-
   useEffect(() => {
-    const initializeBitcoinConnect = async () => {
-      // Initialize Bitcoin Connect
-      const { init } = await import('@getalby/bitcoin-connect-react');
-      init({
-        appName: "PlebDevs",
-        filters: ["nwc"],
-        showBalance: false
-      });
-    };
-
     initializeBitcoinConnect();
-  }, []); // Empty dependency array to run only once on component mount
+  }, []);
 
   return (
     <Button onConnect={(provider) => {

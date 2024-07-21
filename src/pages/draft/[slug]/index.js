@@ -72,10 +72,42 @@ export default function Details() {
             const { unsignedEvent, type } = await buildEvent(draft);
 
             if (unsignedEvent) {
-                await publishEvent(unsignedEvent, type);
+                const published = await publishEvent(unsignedEvent, type);
+                // if successful, delete the draft, redirect to profile
+                if (published) {
+                    axios.delete(`/api/drafts/${draft.id}`)
+                        .then(res => {
+                            if (res.status === 204) {
+                                showToast('success', 'Success', 'Draft deleted successfully.');
+                                router.push(`/profile`);
+                            } else {
+                                showToast('error', 'Error', 'Failed to delete draft.');
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                        });
+                }
+            } else {
+                showToast('error', 'Error', 'Failed to broadcast resource. Please try again.');
             }
-        } else {
-            showToast('error', 'Error', 'Failed to broadcast resource. Please try again.');
+        }
+    }
+
+    const handleDelete = async () => {
+        if (draft) {
+            await axios.delete(`/api/drafts/${draft.id}`)
+                .then(res => {
+                    if (res.status === 204) {
+                        showToast('success', 'Success', 'Draft deleted successfully.');
+                        router.push(`/profile`);
+                    } else {
+                        showToast('error', 'Error', 'Failed to delete draft.');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                });
         }
     }
 
@@ -127,28 +159,31 @@ export default function Details() {
             published = await publishCourse(signedEvent);
         }
 
+        console.log('published:', published);
+
         if (published) {
             // check if the event is published
             const publishedEvent = await fetchSingleEvent(signedEvent.id);
-            
+
             console.log('publishedEvent:', publishedEvent);
-            
+
             if (publishedEvent) {
                 // show success message
                 showToast('success', 'Success', `${type} published successfully.`);
                 // delete the draft
+                console.log('draft:', draft);
                 await axios.delete(`/api/drafts/${draft.id}`)
-                .then(res => {
-                    if (res.status === 204) {
-                        showToast('success', 'Success', 'Draft deleted successfully.');
-                        router.push(`/profile`);
-                    } else {
-                        showToast('error', 'Error', 'Failed to delete draft.');
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                });
+                    .then(res => {
+                        if (res.status === 204) {
+                            showToast('success', 'Success', 'Draft deleted successfully.');
+                            router.push(`/profile`);
+                        } else {
+                            showToast('error', 'Error', 'Failed to delete draft.');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    });
             }
         }
     }
@@ -163,7 +198,7 @@ export default function Details() {
             case 'resource':
                 if (draft?.price) {
                     // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
-                    encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY ,process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
+                    encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
                 }
                 event = {
                     kind: draft?.price ? 30402 : 30023, // Determine kind based on if price is present
@@ -185,7 +220,7 @@ export default function Details() {
             case 'workshop':
                 if (draft?.price) {
                     // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
-                    encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY ,process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
+                    encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
                 }
                 event = {
                     kind: draft?.price ? 30402 : 30023,
@@ -254,12 +289,12 @@ export default function Details() {
                             />
                             {user && user?.pubkey && (
                                 <p className='text-lg'>
-                                Created by{' '}
-                                <a href={`https://nostr.com/${hexToNpub(user?.pubkey)}`} rel='noreferrer noopener' target='_blank' className='text-blue-500 hover:underline'>
-                                    {user?.username || user?.pubkey.slice(0, 10)}{'... '}
-                                </a>
-                            </p>
-                                )}
+                                    Created by{' '}
+                                    <a href={`https://nostr.com/${hexToNpub(user?.pubkey)}`} rel='noreferrer noopener' target='_blank' className='text-blue-500 hover:underline'>
+                                        {user?.username || user?.pubkey.slice(0, 10)}{'... '}
+                                    </a>
+                                </p>
+                            )}
                         </div>
                     </div>
                     <div className='flex flex-col max-tab:mt-12 max-mob:mt-12'>
@@ -281,9 +316,10 @@ export default function Details() {
                 </div>
             </div>
             <div className='w-[75vw] mx-auto flex flex-row justify-end mt-12'>
-                <div className='w-[15vw] flex flex-row justify-between'>
-                    <Button onClick={() => router.push(`/draft/${draft?.id}/edit`)} label="Edit" severity='warning' outlined className="w-auto my-2" />
-                    <Button onClick={handleSubmit} label="Publish" severity='success' outlined className="w-auto my-2" />
+                <div className='w-fit flex flex-row justify-between'>
+                    <Button onClick={handleSubmit} label="Publish" severity='success' outlined className="w-auto m-2" />
+                    <Button onClick={() => router.push(`/draft/${draft?.id}/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
+                    <Button onClick={handleDelete} label="Delete" severity='danger' outlined className="w-auto m-2 mr-0" />
                 </div>
             </div>
             <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>

@@ -3,6 +3,8 @@ import axios from 'axios';
 import { nip57, nip19 } from 'nostr-tools';
 import { NostrContext } from '@/context/NostrContext';
 import { lnurlEncode } from '@/utils/lnurl';
+import { parseEvent } from '@/utils/nostr';
+import { v4 as uuidv4 } from 'uuid';
 
 const defaultRelays = [
     "wss://nos.lol/",
@@ -228,29 +230,29 @@ export function useNostr() {
 
     const fetchKind0 = useCallback(
         async (publicKey) => {
-          return new Promise((resolve) => {
-            const timeout = setTimeout(() => {
-              resolve(null); // Resolve with null if no event is received within the timeout
-            }, 10000); // 10 seconds timeout
-      
-            subscribe(
-              [{ authors: [publicKey], kinds: [0] }],
-              {
-                onevent: (event) => {
-                  clearTimeout(timeout);
-                  resolve(JSON.parse(event.content));
-                },
-                onerror: (error) => {
-                  clearTimeout(timeout);
-                  console.error('Error fetching kind 0:', error);
-                  resolve(null);
-                },
-              }
-            );
-          });
+            return new Promise((resolve) => {
+                const timeout = setTimeout(() => {
+                    resolve(null); // Resolve with null if no event is received within the timeout
+                }, 10000); // 10 seconds timeout
+
+                subscribe(
+                    [{ authors: [publicKey], kinds: [0] }],
+                    {
+                        onevent: (event) => {
+                            clearTimeout(timeout);
+                            resolve(JSON.parse(event.content));
+                        },
+                        onerror: (error) => {
+                            clearTimeout(timeout);
+                            console.error('Error fetching kind 0:', error);
+                            resolve(null);
+                        },
+                    }
+                );
+            });
         },
         [subscribe]
-      );
+    );
 
     const zapEvent = useCallback(
         async (event, amount, comment) => {
@@ -340,37 +342,36 @@ export function useNostr() {
         const filter = [{ kinds: [30023, 30402], authors: [AUTHOR_PUBKEY] }];
         const hasRequiredTags = (tags) => {
             const hasPlebDevs = tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
-            // Check if 'resource' tag exists
             const hasResource = tags.some(([tag, value]) => tag === "t" && value === "resource");
-            // Return true if both tags exist
             return hasPlebDevs && hasResource;
         };
 
         return new Promise((resolve, reject) => {
             let resources = [];
-
             const subscription = subscribe(
                 filter,
                 {
                     onevent: (event) => {
                         if (hasRequiredTags(event.tags)) {
+                            console.log('event:', event);
                             resources.push(event);
                         }
                     },
                     onerror: (error) => {
                         console.error('Error fetching resources:', error);
-                        subscription?.close();
-                        resolve(resources);
+                        // Don't resolve here, just log the error
                     },
                     onclose: () => {
-                        resolve(resources);
+                        // Don't resolve here either
                     },
                 },
                 2000 // Adjust the timeout value as needed
             );
 
+            // Set a timeout to resolve the promise after collecting events
             setTimeout(() => {
                 subscription?.close();
+                console.log('Resolving with resources:', resources);
                 resolve(resources);
             }, 2000); // Adjust the timeout value as needed
         });
@@ -378,32 +379,33 @@ export function useNostr() {
 
     const fetchWorkshops = useCallback(async () => {
         const filter = [{ kinds: [30023, 30402], authors: [AUTHOR_PUBKEY] }];
+        console.log('filter:', filter);
         const hasRequiredTags = (tags) => {
             const hasPlebDevs = tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
-
             const hasWorkshop = tags.some(([tag, value]) => tag === "t" && value === "workshop");
-
             return hasPlebDevs && hasWorkshop;
         };
 
         return new Promise((resolve, reject) => {
             let workshops = [];
-
             const subscription = subscribe(
                 filter,
                 {
                     onevent: (event) => {
+                        console.log('Received workshop event:', event);
                         if (hasRequiredTags(event.tags)) {
+                            console.log('Workshop event passed tag check, adding to workshops');
                             workshops.push(event);
+                        } else {
+                            console.log('Workshop event did not pass tag check');
                         }
                     },
                     onerror: (error) => {
                         console.error('Error fetching workshops:', error);
-                        subscription?.close();
-                        resolve(workshops);
+                        // Don't resolve here, just log the error
                     },
                     onclose: () => {
-                        resolve(workshops);
+                        // Don't resolve here either
                     },
                 },
                 2000 // Adjust the timeout value as needed
@@ -411,6 +413,7 @@ export function useNostr() {
 
             setTimeout(() => {
                 subscription?.close();
+                console.log('Resolving with workshops:', workshops);
                 resolve(workshops);
             }, 2000); // Adjust the timeout value as needed
         });
@@ -420,30 +423,30 @@ export function useNostr() {
         const filter = [{ kinds: [30023], authors: [AUTHOR_PUBKEY] }];
         const hasRequiredTags = (tags) => {
             const hasPlebDevs = tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
-
             const hasCourse = tags.some(([tag, value]) => tag === "t" && value === "course");
-
             return hasPlebDevs && hasCourse;
         };
 
         return new Promise((resolve, reject) => {
             let courses = [];
-
             const subscription = subscribe(
                 filter,
                 {
                     onevent: (event) => {
+                        console.log('Received course event:', event);
                         if (hasRequiredTags(event.tags)) {
+                            console.log('Course event passed tag check, adding to courses');
                             courses.push(event);
+                        } else {
+                            console.log('Course event did not pass tag check');
                         }
                     },
                     onerror: (error) => {
                         console.error('Error fetching courses:', error);
-                        subscription?.close();
-                        resolve(courses);
+                        // Don't resolve here, just log the error
                     },
                     onclose: () => {
-                        resolve(courses);
+                        // Don't resolve here either
                     },
                 },
                 2000 // Adjust the timeout value as needed
@@ -451,6 +454,7 @@ export function useNostr() {
 
             setTimeout(() => {
                 subscription?.close();
+                console.log('Resolving with courses:', courses);
                 resolve(courses);
             }, 2000); // Adjust the timeout value as needed
         });
@@ -458,92 +462,87 @@ export function useNostr() {
 
     const publishResource = useCallback(
         async (resourceEvent) => {
-          const published = await publish(resourceEvent);
-      
-          if (published) {
-            const { id, kind, pubkey, content, title, summary, image, published_at, d, topics } = parseEvent(resourceEvent);
+            const published = await publish(resourceEvent);
 
-            const user = window.localStorage.getItem('user');
-            const userId = JSON.parse(user).id;
-      
-            const payload = {
-              
-            };
-      
-            if (payload && payload.user) {
-              try {
-                const response = await axios.post('/api/resources', payload);
-                
-                if (response.status === 201) {
-                  try {
-                    const deleteResponse = await axios.delete(`/api/drafts/${resourceEvent.id}`);
-                    
-                    if (deleteResponse.status === 204) {
-                      return true;
+            if (published) {
+                const { id, kind, pubkey, content, title, summary, image, published_at, d, topics } = parseEvent(resourceEvent);
+
+                const user = window.localStorage.getItem('user');
+                const userId = JSON.parse(user).id;
+
+                const payload = {
+                    id: uuidv4(),
+                    user: {
+                        connect: { id: userId } // This is the correct way to connect to an existing user
+                    },
+                    noteId: id
+                };
+
+                if (payload && payload.user) {
+                    try {
+                        const response = await axios.post('/api/resources', payload);
+
+                        if (response.status === 201) {
+                            return true;
+                        }
+                    } catch (error) {
+                        console.error('Error creating resource:', error);
+                        return false;
                     }
-                  } catch (error) {
-                    console.error('Error deleting draft:', error);
-                    return false;
-                  }
                 }
-              } catch (error) {
-                console.error('Error creating resource:', error);
-                return false;
-              }
             }
-          }
-      
-          return false;
+
+            return false;
         },
         [publish]
-      );
+    );
 
 
-      const publishCourse = useCallback(
+    const publishCourse = useCallback(
         async (courseEvent) => {
-          const published = await publish(courseEvent);
-      
-          if (published) {
-            const user = window.localStorage.getItem('user');
-            const pubkey = JSON.parse(user).pubkey;
-      
-            const payload = {
-              title: courseEvent.title,
-              summary: courseEvent.summary,
-              type: 'course',
-              content: courseEvent.content,
-              image: courseEvent.image,
-              user: pubkey,
-              topics: [...courseEvent.topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'course']
-            };
-      
-            if (payload && payload.user) {
-              try {
-                const response = await axios.post('/api/courses', payload);
-                
-                if (response.status === 201) {
-                  try {
-                    const deleteResponse = await axios.delete(`/api/drafts/${courseEvent.id}`);
-                    
-                    if (deleteResponse.status === 204) {
-                      return true;
+            const published = await publish(courseEvent);
+
+            if (published) {
+                const user = window.localStorage.getItem('user');
+                const pubkey = JSON.parse(user).pubkey;
+
+                const payload = {
+                    title: courseEvent.title,
+                    summary: courseEvent.summary,
+                    type: 'course',
+                    content: courseEvent.content,
+                    image: courseEvent.image,
+                    user: pubkey,
+                    topics: [...courseEvent.topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'course']
+                };
+
+                if (payload && payload.user) {
+                    try {
+                        const response = await axios.post('/api/courses', payload);
+
+                        if (response.status === 201) {
+                            try {
+                                const deleteResponse = await axios.delete(`/api/drafts/${courseEvent.id}`);
+
+                                if (deleteResponse.status === 204) {
+                                    return true;
+                                }
+                            } catch (error) {
+                                console.error('Error deleting draft:', error);
+                                return false;
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error creating course:', error);
+                        return false;
                     }
-                  } catch (error) {
-                    console.error('Error deleting draft:', error);
-                    return false;
-                  }
                 }
-              } catch (error) {
-                console.error('Error creating course:', error);
-                return false;
-              }
             }
-          }
-      
-          return false;
+
+            return false;
         },
         [publish]
-      );
+    );
 
     return { subscribe, publish, fetchSingleEvent, fetchZapsForEvent, fetchKind0, fetchResources, fetchWorkshops, fetchCourses, zapEvent, fetchZapsForEvents, publishResource, publishCourse };
 }
