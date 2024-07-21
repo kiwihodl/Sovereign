@@ -289,50 +289,53 @@ const ResourceForm = ({ draft = null }) => {
     );
 
     return (
-            <form onSubmit={handleSubmit}>
-                <div className="p-inputgroup flex-1">
-                    <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
-                </div>
-                <div className="p-inputgroup flex-1 mt-8">
-                    <InputText value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" />
-                </div>
-                <div className="p-inputgroup flex-1 mt-8">
-                    <InputText value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="Cover Image URL" />
-                </div>
+        <form onSubmit={handleSubmit}>
+            <div className="p-inputgroup flex-1">
+                <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
+            </div>
+            <div className="p-inputgroup flex-1 mt-4">
+                <InputText value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" />
+            </div>
+            <div className="p-inputgroup flex-1 mt-4">
+                <InputText value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="Cover Image URL" />
+            </div>
 
-                <div className="p-inputgroup flex-1 mt-8 flex-col">
-                    <p className="py-2">Paid Resource</p>
-                    <InputSwitch checked={isPaidResource} onChange={(e) => setIsPaidResource(e.value)} />
-                    {isPaidResource && (
-                        <div className="p-inputgroup flex-1 py-4">
-                            <InputNumber value={price} onValueChange={(e) => setPrice(e.value)} placeholder="Price (sats)" />
-                        </div>
-                    )}
-                </div>
-                <div className="p-inputgroup flex-1 flex-col mt-8">
-                    <span>Content</span>
+            <div className="p-inputgroup flex-1 mt-8 flex-col">
+                <p className="py-2">Paid Resource</p>
+                <InputSwitch checked={isPaidResource} onChange={(e) => setIsPaidResource(e.value)} />
+                {isPaidResource && (
+                    <div className="p-inputgroup flex-1 py-4">
+                        <InputNumber value={price} onValueChange={(e) => setPrice(e.value)} placeholder="Price (sats)" />
+                    </div>
+                )}
+            </div>
+            <div className="p-inputgroup flex-1 flex-col mt-4">
+                <span>Content</span>
+                <div data-color-mode="dark">
                     <MDEditor
                         value={content}
                         onChange={handleContentChange}
+                        height={350}
                     />
                 </div>
-                <div className="mt-8 flex-col w-full">
-                    {topics.map((topic, index) => (
-                        <div className="p-inputgroup flex-1" key={index}>
-                            <InputText value={topic} onChange={(e) => handleTopicChange(index, e.target.value)} placeholder="Topic" className="w-full mt-2" />
-                            {index > 0 && (
-                                <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={(e) => removeTopic(e, index)} />
-                            )}
-                        </div>
-                    ))}
-                    <div className="w-full flex flex-row items-end justify-end py-2">
-                        <Button icon="pi pi-plus" onClick={addTopic} />
+            </div>
+            <div className="mt-8 flex-col w-full">
+                {topics.map((topic, index) => (
+                    <div className="p-inputgroup flex-1" key={index}>
+                        <InputText value={topic} onChange={(e) => handleTopicChange(index, e.target.value)} placeholder="Topic" className="w-full mt-2" />
+                        {index > 0 && (
+                            <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={(e) => removeTopic(e, index)} />
+                        )}
                     </div>
+                ))}
+                <div className="w-full flex flex-row items-end justify-end py-2">
+                    <Button icon="pi pi-plus" onClick={addTopic} />
                 </div>
-                <div className="flex justify-center mt-8">
-                    <Button type="submit" severity="success" outlined label={draft ? "Update" : "Submit"} />
-                </div>
-            </form>
+            </div>
+            <div className="flex justify-center mt-8">
+                <Button type="submit" severity="success" outlined label={draft ? "Update" : "Submit"} />
+            </div>
+        </form>
     );
 }
 

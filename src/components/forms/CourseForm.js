@@ -287,13 +287,13 @@ const CourseForm = () => {
             <div className="p-inputgroup flex-1">
                 <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
             </div>
-            <div className="p-inputgroup flex-1 mt-8">
+            <div className="p-inputgroup flex-1 mt-4">
                 <InputText value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" />
             </div>
-            <div className="p-inputgroup flex-1 mt-8">
+            <div className="p-inputgroup flex-1 mt-4">
                 <InputText value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="Cover Image URL" />
             </div>
-            <div className="p-inputgroup flex-1 mt-8 flex-col">
+            <div className="p-inputgroup flex-1 mt-4 flex-col">
                 <p className="py-2">Paid Course</p>
                 <InputSwitch checked={checked} onChange={(e) => setChecked(e.value)} />
                 {checked && (
@@ -303,15 +303,15 @@ const CourseForm = () => {
                 )}
             </div>
             <div className="mt-8 flex-col w-full">
-                <div className="mt-8 flex-col w-full">
+                <div className="mt-4 flex-col w-full">
                     {selectedLessons.map((lesson, index) => (
-                        <div key={lesson.id} className="p-inputgroup flex-1 mt-8">
+                        <div key={lesson.id} className="p-inputgroup flex-1 mt-4">
                             <ContentDropdownItem content={lesson} selected={true} />
                             <Button icon="pi pi-times" className="p-button-danger" onClick={() => removeLesson(index)} />
                         </div>
                     ))}
                     {lessons.map((lesson, index) => (
-                        <div key={lesson.id} className="p-inputgroup flex-1 mt-8">
+                        <div key={lesson.id} className="p-inputgroup flex-1 mt-4">
                             <Dropdown
                                 value={lesson.title}
                                 options={getContentOptions(index)}
@@ -326,9 +326,9 @@ const CourseForm = () => {
                     ))}
                 </div>
             </div>
-            <div className="mt-8 flex-col w-full">
+            <div className="mt-4 flex-col w-full">
                 {topics.map((topic, index) => (
-                    <div key={index} className="p-inputgroup flex-1 mt-8">
+                    <div key={index} className="p-inputgroup flex-1 mt-4">
                         <InputText value={topic} onChange={(e) => handleTopicChange(index, e.target.value)} placeholder={`Topic #${index + 1}`} className="w-full" />
                         {index > 0 && (
                             <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={() => removeTopic(index)} />

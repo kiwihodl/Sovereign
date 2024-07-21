@@ -116,11 +116,11 @@ const WorkshopForm = ({ draft = null }) => {
             <div className="p-inputgroup flex-1">
                 <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
             </div>
-            <div className="p-inputgroup flex-1 mt-8">
+            <div className="p-inputgroup flex-1 mt-4">
                 <InputText value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" />
             </div>
 
-            <div className="p-inputgroup flex-1 mt-8 flex-col">
+            <div className="p-inputgroup flex-1 mt-4 flex-col">
                 <p className="py-2">Paid Workshop</p>
                 <InputSwitch checked={isPaidResource} onChange={(e) => setIsPaidResource(e.value)} />
                 {isPaidResource && (
@@ -130,13 +130,13 @@ const WorkshopForm = ({ draft = null }) => {
                     </div>
                 )}
             </div>
-            <div className="p-inputgroup flex-1 mt-8">
+            <div className="p-inputgroup flex-1 mt-4">
                 <InputText value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="Video URL" />
             </div>
-            <div className="p-inputgroup flex-1 mt-8">
+            <div className="p-inputgroup flex-1 mt-4">
                 <InputText value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="Cover Image URL" />
             </div>
-            <div className="mt-8 flex-col w-full">
+            <div className="mt-4 flex-col w-full">
                 {topics.map((topic, index) => (
                     <div className="p-inputgroup flex-1" key={index}>
                         <InputText value={topic} onChange={(e) => handleTopicChange(index, e.target.value)} placeholder="Topic" className="w-full mt-2" />
