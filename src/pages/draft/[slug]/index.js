@@ -18,20 +18,10 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 
 const MarkdownContent = ({ content }) => {
-    // Function to strip HTML tags
-    const stripHtml = (html) => {
-        let tmp = document.createElement("DIV");
-        tmp.innerHTML = html;
-        return tmp.textContent || tmp.innerText || "";
-    };
-
-    // Strip HTML tags from the content
-    const plainContent = stripHtml(content);
-
     return (
         <div>
             <ReactMarkdown rehypePlugins={[rehypeRaw]} className='markdown-content'>
-                {plainContent}
+                {content}
             </ReactMarkdown>
         </div>
     );

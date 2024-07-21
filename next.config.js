@@ -1,9 +1,12 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: false,
+// next.config.js
+const removeImports = require("next-remove-imports")();
+
+module.exports = removeImports({
+  reactStrictMode: true,
   images: {
     domains: ['localhost', 'secure.gravatar.com'],
   },
-}
-
-module.exports = nextConfig;
+  webpack(config, options) {
+    return config;
+  },
+});

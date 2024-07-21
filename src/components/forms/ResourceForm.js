@@ -1,15 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { InputText } from "primereact/inputtext";
 import { InputNumber } from "primereact/inputnumber";
 import { InputSwitch } from "primereact/inputswitch";
-import { Editor } from "primereact/editor";
 import { Button } from "primereact/button";
 import { useRouter } from "next/router";
 import { useNostr } from "@/hooks/useNostr";
 import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
 import EditorHeader from "./Editor/EditorHeader";
 import { useToast } from "@/hooks/useToast";
+import dynamic from 'next/dynamic';
+const MDEditor = dynamic(
+    () => import("@uiw/react-md-editor"),
+    {
+        ssr: false,
+    }
+);
 import 'primeicons/primeicons.css';
 
 const ResourceForm = ({ draft = null }) => {
@@ -17,14 +23,18 @@ const ResourceForm = ({ draft = null }) => {
     const [summary, setSummary] = useState(draft?.summary || '');
     const [isPaidResource, setIsPaidResource] = useState(draft?.price ? true : false);
     const [price, setPrice] = useState(draft?.price || 0);
-    const [text, setText] = useState(draft?.content || '');
     const [coverImage, setCoverImage] = useState(draft?.image || '');
     const [topics, setTopics] = useState(draft?.topics || ['']);
+    const [content, setContent] = useState(draft?.content || '');
 
     const [user] = useLocalStorageWithEffect('user', {});
     const { showToast } = useToast();
     const { publishAll } = useNostr();
     const router = useRouter();
+
+    const handleContentChange = useCallback((value) => {
+        setContent(value || '');
+    }, []);
 
     useEffect(() => {
         if (draft) {
@@ -40,38 +50,38 @@ const ResourceForm = ({ draft = null }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         const userResponse = await axios.get(`/api/users/${user.pubkey}`);
-    
+
         if (!userResponse.data) {
             showToast('error', 'Error', 'User not found', 'Please try again.');
             return;
         }
-    
+
         const payload = {
             title,
             summary,
             type: 'resource',
             price: isPaidResource ? price : null,
-            content: text,
+            content,
             image: coverImage,
             topics: [...topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'resource']
         };
-    
+
         if (!draft) {
             // Only include user when creating a new draft
             payload.user = userResponse.data.id;
         }
-    
+
         if (payload) {
             const url = draft ? `/api/drafts/${draft.id}` : '/api/drafts';
             const method = draft ? 'put' : 'post';
-    
+
             axios[method](url, payload)
                 .then(response => {
                     if (response.status === 200 || response.status === 201) {
                         showToast('success', 'Success', draft ? 'Resource updated successfully.' : 'Resource saved as draft.');
-    
+
                         if (response.data?.id) {
                             router.push(`/draft/${response.data.id}`);
                         }
@@ -279,52 +289,50 @@ const ResourceForm = ({ draft = null }) => {
     );
 
     return (
-        <form onSubmit={handleSubmit}>
-            <div className="p-inputgroup flex-1">
-                <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
-            </div>
-            <div className="p-inputgroup flex-1 mt-8">
-                <InputText value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" />
-            </div>
-            <div className="p-inputgroup flex-1 mt-8">
-                <InputText value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="Cover Image URL" />
-            </div>
-
-            <div className="p-inputgroup flex-1 mt-8 flex-col">
-                <p className="py-2">Paid Resource</p>
-                <InputSwitch checked={isPaidResource} onChange={(e) => setIsPaidResource(e.value)} />
-                {isPaidResource && (
-                    <div className="p-inputgroup flex-1 py-4">
-                        <InputNumber value={price} onValueChange={(e) => setPrice(e.value)} placeholder="Price (sats)" />
-                    </div>
-                )}
-            </div>
-            <div className="p-inputgroup flex-1 flex-col mt-8">
-                <span>Content</span>
-                <Editor
-                    value={text}
-                    onTextChange={(e) => setText(e.htmlValue)}
-                    style={{ height: '320px' }}
-                    headerTemplate={<EditorHeader quill={null} />}
-                />
-            </div>
-            <div className="mt-8 flex-col w-full">
-                {topics.map((topic, index) => (
-                    <div className="p-inputgroup flex-1" key={index}>
-                        <InputText value={topic} onChange={(e) => handleTopicChange(index, e.target.value)} placeholder="Topic" className="w-full mt-2" />
-                        {index > 0 && (
-                            <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={(e) => removeTopic(e, index)} />
-                        )}
-                    </div>
-                ))}
-                <div className="w-full flex flex-row items-end justify-end py-2">
-                    <Button icon="pi pi-plus" onClick={addTopic} />
+            <form onSubmit={handleSubmit}>
+                <div className="p-inputgroup flex-1">
+                    <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
                 </div>
-            </div>
-            <div className="flex justify-center mt-8">
-                <Button type="submit" severity="success" outlined label={draft ? "Update" : "Submit"} />
-            </div>
-        </form>
+                <div className="p-inputgroup flex-1 mt-8">
+                    <InputText value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" />
+                </div>
+                <div className="p-inputgroup flex-1 mt-8">
+                    <InputText value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="Cover Image URL" />
+                </div>
+
+                <div className="p-inputgroup flex-1 mt-8 flex-col">
+                    <p className="py-2">Paid Resource</p>
+                    <InputSwitch checked={isPaidResource} onChange={(e) => setIsPaidResource(e.value)} />
+                    {isPaidResource && (
+                        <div className="p-inputgroup flex-1 py-4">
+                            <InputNumber value={price} onValueChange={(e) => setPrice(e.value)} placeholder="Price (sats)" />
+                        </div>
+                    )}
+                </div>
+                <div className="p-inputgroup flex-1 flex-col mt-8">
+                    <span>Content</span>
+                    <MDEditor
+                        value={content}
+                        onChange={handleContentChange}
+                    />
+                </div>
+                <div className="mt-8 flex-col w-full">
+                    {topics.map((topic, index) => (
+                        <div className="p-inputgroup flex-1" key={index}>
+                            <InputText value={topic} onChange={(e) => handleTopicChange(index, e.target.value)} placeholder="Topic" className="w-full mt-2" />
+                            {index > 0 && (
+                                <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={(e) => removeTopic(e, index)} />
+                            )}
+                        </div>
+                    ))}
+                    <div className="w-full flex flex-row items-end justify-end py-2">
+                        <Button icon="pi pi-plus" onClick={addTopic} />
+                    </div>
+                </div>
+                <div className="flex justify-center mt-8">
+                    <Button type="submit" severity="success" outlined label={draft ? "Update" : "Submit"} />
+                </div>
+            </form>
     );
 }
 

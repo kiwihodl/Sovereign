@@ -353,7 +353,6 @@ export function useNostr() {
                 {
                     onevent: (event) => {
                         if (hasRequiredTags(event.tags)) {
-                            console.log('event:', event);
                             resources.push(event);
                         }
                     },
@@ -371,7 +370,6 @@ export function useNostr() {
             // Set a timeout to resolve the promise after collecting events
             setTimeout(() => {
                 subscription?.close();
-                console.log('Resolving with resources:', resources);
                 resolve(resources);
             }, 2000); // Adjust the timeout value as needed
         });
@@ -379,7 +377,6 @@ export function useNostr() {
 
     const fetchWorkshops = useCallback(async () => {
         const filter = [{ kinds: [30023, 30402], authors: [AUTHOR_PUBKEY] }];
-        console.log('filter:', filter);
         const hasRequiredTags = (tags) => {
             const hasPlebDevs = tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
             const hasWorkshop = tags.some(([tag, value]) => tag === "t" && value === "workshop");
@@ -392,12 +389,8 @@ export function useNostr() {
                 filter,
                 {
                     onevent: (event) => {
-                        console.log('Received workshop event:', event);
                         if (hasRequiredTags(event.tags)) {
-                            console.log('Workshop event passed tag check, adding to workshops');
                             workshops.push(event);
-                        } else {
-                            console.log('Workshop event did not pass tag check');
                         }
                     },
                     onerror: (error) => {
@@ -413,7 +406,6 @@ export function useNostr() {
 
             setTimeout(() => {
                 subscription?.close();
-                console.log('Resolving with workshops:', workshops);
                 resolve(workshops);
             }, 2000); // Adjust the timeout value as needed
         });
@@ -433,12 +425,8 @@ export function useNostr() {
                 filter,
                 {
                     onevent: (event) => {
-                        console.log('Received course event:', event);
                         if (hasRequiredTags(event.tags)) {
-                            console.log('Course event passed tag check, adding to courses');
                             courses.push(event);
-                        } else {
-                            console.log('Course event did not pass tag check');
                         }
                     },
                     onerror: (error) => {
@@ -454,7 +442,6 @@ export function useNostr() {
 
             setTimeout(() => {
                 subscription?.close();
-                console.log('Resolving with courses:', courses);
                 resolve(courses);
             }, 2000); // Adjust the timeout value as needed
         });

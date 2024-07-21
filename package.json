@@ -1,5 +1,5 @@
 {
-  "name": "plebdevs-new",
+  "name": "plebdevs",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,36 +9,27 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@getalby/bitcoin-connect-react": "^3.2.2",
-    "@prisma/client": "^5.9.1",
-    "@reduxjs/toolkit": "^2.1.0",
-    "axios": "^1.6.7",
+    "@getalby/bitcoin-connect-react": "^3.5.3",
+    "@prisma/client": "^5.17.0",
+    "@uiw/react-md-editor": "^3.6.0",
+    "axios": "^1.7.2",
     "bech32": "^2.0.0",
-    "classnames": "^2.5.1",
     "light-bolt11-decoder": "^3.1.1",
-    "next": "14.0.4",
-    "next-auth": "^4.24.5",
-    "nostr-tools": "^2.1.5",
-    "primeicons": "^6.0.1",
-    "primereact": "^10.2.1",
-    "quill": "^1.3.7",
+    "next": "14.2.5",
+    "next-auth": "^4.24.7",
+    "next-remove-imports": "^1.0.12",
+    "nostr-tools": "^2.7.1",
+    "primeicons": "^7.0.0",
+    "primereact": "^10.7.0",
     "react": "^18",
     "react-dom": "^18",
-    "react-markdown": "^9.0.1",
-    "react-redux": "^9.1.0",
-    "react-typist": "^2.0.5",
-    "redux": "^5.0.1",
-    "rehype-raw": "^7.0.0",
-    "uuid": "^9.0.1",
+    "uuid": "^10.0.0",
     "zapthreads": "^0.5.2"
   },
   "devDependencies": {
-    "@types/node": "20.11.21",
-    "autoprefixer": "^10.0.1",
     "eslint": "^8",
-    "eslint-config-next": "14.0.4",
+    "eslint-config-next": "14.2.5",
     "postcss": "^8",
-    "prisma": "^5.9.1",
-    "tailwindcss": "^3.3.0"
+    "tailwindcss": "^3.4.1"
   }
 }

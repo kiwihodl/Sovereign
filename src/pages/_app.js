@@ -1,15 +1,19 @@
 import { PrimeReactProvider } from 'primereact/api';
+import { useEffect } from 'react';
 import Navbar from '@/components/navbar/Navbar';
 import { ToastProvider } from '@/hooks/useToast';
 import Layout from '@/components/Layout';
 import '@/styles/globals.css'
 import 'primereact/resources/themes/lara-dark-indigo/theme.css';
+import "@uiw/react-md-editor/markdown-editor.css";
+import "@uiw/react-markdown-preview/markdown.css";
 import Sidebar from '@/components/sidebar/Sidebar';
 import { NostrProvider } from '@/context/NostrContext';
 
 export default function MyApp({
     Component, pageProps: { ...pageProps }
 }) {
+
     return (
         <PrimeReactProvider>
             <NostrProvider>
