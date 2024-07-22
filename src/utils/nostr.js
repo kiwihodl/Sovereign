@@ -75,6 +75,58 @@ export const parseEvent = (event) => {
     return eventData;
 };
 
+export const parseCourseEvent = (event) => {
+    console.log('event:', event);
+    // Initialize an object to store the extracted data
+    const eventData = {
+        id: event.id,
+        pubkey: event.pubkey || '',
+        content: event.content || '',
+        kind: event.kind || '',
+        name: '',
+        description: '',
+        image: '',
+        published_at: '',
+        topics: [],
+        d: '',
+    };
+
+    // Iterate over the tags array to extract data
+    event.tags.forEach(tag => {
+        switch (tag[0]) { // Check the key in each key-value pair
+            case 'name':
+                eventData.name = tag[1];
+                break;
+            case 'description':
+                eventData.description = tag[1];
+                break;
+            case 'image':
+                eventData.image = tag[1];
+                break;
+            case 'picture':
+                eventData.image = tag[1];
+                break;
+            case 'published_at':
+                eventData.published_at = tag[1];
+                break;
+            case 'd':
+                eventData.d = tag[1];
+                break;
+            // How do we get topics / tags?
+            case 'l':
+                // Grab index 1 and any subsequent elements in the array
+                tag.slice(1).forEach(topic => {
+                    eventData.topics.push(topic);
+                });
+                break;
+            default:
+                break;
+        }
+    });
+
+    return eventData;
+}
+
 export const hexToNpub = (hex) => {
     return nip19.npubEncode(hex);
 }

@@ -42,7 +42,7 @@ const ResourceForm = ({ draft = null }) => {
             setSummary(draft.summary);
             setIsPaidResource(draft.price ? true : false);
             setPrice(draft.price || 0);
-            setText(draft.content);
+            setContent(draft.content);
             setCoverImage(draft.image);
             setTopics(draft.topics || []);
         }

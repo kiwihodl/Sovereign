@@ -48,6 +48,7 @@ const CourseForm = () => {
                 setDrafts(drafts);
             }
             if (resources.length > 0) {
+                console.log('resources:', resources);
                 setResources(resources);
             }
             if (workshops.length > 0) {
@@ -65,151 +66,121 @@ const CourseForm = () => {
         }
     }, [user]);
 
+    /**
+ * Course Creation Flow:
+ * 1. Generate a new course ID
+ * 2. Process each lesson:
+ *    - If unpublished: create event, publish to Nostr, save to DB, delete draft
+ *    - If published: use existing data
+ * 3. Create and publish course event to Nostr
+ * 4. Save course to database
+ * 5. Show success message and redirect to course page
+ */
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Set aside a list for all of the final ids in order
-        const finalIds = [];
+        const newCourseId = uuidv4();
+        const processedLessons = [];
 
-        // Iterate over selectedLessons and process each lesson
-        for (const lesson of selectedLessons) {
-            if (lesson.published_at) {
-                // If the lesson is already published, add its id to finalIds
-                finalIds.push(lesson.id);
-            } else {
-                // If the lesson is unpublished, create an event and sign it, publish it, save to db, and add its id to finalIds
-                let event;
-                if (lesson.price) {
-                    event = {
-                        kind: 30402,
-                        content: lesson.content,
-                        created_at: Math.floor(Date.now() / 1000),
-                        tags: [
-                            ['d', lesson.id],
-                            ['title', lesson.title],
-                            ['summary', lesson.summary],
-                            ['image', lesson.image],
-                            ...lesson.topics.map(topic => ['t', topic]),
-                            ['published_at', Math.floor(Date.now() / 1000).toString()],
-                            ['price', lesson.price],
-                            ['location', `https://plebdevs.com/${lesson.topics[1]}/${lesson.id}`],
-                        ]
-                    };
-                } else {
-                    event = {
-                        kind: 30023,
-                        content: lesson.content,
-                        created_at: Math.floor(Date.now() / 1000),
-                        tags: [
-                            ['d', lesson.id],
-                            ['title', lesson.title],
-                            ['summary', lesson.summary],
-                            ['image', lesson.image],
-                            ...lesson.topics.map(topic => ['t', topic]),
-                            ['published_at', Math.floor(Date.now() / 1000).toString()]
-                        ]
-                    };
+        try {
+            // Step 1: Process lessons
+            console.log('selectedLessons:', selectedLessons);
+            for (const lesson of selectedLessons) {
+                let noteId = lesson.noteId;
+
+                if (!lesson.published_at) {
+                    // Publish unpublished lesson
+                    const event = createLessonEvent(lesson);
+                    const signedEvent = await window.nostr.signEvent(event);
+                    const published = await publish(signedEvent);
+
+                    if (!published) {
+                        throw new Error(`Failed to publish lesson: ${lesson.title}`);
+                    }
+
+                    noteId = signedEvent.id;
+
+                    // Save to db and delete draft
+                    await Promise.all([
+                        axios.post('/api/resources', {
+                            id: lesson.id,
+                            noteId: noteId,
+                            userId: user.id,
+                            price: lesson.price || 0,
+                        }),
+                        axios.delete(`/api/drafts/${lesson.id}`)
+                    ]);
                 }
 
-                // Sign the event
-                const signedEvent = await window?.nostr?.signEvent(event);
-
-                // Add the signed event's id to finalIds
-                finalIds.push(signedEvent.id);
-
-                const published = await publish(signedEvent);
-
-                if (published) {
-                    // need to save resource to db
-                        
-                    // delete the draft
-                    axios.delete(`/api/drafts/${lesson.id}`)
-                        .then((response) => {
-                            console.log('Draft deleted:', response);
-                        })
-                        .catch((error) => {
-                            console.error('Error deleting draft:', error);
-                        });
-                }
+                processedLessons.push({ id: lesson.d, noteId: lesson.id });
             }
-        }
 
-        // Fetch all of the lessons from Nostr by their ids
-        const fetchedLessons = await Promise.all(
-            finalIds.map(async (id) => {
-                const lesson = await fetchSingleEvent(id);
-                console.log('got lesson:', lesson);
-                return lesson;
-            })
-        );
-
-        // // Parse the fields from the lessons to get all of the necessary information
-        const parsedLessons = fetchedLessons.map((lesson) => {
-            const { id, kind, pubkey, content, title, summary, image, published_at, d, topics } = parseEvent(lesson);
-            return {
-                id,
-                kind,
-                pubkey,
-                content,
-                title,
-                summary,
-                image,
-                published_at,
-                d,
-                topics
-            };
-        });
-
-        if (parsedLessons.length === selectedLessons.length) {
-            // Create a new course event
-            const newCourseId = uuidv4();
-            const courseEvent = {
-                kind: 30004,
-                created_at: Math.floor(Date.now() / 1000),
-                content: "",
-                tags: [
-                    ['d', newCourseId],
-                    // add a tag for plebdevs community at some point
-                    ['name', title],
-                    ['picture', coverImage],
-                    ['image', coverImage],
-                    ['description', summary],
-                    ['l', "Education"],
-                    ...parsedLessons.map((lesson) => ['a', `${lesson.kind}:${lesson.pubkey}:${lesson.d}`]),
-                ],
-            };
-
-            // Sign the course event
-            const signedCourseEvent = await window?.nostr?.signEvent(courseEvent);
-            console.log('signedCourseEvent:', signedCourseEvent);
-            // Publish the course event using Nostr
+            // Step 2: Create and publish course
+            const courseEvent = createCourseEvent(newCourseId, title, summary, coverImage, selectedLessons);
+            const signedCourseEvent = await window.nostr.signEvent(courseEvent);
             const published = await publish(signedCourseEvent);
 
-            if (published) {
-                axios.post('/api/courses', {
-                    id: newCourseId,
-                    resources: {
-                        connect: parsedLessons.map(lesson => ({ id: lesson.id }))
-                    },
-                    noteId: signedCourseEvent.id,
-                    user: {
-                        connect: {
-                            id: user.id
-                        }
-                    }
-                })
-                    .then(response => {
-                        console.log('Course created:', response);
-                        router.push(`/course/${signedCourseEvent.id}`);
-                    })
-                    .catch(error => {
-                        console.error('Error creating course:', error);
-                    });
-            } else {
-                showToast('error', 'Error', 'Failed to publish course. Please try again.');
+            if (!published) {
+                throw new Error('Failed to publish course');
             }
+
+            // Step 3: Save course to db
+            console.log('processedLessons:', processedLessons);
+            await axios.post('/api/courses', {
+                id: newCourseId,
+                resources: {
+                    connect: processedLessons.map(lesson => ({ id: lesson?.id }))
+                },
+                noteId: signedCourseEvent.id,
+                user: {
+                    connect: { id: user.id }
+                },
+                price: price || 0
+            });
+
+            // Step 4: Show success message and redirect
+            showToast('success', 'Course created successfully');
+            router.push(`/course/${signedCourseEvent.id}`);
+
+        } catch (error) {
+            console.error('Error creating course:', error);
+            showToast('error', error.message || 'Failed to create course. Please try again.');
         }
     };
+
+    const createLessonEvent = (lesson) => ({
+        kind: lesson.price ? 30402 : 30023,
+        content: lesson.content,
+        created_at: Math.floor(Date.now() / 1000),
+        tags: [
+            ['d', lesson.id],
+            ['title', lesson.title],
+            ['summary', lesson.summary],
+            ['image', lesson.image],
+            ...lesson.topics.map(topic => ['t', topic]),
+            ['published_at', Math.floor(Date.now() / 1000).toString()],
+            ...(lesson.price ? [
+                ['price', lesson.price],
+                ['location', `https://plebdevs.com/${lesson.topics[1]}/${lesson.id}`]
+            ] : [])
+        ]
+    });
+
+    const createCourseEvent = (courseId, title, summary, coverImage, lessons) => ({
+        kind: 30004,
+        created_at: Math.floor(Date.now() / 1000),
+        content: "",
+        tags: [
+            ['d', courseId],
+            ['name', title],
+            ['picture', coverImage],
+            ['image', coverImage],
+            ['description', summary],
+            ['l', "Education"],
+            ...lessons.map((lesson) => ['a', `${lesson.kind}:${lesson.pubkey}:${lesson.d}`]),
+        ],
+    });
 
     const handleLessonChange = (e, index) => {
         const selectedLessonId = e.value;
@@ -263,17 +234,17 @@ const CourseForm = () => {
         }));
 
         const resourceOptions = resources.map(resource => {
-            const { id, title, summary, image, published_at } = parseEvent(resource);
+            const { id, kind, pubkey, content, title, summary, image, published_at, d, topics } = parseEvent(resource);
             return {
-                label: <ContentDropdownItem content={{ id, title, summary, image, published_at }} onSelect={(content) => handleLessonSelect(content, index)} selected={lessons[index] && lessons[index].id === id} />,
+                label: <ContentDropdownItem content={{ id, kind, pubkey, content, title, summary, image, published_at, d, topics }} onSelect={(content) => handleLessonSelect(content, index)} selected={lessons[index] && lessons[index].id === id} />,
                 value: id
             };
         });
 
         const workshopOptions = workshops.map(workshop => {
-            const { id, title, summary, image, published_at } = parseEvent(workshop);
+            const { id, kind, pubkey, content, title, summary, image, published_at, d, topics } = parseEvent(workshop);
             return {
-                label: <ContentDropdownItem content={{ id, title, summary, image, published_at }} onSelect={(content) => handleLessonSelect(content, index)} selected={lessons[index] && lessons[index].id === id} />,
+                label: <ContentDropdownItem content={{ id, kind, pubkey, content, title, summary, image, published_at, d, topics }} onSelect={(content) => handleLessonSelect(content, index)} selected={lessons[index] && lessons[index].id === id} />,
                 value: id
             };
         });

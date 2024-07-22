@@ -12,7 +12,6 @@ import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import 'primeicons/primeicons.css';
-import dynamic from 'next/dynamic';
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
     {

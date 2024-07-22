@@ -31,7 +31,6 @@ const ContentDropdownItem = ({ content, onSelect, selected }) => {
     return (
         <div className="w-full border-t-2 border-gray-700 py-4">
             <div className="flex flex-row gap-4 p-2">
-                {console.log(content)}
                 <Image
                     alt="content thumbnail"
                     src={returnImageProxy(content.image)}
