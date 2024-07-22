@@ -72,6 +72,11 @@ export const parseEvent = (event) => {
         }
     });
 
+    // if published_at is an empty string, then set it to event.created_at
+    if (!eventData.published_at) {
+        eventData.published_at = event.created_at;
+    }
+
     return eventData;
 };
 

@@ -414,12 +414,13 @@ export function useNostr() {
     }, [subscribe]);
 
     const fetchCourses = useCallback(async () => {
-        const filter = [{ kinds: [30023], authors: [AUTHOR_PUBKEY] }];
-        const hasRequiredTags = (tags) => {
-            const hasPlebDevs = tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
-            const hasCourse = tags.some(([tag, value]) => tag === "t" && value === "course");
-            return hasPlebDevs && hasCourse;
-        };
+        const filter = [{ kinds: [30004], authors: [AUTHOR_PUBKEY] }];
+        // Do we need required tags for courses? community instead?
+        // const hasRequiredTags = (tags) => {
+        //     const hasPlebDevs = tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
+        //     const hasCourse = tags.some(([tag, value]) => tag === "t" && value === "course");
+        //     return hasPlebDevs && hasCourse;
+        // };
 
         return new Promise((resolve, reject) => {
             let courses = [];
@@ -427,9 +428,10 @@ export function useNostr() {
                 filter,
                 {
                     onevent: (event) => {
-                        if (hasRequiredTags(event.tags)) {
-                            courses.push(event);
-                        }
+                        // if (hasRequiredTags(event.tags)) {
+                            // courses.push(event);
+                        // }
+                        courses.push(event);
                     },
                     onerror: (error) => {
                         console.error('Error fetching courses:', error);

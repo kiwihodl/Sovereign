@@ -113,7 +113,7 @@ const CourseForm = () => {
                     ]);
                 }
 
-                processedLessons.push({ id: lesson.d, noteId: lesson.id });
+                processedLessons.push({ id: lesson?.d });
             }
 
             // Step 2: Create and publish course

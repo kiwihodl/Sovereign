@@ -31,9 +31,11 @@ export default function CoursesCarousel() {
         const fetch = async () => {
             try {
                 const fetchedCourses = await fetchCourses();
+                console.log('fetchedCourses:', fetchedCourses);
                 if (fetchedCourses && fetchedCourses.length > 0) {
                     // First process the courses to be ready for display
                     const processedCourses = fetchedCourses.map(course => parseEvent(course));
+                    console.log('processedCourses:', processedCourses);
 
                     // Fetch zaps for all processed courses at once
                     const allZaps = await fetchZapsForEvents(processedCourses);
