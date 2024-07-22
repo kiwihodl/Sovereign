@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Carousel } from 'primereact/carousel';
-import { parseEvent } from '@/utils/nostr';
+import { parseCourseEvent } from '@/utils/nostr';
 import { useNostr } from '@/hooks/useNostr';
 import CourseTemplate from '@/components/content/carousels/templates/CourseTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
@@ -34,7 +34,7 @@ export default function CoursesCarousel() {
                 console.log('fetchedCourses:', fetchedCourses);
                 if (fetchedCourses && fetchedCourses.length > 0) {
                     // First process the courses to be ready for display
-                    const processedCourses = fetchedCourses.map(course => parseEvent(course));
+                    const processedCourses = fetchedCourses.map(course => parseCourseEvent(course));
                     console.log('processedCourses:', processedCourses);
 
                     // Fetch zaps for all processed courses at once

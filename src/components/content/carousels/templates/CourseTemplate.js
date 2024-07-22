@@ -14,7 +14,7 @@ const CourseTemplate = (course) => {
 
     useEffect(() => {
         if (!course || !course.zaps) return;
-        
+
         let total = 0;
         course.zaps.forEach((zap) => {
             const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
@@ -26,7 +26,6 @@ const CourseTemplate = (course) => {
         });
         setZapAmount(total);
     }, [course]);
-
 
     return (
         <div
@@ -48,12 +47,17 @@ const CourseTemplate = (course) => {
             </div>
             <div className="flex flex-col justify-start w-full mt-4">
                 <h4 className="mb-1 font-bold text-lg font-blinker line-clamp-2">
-                    {course.title}
+                    {course.name || course.title}
                 </h4>
-                <p className="text-sm text-gray-500 line-clamp-2">{course.summary}</p>
+                <p className="text-sm text-gray-500 line-clamp-2">{course.description || course.summary}</p>
                 <div className="flex flex-row justify-between items-center mt-2">
                     <p className="text-xs text-gray-400">
-                        {formatTimestampToHowLongAgo(course.published_at)}
+                        {course?.published_at && course.published_at !== "" ? (
+                            formatTimestampToHowLongAgo(course.published_at)
+                        ) : (
+                            formatTimestampToHowLongAgo(course.created_at)
+                        )
+                        }
                     </p>
                     <ZapDisplay zapAmount={zapAmount} event={course} />
                 </div>

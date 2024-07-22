@@ -111,10 +111,14 @@ const CourseForm = () => {
                         }),
                         axios.delete(`/api/drafts/${lesson.id}`)
                     ]);
+
+
                 }
 
-                processedLessons.push({ id: lesson?.d });
+                processedLessons.push({ id: lesson?.d || lesson.id });
             }
+
+            // Need to set aside a final processed lessons that included lesson.kind, lesson.pubkey, lesson.d
 
             // Step 2: Create and publish course
             const courseEvent = createCourseEvent(newCourseId, title, summary, coverImage, selectedLessons);

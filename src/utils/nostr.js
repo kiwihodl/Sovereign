@@ -92,8 +92,10 @@ export const parseCourseEvent = (event) => {
         description: '',
         image: '',
         published_at: '',
+        created_at: event.created_at,
         topics: [],
         d: '',
+        tags: event.tags
     };
 
     // Iterate over the tags array to extract data
