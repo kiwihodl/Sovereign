@@ -2,18 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useNostr } from "@/hooks/useNostr";
 import { parseEvent } from "@/utils/nostr";
-import ReactMarkdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
-
-const MarkdownContent = ({ content }) => {
-    return (
-        <div>
-            <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                {content}
-            </ReactMarkdown>
-        </div>
-    );
-};
 
 
 const Resource = () => {
@@ -48,7 +36,7 @@ const Resource = () => {
             <h2 className="text-lg text-center whitespace-pre-line">{resource?.summary}</h2>
             <div className="mx-auto my-6">
                 {
-                    resource?.content && <MarkdownContent content={resource?.content} />
+                    resource?.content && <MDDisplay source={resource.content} />
                 }
             </div>
         </div>

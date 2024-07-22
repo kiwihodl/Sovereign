@@ -2,19 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useNostr } from "@/hooks/useNostr";
 import { parseEvent } from "@/utils/nostr";
-import ReactMarkdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
-
-const MarkdownContent = ({ content }) => {
-    return (
-        <div>
-            <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                {content}
-            </ReactMarkdown>
-        </div>
-    );
-};
-
+import dynamic from 'next/dynamic';
+const MDDisplay = dynamic(
+    () => import("@uiw/react-markdown-preview"),
+    {
+        ssr: false,
+    }
+);
 
 const Course = () => {
     const [course, setCourse] = useState(null);
@@ -45,7 +39,7 @@ const Course = () => {
             <h2 className="text-lg text-center whitespace-pre-line">{course?.summary}</h2>
             <div className="mx-auto my-6">
                 {
-                    course?.content && <MarkdownContent content={course?.content} />
+                    course?.content && <MDDisplay source={course.content} />
                 }
             </div>
         </div>

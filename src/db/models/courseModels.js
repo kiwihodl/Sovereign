@@ -21,7 +21,16 @@ export const getCourseById = async (id) => {
 
 export const createCourse = async (data) => {
     return await prisma.course.create({
-        data,
+        data: {
+            id: data.id,
+            noteId: data.noteId,
+            user: data.user,
+            resources: data.resources
+        },
+        include: {
+            resources: true,
+            user: true
+        }
     });
 };
 

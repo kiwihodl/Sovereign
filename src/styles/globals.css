@@ -96,3 +96,36 @@ h3 {
   width: 16px !important;
   height: 16px !important;
 }
+
+/* MarkdownDisplay styles */
+pre {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  padding: 1em;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+code {
+  font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name,
+.hljs-tag {
+  color: #569cd6;
+}
+
+.hljs-string,
+.hljs-title,
+.hljs-section,
+.hljs-attribute,
+.hljs-literal,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type,
+.hljs-addition {
+  color: #ce9178;
+}

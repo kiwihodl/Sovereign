@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import CoursesCarousel from '@/components/content/carousels/CoursesCarousel';
 import WorkshopsCarousel from '@/components/content/carousels/WorkshopsCarousel';
 import HeroBanner from '@/components/banner/HeroBanner';
@@ -10,20 +10,19 @@ import axios from 'axios';
 export default function Home() {
   const [contentIds, setContentIds] = useLocalStorageWithEffect('contentIds', []);
 
-  // this is ready so now we can pass all ids into fetch hooks from loacl storage
-  useEffect(() => {
-    const fetchContentIds = async () => {
-      try {
-        const response = await axios.get('/api/content/all');
-        const ids = response.data;
-        setContentIds(ids);
-      } catch (error) {
-        console.error('Failed to fetch content IDs:', error);
-      }
-    };
+  const fetchContentIds = useCallback(async () => {
+    try {
+      const response = await axios.get('/api/content/all');
+      const ids = response.data;
+      setContentIds(ids);
+    } catch (error) {
+      console.error('Failed to fetch content IDs:', error);
+    }
+  }, []);
 
+  useEffect(() => {
     fetchContentIds();
-  }, [setContentIds]);
+  }, [fetchContentIds]);
 
   return (
     <>

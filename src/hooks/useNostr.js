@@ -78,9 +78,11 @@ export function useNostr() {
                         [{ ids: [id] }],
                         {
                             onevent: (event) => {
+                                console.log('Fetched event:', event);
                                 resolve(event);
                             },
                             onerror: (error) => {
+                                console.error('Failed to fetch event:', error);
                                 reject(error);
                             },
                         }

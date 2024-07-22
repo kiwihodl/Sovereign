@@ -8,6 +8,8 @@ import { Dropdown } from "primereact/dropdown";
 import { v4 as uuidv4, v4 } from 'uuid';
 import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
 import { useNostr } from "@/hooks/useNostr";
+import { useRouter } from "next/router";
+import { useToast } from "@/hooks/useToast";
 import { nip19 } from "nostr-tools"
 import { parseEvent } from "@/utils/nostr";
 import ContentDropdownItem from "@/components/content/dropdowns/ContentDropdownItem";
@@ -28,6 +30,9 @@ const CourseForm = () => {
     const [workshops, setWorkshops] = useState([]);
     const { fetchResources, fetchWorkshops, publish, fetchSingleEvent } = useNostr();
     const [pubkey, setPubkey] = useState('');
+
+    const router = useRouter();
+    const { showToast } = useToast();
 
     const fetchAllContent = async () => {
         try {
@@ -60,8 +65,6 @@ const CourseForm = () => {
         }
     }, [user]);
 
-    console.log('lessons', selectedLessons);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -74,7 +77,7 @@ const CourseForm = () => {
                 // If the lesson is already published, add its id to finalIds
                 finalIds.push(lesson.id);
             } else {
-                // If the lesson is unpublished, create an event and sign it
+                // If the lesson is unpublished, create an event and sign it, publish it, save to db, and add its id to finalIds
                 let event;
                 if (lesson.price) {
                     event = {
@@ -117,6 +120,8 @@ const CourseForm = () => {
                 const published = await publish(signedEvent);
 
                 if (published) {
+                    // need to save resource to db
+                        
                     // delete the draft
                     axios.delete(`/api/drafts/${lesson.id}`)
                         .then((response) => {
@@ -129,8 +134,6 @@ const CourseForm = () => {
             }
         }
 
-        console.log('finalIds:', finalIds);
-
         // Fetch all of the lessons from Nostr by their ids
         const fetchedLessons = await Promise.all(
             finalIds.map(async (id) => {
@@ -139,8 +142,6 @@ const CourseForm = () => {
                 return lesson;
             })
         );
-
-        console.log('fetchedLessons:', fetchedLessons);
 
         // // Parse the fields from the lessons to get all of the necessary information
         const parsedLessons = fetchedLessons.map((lesson) => {
@@ -161,15 +162,19 @@ const CourseForm = () => {
 
         if (parsedLessons.length === selectedLessons.length) {
             // Create a new course event
+            const newCourseId = uuidv4();
             const courseEvent = {
                 kind: 30004,
                 created_at: Math.floor(Date.now() / 1000),
                 content: "",
                 tags: [
-                    ['d', uuidv4()],
+                    ['d', newCourseId],
+                    // add a tag for plebdevs community at some point
                     ['name', title],
                     ['picture', coverImage],
-                    ['about', summary],
+                    ['image', coverImage],
+                    ['description', summary],
+                    ['l', "Education"],
                     ...parsedLessons.map((lesson) => ['a', `${lesson.kind}:${lesson.pubkey}:${lesson.d}`]),
                 ],
             };
@@ -181,18 +186,27 @@ const CourseForm = () => {
             const published = await publish(signedCourseEvent);
 
             if (published) {
-
-                // Reset the form fields after publishing the course
-                setTitle('');
-                setSummary('');
-                setChecked(false);
-                setPrice(0);
-                setCoverImage('');
-                setLessons([{ id: uuidv4(), title: 'Select a lesson' }]);
-                setSelectedLessons([]);
-                setTopics(['']);
+                axios.post('/api/courses', {
+                    id: newCourseId,
+                    resources: {
+                        connect: parsedLessons.map(lesson => ({ id: lesson.id }))
+                    },
+                    noteId: signedCourseEvent.id,
+                    user: {
+                        connect: {
+                            id: user.id
+                        }
+                    }
+                })
+                    .then(response => {
+                        console.log('Course created:', response);
+                        router.push(`/course/${signedCourseEvent.id}`);
+                    })
+                    .catch(error => {
+                        console.error('Error creating course:', error);
+                    });
             } else {
-                // Handle error
+                showToast('error', 'Error', 'Failed to publish course. Please try again.');
             }
         }
     };
