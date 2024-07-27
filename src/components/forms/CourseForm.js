@@ -48,7 +48,6 @@ const CourseForm = () => {
                 setDrafts(drafts);
             }
             if (resources.length > 0) {
-                console.log('resources:', resources);
                 setResources(resources);
             }
             if (workshops.length > 0) {
