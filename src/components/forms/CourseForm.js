@@ -85,6 +85,7 @@ const CourseForm = () => {
 
         try {
             // Step 1: Process lessons
+            console.log('selectedLessons:', selectedLessons);
             for (const lesson of selectedLessons) {
                 let noteId = lesson.noteId;
 
