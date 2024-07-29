@@ -84,7 +84,6 @@ const CourseForm = () => {
 
         try {
             // Step 1: Process lessons
-            console.log('selectedLessons:', selectedLessons);
             for (const lesson of selectedLessons) {
                 let noteId = lesson.noteId;
 
@@ -110,17 +109,19 @@ const CourseForm = () => {
                         }),
                         axios.delete(`/api/drafts/${lesson.id}`)
                     ]);
-
-
                 }
-
-                processedLessons.push({ id: lesson?.d || lesson.id });
+                // if the lesson was already published we will have d tag, otherwise we will have id
+                // if the lesson was already published we will have kind tag, otherwise we will use price tag to determine the kind
+                // if the lesson was already published we will have pubkey tag, otherwise we will use user.pubkey
+                processedLessons.push({ 
+                    d: lesson?.d || lesson.id, 
+                    kind: lesson.kind ?? (lesson.price ? 30402 : 30023),
+                    pubkey: lesson.pubkey || user.pubkey
+                });
             }
 
-            // Need to set aside a final processed lessons that included lesson.kind, lesson.pubkey, lesson.d
-
             // Step 2: Create and publish course
-            const courseEvent = createCourseEvent(newCourseId, title, summary, coverImage, selectedLessons);
+            const courseEvent = createCourseEvent(newCourseId, title, summary, coverImage, processedLessons);
             const signedCourseEvent = await window.nostr.signEvent(courseEvent);
             const published = await publish(signedCourseEvent);
 
@@ -133,7 +134,7 @@ const CourseForm = () => {
             await axios.post('/api/courses', {
                 id: newCourseId,
                 resources: {
-                    connect: processedLessons.map(lesson => ({ id: lesson?.id }))
+                    connect: processedLessons.map(lesson => ({ id: lesson?.d }))
                 },
                 noteId: signedCourseEvent.id,
                 user: {
@@ -142,7 +143,10 @@ const CourseForm = () => {
                 price: price || 0
             });
 
-            // Step 4: Show success message and redirect
+            // step 4: Update all resources to have the course id
+            await Promise.all(processedLessons.map(lesson => axios.put(`/api/resources/${lesson?.d}`, { courseId: newCourseId })));
+
+            // Step 5: Show success message and redirect
             showToast('success', 'Course created successfully');
             router.push(`/course/${signedCourseEvent.id}`);
 

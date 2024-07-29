@@ -81,7 +81,6 @@ export const parseEvent = (event) => {
 };
 
 export const parseCourseEvent = (event) => {
-    console.log('event:', event);
     // Initialize an object to store the extracted data
     const eventData = {
         id: event.id,
