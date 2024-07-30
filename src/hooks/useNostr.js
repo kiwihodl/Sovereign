@@ -97,6 +97,32 @@ export function useNostr() {
         [subscribe]
     );
 
+    const fetchSingleNaddrEvent = useCallback(
+        async (id) => {
+            try {
+                const event = await new Promise((resolve, reject) => {
+                    subscribe(
+                        [{ "#d": [id] }],
+                        {
+                            onevent: (event) => {
+                                resolve(event);
+                            },
+                            onerror: (error) => {
+                                console.error('Failed to fetch event:', error);
+                                reject(error);
+                            },
+                        }
+                    );
+                });
+                return event;
+            } catch (error) {
+                console.error('Failed to fetch event:', error);
+                return null;
+            }
+        },
+        [subscribe]
+    );
+
     const querySyncQueue = useRef([]);
     const lastQuerySyncTime = useRef(0);
 
@@ -535,5 +561,5 @@ export function useNostr() {
         [publish]
     );
 
-    return { subscribe, publish, fetchSingleEvent, fetchZapsForEvent, fetchKind0, fetchResources, fetchWorkshops, fetchCourses, zapEvent, fetchZapsForEvents, publishResource, publishCourse };
+    return { subscribe, publish, fetchSingleEvent, fetchSingleNaddrEvent, fetchZapsForEvent, fetchKind0, fetchResources, fetchWorkshops, fetchCourses, zapEvent, fetchZapsForEvents, publishResource, publishCourse };
 }

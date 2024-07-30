@@ -32,7 +32,7 @@ const CourseTemplate = (course) => {
             className="flex flex-col items-center mx-auto px-4 mt-8 rounded-md"
         >
             <div
-                onClick={() => router.push(`/details/${course.id}`)}
+                onClick={() => router.push(`/course/${course.id}`)}
                 className="relative w-full h-0 hover:opacity-80 transition-opacity duration-300 cursor-pointer"
                 style={{ paddingBottom: "56.25%" }}
             >

@@ -26,9 +26,7 @@ const BitcoinConnectPayButton = dynamic(
     }
 );
 
-export default function Details() {
-    const [event, setEvent] = useState(null);
-    const [processedEvent, setProcessedEvent] = useState({});
+export default function CourseDetails({processedEvent}) {
     const [author, setAuthor] = useState(null);
     const [bitcoinConnect, setBitcoinConnect] = useState(false);
     const [nAddress, setNAddress] = useState(null);
@@ -40,9 +38,9 @@ export default function Details() {
     const router = useRouter();
 
     const handleZapEvent = async () => {
-        if (!event) return;
+        if (!processedEvent) return;
 
-        const response = await zapEvent(event);
+        const response = await zapEvent(processedEvent);
 
         console.log('zap response:', response);
     }
@@ -58,21 +56,6 @@ export default function Details() {
     }, []);
 
     useEffect(() => {
-        if (router.isReady) {
-            const { slug } = router.query;
-
-            const fetchEvent = async (slug) => {
-                const event = await fetchSingleEvent(slug);
-                if (event) {
-                    setEvent(event);
-                }
-            };
-
-            fetchEvent(slug);
-        }
-    }, [router.isReady, router.query]);
-
-    useEffect(() => {
         const fetchAuthor = async (pubkey) => {
             const author = await fetchKind0(pubkey);
             const fields = await findKind0Fields(author);
@@ -81,17 +64,10 @@ export default function Details() {
                 setAuthor(fields);
             }
         }
-        if (event) {
-            fetchAuthor(event.pubkey);
+        if (processedEvent) {
+            fetchAuthor(processedEvent.pubkey);
         }
-    }, [fetchKind0, event]);
-
-    useEffect(() => {
-        if (event) {
-            const { id, pubkey, content, title, summary, image, published_at, d, topics } = parseEvent(event);
-            setProcessedEvent({ id, pubkey, content, title, summary, image, published_at, d, topics });
-        }
-    }, [event]);
+    }, [fetchKind0, processedEvent]);
 
     useEffect(() => {
         if (processedEvent?.d) {
@@ -123,8 +99,8 @@ export default function Details() {
                         <p className='text-xl mt-6'>{processedEvent?.summary}</p>
                         <div className='flex flex-row w-full mt-6 items-center'>
                             <Image
-                                alt="avatar image"
-                                src={returnImageProxy(author?.avatar)}
+                                alt="avatar thumbnail"
+                                src={user?.avatar ? returnImageProxy(user.avatar) : `https://secure.gravatar.com/avatar/${user.pubkey}?s=90&d=identicon`}
                                 width={50}
                                 height={50}
                                 className="rounded-full mr-4"

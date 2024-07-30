@@ -52,6 +52,12 @@ export const parseEvent = (event) => {
             case 'summary':
                 eventData.summary = tag[1];
                 break;
+            case 'description':
+                eventData.summary = tag[1];
+                break;
+            case 'name':
+                eventData.title = tag[1];
+                break;
             case 'image':
                 eventData.image = tag[1];
                 break;
@@ -60,6 +66,13 @@ export const parseEvent = (event) => {
                 break;
             case 'author':
                 eventData.author = tag[1];
+                break;
+            // How do we get topics / tags?
+            case 'l':
+                // Grab index 1 and any subsequent elements in the array
+                tag.slice(1).forEach(topic => {
+                    eventData.topics.push(topic);
+                });
                 break;
             case 'd':
                 eventData.d = tag[1];
