@@ -69,7 +69,7 @@ export default function CoursesCarousel() {
             <h2 className="ml-[6%] mt-4">Courses</h2>
             <div className={"min-h-[384px]"}>
                 <Carousel
-                    value={!processedCourses.length > 0 ? [{}, {}, {}] : [...processedCourses, ...processedCourses]}
+                    value={!processedCourses.length > 0 ? [{}, {}, {}] : [...processedCourses]}
                     numVisible={2}
                     itemTemplate={!processedCourses.length > 0 ? TemplateSkeleton : CourseTemplate}
                     responsiveOptions={responsiveOptions} />

@@ -196,7 +196,7 @@ export default function Details() {
                         ...draft.topics.map(topic => ['t', topic]),
                         ['published_at', Math.floor(Date.now() / 1000).toString()],
                         // Include price and location tags only if price is present
-                        ...(draft?.price ? [['price', draft.price], ['location', `https://plebdevs.com/resource/${draft.id}`]] : []),
+                        ...(draft?.price ? [['price', draft.price], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
                     ]
                 };
                 type = 'resource';

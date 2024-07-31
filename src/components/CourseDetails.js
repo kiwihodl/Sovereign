@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useNostr } from '@/hooks/useNostr';
-import { parseEvent, findKind0Fields, hexToNpub } from '@/utils/nostr';
+import { findKind0Fields } from '@/utils/nostr';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
@@ -31,9 +31,8 @@ export default function CourseDetails({processedEvent}) {
     const [bitcoinConnect, setBitcoinConnect] = useState(false);
     const [nAddress, setNAddress] = useState(null);
     const [user] = useLocalStorageWithEffect('user', {});
-    console.log('user:', user);
     const { returnImageProxy } = useImageProxy();
-    const { fetchSingleEvent, fetchKind0, zapEvent } = useNostr();
+    const { fetchKind0, zapEvent } = useNostr();
 
     const router = useRouter();
 
@@ -76,7 +75,6 @@ export default function CourseDetails({processedEvent}) {
                 kind: processedEvent.kind,
                 identifier: processedEvent.d,
             });
-            console.log('naddr:', naddr);
             setNAddress(naddr);
         }
     }, [processedEvent]);

@@ -64,7 +64,7 @@ export default function ResourcesCarousel() {
     return (
         <>
             <h2 className="ml-[6%] mt-4">Resources</h2>
-            <Carousel value={!processedResources.length > 0 ? [{}, {}, {}] : [...processedResources, ...processedResources]}
+            <Carousel value={!processedResources.length > 0 ? [{}, {}, {}] : [...processedResources]}
                       numVisible={2}
                       itemTemplate={!processedResources.length > 0 ? TemplateSkeleton : ResourceTemplate}
                       responsiveOptions={responsiveOptions} />

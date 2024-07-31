@@ -2,7 +2,6 @@ import React from "react";
 import { Button } from 'primereact/button';
 import { useLogin } from "@/hooks/useLogin";
 
-
 const Login = () => {
     const { nostrLogin, anonymousLogin } = useLogin();
     return (
