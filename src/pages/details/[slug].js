@@ -124,7 +124,7 @@ export default function Details() {
                         <div className='flex flex-row w-full mt-6 items-center'>
                             <Image
                                 alt="avatar image"
-                                src={returnImageProxy(author?.avatar)}
+                                src={returnImageProxy(author?.avatar, author?.pubkey)}
                                 width={50}
                                 height={50}
                                 className="rounded-full mr-4"

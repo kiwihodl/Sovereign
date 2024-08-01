@@ -73,7 +73,7 @@ const Profile = () => {
                     <div className="relative flex w-full items-center justify-center">
                         <Image
                             alt="user's avatar"
-                            src={user?.avatar ? returnImageProxy(user.avatar) : `https://secure.gravatar.com/avatar/${user.pubkey}?s=90&d=identicon`}
+                            src={returnImageProxy(user.avatar, user.pubkey)}
                             width={100}
                             height={100}
                             className="rounded-full my-4"

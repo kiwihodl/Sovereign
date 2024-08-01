@@ -65,7 +65,7 @@ const UserAvatar = () => {
                 <div onClick={(event) => menu.current.toggle(event)} className='flex flex-row items-center justify-between cursor-pointer hover:opacity-75'>
                     <Image
                         alt="logo"
-                        src={user?.avatar ? returnImageProxy(user.avatar) : `https://secure.gravatar.com/avatar/${user.pubkey}?s=90&d=identicon`}
+                        src={returnImageProxy(user.avatar, user.pubkey)}
                         width={50}
                         height={50}
                         className={styles.logo}

@@ -109,9 +109,7 @@ const Course = () => {
     return (
         <>
             <CourseDetails processedEvent={course} />
-            {
-
-                lessons.length > 0 && lessons.map((lesson, index) => (
+            {lessons.length > 0 && lessons.map((lesson, index) => (
                     <div key={index} className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
                         <div className='w-full flex flex-row justify-between max-tab:flex-col max-mob:flex-col'>
                             <div className='w-[75vw] mx-auto flex flex-row items-start justify-between max-tab:flex-col max-mob:flex-col max-tab:w-[95vw] max-mob:w-[95vw]'>
@@ -129,7 +127,7 @@ const Course = () => {
                                     <div className='flex flex-row w-full mt-6 items-center'>
                                         <Image
                                             alt="avatar thumbnail"
-                                            src={returnImageProxy(lesson.author?.avatar)}
+                                            src={returnImageProxy(lesson.author?.avatar, lesson.author?.pubkey)}
                                             width={50}
                                             height={50}
                                             className="rounded-full mr-4"

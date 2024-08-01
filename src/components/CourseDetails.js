@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useNostr } from '@/hooks/useNostr';
 import { findKind0Fields } from '@/utils/nostr';
 import { useImageProxy } from '@/hooks/useImageProxy';
-import { Button } from 'primereact/button';
+import ZapDisplay from '@/components/zaps/ZapDisplay';
 import { Tag } from 'primereact/tag';
 import { nip19 } from 'nostr-tools';
 import { useLocalStorageWithEffect } from '@/hooks/useLocalStorage';
@@ -31,6 +31,7 @@ export default function CourseDetails({processedEvent}) {
     const [bitcoinConnect, setBitcoinConnect] = useState(false);
     const [nAddress, setNAddress] = useState(null);
     const [user] = useLocalStorageWithEffect('user', {});
+    const [zapAmount, setZapAmount] = useState(0);
     const { returnImageProxy } = useImageProxy();
     const { fetchKind0, zapEvent } = useNostr();
 
@@ -98,7 +99,7 @@ export default function CourseDetails({processedEvent}) {
                         <div className='flex flex-row w-full mt-6 items-center'>
                             <Image
                                 alt="avatar thumbnail"
-                                src={user?.avatar ? returnImageProxy(user.avatar) : `https://secure.gravatar.com/avatar/${user.pubkey}?s=90&d=identicon`}
+                                src={returnImageProxy(author?.avatar, author?.pubkey)}
                                 width={50}
                                 height={50}
                                 className="rounded-full mr-4"
@@ -126,21 +127,8 @@ export default function CourseDetails({processedEvent}) {
                                         <BitcoinConnectPayButton onClick={handleZapEvent} />
                                     </div>
                                 ) : (
-                                    <div>
-                                        <Button
-                                            icon="pi pi-bolt"
-                                            label="Zap"
-                                            severity="success"
-                                            outlined
-                                            onClick={handleZapEvent}
-                                            pt={{
-                                                button: {
-                                                    icon: ({ context }) => ({
-                                                        className: 'bg-yellow-500'
-                                                    })
-                                                }
-                                            }}
-                                        />
+                                    <div className='w-full flex justify-end'>
+                                        <ZapDisplay zapAmount={zapAmount} event={processedEvent} />
                                     </div>
                                 )}
                             </div>

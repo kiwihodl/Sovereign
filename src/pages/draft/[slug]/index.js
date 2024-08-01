@@ -266,7 +266,7 @@ export default function Details() {
                         <div className='flex flex-row w-full mt-6 items-center'>
                             <Image
                                 alt="resource thumbnail"
-                                src={user?.avatar ? returnImageProxy(user.avatar) : `https://secure.gravatar.com/avatar/${user.pubkey}?s=90&d=identicon`}
+                                src={returnImageProxy(draft.author?.avatar, draft.author?.pubkey)}
                                 width={50}
                                 height={50}
                                 className="rounded-full mr-4"
