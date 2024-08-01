@@ -68,7 +68,11 @@ export default function WorkshopsCarousel() {
             <h2 className="ml-[6%] mt-4">Workshops</h2>
             <Carousel value={!processedWorkshops.length > 0 ? [{}, {}, {}] : [...processedWorkshops]}
                       numVisible={2}
-                      itemTemplate={!processedWorkshops.length > 0 ? TemplateSkeleton : WorkshopTemplate}
+                      itemTemplate={(item) => 
+                        processedWorkshops.length > 0 ? 
+                        <WorkshopTemplate key={item.id} workshop={item} /> : 
+                        <TemplateSkeleton key={Math.random()} />
+                    }
                       responsiveOptions={responsiveOptions} />
         </>
     );

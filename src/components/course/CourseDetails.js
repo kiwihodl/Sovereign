@@ -5,6 +5,7 @@ import { useNostr } from '@/hooks/useNostr';
 import { findKind0Fields } from '@/utils/nostr';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import ZapDisplay from '@/components/zaps/ZapDisplay';
+import { getSatAmountFromInvoice } from '@/utils/lightning';
 import { Tag } from 'primereact/tag';
 import { nip19 } from 'nostr-tools';
 import { useLocalStorageWithEffect } from '@/hooks/useLocalStorage';
@@ -31,9 +32,10 @@ export default function CourseDetails({processedEvent}) {
     const [bitcoinConnect, setBitcoinConnect] = useState(false);
     const [nAddress, setNAddress] = useState(null);
     const [user] = useLocalStorageWithEffect('user', {});
+    const [zaps, setZaps] = useState([]);
     const [zapAmount, setZapAmount] = useState(0);
     const { returnImageProxy } = useImageProxy();
-    const { fetchKind0, zapEvent } = useNostr();
+    const { fetchKind0, zapEvent, fetchZapsForEvent } = useNostr();
 
     const router = useRouter();
 
@@ -79,6 +81,31 @@ export default function CourseDetails({processedEvent}) {
             setNAddress(naddr);
         }
     }, [processedEvent]);
+
+    useEffect(() => {
+        if (!zaps || zaps.length === 0) return;
+        
+        let total = 0;
+        zaps.forEach((zap) => {
+            const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
+            const invoice = bolt11Tag ? bolt11Tag[1] : null;
+            if (invoice) {
+                const amount = getSatAmountFromInvoice(invoice);
+                total += amount;
+            }
+        });
+        setZapAmount(total);
+    }, [zaps]);
+
+    useEffect(() => {
+        const fetchZaps = async () => {
+            if (processedEvent) {
+                const zaps = await fetchZapsForEvent(processedEvent);
+                setZaps(zaps);
+            }
+        }
+        fetchZaps();
+    }, [fetchZapsForEvent, processedEvent]);
 
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>

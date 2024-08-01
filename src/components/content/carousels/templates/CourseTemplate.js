@@ -7,7 +7,7 @@ import { useNostr } from "@/hooks/useNostr";
 import { getSatAmountFromInvoice } from "@/utils/lightning";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
 
-const CourseTemplate = (course) => {
+const CourseTemplate = ({course}) => {
     const [zapAmount, setZapAmount] = useState(null);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();

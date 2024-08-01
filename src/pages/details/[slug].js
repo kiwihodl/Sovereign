@@ -4,7 +4,8 @@ import { useRouter } from 'next/router';
 import { useNostr } from '@/hooks/useNostr';
 import { parseEvent, findKind0Fields, hexToNpub } from '@/utils/nostr';
 import { useImageProxy } from '@/hooks/useImageProxy';
-import { Button } from 'primereact/button';
+import { getSatAmountFromInvoice } from '@/utils/lightning';
+import ZapDisplay from '@/components/zaps/ZapDisplay';
 import { Tag } from 'primereact/tag';
 import { nip19 } from 'nostr-tools';
 import { useLocalStorageWithEffect } from '@/hooks/useLocalStorage';
@@ -32,10 +33,12 @@ export default function Details() {
     const [author, setAuthor] = useState(null);
     const [bitcoinConnect, setBitcoinConnect] = useState(false);
     const [nAddress, setNAddress] = useState(null);
+    const [zaps, setZaps] = useState([]);
+    const [zapAmount, setZapAmount] = useState(0);
     const [user] = useLocalStorageWithEffect('user', {});
     console.log('user:', user);
     const { returnImageProxy } = useImageProxy();
-    const { fetchSingleEvent, fetchKind0, zapEvent } = useNostr();
+    const { fetchSingleEvent, fetchKind0, zapEvent, fetchZapsForEvent } = useNostr();
 
     const router = useRouter();
 
@@ -105,6 +108,31 @@ export default function Details() {
         }
     }, [processedEvent]);
 
+    useEffect(() => {
+        if (!zaps || zaps.length === 0) return;
+        
+        let total = 0;
+        zaps.forEach((zap) => {
+            const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
+            const invoice = bolt11Tag ? bolt11Tag[1] : null;
+            if (invoice) {
+                const amount = getSatAmountFromInvoice(invoice);
+                total += amount;
+            }
+        });
+        setZapAmount(total);
+    }, [zaps]);
+
+    useEffect(() => {
+        const fetchZaps = async () => {
+            if (event) {
+                const zaps = await fetchZapsForEvent(event);
+                setZaps(zaps);
+            }
+        }
+        fetchZaps();
+    }, [fetchZapsForEvent, event]);
+
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
             <div className='w-full flex flex-row justify-between max-tab:flex-col max-mob:flex-col'>
@@ -152,21 +180,8 @@ export default function Details() {
                                         <BitcoinConnectPayButton onClick={handleZapEvent} />
                                     </div>
                                 ) : (
-                                    <div>
-                                        <Button
-                                            icon="pi pi-bolt"
-                                            label="Zap"
-                                            severity="success"
-                                            outlined
-                                            onClick={handleZapEvent}
-                                            pt={{
-                                                button: {
-                                                    icon: ({ context }) => ({
-                                                        className: 'bg-yellow-500'
-                                                    })
-                                                }
-                                            }}
-                                        />
+                                    <div className="w-full flex justify-end">
+                                        <ZapDisplay zapAmount={zapAmount} event={parseEvent(event)} />
                                     </div>
                                 )}
                             </div>

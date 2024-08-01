@@ -24,9 +24,6 @@ export function useNostr() {
     const lastSubscriptionTime = useRef(0);
     const throttleDelay = 2000;
 
-    // ref to keep track of active subscriptions
-    const activeSubscriptions = useRef([]);
-
     const processSubscriptionQueue = useCallback(() => {
         if (subscriptionQueue.current.length === 0) return;
 
@@ -48,23 +45,7 @@ export function useNostr() {
             if (!pool) return;
 
             const subscriptionFn = () => {
-                // Create the subscription
-                const sub = pool.subscribeMany(defaultRelays, filters, {
-                    ...opts,
-                    oneose: () => {
-                        // Call the original oneose if it exists
-                        opts.oneose?.();
-                        // Close the subscription after EOSE
-                        sub.close();
-                        // Remove this subscription from activeSubscriptions
-                        activeSubscriptions.current = activeSubscriptions.current.filter(s => s !== sub);
-                    }
-                });
-                
-                // Add this subscription to activeSubscriptions
-                activeSubscriptions.current.push(sub);
-                
-                return sub;
+                return pool.subscribeMany(defaultRelays, filters, opts);
             };
 
             subscriptionQueue.current.push(subscriptionFn);
@@ -72,19 +53,6 @@ export function useNostr() {
         },
         [pool, processSubscriptionQueue]
     );
-
-    // Add this new function to close all active subscriptions
-    const closeAllSubscriptions = useCallback(() => {
-        activeSubscriptions.current.forEach(sub => sub.close());
-        activeSubscriptions.current = [];
-    }, []);
-
-    // Use an effect to close all subscriptions when the component unmounts
-    useEffect(() => {
-        return () => {
-            closeAllSubscriptions();
-        };
-    }, [closeAllSubscriptions]);
 
     const publish = useCallback(
         async (event) => {

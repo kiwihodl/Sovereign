@@ -71,7 +71,11 @@ export default function CoursesCarousel() {
                 <Carousel
                     value={!processedCourses.length > 0 ? [{}, {}, {}] : [...processedCourses]}
                     numVisible={2}
-                    itemTemplate={!processedCourses.length > 0 ? TemplateSkeleton : CourseTemplate}
+                    itemTemplate={(item) => 
+                        processedCourses.length > 0 ? 
+                        <CourseTemplate key={item.id} course={item} /> : 
+                        <TemplateSkeleton key={Math.random()} />
+                    }
                     responsiveOptions={responsiveOptions} />
             </div>
         </>

@@ -6,7 +6,7 @@ import { useImageProxy } from "@/hooks/useImageProxy";
 import { useNostr } from "@/hooks/useNostr";
 import { getSatAmountFromInvoice } from "@/utils/lightning";
 
-const ResourceTemplate = (resource) => {
+const ResourceTemplate = ({resource}) => {
   const [zapAmount, setZapAmount] = useState(null);
   const router = useRouter();
   const { returnImageProxy } = useImageProxy();
