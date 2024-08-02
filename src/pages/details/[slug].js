@@ -65,7 +65,9 @@ export default function Details() {
             const { slug } = router.query;
 
             const fetchEvent = async (slug) => {
+                console.log('slug:', slug);
                 const event = await fetchSingleEvent(slug);
+                console.log('event:', event);
                 if (event) {
                     setEvent(event);
                 }
@@ -181,7 +183,7 @@ export default function Details() {
                                     </div>
                                 ) : (
                                     <div className="w-full flex justify-end">
-                                        <ZapDisplay zapAmount={zapAmount} event={parseEvent(event)} />
+                                        <ZapDisplay zapAmount={zapAmount} event={processedEvent} />
                                     </div>
                                 )}
                             </div>

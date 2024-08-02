@@ -57,6 +57,7 @@ export default function Details() {
 
             if (unsignedEvent) {
                 const published = await publishEvent(unsignedEvent, type);
+                console.log('published:', published);
                 // if successful, delete the draft, redirect to profile
                 if (published) {
                     axios.delete(`/api/drafts/${draft.id}`)
@@ -113,8 +114,6 @@ export default function Details() {
             identifier: dTag,
         })
 
-        console.log('nAddress:', nAddress);
-
         const userResponse = await axios.get(`/api/users/${user.pubkey}`)
 
         if (!userResponse.data) {
@@ -128,7 +127,9 @@ export default function Details() {
             price: draft.price || 0,
             noteId: nAddress,
         }
+        console.log('payload:', payload);
         const response = await axios.post(`/api/resources`, payload);
+        console.log('response:', response);
 
         if (response.status !== 201) {
             showToast('error', 'Error', 'Failed to create resource. Please try again.');
@@ -136,6 +137,7 @@ export default function Details() {
         }
 
         let published;
+        console.log('type:', type);
 
         if (type === 'resource' || type === 'workshop') {
             published = await publishResource(signedEvent);
@@ -266,7 +268,7 @@ export default function Details() {
                         <div className='flex flex-row w-full mt-6 items-center'>
                             <Image
                                 alt="resource thumbnail"
-                                src={returnImageProxy(draft.author?.avatar, draft.author?.pubkey)}
+                                src={returnImageProxy(draft?.author?.avatar, draft?.author?.pubkey)}
                                 width={50}
                                 height={50}
                                 className="rounded-full mr-4"
