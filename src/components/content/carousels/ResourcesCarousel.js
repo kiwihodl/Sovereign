@@ -4,6 +4,7 @@ import { useNostr } from '@/hooks/useNostr';
 import { parseEvent } from '@/utils/nostr';
 import ResourceTemplate from '@/components/content/carousels/templates/ResourceTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
+import { useNostrQueries } from '@/hooks/useNostrQueries';
 
 const responsiveOptions = [
     {
@@ -25,14 +26,16 @@ const responsiveOptions = [
 
 export default function ResourcesCarousel() {
     const [processedResources, setProcessedResources] = useState([]);
-    const { fetchResources, fetchZapsForEvents } = useNostr();
+    const { fetchZapsForEvents } = useNostr();
+    const { resources, resourcesError, refetchResources } = useNostrQueries()
 
     useEffect(() => {
         const fetch = async () => {
             try {
-                const fetchedResources = await fetchResources();
-                if (fetchedResources && fetchedResources.length > 0) {
-                    const processedResources = fetchedResources.map(resource => parseEvent(resource));
+                if (resources && resources.length > 0) {
+                    const processedResources = resources.map(resource => parseEvent(resource));
+
+                    console.log('processedResources:', processedResources);
     
                     const allZaps = await fetchZapsForEvents(processedResources);
     
@@ -51,14 +54,18 @@ export default function ResourcesCarousel() {
     
                     setProcessedResources(resourcesWithZaps);
                 } else {
-                    console.log('No resources fetched or empty array returned');
+                    refetchResources();
                 }
             } catch (error) {
                 console.error('Error fetching resources:', error);
             }
         };        
         fetch();
-    }, [fetchResources, fetchZapsForEvents]); // Assuming fetchZapsForEvents is adjusted to handle resources
+    }, [resources]);
+
+    if (resourcesError) {
+        return <div>Error: {resourcesError.message}</div>
+    }
     
 
     return (

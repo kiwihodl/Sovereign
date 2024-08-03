@@ -8,21 +8,6 @@ import { useLocalStorageWithEffect } from '@/hooks/useLocalStorage';
 import axios from 'axios';
 
 export default function Home() {
-  const [contentIds, setContentIds] = useLocalStorageWithEffect('contentIds', []);
-
-  const fetchContentIds = useCallback(async () => {
-    try {
-      const response = await axios.get('/api/content/all');
-      const ids = response.data;
-      setContentIds(ids);
-    } catch (error) {
-      console.error('Failed to fetch content IDs:', error);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchContentIds();
-  }, [fetchContentIds]);
 
   return (
     <>
@@ -34,9 +19,9 @@ export default function Home() {
       </Head>
       <main>
         <HeroBanner />
-        <CoursesCarousel />
+        {/* <CoursesCarousel /> */}
         <WorkshopsCarousel />
-        <ResourcesCarousel />
+        {/* <ResourcesCarousel /> */}
       </main>
     </>
   );

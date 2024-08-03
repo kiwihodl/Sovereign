@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from 'react';
 
 // This version of the hook initializes state without immediately attempting to read from localStorage

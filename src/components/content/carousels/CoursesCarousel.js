@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { Carousel } from 'primereact/carousel';
 import { parseCourseEvent } from '@/utils/nostr';
 import { useNostr } from '@/hooks/useNostr';
 import CourseTemplate from '@/components/content/carousels/templates/CourseTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
+import { useNostrQueries } from '@/hooks/useNostrQueries';
 
 const responsiveOptions = [
     {
@@ -25,15 +26,26 @@ const responsiveOptions = [
 
 export default function CoursesCarousel() {
     const [processedCourses, setProcessedCourses] = useState([]);
-    const { fetchCourses, fetchZapsForEvents } = useNostr();
+    const { fetchZapsForEvents } = useNostr();
+    const { courses, coursesError, zapsForEvents, refetchZapsForEvents } = useNostrQueries()
+
+    useEffect(() => {
+        if (courses && courses.length > 0) {
+            refetchZapsForEvents(courses);
+        }
+    }, [courses]);
+
+    useEffect(() => {
+        console.log('zapsForEvents:', zapsForEvents);
+    }, [zapsForEvents]);
 
     useEffect(() => {
         const fetch = async () => {
             try {
-                const fetchedCourses = await fetchCourses();
-                if (fetchedCourses && fetchedCourses.length > 0) {
+                if ( courses && courses.length > 0) {
+                    console.log('courses:', courses);
                     // First process the courses to be ready for display
-                    const processedCourses = fetchedCourses.map(course => parseCourseEvent(course));
+                    const processedCourses = courses.map(course => parseCourseEvent(course));
 
                     // Fetch zaps for all processed courses at once
                     const allZaps = await fetchZapsForEvents(processedCourses);
@@ -62,7 +74,11 @@ export default function CoursesCarousel() {
             }
         };
         fetch();
-    }, [fetchCourses, fetchZapsForEvents]);
+    }, [courses]);
+
+    if (coursesError) {
+        return <div>Error: {coursesError.message}</div>
+    }
 
     return (
         <>

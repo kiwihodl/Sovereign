@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Carousel } from 'primereact/carousel';
 import { useRouter } from 'next/router';
-import { useNostr } from '@/hooks/useNostr';
 import { useImageProxy } from '@/hooks/useImageProxy';
+import { useNostr } from '@/hooks/useNostr';
 import { parseEvent } from '@/utils/nostr';
 import WorkshopTemplate from '@/components/content/carousels/templates/WorkshopTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
+import { useNostrQueries } from '@/hooks/useNostrQueries';
 
 const responsiveOptions = [
     {
@@ -26,15 +27,17 @@ const responsiveOptions = [
 ];
 
 export default function WorkshopsCarousel() {
-    const [processedWorkshops, setProcessedWorkshops] = useState([]);
-    const { fetchWorkshops, fetchZapsForEvents } = useNostr();
+    const [processedWorkshops, setProcessedWorkshops] = useState([])
+
+    const { workshops, workshopsError } = useNostrQueries()
+    const { fetchZapsForEvents } = useNostr()
 
     useEffect(() => {
         const fetch = async () => {
             try {
-                const fetchedWorkshops = await fetchWorkshops();
-                if (fetchedWorkshops && fetchedWorkshops.length > 0) {
-                    const processedWorkshops = fetchedWorkshops.map(workshop => parseEvent(workshop));
+                console.debug('workshops', workshops);
+                if (workshops && workshops.length > 0) {
+                    const processedWorkshops = workshops.map(workshop => parseEvent(workshop));
     
                     const allZaps = await fetchZapsForEvents(processedWorkshops);
     
@@ -60,8 +63,11 @@ export default function WorkshopsCarousel() {
             }
         };        
         fetch();
-    }, [fetchWorkshops, fetchZapsForEvents]); // Assuming fetchZapsForEvents is adjusted to handle workshops
-    
+    }, [workshops]);
+
+     if (workshopsError) {
+        return <div>Error: {workshopsError.message}</div>
+     }
 
     return (
         <>

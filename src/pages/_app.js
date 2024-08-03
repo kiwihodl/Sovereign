@@ -9,28 +9,35 @@ import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import Sidebar from '@/components/sidebar/Sidebar';
 import { NostrProvider } from '@/context/NostrContext';
+import {
+    QueryClient,
+    QueryClientProvider,
+} from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
 
 export default function MyApp({
     Component, pageProps: { ...pageProps }
 }) {
-
     return (
         <PrimeReactProvider>
             <NostrProvider>
-                <ToastProvider>
-                    <Layout>
-                        <div className="flex flex-col min-h-screen">
-                            <Navbar />
-                            {/* <div className='flex'> */}
-                            {/* <Sidebar /> */}
-                            {/* <div className='max-w-[100vw] pl-[15vw]'> */}
-                            <div className='max-w-[100vw]'>
-                                <Component {...pageProps} />
+                <QueryClientProvider client={queryClient}>
+                    <ToastProvider>
+                        <Layout>
+                            <div className="flex flex-col min-h-screen">
+                                <Navbar />
+                                {/* <div className='flex'> */}
+                                {/* <Sidebar /> */}
+                                {/* <div className='max-w-[100vw] pl-[15vw]'> */}
+                                <div className='max-w-[100vw]'>
+                                    <Component {...pageProps} />
+                                </div>
+                                {/* </div> */}
                             </div>
-                            {/* </div> */}
-                        </div>
-                    </Layout>
-                </ToastProvider>
+                        </Layout>
+                    </ToastProvider>
+                </QueryClientProvider>
             </NostrProvider>
         </PrimeReactProvider>
     );

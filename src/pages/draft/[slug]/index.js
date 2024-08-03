@@ -124,12 +124,11 @@ export default function Details() {
         const payload = {
             id: dTag,
             userId: userResponse.data.id,
-            price: draft.price || 0,
+            price: Number(draft.price) || 0,
             noteId: nAddress,
         }
-        console.log('payload:', payload);
+
         const response = await axios.post(`/api/resources`, payload);
-        console.log('response:', response);
 
         if (response.status !== 201) {
             showToast('error', 'Error', 'Failed to create resource. Please try again.');
@@ -145,19 +144,14 @@ export default function Details() {
             published = await publishCourse(signedEvent);
         }
 
-        console.log('published:', published);
-
         if (published) {
             // check if the event is published
             const publishedEvent = await fetchSingleEvent(signedEvent.id);
-
-            console.log('publishedEvent:', publishedEvent);
 
             if (publishedEvent) {
                 // show success message
                 showToast('success', 'Success', `${type} published successfully.`);
                 // delete the draft
-                console.log('draft:', draft);
                 await axios.delete(`/api/drafts/${draft.id}`)
                     .then(res => {
                         if (res.status === 204) {
@@ -198,7 +192,7 @@ export default function Details() {
                         ...draft.topics.map(topic => ['t', topic]),
                         ['published_at', Math.floor(Date.now() / 1000).toString()],
                         // Include price and location tags only if price is present
-                        ...(draft?.price ? [['price', draft.price], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
+                        ...(draft?.price ? [['price', draft.price.toString()], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
                     ]
                 };
                 type = 'resource';
