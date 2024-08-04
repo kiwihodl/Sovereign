@@ -19,9 +19,9 @@ export default function Home() {
       </Head>
       <main>
         <HeroBanner />
-        {/* <CoursesCarousel /> */}
+        <CoursesCarousel />
         <WorkshopsCarousel />
-        {/* <ResourcesCarousel /> */}
+        <ResourcesCarousel />
       </main>
     </>
   );

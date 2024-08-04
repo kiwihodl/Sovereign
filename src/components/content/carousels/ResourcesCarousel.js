@@ -5,6 +5,7 @@ import { parseEvent } from '@/utils/nostr';
 import ResourceTemplate from '@/components/content/carousels/templates/ResourceTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 import { useNostrQueries } from '@/hooks/useNostrQueries';
+import { useResourcesQuery } from '@/hooks/useResourcesQuery';
 
 const responsiveOptions = [
     {
@@ -27,7 +28,8 @@ const responsiveOptions = [
 export default function ResourcesCarousel() {
     const [processedResources, setProcessedResources] = useState([]);
     const { fetchZapsForEvents } = useNostr();
-    const { resources, resourcesError, refetchResources } = useNostrQueries()
+    // const { resources, resourcesError, refetchResources } = useNostrQueries()
+    const { resources, resourcesError, refetchResources } = useResourcesQuery()
 
     useEffect(() => {
         const fetch = async () => {

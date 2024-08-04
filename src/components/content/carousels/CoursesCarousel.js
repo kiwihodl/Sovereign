@@ -4,7 +4,8 @@ import { parseCourseEvent } from '@/utils/nostr';
 import { useNostr } from '@/hooks/useNostr';
 import CourseTemplate from '@/components/content/carousels/templates/CourseTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
-import { useNostrQueries } from '@/hooks/useNostrQueries';
+// import { useNostrQueries } from '@/hooks/useNostrQueries';
+import { useCoursesQuery } from '@/hooks/nostrQueries/useCoursesQuery';
 
 const responsiveOptions = [
     {
@@ -27,22 +28,13 @@ const responsiveOptions = [
 export default function CoursesCarousel() {
     const [processedCourses, setProcessedCourses] = useState([]);
     const { fetchZapsForEvents } = useNostr();
-    const { courses, coursesError, zapsForEvents, refetchZapsForEvents } = useNostrQueries()
-
-    useEffect(() => {
-        if (courses && courses.length > 0) {
-            refetchZapsForEvents(courses);
-        }
-    }, [courses]);
-
-    useEffect(() => {
-        console.log('zapsForEvents:', zapsForEvents);
-    }, [zapsForEvents]);
+    // const { courses, coursesError, zapsForEvents, refetchZapsForEvents } = useNostrQueries()
+    const { courses, coursesError, refetchCourses } = useCoursesQuery()
 
     useEffect(() => {
         const fetch = async () => {
             try {
-                if ( courses && courses.length > 0) {
+                if (courses && courses.length > 0) {
                     console.log('courses:', courses);
                     // First process the courses to be ready for display
                     const processedCourses = courses.map(course => parseCourseEvent(course));

@@ -6,7 +6,8 @@ import { useNostr } from '@/hooks/useNostr';
 import { parseEvent } from '@/utils/nostr';
 import WorkshopTemplate from '@/components/content/carousels/templates/WorkshopTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
-import { useNostrQueries } from '@/hooks/useNostrQueries';
+// import { useNostrQueries } from '@/hooks/useNostrQueries';
+import { useWorkshopsQuery } from '@/hooks/nostrQueries/useWorkshopsQuery';
 
 const responsiveOptions = [
     {
@@ -29,7 +30,8 @@ const responsiveOptions = [
 export default function WorkshopsCarousel() {
     const [processedWorkshops, setProcessedWorkshops] = useState([])
 
-    const { workshops, workshopsError } = useNostrQueries()
+    // const { workshops, workshopsError } = useNostrQueries()
+    const { workshops, workshopsError, refetchWorkshops } = useWorkshopsQuery()
     const { fetchZapsForEvents } = useNostr()
 
     useEffect(() => {
