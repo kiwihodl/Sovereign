@@ -14,8 +14,8 @@ const WorkshopTemplate = ({workshop}) => {
     const { zaps, zapsLoading, zapsError, refetchZaps } = useWorkshopsZapsQuery({event: workshop});
 
     useEffect(() => {
-        if (!zaps || !zaps.length > 0) return;
-        
+        if (!zaps || zapsLoading || zapsError) return;
+
         let total = 0;
         zaps.forEach((zap) => {
             // If the zap matches the event or the parameterized event, then add the zap to the total
@@ -29,7 +29,7 @@ const WorkshopTemplate = ({workshop}) => {
             }
         });
         setZapAmount(total);
-    }, [zaps, workshop]);
+    }, [zaps, workshop, zapsLoading, zapsError]);
 
     if (zapsLoading) return <div>Loading...</div>;
     if (zapsError) return <div>Error: {zapsError}</div>;

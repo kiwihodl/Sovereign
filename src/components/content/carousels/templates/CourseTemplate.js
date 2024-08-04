@@ -14,7 +14,7 @@ const CourseTemplate = ({ course }) => {
     const { zaps, zapsLoading, zapsError, refetchZaps } = useCoursesZapsQuery({ event: course })
 
     useEffect(() => {
-        if (!zaps || !zaps.length > 0) return;
+        if (!zaps || zapsLoading || zapsError) return;
 
         let total = 0;
         zaps.forEach((zap) => {
@@ -29,7 +29,10 @@ const CourseTemplate = ({ course }) => {
             }
         });
         setZapAmount(total);
-    }, [course, zaps]);
+    }, [course, zaps, zapsLoading, zapsError]);
+
+    if (zapsLoading) return <div>Loading...</div>;
+    if (zapsError) return <div>Error: {zapsError}</div>;
 
     return (
         <div
