@@ -3,31 +3,34 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { useImageProxy } from "@/hooks/useImageProxy";
-import { useZapsQuery } from "@/hooks/nostrQueries/useZapsQuery";
+import { useResourceZapsQuery } from "@/hooks/nostrQueries/useResourceZapsQuery";
 import { getSatAmountFromInvoice } from "@/utils/lightning";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
 
 const ResourceTemplate = ({ resource }) => {
   const [zapAmount, setZapAmount] = useState(0);
+  const { zaps, zapsLoading, zapsError, refetchZaps } = useResourceZapsQuery({ event: resource })
 
   const router = useRouter();
   const { returnImageProxy } = useImageProxy();
 
   useEffect(() => {
-    if (!resource?.zaps || !resource?.zaps.length > 0) return;
+    if (!zaps || !zaps.length > 0) return;
 
     let total = 0;
-    resource.zaps.forEach((zap) => {
+    zaps.forEach((zap) => {
       // If the zap matches the event or the parameterized event, then add the zap to the total
+      if (zap.tags.find(tag => tag[0] === "e" && tag[1] === resource.id) || zap.tags.find(tag => tag[0] === "a" && tag[1] === `${resource.kind}:${resource.id}:${resource.d}`)) {
         const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
         const invoice = bolt11Tag ? bolt11Tag[1] : null;
         if (invoice) {
           const amount = getSatAmountFromInvoice(invoice);
           total += amount;
         }
+      }
     });
     setZapAmount(total);
-  }, [resource]);
+  }, [resource, zaps]);
 
   return (
     <div

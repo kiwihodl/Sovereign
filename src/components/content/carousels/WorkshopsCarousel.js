@@ -4,7 +4,6 @@ import { parseEvent } from '@/utils/nostr';
 import WorkshopTemplate from '@/components/content/carousels/templates/WorkshopTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 import { useWorkshopsQuery } from '@/hooks/nostrQueries/useWorkshopsQuery';
-import { useZapsQuery } from '@/hooks/nostrQueries/useZapsQuery';
 
 const responsiveOptions = [
     {
@@ -27,30 +26,14 @@ const responsiveOptions = [
 export default function WorkshopsCarousel() {
     const [processedWorkshops, setProcessedWorkshops] = useState([])
     const { workshops, workshopsLoading, workshopsError, refetchWorkshops } = useWorkshopsQuery()
-    const { zaps, zapsLoading, zapsError, refetchZaps } = useZapsQuery({ events: workshops })
-
-    useEffect(() => {
-        refetchZaps(workshops)
-    }, [workshops, refetchZaps]);
 
     useEffect(() => {
         const fetch = async () => {
             try {
-                console.debug('workshops', workshops);
-                if (workshops && workshops.length > 0 && zaps) {
+                if (workshops && workshops.length > 0) {
                     const processedWorkshops = workshops.map(workshop => parseEvent(workshop));
 
-                    let workshopsWithZaps = processedWorkshops.map(workshop => {
-                        let collectedZaps = []
-                        zaps.forEach(zap => {
-                            if (zap.tags.find(tag => tag[0] === "e" && tag[1] === workshop.id) || zap.tags.find(tag => tag[0] === "a" && tag[1] === `${workshop.kind}:${workshop.id}:${workshop.d}`)) {
-                                collectedZaps.push(zap)
-                            }   
-                        })
-                        return { ...workshop, zaps: collectedZaps }
-                    })
-    
-                    setProcessedWorkshops(workshopsWithZaps);
+                    setProcessedWorkshops(processedWorkshops);
                 } else {
                     console.log('No workshops fetched or empty array returned');
                 }
@@ -59,7 +42,7 @@ export default function WorkshopsCarousel() {
             }
         };        
         fetch();
-    }, [workshops, zaps]);
+    }, [workshops]);
 
     if (workshopsLoading) return <div>Loading...</div>;
     if (workshopsError) return <div>Error: {workshopsError}</div>;

@@ -18,8 +18,8 @@ export default function Home() {
       <main>
         <HeroBanner />
         <CoursesCarousel />
-        {/* <WorkshopsCarousel />
-        <ResourcesCarousel /> */}
+        <WorkshopsCarousel />
+        <ResourcesCarousel />
       </main>
     </>
   );

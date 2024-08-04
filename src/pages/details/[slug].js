@@ -1,7 +1,5 @@
-"use client";
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useNostr } from '@/hooks/useNostr';
 import { parseEvent, findKind0Fields, hexToNpub } from '@/utils/nostr';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { getSatAmountFromInvoice } from '@/utils/lightning';
@@ -12,6 +10,7 @@ import { useLocalStorageWithEffect } from '@/hooks/useLocalStorage';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
+import { useNDKContext } from '@/context/NDKContext';
 import 'primeicons/primeicons.css';
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -35,20 +34,12 @@ export default function Details() {
     const [nAddress, setNAddress] = useState(null);
     const [zaps, setZaps] = useState([]);
     const [zapAmount, setZapAmount] = useState(0);
+
+    const ndk = useNDKContext();
     const [user] = useLocalStorageWithEffect('user', {});
-    console.log('user:', user);
     const { returnImageProxy } = useImageProxy();
-    const { fetchSingleEvent, fetchKind0, zapEvent, fetchZapsForEvent } = useNostr();
 
     const router = useRouter();
-
-    const handleZapEvent = async () => {
-        if (!event) return;
-
-        const response = await zapEvent(event);
-
-        console.log('zap response:', response);
-    }
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -65,31 +56,51 @@ export default function Details() {
             const { slug } = router.query;
 
             const fetchEvent = async (slug) => {
-                console.log('slug:', slug);
-                const event = await fetchSingleEvent(slug);
-                console.log('event:', event);
-                if (event) {
-                    setEvent(event);
+                try {
+                    await ndk.connect();
+
+                    const filter = {
+                        ids: [slug]
+                    }
+
+                    const event = await ndk.fetchEvent(filter);
+
+                    if (event) {
+                        setEvent(event);
+                    }
+                } catch (error) {
+                    console.error('Error fetching event:', error);
                 }
             };
-
-            fetchEvent(slug);
+            if (ndk) {
+                fetchEvent(slug);
+            }
         }
-    }, [router.isReady, router.query]);
+    }, [router.isReady, router.query, ndk]);
 
     useEffect(() => {
         const fetchAuthor = async (pubkey) => {
-            const author = await fetchKind0(pubkey);
-            const fields = await findKind0Fields(author);
-            console.log('fields:', fields);
-            if (fields) {
-                setAuthor(fields);
+            try {
+                await ndk.connect();
+
+                const filter = {
+                    kinds: [0],
+                    authors: [pubkey]
+                }
+
+                const author = await ndk.fetchEvent(filter);
+                if (author) {
+                    const fields = await findKind0Fields(JSON.parse(author.content));
+                    setAuthor(fields);
+                }
+            } catch (error) {
+                console.error('Error fetching author:', error);
             }
         }
-        if (event) {
+        if (event && ndk) {
             fetchAuthor(event.pubkey);
         }
-    }, [fetchKind0, event]);
+    }, [ndk, event]);
 
     useEffect(() => {
         if (event) {
@@ -105,14 +116,13 @@ export default function Details() {
                 kind: processedEvent.kind,
                 identifier: processedEvent.d,
             });
-            console.log('naddr:', naddr);
             setNAddress(naddr);
         }
     }, [processedEvent]);
 
     useEffect(() => {
         if (!zaps || zaps.length === 0) return;
-        
+
         let total = 0;
         zaps.forEach((zap) => {
             const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
@@ -127,13 +137,31 @@ export default function Details() {
 
     useEffect(() => {
         const fetchZaps = async () => {
-            if (event) {
-                const zaps = await fetchZapsForEvent(event);
+            try {
+                const processed = parseEvent(event);
+                await ndk.connect();
+            
+                const filters = [
+                    {
+                        kinds: [9735],
+                        "#e": [processed.id]
+                    },
+                    {
+                        kinds: [9734],
+                        "#a": [`${processed.kind}:${processed.id}:${processed.d}`]
+                    }
+                ]
+
+                const zaps = await ndk.fetchEvents(filters);
                 setZaps(zaps);
+            } catch (error) {
+                console.error('Error fetching zaps:', error);
             }
         }
-        fetchZaps();
-    }, [fetchZapsForEvent, event]);
+        if (event && ndk) {
+            fetchZaps();
+        }
+    }, [ndk, event]);
 
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>

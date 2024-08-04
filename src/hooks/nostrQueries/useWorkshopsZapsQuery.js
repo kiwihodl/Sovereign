@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNDKContext } from '@/context/NDKContext';
 
-export function useZapsQuery({ events }) {
+export function useWorkshopsZapsQuery({ event }) {
     const [isClient, setIsClient] = useState(false);
     const ndk = useNDKContext();
 
@@ -10,24 +10,28 @@ export function useZapsQuery({ events }) {
         setIsClient(true);
     }, []);
 
-    const fetchZapsFromNDK = async (events) => {
+    const fetchZapsFromNDK = async (event) => {
+        if (!ndk) {
+            console.error('NDK instance is null');
+            return [];
+        }
+
+        if (!event) {
+            console.error('No event provided');
+            return [];
+        }
+
         try {
             await ndk.connect();
-
             let zaps = [];
 
-            for (const event of events) {
-                const uniqueEvents = new Set();
-                const filters = [{ kinds: [9735], "#e": [event.id] }, { kinds: [9735], "#a": [`${event.kind}:${event.id}:${event.d}`] }];
+            const filters = [{ kinds: [9735], "#e": [event.id] }, { kinds: [9735], "#a": [`${event.kind}:${event.id}:${event.d}`] }];
 
-                for (const filter of filters) {
-                    const zapEvents = await ndk.fetchEvents(filter);
-                    zapEvents.forEach(zap => uniqueEvents.add(zap));
-                }
-    
-                zaps = [...zaps, ...Array.from(uniqueEvents)];
+            for (const filter of filters) {
+                const zapEvents = await ndk.fetchEvents(filter);
+                zapEvents.forEach(zap => zaps.push(zap));
             }
-            console.log('Zaps fetched:', zaps);
+
             return zaps;
         } catch (error) {
             console.error('Error fetching zaps from NDK:', error);
@@ -36,12 +40,12 @@ export function useZapsQuery({ events }) {
     };
 
     const { data: zaps, isLoading: zapsLoading, error: zapsError, refetch: refetchZaps } = useQuery({
-        queryKey: ['zaps', isClient],
-        queryFn: () => fetchZapsFromNDK(events),
+        queryKey: ['workshopsZaps', isClient, event],
+        queryFn: () => fetchZapsFromNDK(event),
         staleTime: 1000 * 60 * 3, // 3 minutes
         cacheTime: 1000 * 60 * 60, // 1 hour
         enabled: isClient,
-    })
+    });
 
     return { zaps, zapsLoading, zapsError, refetchZaps }
 }

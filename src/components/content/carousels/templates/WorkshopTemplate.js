@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { useImageProxy } from "@/hooks/useImageProxy";
-import { useZapsQuery } from "@/hooks/nostrQueries/useZapsQuery";
+import { useWorkshopsZapsQuery } from "@/hooks/nostrQueries/useWorkshopsZapsQuery"
 import { getSatAmountFromInvoice } from "@/utils/lightning";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
 
@@ -11,7 +11,7 @@ const WorkshopTemplate = ({workshop}) => {
     const [zapAmount, setZapAmount] = useState(0);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
-    const { zaps, zapsLoading, zapsError, refetchZaps } = useZapsQuery({event: workshop});
+    const { zaps, zapsLoading, zapsError, refetchZaps } = useWorkshopsZapsQuery({event: workshop});
 
     useEffect(() => {
         if (!zaps || !zaps.length > 0) return;

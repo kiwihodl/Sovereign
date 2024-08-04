@@ -3,14 +3,6 @@ import NDK from "@nostr-dev-kit/ndk";
 
 const NDKContext = createContext(null);
 
-// Define the public key of the author whose events we want to fetch.
-const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY;
-
-// Ensure AUTHOR_PUBKEY is defined
-if (!AUTHOR_PUBKEY) {
-    throw new Error("NEXT_PUBLIC_AUTHOR_PUBKEY is not defined in the environment variables");
-}
-
 const relayUrls = [
     "wss://nos.lol/",
     "wss://relay.damus.io/",

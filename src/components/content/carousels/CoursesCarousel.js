@@ -1,7 +1,6 @@
 import React, { useState, useEffect, use } from 'react';
 import { Carousel } from 'primereact/carousel';
 import { parseCourseEvent } from '@/utils/nostr';
-import { useZapsQuery } from '@/hooks/nostrQueries/useZapsQuery';
 import CourseTemplate from '@/components/content/carousels/templates/CourseTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 import { useCoursesQuery } from '@/hooks/nostrQueries/useCoursesQuery';
@@ -27,29 +26,14 @@ const responsiveOptions = [
 export default function CoursesCarousel() {
     const [processedCourses, setProcessedCourses] = useState([]);
     const { courses, coursesLoading, coursesError, refetchCourses } = useCoursesQuery()
-    const { zaps, zapsLoading, zapsError, refetchZaps } = useZapsQuery({ events: courses })
-
-    useEffect(() => {
-        refetchZaps(courses)
-    }, [courses, refetchZaps]);
 
     useEffect(() => {
         const fetch = async () => {
             try {
-                if (courses && courses.length > 0 && zaps) {
+                if (courses && courses.length > 0) {
                     const processedCourses = courses.map(course => parseCourseEvent(course));
 
-                    let coursesWithZaps = processedCourses.map(course => {
-                        let collectedZaps = []
-                        zaps.forEach(zap => {
-                            if (zap.tags.find(tag => tag[0] === "e" && tag[1] === course.id) || zap.tags.find(tag => tag[0] === "a" && tag[1] === `${course.kind}:${course.id}:${course.d}`)) {
-                                collectedZaps.push(zap)
-                            }
-                        })
-                        return { ...course, zaps: collectedZaps }
-                    })
-
-                    setProcessedCourses(coursesWithZaps);
+                    setProcessedCourses(processedCourses);
                 } else {
                     console.log('No courses fetched or empty array returned');
                 }
@@ -58,7 +42,7 @@ export default function CoursesCarousel() {
             }
         };
         fetch();
-    }, [courses, zaps]);
+    }, [courses]);
 
     if (coursesError) {
         return <div>Error: {coursesError.message}</div>
