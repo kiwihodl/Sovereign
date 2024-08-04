@@ -1,10 +1,9 @@
 import React, { useState, useEffect, use } from 'react';
 import { Carousel } from 'primereact/carousel';
 import { parseCourseEvent } from '@/utils/nostr';
-import { useNostr } from '@/hooks/useNostr';
+import { useZapsQuery } from '@/hooks/nostrQueries/useZapsQuery';
 import CourseTemplate from '@/components/content/carousels/templates/CourseTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
-// import { useNostrQueries } from '@/hooks/useNostrQueries';
 import { useCoursesQuery } from '@/hooks/nostrQueries/useCoursesQuery';
 
 const responsiveOptions = [
@@ -27,35 +26,28 @@ const responsiveOptions = [
 
 export default function CoursesCarousel() {
     const [processedCourses, setProcessedCourses] = useState([]);
-    const { fetchZapsForEvents } = useNostr();
-    // const { courses, coursesError, zapsForEvents, refetchZapsForEvents } = useNostrQueries()
-    const { courses, coursesError, refetchCourses } = useCoursesQuery()
+    const { courses, coursesLoading, coursesError, refetchCourses } = useCoursesQuery()
+    const { zaps, zapsLoading, zapsError, refetchZaps } = useZapsQuery({ events: courses })
+
+    useEffect(() => {
+        refetchZaps(courses)
+    }, [courses, refetchZaps]);
 
     useEffect(() => {
         const fetch = async () => {
             try {
-                if (courses && courses.length > 0) {
-                    console.log('courses:', courses);
-                    // First process the courses to be ready for display
+                if (courses && courses.length > 0 && zaps) {
                     const processedCourses = courses.map(course => parseCourseEvent(course));
 
-                    // Fetch zaps for all processed courses at once
-                    const allZaps = await fetchZapsForEvents(processedCourses);
-                    console.log('allZaps:', allZaps);
-
-                    // Process zaps to associate them with their respective courses
-                    const coursesWithZaps = processedCourses.map(course => {
-                        const relevantZaps = allZaps.filter(zap => {
-                            const eTagMatches = zap.tags.find(tag => tag[0] === 'e' && tag[1] === course.id);
-                            const aTag = zap.tags.find(tag => tag[0] === 'a');
-                            const aTagMatches = aTag && course.d === aTag[1].split(':').pop();
-                            return eTagMatches || aTagMatches;
-                        });
-                        return {
-                            ...course,
-                            zaps: relevantZaps
-                        };
-                    });
+                    let coursesWithZaps = processedCourses.map(course => {
+                        let collectedZaps = []
+                        zaps.forEach(zap => {
+                            if (zap.tags.find(tag => tag[0] === "e" && tag[1] === course.id) || zap.tags.find(tag => tag[0] === "a" && tag[1] === `${course.kind}:${course.id}:${course.d}`)) {
+                                collectedZaps.push(zap)
+                            }
+                        })
+                        return { ...course, zaps: collectedZaps }
+                    })
 
                     setProcessedCourses(coursesWithZaps);
                 } else {
@@ -66,10 +58,14 @@ export default function CoursesCarousel() {
             }
         };
         fetch();
-    }, [courses]);
+    }, [courses, zaps]);
 
     if (coursesError) {
         return <div>Error: {coursesError.message}</div>
+    }
+
+    if (coursesLoading) {
+        return <div>Loading...</div>
     }
 
     return (

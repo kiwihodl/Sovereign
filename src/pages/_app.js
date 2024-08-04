@@ -9,6 +9,7 @@ import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import Sidebar from '@/components/sidebar/Sidebar';
 import { NostrProvider } from '@/context/NostrContext';
+import { NDKProvider } from '@/context/NDKContext';
 import {
     QueryClient,
     QueryClientProvider,
@@ -22,22 +23,24 @@ export default function MyApp({
     return (
         <PrimeReactProvider>
             <NostrProvider>
-                <QueryClientProvider client={queryClient}>
-                    <ToastProvider>
-                        <Layout>
-                            <div className="flex flex-col min-h-screen">
-                                <Navbar />
-                                {/* <div className='flex'> */}
-                                {/* <Sidebar /> */}
-                                {/* <div className='max-w-[100vw] pl-[15vw]'> */}
-                                <div className='max-w-[100vw]'>
-                                    <Component {...pageProps} />
+                <NDKProvider>
+                    <QueryClientProvider client={queryClient}>
+                        <ToastProvider>
+                            <Layout>
+                                <div className="flex flex-col min-h-screen">
+                                    <Navbar />
+                                    {/* <div className='flex'> */}
+                                    {/* <Sidebar /> */}
+                                    {/* <div className='max-w-[100vw] pl-[15vw]'> */}
+                                    <div className='max-w-[100vw]'>
+                                        <Component {...pageProps} />
+                                    </div>
+                                    {/* </div> */}
                                 </div>
-                                {/* </div> */}
-                            </div>
-                        </Layout>
-                    </ToastProvider>
-                </QueryClientProvider>
+                            </Layout>
+                        </ToastProvider>
+                    </QueryClientProvider>
+                </NDKProvider>
             </NostrProvider>
         </PrimeReactProvider>
     );

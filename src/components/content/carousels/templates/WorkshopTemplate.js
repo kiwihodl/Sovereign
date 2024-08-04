@@ -3,28 +3,36 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { useImageProxy } from "@/hooks/useImageProxy";
-import { useNostr } from "@/hooks/useNostr";
+import { useZapsQuery } from "@/hooks/nostrQueries/useZapsQuery";
 import { getSatAmountFromInvoice } from "@/utils/lightning";
+import ZapDisplay from "@/components/zaps/ZapDisplay";
 
 const WorkshopTemplate = ({workshop}) => {
-    const [zapAmount, setZapAmount] = useState(null);
+    const [zapAmount, setZapAmount] = useState(0);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
+    const { zaps, zapsLoading, zapsError, refetchZaps } = useZapsQuery({event: workshop});
 
     useEffect(() => {
-        if (!workshop || !workshop.zaps) return;
+        if (!zaps || !zaps.length > 0) return;
         
         let total = 0;
-        workshop.zaps.forEach((zap) => {
-            const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
-            const invoice = bolt11Tag ? bolt11Tag[1] : null;
+        zaps.forEach((zap) => {
+            // If the zap matches the event or the parameterized event, then add the zap to the total
+            if (zap.tags.find(tag => tag[0] === "e" && tag[1] === workshop.id) || zap.tags.find(tag => tag[0] === "a" && tag[1] === `${workshop.kind}:${workshop.id}:${workshop.d}`)) {
+                const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
+                const invoice = bolt11Tag ? bolt11Tag[1] : null;
             if (invoice) {
                 const amount = getSatAmountFromInvoice(invoice);
                 total += amount;
+                }
             }
         });
         setZapAmount(total);
-    }, [workshop]);
+    }, [zaps, workshop]);
+
+    if (zapsLoading) return <div>Loading...</div>;
+    if (zapsError) return <div>Error: {zapsError}</div>;
 
     return (
         <div
@@ -53,9 +61,7 @@ const WorkshopTemplate = ({workshop}) => {
                     <p className="text-xs text-gray-400">
                         {formatTimestampToHowLongAgo(workshop.published_at)}
                     </p>
-                    <p className="text-xs cursor-pointer">
-                        <i className="pi pi-bolt text-yellow-300"></i> {zapAmount}
-                    </p>
+                    <ZapDisplay zapAmount={zapAmount} event={workshop} />
                 </div>
             </div>
         </div>

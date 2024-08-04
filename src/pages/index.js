@@ -1,11 +1,9 @@
 import Head from 'next/head';
-import React, { useEffect, useCallback } from 'react';
+import React from 'react';
 import CoursesCarousel from '@/components/content/carousels/CoursesCarousel';
 import WorkshopsCarousel from '@/components/content/carousels/WorkshopsCarousel';
 import HeroBanner from '@/components/banner/HeroBanner';
 import ResourcesCarousel from '@/components/content/carousels/ResourcesCarousel';
-import { useLocalStorageWithEffect } from '@/hooks/useLocalStorage';
-import axios from 'axios';
 
 export default function Home() {
 
@@ -20,8 +18,8 @@ export default function Home() {
       <main>
         <HeroBanner />
         <CoursesCarousel />
-        <WorkshopsCarousel />
-        <ResourcesCarousel />
+        {/* <WorkshopsCarousel />
+        <ResourcesCarousel /> */}
       </main>
     </>
   );

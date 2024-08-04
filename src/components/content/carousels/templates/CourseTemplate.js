@@ -3,20 +3,20 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { useImageProxy } from "@/hooks/useImageProxy";
-import { useNostr } from "@/hooks/useNostr";
 import { getSatAmountFromInvoice } from "@/utils/lightning";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
 
-const CourseTemplate = ({course}) => {
-    const [zapAmount, setZapAmount] = useState(null);
+const CourseTemplate = ({ course }) => {
+    const [zapAmount, setZapAmount] = useState(0);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
 
     useEffect(() => {
-        if (!course || !course.zaps) return;
+        if (!course?.zaps || !course?.zaps.length > 0) return;
 
         let total = 0;
         course.zaps.forEach((zap) => {
+            // If the zap matches the event or the parameterized event, then add the zap to the total
             const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
             const invoice = bolt11Tag ? bolt11Tag[1] : null;
             if (invoice) {

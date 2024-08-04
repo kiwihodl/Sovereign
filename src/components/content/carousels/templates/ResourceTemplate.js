@@ -3,39 +3,41 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { useImageProxy } from "@/hooks/useImageProxy";
-import { useNostr } from "@/hooks/useNostr";
+import { useZapsQuery } from "@/hooks/nostrQueries/useZapsQuery";
 import { getSatAmountFromInvoice } from "@/utils/lightning";
+import ZapDisplay from "@/components/zaps/ZapDisplay";
 
-const ResourceTemplate = ({resource}) => {
-  const [zapAmount, setZapAmount] = useState(null);
+const ResourceTemplate = ({ resource }) => {
+  const [zapAmount, setZapAmount] = useState(0);
+
   const router = useRouter();
   const { returnImageProxy } = useImageProxy();
 
   useEffect(() => {
-    if (!resource || !resource.zaps) return;
-    
+    if (!resource?.zaps || !resource?.zaps.length > 0) return;
+
     let total = 0;
     resource.zaps.forEach((zap) => {
+      // If the zap matches the event or the parameterized event, then add the zap to the total
         const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
         const invoice = bolt11Tag ? bolt11Tag[1] : null;
         if (invoice) {
-            const amount = getSatAmountFromInvoice(invoice);
-            total += amount;
+          const amount = getSatAmountFromInvoice(invoice);
+          total += amount;
         }
     });
     setZapAmount(total);
-}, [resource]);
-
+  }, [resource]);
 
   return (
     <div
       className="flex flex-col items-center mx-auto px-4 mt-8 rounded-md"
     >
-        {/* Wrap the image in a div with a relative class with a padding-bottom of 56.25% representing the aspect ratio of 16:9 */}
-      <div 
+      {/* Wrap the image in a div with a relative class with a padding-bottom of 56.25% representing the aspect ratio of 16:9 */}
+      <div
         onClick={() => router.push(`/details/${resource.id}`)}
         className="relative w-full h-0 hover:opacity-80 transition-opacity duration-300 cursor-pointer"
-        style={{ paddingBottom: "56.25%"}}
+        style={{ paddingBottom: "56.25%" }}
       >
         <Image
           alt="resource thumbnail"
@@ -55,9 +57,7 @@ const ResourceTemplate = ({resource}) => {
           <p className="text-xs text-gray-400">
             {formatTimestampToHowLongAgo(resource.published_at)}
           </p>
-          <p className="text-xs cursor-pointer">
-          <i className="pi pi-bolt text-yellow-300"></i> {zapAmount}
-          </p>
+          <ZapDisplay zapAmount={zapAmount} event={resource} />
         </div>
       </div>
     </div>

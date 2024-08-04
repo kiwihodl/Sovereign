@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Carousel } from 'primereact/carousel';
-import { useNostr } from '@/hooks/useNostr';
 import { parseEvent } from '@/utils/nostr';
 import ResourceTemplate from '@/components/content/carousels/templates/ResourceTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
-import { useNostrQueries } from '@/hooks/useNostrQueries';
-import { useResourcesQuery } from '@/hooks/useResourcesQuery';
+import { useResourcesQuery } from '@/hooks/nostrQueries/useResourcesQuery';
+import { useZapsQuery } from '@/hooks/nostrQueries/useZapsQuery';
 
 const responsiveOptions = [
     {
@@ -27,36 +26,32 @@ const responsiveOptions = [
 
 export default function ResourcesCarousel() {
     const [processedResources, setProcessedResources] = useState([]);
-    const { fetchZapsForEvents } = useNostr();
-    // const { resources, resourcesError, refetchResources } = useNostrQueries()
-    const { resources, resourcesError, refetchResources } = useResourcesQuery()
+    const { resources, resourcesLoading, resourcesError, refetchResources } = useResourcesQuery()
+    const { zaps, zapsLoading, zapsError, refetchZaps } = useZapsQuery({ events: resources })
+
+    useEffect(() => {
+        if (resources && resources.length > 0) {
+            refetchZaps(resources)
+        }
+    }, [resources, refetchZaps]);
 
     useEffect(() => {
         const fetch = async () => {
             try {
-                if (resources && resources.length > 0) {
+                if (resources && resources.length > 0 && zaps) {
                     const processedResources = resources.map(resource => parseEvent(resource));
 
-                    console.log('processedResources:', processedResources);
-    
-                    const allZaps = await fetchZapsForEvents(processedResources);
-    
-                    const resourcesWithZaps = processedResources.map(resource => {
-                        const relevantZaps = allZaps.filter(zap => {
-                            const eTagMatches = zap.tags.find(tag => tag[0] === 'e' && tag[1] === resource.id);
-                            const aTag = zap.tags.find(tag => tag[0] === 'a');
-                            const aTagMatches = aTag && resource.d === aTag[1].split(':').pop();
-                            return eTagMatches || aTagMatches;
-                        });
-                        return {
-                            ...resource,
-                            zaps: relevantZaps
-                        };
-                    });
-    
+                    let resourcesWithZaps = processedResources.map(resource => {
+                        let collectedZaps = []
+                        zaps.forEach(zap => {
+                            if (zap.tags.find(tag => tag[0] === "e" && tag[1] === resource.id) || zap.tags.find(tag => tag[0] === "a" && tag[1] === `${resource.kind}:${resource.id}:${resource.d}`)) {
+                                collectedZaps.push(zap)
+                            }
+                        })
+                        return { ...resource, zaps: collectedZaps }
+                    })
+
                     setProcessedResources(resourcesWithZaps);
-                } else {
-                    refetchResources();
                 }
             } catch (error) {
                 console.error('Error fetching resources:', error);
@@ -65,10 +60,13 @@ export default function ResourcesCarousel() {
         fetch();
     }, [resources]);
 
+    if (resourcesLoading) {
+        return <div>Loading...</div>
+    }
+
     if (resourcesError) {
         return <div>Error: {resourcesError.message}</div>
     }
-    
 
     return (
         <>

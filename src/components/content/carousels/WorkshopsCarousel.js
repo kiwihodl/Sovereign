@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Carousel } from 'primereact/carousel';
-import { useRouter } from 'next/router';
-import { useImageProxy } from '@/hooks/useImageProxy';
-import { useNostr } from '@/hooks/useNostr';
 import { parseEvent } from '@/utils/nostr';
 import WorkshopTemplate from '@/components/content/carousels/templates/WorkshopTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
-// import { useNostrQueries } from '@/hooks/useNostrQueries';
 import { useWorkshopsQuery } from '@/hooks/nostrQueries/useWorkshopsQuery';
+import { useZapsQuery } from '@/hooks/nostrQueries/useZapsQuery';
 
 const responsiveOptions = [
     {
@@ -29,32 +26,29 @@ const responsiveOptions = [
 
 export default function WorkshopsCarousel() {
     const [processedWorkshops, setProcessedWorkshops] = useState([])
+    const { workshops, workshopsLoading, workshopsError, refetchWorkshops } = useWorkshopsQuery()
+    const { zaps, zapsLoading, zapsError, refetchZaps } = useZapsQuery({ events: workshops })
 
-    // const { workshops, workshopsError } = useNostrQueries()
-    const { workshops, workshopsError, refetchWorkshops } = useWorkshopsQuery()
-    const { fetchZapsForEvents } = useNostr()
+    useEffect(() => {
+        refetchZaps(workshops)
+    }, [workshops, refetchZaps]);
 
     useEffect(() => {
         const fetch = async () => {
             try {
                 console.debug('workshops', workshops);
-                if (workshops && workshops.length > 0) {
+                if (workshops && workshops.length > 0 && zaps) {
                     const processedWorkshops = workshops.map(workshop => parseEvent(workshop));
-    
-                    const allZaps = await fetchZapsForEvents(processedWorkshops);
-    
-                    const workshopsWithZaps = processedWorkshops.map(workshop => {
-                        const relevantZaps = allZaps.filter(zap => {
-                            const eTagMatches = zap.tags.find(tag => tag[0] === 'e' && tag[1] === workshop.id);
-                            const aTag = zap.tags.find(tag => tag[0] === 'a');
-                            const aTagMatches = aTag && workshop.d === aTag[1].split(':').pop();
-                            return eTagMatches || aTagMatches;
-                        });
-                        return {
-                            ...workshop,
-                            zaps: relevantZaps
-                        };
-                    });
+
+                    let workshopsWithZaps = processedWorkshops.map(workshop => {
+                        let collectedZaps = []
+                        zaps.forEach(zap => {
+                            if (zap.tags.find(tag => tag[0] === "e" && tag[1] === workshop.id) || zap.tags.find(tag => tag[0] === "a" && tag[1] === `${workshop.kind}:${workshop.id}:${workshop.d}`)) {
+                                collectedZaps.push(zap)
+                            }   
+                        })
+                        return { ...workshop, zaps: collectedZaps }
+                    })
     
                     setProcessedWorkshops(workshopsWithZaps);
                 } else {
@@ -65,11 +59,10 @@ export default function WorkshopsCarousel() {
             }
         };        
         fetch();
-    }, [workshops]);
+    }, [workshops, zaps]);
 
-     if (workshopsError) {
-        return <div>Error: {workshopsError.message}</div>
-     }
+    if (workshopsLoading) return <div>Loading...</div>;
+    if (workshopsError) return <div>Error: {workshopsError}</div>;
 
     return (
         <>
