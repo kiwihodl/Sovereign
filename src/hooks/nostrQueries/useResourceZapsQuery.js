@@ -1,51 +1,62 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useNDKContext } from '@/context/NDKContext';
 
 export function useResourceZapsQuery({ event }) {
     const [isClient, setIsClient] = useState(false);
+    const [zaps, setZaps] = useState([]);
+    const [zapsLoading, setZapsLoading] = useState(true);
+    const [zapsError, setZapsError] = useState(null);
     const ndk = useNDKContext();
 
     useEffect(() => {
         setIsClient(true);
     }, []);
 
-    const fetchZapsFromNDK = async (event) => {
-        if (!ndk) {
-            console.error('NDK instance is null');
-            return [];
-        }
+    useEffect(() => {
+        if (!isClient || !ndk || !event) return;
 
-        if (!event) {
-            console.error('No event provided');
-            return [];
-        }
+        let subscription = null;
+        let isSubscribed = true;
 
-        try {
-            await ndk.connect();
-            let zaps = [];
+        const fetchZapsFromNDK = async () => {
+            try {
+                await ndk.connect();
+                const uniqueEvents = new Set();
 
-            const filters = [{ kinds: [9735], "#e": [event.id] }, { kinds: [9735], "#a": [`${event.kind}:${event.id}:${event.d}`] }];
+                const filters = [
+                    { kinds: [9735], "#e": [event.id] },
+                    { kinds: [9735], "#a": [`${event.kind}:${event.id}:${event.d}`] }
+                ];
 
-            for (const filter of filters) {
-                const zapEvents = await ndk.fetchEvents(filter);
-                zapEvents.forEach(zap => zaps.push(zap));
+                subscription = ndk.subscribe(filters);
+
+                subscription.on('event', (zap) => {
+                    if (isSubscribed) {
+                        uniqueEvents.add(zap);
+                        setZaps(Array.from(uniqueEvents));
+                    }
+                });
+
+                subscription.on('eose', () => {
+                    setZaps(Array.from(uniqueEvents));
+                    setZapsLoading(false);
+                });
+
+            } catch (error) {
+                setZapsError('Error fetching zaps from NDK: ' + error);
+                setZapsLoading(false);
             }
+        };
 
-            return zaps;
-        } catch (error) {
-            console.error('Error fetching zaps from NDK:', error);
-            return [];
-        }
-    };
+        fetchZapsFromNDK();
 
-    const { data: zaps, isLoading: zapsLoading, error: zapsError, refetch: refetchZaps } = useQuery({
-        queryKey: ['resourceZaps', isClient, event],
-        queryFn: () => fetchZapsFromNDK(event),
-        staleTime: 1000 * 60 * 3, // 3 minutes
-        cacheTime: 1000 * 60 * 60, // 1 hour
-        enabled: isClient,
-    });
+        return () => {
+            isSubscribed = false;
+            if (subscription) {
+                subscription.stop();
+            }
+        };
+    }, [isClient, ndk, event]);
 
-    return { zaps, zapsLoading, zapsError, refetchZaps }
+    return { zaps, zapsLoading, zapsError };
 }

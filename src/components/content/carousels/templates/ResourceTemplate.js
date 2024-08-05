@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
@@ -9,7 +9,7 @@ import ZapDisplay from "@/components/zaps/ZapDisplay";
 
 const ResourceTemplate = ({ resource }) => {
   const [zapAmount, setZapAmount] = useState(0);
-  const { zaps, zapsLoading, zapsError, refetchZaps } = useResourceZapsQuery({ event: resource })
+  const { zaps, zapsLoading, zapsError } = useResourceZapsQuery({ event: resource });
 
   const router = useRouter();
   const { returnImageProxy } = useImageProxy();
@@ -33,7 +33,7 @@ const ResourceTemplate = ({ resource }) => {
   }, [resource, zaps, zapsLoading, zapsError]);
 
   if (zapsLoading) return <div>Loading...</div>;
-    if (zapsError) return <div>Error: {zapsError}</div>;
+  if (zapsError) return <div>Error: {zapsError}</div>;
 
   return (
     <div

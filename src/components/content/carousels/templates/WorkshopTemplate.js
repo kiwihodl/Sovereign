@@ -1,17 +1,17 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { useImageProxy } from "@/hooks/useImageProxy";
-import { useWorkshopsZapsQuery } from "@/hooks/nostrQueries/useWorkshopsZapsQuery"
+import { useWorkshopsZapsQuery } from "@/hooks/nostrQueries/useWorkshopsZapsQuery";
 import { getSatAmountFromInvoice } from "@/utils/lightning";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
 
-const WorkshopTemplate = ({workshop}) => {
+const WorkshopTemplate = ({ workshop }) => {
     const [zapAmount, setZapAmount] = useState(0);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
-    const { zaps, zapsLoading, zapsError, refetchZaps } = useWorkshopsZapsQuery({event: workshop});
+    const { zaps, zapsLoading, zapsError } = useWorkshopsZapsQuery({ event: workshop });
 
     useEffect(() => {
         if (!zaps || zapsLoading || zapsError) return;
@@ -22,9 +22,9 @@ const WorkshopTemplate = ({workshop}) => {
             if (zap.tags.find(tag => tag[0] === "e" && tag[1] === workshop.id) || zap.tags.find(tag => tag[0] === "a" && tag[1] === `${workshop.kind}:${workshop.id}:${workshop.d}`)) {
                 const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
                 const invoice = bolt11Tag ? bolt11Tag[1] : null;
-            if (invoice) {
-                const amount = getSatAmountFromInvoice(invoice);
-                total += amount;
+                if (invoice) {
+                    const amount = getSatAmountFromInvoice(invoice);
+                    total += amount;
                 }
             }
         });
@@ -35,9 +35,7 @@ const WorkshopTemplate = ({workshop}) => {
     if (zapsError) return <div>Error: {zapsError}</div>;
 
     return (
-        <div
-            className="flex flex-col items-center mx-auto px-4 mt-8 rounded-md"
-        >
+        <div className="flex flex-col items-center mx-auto px-4 mt-8 rounded-md">
             <div
                 onClick={() => router.push(`/details/${workshop.id}`)}
                 className="relative w-full h-0 hover:opacity-80 transition-opacity duration-300 cursor-pointer"

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
@@ -11,7 +11,7 @@ const CourseTemplate = ({ course }) => {
     const [zapAmount, setZapAmount] = useState(0);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
-    const { zaps, zapsLoading, zapsError, refetchZaps } = useCoursesZapsQuery({ event: course })
+    const { zaps, zapsLoading, zapsError } = useCoursesZapsQuery({ event: course });
 
     useEffect(() => {
         if (!zaps || zapsLoading || zapsError) return;
@@ -63,8 +63,7 @@ const CourseTemplate = ({ course }) => {
                             formatTimestampToHowLongAgo(course.published_at)
                         ) : (
                             formatTimestampToHowLongAgo(course.created_at)
-                        )
-                        }
+                        )}
                     </p>
                     <ZapDisplay zapAmount={zapAmount} event={course} />
                 </div>
