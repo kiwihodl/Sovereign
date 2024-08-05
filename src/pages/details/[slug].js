@@ -11,6 +11,7 @@ import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import { useNDKContext } from '@/context/NDKContext';
+import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscription';
 import 'primeicons/primeicons.css';
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -32,12 +33,12 @@ export default function Details() {
     const [author, setAuthor] = useState(null);
     const [bitcoinConnect, setBitcoinConnect] = useState(false);
     const [nAddress, setNAddress] = useState(null);
-    const [zaps, setZaps] = useState([]);
     const [zapAmount, setZapAmount] = useState(0);
 
     const ndk = useNDKContext();
     const [user] = useLocalStorageWithEffect('user', {});
     const { returnImageProxy } = useImageProxy();
+    const { zaps, zapsError } = useZapsSubscription({ event: processedEvent });
 
     const router = useRouter();
 
@@ -134,34 +135,6 @@ export default function Details() {
         });
         setZapAmount(total);
     }, [zaps]);
-
-    useEffect(() => {
-        const fetchZaps = async () => {
-            try {
-                const processed = parseEvent(event);
-                await ndk.connect();
-            
-                const filters = [
-                    {
-                        kinds: [9735],
-                        "#e": [processed.id]
-                    },
-                    {
-                        kinds: [9734],
-                        "#a": [`${processed.kind}:${processed.id}:${processed.d}`]
-                    }
-                ]
-
-                const zaps = await ndk.fetchEvents(filters);
-                setZaps(zaps);
-            } catch (error) {
-                console.error('Error fetching zaps:', error);
-            }
-        }
-        if (event && ndk) {
-            fetchZaps();
-        }
-    }, [ndk, event]);
 
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>

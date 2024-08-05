@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { useImageProxy } from "@/hooks/useImageProxy";
-import { useWorkshopsZapsQuery } from "@/hooks/nostrQueries/useWorkshopsZapsQuery";
+import { useWorkshopsZapsQuery } from "@/hooks/nostrQueries/zaps/useWorkshopsZapsQuery";
 import { getSatAmountFromInvoice } from "@/utils/lightning";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
 
@@ -30,8 +30,7 @@ const WorkshopTemplate = ({ workshop }) => {
         });
         setZapAmount(total);
     }, [zaps, workshop, zapsLoading, zapsError]);
-
-    if (zapsLoading) return <div>Loading...</div>;
+    
     if (zapsError) return <div>Error: {zapsError}</div>;
 
     return (
@@ -59,7 +58,7 @@ const WorkshopTemplate = ({ workshop }) => {
                     <p className="text-xs text-gray-400">
                         {formatTimestampToHowLongAgo(workshop.published_at)}
                     </p>
-                    <ZapDisplay zapAmount={zapAmount} event={workshop} />
+                    <ZapDisplay zapAmount={zapAmount} event={workshop} zapsLoading={zapsLoading} />
                 </div>
             </div>
         </div>

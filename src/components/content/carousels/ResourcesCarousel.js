@@ -3,7 +3,7 @@ import { Carousel } from 'primereact/carousel';
 import { parseEvent } from '@/utils/nostr';
 import ResourceTemplate from '@/components/content/carousels/templates/ResourceTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
-import { useResourcesQuery } from '@/hooks/nostrQueries/useResourcesQuery';
+import { useResourcesQuery } from '@/hooks/nostrQueries/content/useResourcesQuery';
 
 const responsiveOptions = [
     {
@@ -42,10 +42,6 @@ export default function ResourcesCarousel() {
         fetch();
     }, [resources]);
 
-    if (resourcesLoading) {
-        return <div>Loading...</div>
-    }
-
     if (resourcesError) {
         return <div>Error: {resourcesError.message}</div>
     }
@@ -53,14 +49,15 @@ export default function ResourcesCarousel() {
     return (
         <>
             <h2 className="ml-[6%] mt-4">Resources</h2>
-            <Carousel value={!processedResources.length > 0 ? [{}, {}, {}] : [...processedResources]}
-                      numVisible={2}
-                      itemTemplate={(item) => 
+            <Carousel 
+                value={resourcesLoading || !processedResources.length ? [{}, {}, {}] : [...processedResources]}
+                numVisible={2}
+                itemTemplate={(item) => 
                         processedResources.length > 0 ? 
                         <ResourceTemplate key={item.id} resource={item} /> : 
                         <TemplateSkeleton key={Math.random()} />
-                    }
-                      responsiveOptions={responsiveOptions} />
+                }
+                responsiveOptions={responsiveOptions} />
         </>
     );
 }

@@ -5,7 +5,7 @@ import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { getSatAmountFromInvoice } from "@/utils/lightning";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
-import { useCoursesZapsQuery } from "@/hooks/nostrQueries/useCoursesZapsQuery";
+import { useCoursesZapsQuery } from "@/hooks/nostrQueries/zaps/useCoursesZapsQuery";
 
 const CourseTemplate = ({ course }) => {
     const [zapAmount, setZapAmount] = useState(0);
@@ -31,7 +31,6 @@ const CourseTemplate = ({ course }) => {
         setZapAmount(total);
     }, [course, zaps, zapsLoading, zapsError]);
 
-    if (zapsLoading) return <div>Loading...</div>;
     if (zapsError) return <div>Error: {zapsError}</div>;
 
     return (
@@ -65,7 +64,7 @@ const CourseTemplate = ({ course }) => {
                             formatTimestampToHowLongAgo(course.created_at)
                         )}
                     </p>
-                    <ZapDisplay zapAmount={zapAmount} event={course} />
+                    <ZapDisplay zapAmount={zapAmount} event={course} zapsLoading={zapsLoading} />
                 </div>
             </div>
         </div>

@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { useImageProxy } from "@/hooks/useImageProxy";
-import { useResourceZapsQuery } from "@/hooks/nostrQueries/useResourceZapsQuery";
+import { useResourceZapsQuery } from "@/hooks/nostrQueries/zaps/useResourceZapsQuery";
 import { getSatAmountFromInvoice } from "@/utils/lightning";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
 
@@ -32,7 +32,6 @@ const ResourceTemplate = ({ resource }) => {
     setZapAmount(total);
   }, [resource, zaps, zapsLoading, zapsError]);
 
-  if (zapsLoading) return <div>Loading...</div>;
   if (zapsError) return <div>Error: {zapsError}</div>;
 
   return (
@@ -63,7 +62,7 @@ const ResourceTemplate = ({ resource }) => {
           <p className="text-xs text-gray-400">
             {formatTimestampToHowLongAgo(resource.published_at)}
           </p>
-          <ZapDisplay zapAmount={zapAmount} event={resource} />
+          <ZapDisplay zapAmount={zapAmount} event={resource} zapsLoading={zapsLoading} />
         </div>
       </div>
     </div>

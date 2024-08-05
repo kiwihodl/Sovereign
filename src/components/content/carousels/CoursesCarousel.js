@@ -3,7 +3,7 @@ import { Carousel } from 'primereact/carousel';
 import { parseCourseEvent } from '@/utils/nostr';
 import CourseTemplate from '@/components/content/carousels/templates/CourseTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
-import { useCoursesQuery } from '@/hooks/nostrQueries/useCoursesQuery';
+import { useCoursesQuery } from '@/hooks/nostrQueries/content/useCoursesQuery';
 
 const responsiveOptions = [
     {
@@ -48,21 +48,17 @@ export default function CoursesCarousel() {
         return <div>Error: {coursesError.message}</div>
     }
 
-    if (coursesLoading) {
-        return <div>Loading...</div>
-    }
-
     return (
         <>
             <h2 className="ml-[6%] mt-4">Courses</h2>
             <div className={"min-h-[384px]"}>
                 <Carousel
-                    value={!processedCourses.length > 0 ? [{}, {}, {}] : [...processedCourses]}
+                    value={coursesLoading || !processedCourses.length ? [{}, {}, {}] : [...processedCourses]}
                     numVisible={2}
                     itemTemplate={(item) => 
-                        processedCourses.length > 0 ? 
-                        <CourseTemplate key={item.id} course={item} /> : 
-                        <TemplateSkeleton key={Math.random()} />
+                        !processedCourses.length ? 
+                        <TemplateSkeleton key={Math.random()} /> : 
+                        <CourseTemplate key={item.id} course={item} />
                     }
                     responsiveOptions={responsiveOptions} />
             </div>
