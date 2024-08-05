@@ -34,6 +34,7 @@ export function useZapsSubscription({ event }) {
                     if (isSubscribed) {
                         uniqueEvents.add(zap);
                         setZaps(Array.from(uniqueEvents));
+                        setZapsLoading(false);
                     }
                 });
 

@@ -3,13 +3,13 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { useImageProxy } from "@/hooks/useImageProxy";
-import { useResourceZapsQuery } from "@/hooks/nostrQueries/zaps/useResourceZapsQuery";
+import { useZapsQuery } from "@/hooks/nostrQueries/zaps/useZapsQuery";
 import { getSatAmountFromInvoice } from "@/utils/lightning";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
 
 const ResourceTemplate = ({ resource }) => {
-  const [zapAmount, setZapAmount] = useState(0);
-  const { zaps, zapsLoading, zapsError } = useResourceZapsQuery({ event: resource });
+  const [zapAmount, setZapAmount] = useState(null);
+  const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: resource, type: "resource" });
 
   const router = useRouter();
   const { returnImageProxy } = useImageProxy();

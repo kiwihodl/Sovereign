@@ -43,7 +43,7 @@ const { data: workshops, isLoading: workshopsLoading, error: workshopsError, ref
     queryKey: ['workshops', isClient],
     queryFn: fetchWorkshopsFromNDK,
     staleTime: 1000 * 60 * 30, // 30 minutes
-    cacheTime: 1000 * 60 * 60, // 1 hour
+    refetchInterval: 1000 * 60 * 30, // 30 minutes
     enabled: isClient,
   })
 

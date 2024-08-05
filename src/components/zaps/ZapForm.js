@@ -2,6 +2,7 @@ import React from "react";
 import { nip19 } from "nostr-tools";
 
 const ZapForm = ({ event }) => {
+    console.log('event', event);
     const nAddress = nip19.naddrEncode({
         kind: event?.kind,
         pubkey: event?.pubkey,

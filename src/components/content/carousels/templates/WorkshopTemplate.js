@@ -3,18 +3,18 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { useImageProxy } from "@/hooks/useImageProxy";
-import { useWorkshopsZapsQuery } from "@/hooks/nostrQueries/zaps/useWorkshopsZapsQuery";
+import { useZapsQuery } from "@/hooks/nostrQueries/zaps/useZapsQuery";
 import { getSatAmountFromInvoice } from "@/utils/lightning";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
 
 const WorkshopTemplate = ({ workshop }) => {
-    const [zapAmount, setZapAmount] = useState(0);
+    const [zapAmount, setZapAmount] = useState(null);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
-    const { zaps, zapsLoading, zapsError } = useWorkshopsZapsQuery({ event: workshop });
+    const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: workshop, type: "workshop" });
 
     useEffect(() => {
-        if (!zaps || zapsLoading || zapsError) return;
+        if (zapsLoading || !zaps) return;
 
         let total = 0;
         zaps.forEach((zap) => {
@@ -28,13 +28,15 @@ const WorkshopTemplate = ({ workshop }) => {
                 }
             }
         });
+
         setZapAmount(total);
     }, [zaps, workshop, zapsLoading, zapsError]);
-    
+
     if (zapsError) return <div>Error: {zapsError}</div>;
 
     return (
         <div className="flex flex-col items-center mx-auto px-4 mt-8 rounded-md">
+            {/* Wrap the image in a div with a relative class with a padding-bottom of 56.25% representing the aspect ratio of 16:9 */}
             <div
                 onClick={() => router.push(`/details/${workshop.id}`)}
                 className="relative w-full h-0 hover:opacity-80 transition-opacity duration-300 cursor-pointer"

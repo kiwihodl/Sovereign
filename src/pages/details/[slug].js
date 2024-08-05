@@ -38,7 +38,7 @@ export default function Details() {
     const ndk = useNDKContext();
     const [user] = useLocalStorageWithEffect('user', {});
     const { returnImageProxy } = useImageProxy();
-    const { zaps, zapsError } = useZapsSubscription({ event: processedEvent });
+    const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: processedEvent });
 
     const router = useRouter();
 
@@ -105,8 +105,8 @@ export default function Details() {
 
     useEffect(() => {
         if (event) {
-            const { id, pubkey, content, title, summary, image, published_at, d, topics } = parseEvent(event);
-            setProcessedEvent({ id, pubkey, content, title, summary, image, published_at, d, topics });
+            const parsedEvent = parseEvent(event);
+            setProcessedEvent(parsedEvent);
         }
     }, [event]);
 
@@ -184,7 +184,7 @@ export default function Details() {
                                     </div>
                                 ) : (
                                     <div className="w-full flex justify-end">
-                                        <ZapDisplay zapAmount={zapAmount} event={processedEvent} />
+                                        <ZapDisplay zapAmount={zapAmount} event={processedEvent} zapsLoading={zapsLoading} />
                                     </div>
                                 )}
                             </div>

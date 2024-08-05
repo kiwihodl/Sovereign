@@ -41,12 +41,12 @@ const WorkshopForm = ({ draft = null }) => {
         // Check if it's a YouTube video
         if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
             const videoId = videoUrl.split('v=')[1] || videoUrl.split('/').pop();
-            embedCode = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+            embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://www.youtube.com/embed/${videoId}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
         }
         // Check if it's a Vimeo video
         else if (videoUrl.includes('vimeo.com')) {
             const videoId = videoUrl.split('/').pop();
-            embedCode = `<iframe width="560" height="315" src="https://player.vimeo.com/video/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+            embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://player.vimeo.com/video/${videoId}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
         }
         // Add more conditions here for other video services
 

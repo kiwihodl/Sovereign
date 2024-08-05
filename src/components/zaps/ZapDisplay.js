@@ -12,7 +12,7 @@ const ZapDisplay = ({ zapAmount, event, zapsLoading }) => {
                 {zapsLoading ? (
                     <ProgressSpinner style={{width: '20px', height: '20px'}} strokeWidth="8" animationDuration=".5s" />
                 ) : (
-                    zapAmount
+                    zapAmount !== null ? zapAmount : <ProgressSpinner style={{width: '20px', height: '20px'}} strokeWidth="8" animationDuration=".5s" />
                 )}
             </span>
             <OverlayPanel className='w-[40%] h-[40%]' ref={op}>
