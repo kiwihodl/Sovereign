@@ -38,7 +38,6 @@ export default function Details() {
     const [zapAmount, setZapAmount] = useState(null);
     const [paidResource, setPaidResource] = useState(false);
     const [decryptedContent, setDecryptedContent] = useState(null);
-    // const [user, setUser] = useState(null);
 
     const ndk = useNDKContext();
     const [user] = useLocalStorageWithEffect('user', {});
@@ -78,7 +77,7 @@ export default function Details() {
         }
     }
         decryptContent();
-    }, [user, paidResource]);
+    }, [user, paidResource, processedEvent]);
 
     useEffect(() => {
         if (router.isReady) {

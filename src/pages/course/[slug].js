@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/router";
-import { useNostr } from "@/hooks/useNostr";
 import { parseCourseEvent, parseEvent, findKind0Fields } from "@/utils/nostr";
 import CourseDetails from "@/components/course/CourseDetails";
 import CourseLesson from "@/components/course/CourseLesson";
 import dynamic from 'next/dynamic';
+import { useNDKContext } from "@/context/NDKContext";
+
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
     {
@@ -18,58 +19,81 @@ const Course = () => {
     const [lessons, setLessons] = useState([]);
 
     const router = useRouter();
-    const { fetchSingleEvent, fetchSingleNaddrEvent, fetchKind0 } = useNostr();
+    const ndk = useNDKContext();
 
-    const { slug } = router.query;
-
-    const fetchAuthor = async (pubkey) => {
-        const author = await fetchKind0(pubkey);
-        const fields = await findKind0Fields(author);
+    const fetchAuthor = useCallback(async (pubkey) => {
+        const author = await ndk.getUser({ pubkey });
+        const profile = await author.fetchProfile();
+        const fields = await findKind0Fields(profile);
         if (fields) {
             return fields;
         }
-    }
+    }, [ndk]);
 
     useEffect(() => {
-        const getCourse = async () => {
-            if (slug) {
-                const fetchedCourse = await fetchSingleEvent(slug);
-                const formattedCourse = parseCourseEvent(fetchedCourse);
-                const aTags = formattedCourse.tags.filter(tag => tag[0] === 'a');
-                setCourse(formattedCourse);
-                if (aTags.length > 0) {
-                    const lessonIds = aTags.map(tag => tag[1]);
-                    setLessonIds(lessonIds);
-                }
-            }
-        };
+        if (router.isReady) {
+            const { slug } = router.query;
 
-        if (slug && !course) {
-            getCourse();
+            const fetchCourse = async (slug) => {
+                try {
+                    await ndk.connect();
+
+                    const filter = {
+                        ids: [slug]
+                    }
+
+                    const event = await ndk.fetchEvent(filter);
+
+                    if (event) {
+                        const author = await fetchAuthor(event.pubkey);
+                        const aTags = event.tags.filter(tag => tag[0] === 'a');
+                        const lessonIds = aTags.map(tag => tag[1].split(':')[2]);
+                        setLessonIds(lessonIds);
+                        const parsedCourse = {
+                            ...parseCourseEvent(event),
+                            author
+                        };
+                        setCourse(parsedCourse);
+                    }
+                } catch (error) {
+                    console.error('Error fetching event:', error);
+                }
+            };
+            if (ndk) {
+                fetchCourse(slug);
+            }
         }
-    }, [slug]);
+    }, [router.isReady, router.query, ndk, fetchAuthor]);
 
     useEffect(() => {
         if (lessonIds.length > 0) {
 
             const fetchLesson = async (lessonId) => {
                 try {
-                    const l = await fetchSingleNaddrEvent(lessonId.split(':')[2]);
-                    const author = await fetchAuthor(l.pubkey);
-                    const parsedLesson = parseEvent(l);
-                    const lessonObj = {
-                        ...parsedLesson,
-                        author
+                    await ndk.connect();
+
+                    const filter = {
+                        "#d": [lessonId]
                     }
-                    setLessons(prev => [...prev, lessonObj]);
+
+                    const event = await ndk.fetchEvent(filter);
+
+                    if (event) {
+                        const author = await fetchAuthor(event.pubkey);
+                        const parsedLesson = {
+                            ...parseEvent(event),
+                            author
+                        };
+                        setLessons(prev => [...prev, parsedLesson]);
+                    }
                 } catch (error) {
-                    console.error('Error fetching lesson:', error);
+                    console.error('Error fetching event:', error);
                 }
-            }
+            };
 
             lessonIds.forEach(lessonId => fetchLesson(lessonId));
         }
-    }, [lessonIds]);
+    }, [lessonIds, ndk, fetchAuthor]);
 
     return (
         <>

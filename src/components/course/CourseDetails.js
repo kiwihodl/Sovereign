@@ -1,8 +1,5 @@
-"use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { useNostr } from '@/hooks/useNostr';
-import { findKind0Fields } from '@/utils/nostr';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import ZapDisplay from '@/components/zaps/ZapDisplay';
 import { getSatAmountFromInvoice } from '@/utils/lightning';
@@ -12,7 +9,11 @@ import { useLocalStorageWithEffect } from '@/hooks/useLocalStorage';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
+import { useNDKContext } from "@/context/NDKContext";
+import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscription';
+import { findKind0Fields } from '@/utils/nostr';
 import 'primeicons/primeicons.css';
+
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
     {
@@ -27,25 +28,36 @@ const BitcoinConnectPayButton = dynamic(
     }
 );
 
-export default function CourseDetails({processedEvent}) {
+export default function CourseDetails({ processedEvent }) {
     const [author, setAuthor] = useState(null);
     const [bitcoinConnect, setBitcoinConnect] = useState(false);
-    const [nAddress, setNAddress] = useState(null);
-    const [user] = useLocalStorageWithEffect('user', {});
-    const [zaps, setZaps] = useState([]);
+    const [nAddress, setNAddress] = useState(null);    
     const [zapAmount, setZapAmount] = useState(0);
-    const { returnImageProxy } = useImageProxy();
-    const { fetchKind0, zapEvent, fetchZapsForEvent } = useNostr();
 
+    const [user] = useLocalStorageWithEffect('user', {});
+    const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: processedEvent });
+    const { returnImageProxy } = useImageProxy();
     const router = useRouter();
+    const ndk = useNDKContext();
 
     const handleZapEvent = async () => {
         if (!processedEvent) return;
 
+        // Update zap event logic if necessary for NDK
         const response = await zapEvent(processedEvent);
 
         console.log('zap response:', response);
-    }
+    };
+
+    const fetchAuthor = useCallback(async (pubkey) => {
+        const author = await ndk.getUser({ pubkey });
+        const profile = await author.fetchProfile();
+        const fields = await findKind0Fields(profile);
+        console.log('fields:', fields);
+        if (fields) {
+            setAuthor(fields);
+        }
+    }, [ndk]);
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -58,18 +70,10 @@ export default function CourseDetails({processedEvent}) {
     }, []);
 
     useEffect(() => {
-        const fetchAuthor = async (pubkey) => {
-            const author = await fetchKind0(pubkey);
-            const fields = await findKind0Fields(author);
-            console.log('fields:', fields);
-            if (fields) {
-                setAuthor(fields);
-            }
-        }
         if (processedEvent) {
             fetchAuthor(processedEvent.pubkey);
         }
-    }, [fetchKind0, processedEvent]);
+    }, [fetchAuthor, processedEvent]);
 
     useEffect(() => {
         if (processedEvent?.d) {
@@ -84,7 +88,7 @@ export default function CourseDetails({processedEvent}) {
 
     useEffect(() => {
         if (!zaps || zaps.length === 0) return;
-        
+
         let total = 0;
         zaps.forEach((zap) => {
             const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
@@ -97,16 +101,6 @@ export default function CourseDetails({processedEvent}) {
         setZapAmount(total);
     }, [zaps]);
 
-    useEffect(() => {
-        const fetchZaps = async () => {
-            if (processedEvent) {
-                const zaps = await fetchZapsForEvent(processedEvent);
-                setZaps(zaps);
-            }
-        }
-        fetchZaps();
-    }, [fetchZapsForEvent, processedEvent]);
-
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
             <div className='w-full flex flex-row justify-between max-tab:flex-col max-mob:flex-col'>
@@ -118,8 +112,7 @@ export default function CourseDetails({processedEvent}) {
                                 processedEvent.topics.map((topic, index) => (
                                     <Tag className='mr-2 text-white' key={index} value={topic}></Tag>
                                 ))
-                            )
-                            }
+                            )}
                         </div>
                         <h1 className='text-4xl mt-6'>{processedEvent?.title}</h1>
                         <p className='text-xl mt-6'>{processedEvent?.summary}</p>
@@ -134,7 +127,7 @@ export default function CourseDetails({processedEvent}) {
                             <p className='text-lg'>
                                 Created by{' '}
                                 <a rel='noreferrer noopener' target='_blank' className='text-blue-500 hover:underline'>
-                                    {author?.username}
+                                    {author?.username || author?.name || author?.pubkey}
                                 </a>
                             </p>
                         </div>
@@ -155,7 +148,7 @@ export default function CourseDetails({processedEvent}) {
                                     </div>
                                 ) : (
                                     <div className='w-full flex justify-end'>
-                                        <ZapDisplay zapAmount={zapAmount} event={processedEvent} />
+                                        <ZapDisplay zapAmount={zapAmount} event={processedEvent} zapsLoading={zapsLoading} />
                                     </div>
                                 )}
                             </div>

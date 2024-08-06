@@ -20,9 +20,6 @@ export function useZapsQuery({ event, type }) {
             ];
 
             const events = await ndk.fetchEvents(filters, { closeOnEose: true });
-            if (event.id === "f679183f0e66878142186cf7d0ae44ab137dabed1dfcb28a609472afbb7c8d51") {
-                console.log('events', events);
-            }
             return events;
         } catch (error) {
             console.error('Error fetching zaps from NDK:', error);

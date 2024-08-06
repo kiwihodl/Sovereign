@@ -2,12 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Tag } from "primereact/tag";
 import Image from "next/image";
 import { useImageProxy } from "@/hooks/useImageProxy";
-import { useNostr } from "@/hooks/useNostr";
 import { getSatAmountFromInvoice } from "@/utils/lightning";
-import { parseEvent } from "@/utils/nostr";
-import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
 import dynamic from "next/dynamic";
+import { useZapsQuery } from "@/hooks/nostrQueries/zaps/useZapsQuery";
 
 const BitcoinConnectPayButton = dynamic(
     () => import('@getalby/bitcoin-connect-react').then((mod) => mod.PayButton),
@@ -25,10 +23,9 @@ const MDDisplay = dynamic(
 
 const CourseLesson = ({ lesson, course }) => {
     const [bitcoinConnect, setBitcoinConnect] = useState(false);
-    const [zaps, setZaps] = useState([]);
     const [zapAmount, setZapAmount] = useState(0);
 
-    const { fetchZapsForEvent } = useNostr();
+    const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: lesson, type: "lesson" });
     const { returnImageProxy } = useImageProxy();
 
     useEffect(() => {
@@ -46,29 +43,22 @@ const CourseLesson = ({ lesson, course }) => {
     }
 
     useEffect(() => {
-        if (!zaps || zaps.length === 0) return;
-        
+        if (!zaps || zapsLoading || zapsError) return;
+
         let total = 0;
         zaps.forEach((zap) => {
-            const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
-            const invoice = bolt11Tag ? bolt11Tag[1] : null;
-            if (invoice) {
-                const amount = getSatAmountFromInvoice(invoice);
-                total += amount;
+            if (zap.tags.find(tag => tag[0] === "e" && tag[1] === lesson.id) || zap.tags.find(tag => tag[0] === "a" && tag[1] === `${lesson.kind}:${lesson.id}:${lesson.d}`)) {
+                const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
+                const invoice = bolt11Tag ? bolt11Tag[1] : null;
+                if (invoice) {
+                    const amount = getSatAmountFromInvoice(invoice);
+                    total += amount;
+                }
             }
         });
         setZapAmount(total);
-    }, [zaps]);
+    }, [zaps, zapsLoading, zapsError]);
 
-    useEffect(() => {
-        const fetchZaps = async () => {
-            if (lesson) {
-                const zaps = await fetchZapsForEvent(lesson);
-                setZaps(zaps);
-            }
-        }
-        fetchZaps();
-    }, [fetchZapsForEvent, lesson]);
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
             <div className='w-full flex flex-row justify-between max-tab:flex-col max-mob:flex-col'>
@@ -79,8 +69,7 @@ const CourseLesson = ({ lesson, course }) => {
                                 lesson.topics.map((topic, index) => (
                                     <Tag className='mr-2 text-white' key={index} value={topic}></Tag>
                                 ))
-                            )
-                            }
+                            )}
                         </div>
                         <h1 className='text-4xl mt-6'>{lesson?.title}</h1>
                         <p className='text-xl mt-6'>{lesson?.summary}</p>
@@ -95,7 +84,7 @@ const CourseLesson = ({ lesson, course }) => {
                             <p className='text-lg'>
                                 Created by{' '}
                                 <a rel='noreferrer noopener' target='_blank' className='text-blue-500 hover:underline'>
-                                    {lesson.author?.username}
+                                    {lesson.author?.username || lesson.author?.name || lesson.author?.pubkey}
                                 </a>
                             </p>
                         </div>
@@ -116,7 +105,7 @@ const CourseLesson = ({ lesson, course }) => {
                                     </div>
                                 ) : (
                                     <div className="w-full flex justify-end">
-                                        <ZapDisplay zapAmount={zapAmount} event={parseEvent(course)} />
+                                        <ZapDisplay zapAmount={zapAmount} event={lesson} zapsLoading={zapsLoading} />
                                     </div>
                                 )}
                             </div>
