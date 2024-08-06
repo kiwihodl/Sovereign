@@ -20,6 +20,9 @@ export function useZapsQuery({ event, type }) {
             ];
 
             const events = await ndk.fetchEvents(filters, { closeOnEose: true });
+            if (event.id === "f679183f0e66878142186cf7d0ae44ab137dabed1dfcb28a609472afbb7c8d51") {
+                console.log('events', events);
+            }
             return events;
         } catch (error) {
             console.error('Error fetching zaps from NDK:', error);
@@ -29,7 +32,7 @@ export function useZapsQuery({ event, type }) {
 
     const { data: zaps, isLoading: zapsLoading, error: zapsError, refetch: refetchZaps } = useQuery({
         queryKey: ['zaps', isClient, event, type],
-        queryFn: () => fetchZaps(event),
+        queryFn: async () => await fetchZaps(event),
         staleTime: 10000, // 10 seconds
         refetchInterval: 10000, // 10 seconds
         enabled: isClient,

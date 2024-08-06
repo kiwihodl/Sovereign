@@ -33,7 +33,7 @@ export default function Details() {
     const [author, setAuthor] = useState(null);
     const [bitcoinConnect, setBitcoinConnect] = useState(false);
     const [nAddress, setNAddress] = useState(null);
-    const [zapAmount, setZapAmount] = useState(0);
+    const [zapAmount, setZapAmount] = useState(null);
 
     const ndk = useNDKContext();
     const [user] = useLocalStorageWithEffect('user', {});
@@ -122,7 +122,7 @@ export default function Details() {
     }, [processedEvent]);
 
     useEffect(() => {
-        if (!zaps || zaps.length === 0) return;
+        if (!zaps) return;
 
         let total = 0;
         zaps.forEach((zap) => {
@@ -133,6 +133,7 @@ export default function Details() {
                 total += amount;
             }
         });
+
         setZapAmount(total);
     }, [zaps]);
 

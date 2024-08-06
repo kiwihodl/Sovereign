@@ -16,7 +16,6 @@ export function useZapsSubscription({ event }) {
         if (!isClient || !ndk || !event) return;
 
         let subscription = null;
-        let isSubscribed = true;
 
         const fetchZapsFromNDK = async () => {
             try {
@@ -31,17 +30,23 @@ export function useZapsSubscription({ event }) {
                 subscription = ndk.subscribe(filters);
 
                 subscription.on('event', (zap) => {
-                    if (isSubscribed) {
-                        uniqueEvents.add(zap);
-                        setZaps(Array.from(uniqueEvents));
-                        setZapsLoading(false);
-                    }
+                    uniqueEvents.add(zap);
+                    setZaps(Array.from(uniqueEvents));
+                    setZapsLoading(false);
                 });
 
                 subscription.on('eose', () => {
                     setZaps(Array.from(uniqueEvents));
                     setZapsLoading(false);
                 });
+
+                // if there are no zaps for 15 seconds and no eose to stop loading
+                setTimeout(() => {
+                    if (uniqueEvents.size === 0) {
+                        setZapsLoading(false);
+                        setZaps(Array.from(uniqueEvents));
+                    }
+                }, 15000);
 
             } catch (error) {
                 setZapsError('Error fetching zaps from NDK: ' + error);
@@ -52,7 +57,6 @@ export function useZapsSubscription({ event }) {
         fetchZapsFromNDK();
 
         return () => {
-            isSubscribed = false;
             if (subscription) {
                 subscription.stop();
             }
