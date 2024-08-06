@@ -1,5 +1,6 @@
-import { useCallback, useContext, useRef } from 'react';
+import { useState, useEffect, useCallback, useContext, useRef } from 'react';
 import axios from 'axios';
+import { nip57, nip19 } from 'nostr-tools';
 import { NostrContext } from '@/context/NostrContext';
 import { lnurlEncode } from '@/utils/lnurl';
 import { parseEvent } from '@/utils/nostr';
@@ -14,6 +15,8 @@ const defaultRelays = [
     "wss://relay.mutinywallet.com/",
     "wss://relay.primal.net/"
 ];
+
+const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY;
 
 export function useNostr() {
     const pool = useContext(NostrContext);
@@ -363,6 +366,117 @@ export function useNostr() {
         [fetchKind0]
     );
 
+    const fetchResources = useCallback(async () => {
+        const filter = [{ kinds: [30023, 30402], authors: [AUTHOR_PUBKEY] }];
+        const hasRequiredTags = (tags) => {
+            const hasPlebDevs = tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
+            const hasResource = tags.some(([tag, value]) => tag === "t" && value === "resource");
+            return hasPlebDevs && hasResource;
+        };
+
+        return new Promise((resolve, reject) => {
+            let resources = [];
+            const subscription = subscribe(
+                filter,
+                {
+                    onevent: (event) => {
+                        if (hasRequiredTags(event.tags)) {
+                            resources.push(event);
+                        }
+                    },
+                    onerror: (error) => {
+                        console.error('Error fetching resources:', error);
+                        // Don't resolve here, just log the error
+                    },
+                    onclose: () => {
+                        // Don't resolve here either
+                    },
+                },
+                2000 // Adjust the timeout value as needed
+            );
+
+            // Set a timeout to resolve the promise after collecting events
+            setTimeout(() => {
+                subscription?.close();
+                resolve(resources);
+            }, 2000); // Adjust the timeout value as needed
+        });
+    }, [subscribe]);
+
+    const fetchWorkshops = useCallback(async () => {
+        const filter = [{ kinds: [30023, 30402], authors: [AUTHOR_PUBKEY] }];
+        const hasRequiredTags = (tags) => {
+            const hasPlebDevs = tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
+            const hasWorkshop = tags.some(([tag, value]) => tag === "t" && value === "workshop");
+            return hasPlebDevs && hasWorkshop;
+        };
+
+        return new Promise((resolve, reject) => {
+            let workshops = [];
+            const subscription = subscribe(
+                filter,
+                {
+                    onevent: (event) => {
+                        if (hasRequiredTags(event.tags)) {
+                            workshops.push(event);
+                        }
+                    },
+                    onerror: (error) => {
+                        console.error('Error fetching workshops:', error);
+                        // Don't resolve here, just log the error
+                    },
+                    onclose: () => {
+                        // Don't resolve here either
+                    },
+                },
+                2000 // Adjust the timeout value as needed
+            );
+
+            setTimeout(() => {
+                subscription?.close();
+                resolve(workshops);
+            }, 2000); // Adjust the timeout value as needed
+        });
+    }, [subscribe]);
+
+    const fetchCourses = useCallback(async () => {
+        const filter = [{ kinds: [30004], authors: [AUTHOR_PUBKEY] }];
+        // Do we need required tags for courses? community instead?
+        // const hasRequiredTags = (tags) => {
+        //     const hasPlebDevs = tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
+        //     const hasCourse = tags.some(([tag, value]) => tag === "t" && value === "course");
+        //     return hasPlebDevs && hasCourse;
+        // };
+
+        return new Promise((resolve, reject) => {
+            let courses = [];
+            const subscription = subscribe(
+                filter,
+                {
+                    onevent: (event) => {
+                        // if (hasRequiredTags(event.tags)) {
+                            // courses.push(event);
+                        // }
+                        courses.push(event);
+                    },
+                    onerror: (error) => {
+                        console.error('Error fetching courses:', error);
+                        // Don't resolve here, just log the error
+                    },
+                    onclose: () => {
+                        // Don't resolve here either
+                    },
+                },
+                2000 // Adjust the timeout value as needed
+            );
+
+            setTimeout(() => {
+                subscription?.close();
+                resolve(courses);
+            }, 2000); // Adjust the timeout value as needed
+        });
+    }, [subscribe]);
+
     const publishResource = useCallback(
         async (resourceEvent) => {
             const published = await publish(resourceEvent);
@@ -447,5 +561,5 @@ export function useNostr() {
         [publish]
     );
 
-    return { subscribe, publish, fetchSingleEvent, fetchSingleNaddrEvent, fetchZapsForEvent, fetchKind0, zapEvent, fetchZapsForEvents, publishResource, publishCourse };
+    return { subscribe, publish, fetchSingleEvent, fetchSingleNaddrEvent, fetchZapsForEvent, fetchKind0, fetchResources, fetchWorkshops, fetchCourses, zapEvent, fetchZapsForEvents, publishResource, publishCourse };
 }

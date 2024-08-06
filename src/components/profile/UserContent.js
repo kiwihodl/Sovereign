@@ -1,95 +1,104 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useRouter } from "next/router";
 import { Button } from "primereact/button";
 import MenuTab from "@/components/menutab/MenuTab";
 import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
-import { useNostr } from "@/hooks/useNostr";
+import { useCoursesQuery } from "@/hooks/nostrQueries/content/useCoursesQuery";
+import { useResourcesQuery } from "@/hooks/nostrQueries/content/useResourcesQuery";
+import { useWorkshopsQuery } from "@/hooks/nostrQueries/content/useWorkshopsQuery";
+import { useDraftsQuery } from "@/hooks/apiQueries/useDraftsQuery";
+import { useContentIdsQuery } from "@/hooks/apiQueries/useContentIdsQuery";
+import { useToast } from "@/hooks/useToast";
 import ContentList from "@/components/content/lists/ContentList";
 import { parseEvent } from "@/utils/nostr";
-import { useToast } from "@/hooks/useToast";
+import { useNDKContext } from "@/context/NDKContext";
+
+const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY;
 
 const UserContent = () => {
     const [activeIndex, setActiveIndex] = useState(0);
-    const [drafts, setDrafts] = useState([]);
-    const [user, setUser] = useLocalStorageWithEffect('user', {});
-    const [courses, setCourses] = useState([]);
-    const [resources, setResources] = useState([]);
-    const [workshops, setWorkshops] = useState([]);
-    const { fetchCourses, fetchResources, fetchWorkshops } = useNostr();
+    const [isClient, setIsClient] = useState(false);
+    const [content, setContent] = useState([]);
+    const [publishedContent, setPublishedContent] = useState([]);
+
+    const [user] = useLocalStorageWithEffect("user", {});
     const router = useRouter();
     const { showToast } = useToast();
+    const ndk = useNDKContext();
+    const { courses, coursesLoading, coursesError } = useCoursesQuery();
+    const { resources, resourcesLoading, resourcesError } = useResourcesQuery();
+    const { workshops, workshopsLoading, workshopsError } = useWorkshopsQuery();
+    const { drafts, draftsLoading, draftsError } = useDraftsQuery();
+    const { contentIds, contentIdsLoading, contentIdsError, refetchContentIds } = useContentIdsQuery();
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
 
     const contentItems = [
-        { label: 'Published', icon: 'pi pi-verified' },
-        { label: 'Drafts', icon: 'pi pi-file-edit' },
-        { label: 'Resources', icon: 'pi pi-book' },
-        { label: 'Workshops', icon: 'pi pi-video' },
-        { label: 'Courses', icon: 'pi pi-desktop' }
+        { label: "Published", icon: "pi pi-verified" },
+        { label: "Drafts", icon: "pi pi-file-edit" },
+        { label: "Resources", icon: "pi pi-book" },
+        { label: "Workshops", icon: "pi pi-video" },
+        { label: "Courses", icon: "pi pi-desktop" },
     ];
 
     useEffect(() => {
-        if (user && user.id) {
-            fetchAllContent();
-        }
-    }, [user]);
+        const fetchAllContentFromNDK = async (ids) => {
+            try {
+                await ndk.connect();
+                const filter = { "#d": ids, authors: [AUTHOR_PUBKEY] };
 
-    const fetchAllContent = async () => {
-        try {
-            console.log(user.id)
-            // Fetch drafts from the database
-            const draftsResponse = await axios.get(`/api/drafts/all/${user.id}`);
-            const drafts = draftsResponse.data;
-            console.log('drafts:', drafts);
+                const uniqueEvents = new Set();
 
-            // Fetch resources, workshops, and courses from Nostr
-            const resources = await fetchResources();
-            const workshops = await fetchWorkshops();
-            const courses = await fetchCourses();
-
-            if (drafts.length > 0) {
-                setDrafts(drafts);
-            }
-            if (resources.length > 0) {
-                setResources(resources);
-            }
-            if (workshops.length > 0) {
-                setWorkshops(workshops);
-            }
-            if (courses.length > 0) {
-                setCourses(courses);
-            }
-        } catch (err) {
-            console.error(err);
-            showToast('error', 'Error', 'Failed to fetch content');
-        }
-    };
-
-    const getContentByIndex = (index) => {
-        switch (index) {
-            case 0:
-                return []
-            case 1:
-                return drafts;
-            case 2:
-                return resources.map(resource => {
-                    const { id, content, title, summary, image, published_at } = parseEvent(resource);
-                    return { id, content, title, summary, image, published_at };
+                const events = await ndk.fetchEvents(filter);
+                
+                events.forEach(event => {
+                    uniqueEvents.add(event);
                 });
-            case 3:
-                return workshops.map(workshop => {
-                    const { id, content, title, summary, image, published_at } = parseEvent(workshop);
-                    return { id, content, title, summary, image, published_at };
-                })
-            case 4:
-                return courses.map(course => {
-                    const { id, content, title, summary, image, published_at } = parseEvent(course);
-                    return { id, content, title, summary, image, published_at };
-                })
-            default:
+
+                console.log('uniqueEvents', uniqueEvents)
+                return Array.from(uniqueEvents);
+            } catch (error) {
+                console.error('Error fetching workshops from NDK:', error);
                 return [];
+            }
+        };
+
+        const fetchContent = async () => {
+            if (contentIds && isClient) {
+                const content = await fetchAllContentFromNDK(contentIds);
+                setPublishedContent(content);
+            }
         }
-    };
+        fetchContent();
+    }, [contentIds, isClient, ndk]);
+
+    useEffect(() => {
+        if (isClient) {
+            const getContentByIndex = (index) => {
+                switch (index) {
+                    case 0:
+                        return publishedContent.map(parseEvent) || [];
+                    case 1:
+                        return drafts || [];
+                    case 2:
+                        return resources?.map(parseEvent) || [];
+                    case 3:
+                        return workshops?.map(parseEvent) || [];
+                    case 4:
+                        return courses?.map(parseEvent) || [];
+                    default:
+                        return [];
+                }
+            };
+
+            setContent(getContentByIndex(activeIndex));
+        }
+    }, [activeIndex, isClient, drafts, resources, workshops, courses, publishedContent])
+
+    const isLoading = coursesLoading || resourcesLoading || workshopsLoading || draftsLoading || contentIdsLoading;
+    const isError = coursesError || resourcesError || workshopsError || draftsError || contentIdsError;
 
     return (
         <div className="w-[90vw] mx-auto max-tab:w-[100vw] max-mob:w-[100vw]">
@@ -97,13 +106,29 @@ const UserContent = () => {
                 <h2 className="text-center my-4">Your Content</h2>
             </div>
             <div className="flex flex-row w-full justify-between px-4">
-                <MenuTab items={contentItems} activeIndex={activeIndex} onTabChange={setActiveIndex} />
-                <Button onClick={() => router.push('/create')} label="Create" severity="success" outlined className="mt-2" />
+                <MenuTab
+                    items={contentItems}
+                    activeIndex={activeIndex}
+                    onTabChange={setActiveIndex}
+                />
+                <Button
+                    onClick={() => router.push("/create")}
+                    label="Create"
+                    severity="success"
+                    outlined
+                    className="mt-2"
+                />
             </div>
             <div className="w-full mx-auto my-8">
                 <div className="w-full mx-auto my-8">
-                    {getContentByIndex(activeIndex).length > 0 && (
-                        <ContentList content={getContentByIndex(activeIndex)} />
+                    {isLoading ? (
+                        <p>Loading...</p>
+                    ) : isError ? (
+                        <p>Error loading content.</p>
+                    ) : content.length > 0 ? (
+                        <ContentList content={content} />
+                    ) : (
+                        <p>No content available.</p>
                     )}
                 </div>
             </div>

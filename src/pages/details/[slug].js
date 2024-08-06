@@ -5,7 +5,7 @@ import { useImageProxy } from '@/hooks/useImageProxy';
 import { getSatAmountFromInvoice } from '@/utils/lightning';
 import ZapDisplay from '@/components/zaps/ZapDisplay';
 import { Tag } from 'primereact/tag';
-import { nip19 } from 'nostr-tools';
+import { nip19, nip04 } from 'nostr-tools';
 import { useLocalStorageWithEffect } from '@/hooks/useLocalStorage';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
@@ -27,6 +27,8 @@ const BitcoinConnectPayButton = dynamic(
     }
 );
 
+const privkey = process.env.NEXT_PUBLIC_APP_PRIV_KEY;
+
 export default function Details() {
     const [event, setEvent] = useState(null);
     const [processedEvent, setProcessedEvent] = useState({});
@@ -34,6 +36,9 @@ export default function Details() {
     const [bitcoinConnect, setBitcoinConnect] = useState(false);
     const [nAddress, setNAddress] = useState(null);
     const [zapAmount, setZapAmount] = useState(null);
+    const [paidResource, setPaidResource] = useState(false);
+    const [decryptedContent, setDecryptedContent] = useState(null);
+    // const [user, setUser] = useState(null);
 
     const ndk = useNDKContext();
     const [user] = useLocalStorageWithEffect('user', {});
@@ -41,6 +46,12 @@ export default function Details() {
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: processedEvent });
 
     const router = useRouter();
+
+    useEffect(() => {
+        if (processedEvent.price) {
+            setPaidResource(true);
+        }
+    }, [processedEvent]);
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -51,6 +62,23 @@ export default function Details() {
             setBitcoinConnect(true);
         }
     }, []);
+
+    useEffect(() => {
+        const decryptContent = async () => {
+            if (user && paidResource) {
+                if (!user.purchased.includes(processedEvent.id)) {
+                // decrypt the content
+                console.log('privkey', privkey);
+                console.log('user.pubkey', user.pubkey);
+                console.log('processedEvent.content', processedEvent.content);
+                const decryptedContent = await nip04.decrypt(privkey, user.pubkey, processedEvent.content);
+                console.log('decryptedContent', decryptedContent);
+                setDecryptedContent(decryptedContent);
+            }
+        }
+    }
+        decryptContent();
+    }, [user, paidResource]);
 
     useEffect(() => {
         if (router.isReady) {

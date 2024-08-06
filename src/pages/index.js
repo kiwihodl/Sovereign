@@ -6,7 +6,6 @@ import HeroBanner from '@/components/banner/HeroBanner';
 import ResourcesCarousel from '@/components/content/carousels/ResourcesCarousel';
 
 export default function Home() {
-
   return (
     <>
       <Head>
