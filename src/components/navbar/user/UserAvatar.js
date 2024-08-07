@@ -1,4 +1,3 @@
-"use client";
 import React, { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -6,22 +5,31 @@ import { useImageProxy } from '@/hooks/useImageProxy';
 import { Button } from 'primereact/button';
 import { Menu } from 'primereact/menu';
 import useWindowWidth from '@/hooks/useWindowWidth';
-import {useLocalStorageWithEffect} from '@/hooks/useLocalStorage';
+import {useSession, signOut} from 'next-auth/react';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import styles from '../navbar.module.css';
 
 const UserAvatar = () => {
     const router = useRouter();
-    const [user, setUser] = useLocalStorageWithEffect('user', {});
     const [isClient, setIsClient] = useState(false);
+    const [user, setUser] = useState(null);
     const { returnImageProxy } = useImageProxy();
     const windowWidth = useWindowWidth();
+
+    const { data: session, status } = useSession();
+
+    useEffect(() => {
+        if (session) {
+            console.log(session);
+            setUser(session.user);
+        }
+    }, [session]);
 
     const menu = useRef(null);
 
     const handleLogout = () => {
-        window.localStorage.removeItem('user');
+        signOut();
         router.push('/').then(() => window.location.reload());
     }
 

@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { Button } from "primereact/button";
 import MenuTab from "@/components/menutab/MenuTab";
-import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
 import { useCoursesQuery } from "@/hooks/nostrQueries/content/useCoursesQuery";
 import { useResourcesQuery } from "@/hooks/nostrQueries/content/useResourcesQuery";
 import { useWorkshopsQuery } from "@/hooks/nostrQueries/content/useWorkshopsQuery";
 import { useDraftsQuery } from "@/hooks/apiQueries/useDraftsQuery";
 import { useContentIdsQuery } from "@/hooks/apiQueries/useContentIdsQuery";
+import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/useToast";
 import ContentList from "@/components/content/lists/ContentList";
 import { parseEvent } from "@/utils/nostr";
@@ -21,7 +21,8 @@ const UserContent = () => {
     const [content, setContent] = useState([]);
     const [publishedContent, setPublishedContent] = useState([]);
 
-    const [user] = useLocalStorageWithEffect("user", {});
+    const { data: session, status } = useSession();
+    const [user, setUser] = useState(null);
     const router = useRouter();
     const { showToast } = useToast();
     const ndk = useNDKContext();
@@ -30,6 +31,12 @@ const UserContent = () => {
     const { workshops, workshopsLoading, workshopsError } = useWorkshopsQuery();
     const { drafts, draftsLoading, draftsError } = useDraftsQuery();
     const { contentIds, contentIdsLoading, contentIdsError, refetchContentIds } = useContentIdsQuery();
+
+    useEffect(() => {
+        if (session) {
+            setUser(session.user);
+        }
+    }, [session]);
 
     useEffect(() => {
         setIsClient(true);

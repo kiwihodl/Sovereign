@@ -6,7 +6,7 @@ import { getSatAmountFromInvoice } from '@/utils/lightning';
 import ZapDisplay from '@/components/zaps/ZapDisplay';
 import { Tag } from 'primereact/tag';
 import { nip19, nip04 } from 'nostr-tools';
-import { useLocalStorageWithEffect } from '@/hooks/useLocalStorage';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
@@ -40,11 +40,18 @@ export default function Details() {
     const [decryptedContent, setDecryptedContent] = useState(null);
 
     const ndk = useNDKContext();
-    const [user] = useLocalStorageWithEffect('user', {});
+    const { data: session, status } = useSession();
+    const [user, setUser] = useState(null);
     const { returnImageProxy } = useImageProxy();
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: processedEvent });
 
     const router = useRouter();
+
+    useEffect(() => {
+        if (session) {
+            setUser(session.user);
+        }
+    }, [session]);
 
     useEffect(() => {
         if (processedEvent.price) {

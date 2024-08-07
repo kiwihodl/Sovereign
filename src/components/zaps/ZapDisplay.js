@@ -18,7 +18,7 @@ const ZapDisplay = ({ zapAmount, event, zapsLoading }) => {
 
     return (
         <>
-            <span className="text-xs cursor-pointer flex items-center relative shadow-md cursor-pointer hover:opacity-80" onClick={(e) => op.current.toggle(e)}>
+            <span className="text-xs cursor-pointer flex items-center relative hover:opacity-80" onClick={(e) => op.current.toggle(e)}>
                 <i className="pi pi-bolt text-yellow-300"></i>
                 <span className="relative flex items-center min-w-[20px] min-h-[20px]">
                     {zapsLoading || zapAmount === null || extraLoading ? (

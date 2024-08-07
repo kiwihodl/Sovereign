@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { InputText } from "primereact/inputtext";
 import { InputNumber } from "primereact/inputnumber";
@@ -7,7 +7,7 @@ import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { v4 as uuidv4, v4 } from 'uuid';
-import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
+import { useSession } from 'next-auth/react';
 import { useNDKContext } from "@/context/NDKContext";
 import { useRouter } from "next/router";
 import { useToast } from "@/hooks/useToast";
@@ -32,10 +32,17 @@ const CourseForm = () => {
     const { resources, resourcesLoading, resourcesError } = useResourcesQuery();
     const { workshops, workshopsLoading, workshopsError } = useWorkshopsQuery();
     const { drafts, draftsLoading, draftsError } = useDraftsQuery();
-    const [user, setUser] = useLocalStorageWithEffect('user', {});
+    const { data: session, status } = useSession();
+    const [user, setUser] = useState(null);
     const ndk = useNDKContext();
     const router = useRouter();
     const { showToast } = useToast();
+
+    useEffect(() => {
+        if (session) {
+            setUser(session.user);
+        }
+    }, [session]);
 
         /**
      * Course Creation Flow:

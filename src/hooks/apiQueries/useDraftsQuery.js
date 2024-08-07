@@ -1,11 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { useLocalStorageWithEffect } from '@/hooks/useLocalStorage';
+import { useSession } from 'next-auth/react';
 
 export function useDraftsQuery() {
   const [isClient, setIsClient] = useState(false);
-  const [user] = useLocalStorageWithEffect('user', {});
+  const { data: session, status } = useSession();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    if (session) {
+      setUser(session.user);
+    }
+  }, [session]);
 
   useEffect(() => {
     setIsClient(true);

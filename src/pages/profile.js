@@ -1,21 +1,26 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, use } from "react";
 import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Menu } from "primereact/menu";
 import { Column } from "primereact/column";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useRouter } from "next/router";
-import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
+import { useSession } from 'next-auth/react';
 import UserContent from "@/components/profile/UserContent";
 import Image from "next/image";
 import BitcoinConnectButton from "@/components/profile/BitcoinConnect";
 
 const Profile = () => {
-  const [user] = useLocalStorageWithEffect("user", {});
+  const { data: session, status } = useSession();
+  const [user, setUser] = useState(null);
   const { returnImageProxy } = useImageProxy();
   const menu = useRef(null);
 
-  console.log('user:', user);
+  useEffect(() => {
+    if (session) {
+      setUser(session.user);
+    }
+  }, [session]);
 
   const purchases = [];
 

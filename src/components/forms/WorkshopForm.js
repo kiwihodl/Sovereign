@@ -6,7 +6,7 @@ import { InputNumber } from 'primereact/inputnumber';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Button } from 'primereact/button';
 import { useToast } from '@/hooks/useToast';
-import { useLocalStorageWithEffect } from '@/hooks/useLocalStorage';
+import { useSession } from 'next-auth/react';
 import 'primeicons/primeicons.css';
 
 const WorkshopForm = ({ draft = null }) => {
@@ -19,8 +19,15 @@ const WorkshopForm = ({ draft = null }) => {
     const [topics, setTopics] = useState(draft?.topics || ['']);
 
     const router = useRouter();
-    const [user] = useLocalStorageWithEffect('user', {});
+    const { data: session, status } = useSession();
+    const [user, setUser] = useState(null);
     const { showToast } = useToast();
+
+    useEffect(() => {
+        if (session) {
+            setUser(session.user);
+        }
+    }, [session]);
 
     useEffect(() => {
         if (draft) {

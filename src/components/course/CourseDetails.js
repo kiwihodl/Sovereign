@@ -5,7 +5,7 @@ import ZapDisplay from '@/components/zaps/ZapDisplay';
 import { getSatAmountFromInvoice } from '@/utils/lightning';
 import { Tag } from 'primereact/tag';
 import { nip19 } from 'nostr-tools';
-import { useLocalStorageWithEffect } from '@/hooks/useLocalStorage';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
@@ -33,12 +33,18 @@ export default function CourseDetails({ processedEvent }) {
     const [bitcoinConnect, setBitcoinConnect] = useState(false);
     const [nAddress, setNAddress] = useState(null);    
     const [zapAmount, setZapAmount] = useState(0);
-
-    const [user] = useLocalStorageWithEffect('user', {});
+    const [user, setUser] = useState(null);
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: processedEvent });
     const { returnImageProxy } = useImageProxy();
+    const { data: session, status } = useSession();
     const router = useRouter();
     const ndk = useNDKContext();
+
+    useEffect(() => {
+        if (session) {
+            setUser(session.user);
+        }
+    }, [session]);
 
     const handleZapEvent = async () => {
         if (!processedEvent) return;

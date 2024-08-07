@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { hexToNpub } from '@/utils/nostr';
 import { nip19, nip04 } from 'nostr-tools';
 import { v4 as uuidv4 } from 'uuid';
-import { useLocalStorageWithEffect } from '@/hooks/useLocalStorage';
+import { useSession } from 'next-auth/react';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { Button } from 'primereact/button';
 import { useToast } from '@/hooks/useToast';
@@ -44,11 +44,18 @@ function validateEvent(event) {
 export default function Draft() {
     const [draft, setDraft] = useState(null);
     const { returnImageProxy } = useImageProxy();
-    const [user] = useLocalStorageWithEffect('user', {});
+    const { data: session, status } = useSession();
+    const [user, setUser] = useState(null);
     const { width, height } = useResponsiveImageDimensions();
     const router = useRouter();
     const { showToast } = useToast();
     const ndk = useNDKContext();
+
+    useEffect(() => {
+        if (session) {
+            setUser(session.user);
+        }
+    }, [session]);
 
     useEffect(() => {
         if (router.isReady) {
@@ -117,7 +124,6 @@ export default function Draft() {
         try {
             price = resource.tags.find(tag => tag[0] === 'price')[1];
         } catch (err) {
-            console.error(err);
             price = 0;
         }
 

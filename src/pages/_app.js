@@ -2,6 +2,7 @@ import { PrimeReactProvider } from 'primereact/api';
 import { useEffect } from 'react';
 import Navbar from '@/components/navbar/Navbar';
 import { ToastProvider } from '@/hooks/useToast';
+import { SessionProvider } from "next-auth/react"
 import Layout from '@/components/Layout';
 import '@/styles/globals.css'
 import 'primereact/resources/themes/lara-dark-indigo/theme.css';
@@ -17,12 +18,13 @@ import {
 const queryClient = new QueryClient()
 
 export default function MyApp({
-    Component, pageProps: { ...pageProps }
+    Component, pageProps: { session, ...pageProps }
 }) {
     return (
         <PrimeReactProvider>
-            <NDKProvider>
-                <QueryClientProvider client={queryClient}>
+            <SessionProvider session={session}>
+                <NDKProvider>
+                    <QueryClientProvider client={queryClient}>
                     <ToastProvider>
                         <Layout>
                             <div className="flex flex-col min-h-screen">
@@ -39,6 +41,7 @@ export default function MyApp({
                     </ToastProvider>
                 </QueryClientProvider>
             </NDKProvider>
+            </SessionProvider>
         </PrimeReactProvider>
     );
 }

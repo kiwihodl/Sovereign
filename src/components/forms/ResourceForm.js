@@ -5,7 +5,7 @@ import { InputNumber } from "primereact/inputnumber";
 import { InputSwitch } from "primereact/inputswitch";
 import { Button } from "primereact/button";
 import { useRouter } from "next/router";;
-import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
+import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/useToast";
 import dynamic from 'next/dynamic';
 const MDEditor = dynamic(
@@ -24,10 +24,17 @@ const ResourceForm = ({ draft = null }) => {
     const [coverImage, setCoverImage] = useState(draft?.image || '');
     const [topics, setTopics] = useState(draft?.topics || ['']);
     const [content, setContent] = useState(draft?.content || '');
+    const [user, setUser] = useState(null);
 
-    const [user] = useLocalStorageWithEffect('user', {});
+    const { data: session, status } = useSession();
     const { showToast } = useToast();
     const router = useRouter();
+
+    useEffect(() => {
+        if (session) {
+            setUser(session.user);
+        }
+    }, [session]);
 
     const handleContentChange = useCallback((value) => {
         setContent(value || '');
