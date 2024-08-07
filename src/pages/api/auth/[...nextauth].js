@@ -16,7 +16,6 @@ const relayUrls = [
 
 const BASE_URL = process.env.BASE_URL;
 
-// Initialize NDK
 const ndk = new NDK({
     explicitRelayUrls: relayUrls,
 });
@@ -62,21 +61,24 @@ export default NextAuth({
     ],
     callbacks: {
         async jwt({ token, user }) {
+            // Add user to the token if user object exists
             if (user) {
-                token.user = user; // Add user to token
+                token.user = user;
             }
             return token;
         },
         async session({ session, token }) {
-            session.user = token.user; // Add user to session
+            // Add user from token to session
+            session.user = token.user;
+            session.jwt = token;
             return session;
         },
         async redirect({ url, baseUrl }) {
-            return url.split("/signin");
+            return baseUrl;
         },
     },
     secret: process.env.NEXTAUTH_SECRET,
-    session: { jwt: true },
+    session: { strategy: "jwt" },
     jwt: {
         signingKey: process.env.JWT_SECRET,
     },
