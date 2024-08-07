@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import NDK from "@nostr-dev-kit/ndk";
+import NDK, { NDKNip07Signer } from "@nostr-dev-kit/ndk";
 
 const NDKContext = createContext(null);
 
@@ -17,7 +17,8 @@ export const NDKProvider = ({ children }) => {
     const [ndk, setNdk] = useState(null);
 
     useEffect(() => {
-        const instance = new NDK({ explicitRelayUrls: relayUrls });
+        const nip07signer = new NDKNip07Signer();
+        const instance = new NDK({ explicitRelayUrls: relayUrls, signer: nip07signer });
         setNdk(instance);
     }, []);
 

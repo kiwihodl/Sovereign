@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { InputText } from "primereact/inputtext";
 import { InputNumber } from "primereact/inputnumber";
 import { InputSwitch } from "primereact/inputswitch";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
+import { ProgressSpinner } from "primereact/progressspinner";
 import { v4 as uuidv4, v4 } from 'uuid';
 import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
-import { useNostr } from "@/hooks/useNostr";
+import { useNDKContext } from "@/context/NDKContext";
 import { useRouter } from "next/router";
 import { useToast } from "@/hooks/useToast";
-import { nip19 } from "nostr-tools"
+import { useWorkshopsQuery } from "@/hooks/nostrQueries/content/useWorkshopsQuery";
+import { useResourcesQuery } from "@/hooks/nostrQueries/content/useResourcesQuery";
+import { useDraftsQuery } from "@/hooks/apiQueries/useDraftsQuery";
+import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { parseEvent } from "@/utils/nostr";
 import ContentDropdownItem from "@/components/content/dropdowns/ContentDropdownItem";
 import 'primeicons/primeicons.css';
@@ -24,57 +28,25 @@ const CourseForm = () => {
     const [lessons, setLessons] = useState([{ id: uuidv4(), title: 'Select a lesson' }]);
     const [selectedLessons, setSelectedLessons] = useState([]);
     const [topics, setTopics] = useState(['']);
-    const [user, setUser] = useLocalStorageWithEffect('user', {});
-    const [drafts, setDrafts] = useState([]);
-    const [resources, setResources] = useState([]);
-    const [workshops, setWorkshops] = useState([]);
-    const { fetchResources, fetchWorkshops, publish, fetchSingleEvent } = useNostr();
-    const [pubkey, setPubkey] = useState('');
 
+    const { resources, resourcesLoading, resourcesError } = useResourcesQuery();
+    const { workshops, workshopsLoading, workshopsError } = useWorkshopsQuery();
+    const { drafts, draftsLoading, draftsError } = useDraftsQuery();
+    const [user, setUser] = useLocalStorageWithEffect('user', {});
+    const ndk = useNDKContext();
     const router = useRouter();
     const { showToast } = useToast();
 
-    const fetchAllContent = async () => {
-        try {
-            // Fetch drafts from the database
-            const draftsResponse = await axios.get(`/api/drafts/all/${user.id}`);
-            const drafts = draftsResponse.data;
-
-            // Fetch resources and workshops from Nostr
-            const resources = await fetchResources();
-            const workshops = await fetchWorkshops();
-
-            if (drafts.length > 0) {
-                setDrafts(drafts);
-            }
-            if (resources.length > 0) {
-                setResources(resources);
-            }
-            if (workshops.length > 0) {
-                setWorkshops(workshops);
-            }
-        } catch (err) {
-            console.error(err);
-            // Handle error
-        }
-    };
-
-    useEffect(() => {
-        if (user && user.id) {
-            fetchAllContent();
-        }
-    }, [user]);
-
-    /**
- * Course Creation Flow:
- * 1. Generate a new course ID
- * 2. Process each lesson:
- *    - If unpublished: create event, publish to Nostr, save to DB, delete draft
- *    - If published: use existing data
- * 3. Create and publish course event to Nostr
- * 4. Save course to database
- * 5. Show success message and redirect to course page
- */
+        /**
+     * Course Creation Flow:
+     * 1. Generate a new course ID
+     * 2. Process each lesson:
+     *    - If unpublished: create event, publish to Nostr, save to DB, delete draft
+     *    - If published: use existing data
+     * 3. Create and publish course event to Nostr
+     * 4. Save course to database
+     * 5. Show success message and redirect to course page
+     */
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -90,14 +62,13 @@ const CourseForm = () => {
                 if (!lesson.published_at) {
                     // Publish unpublished lesson
                     const event = createLessonEvent(lesson);
-                    const signedEvent = await window.nostr.signEvent(event);
-                    const published = await publish(signedEvent);
+                    const published = await event.publish();
 
                     if (!published) {
                         throw new Error(`Failed to publish lesson: ${lesson.title}`);
                     }
 
-                    noteId = signedEvent.id;
+                    noteId = event.id;
 
                     // Save to db and delete draft
                     await Promise.all([
@@ -122,8 +93,9 @@ const CourseForm = () => {
 
             // Step 2: Create and publish course
             const courseEvent = createCourseEvent(newCourseId, title, summary, coverImage, processedLessons);
-            const signedCourseEvent = await window.nostr.signEvent(courseEvent);
-            const published = await publish(signedCourseEvent);
+            const published = await courseEvent.publish();
+
+            console.log('published', published);
 
             if (!published) {
                 throw new Error('Failed to publish course');
@@ -136,7 +108,7 @@ const CourseForm = () => {
                 resources: {
                     connect: processedLessons.map(lesson => ({ id: lesson?.d }))
                 },
-                noteId: signedCourseEvent.id,
+                noteId: courseEvent.id,
                 user: {
                     connect: { id: user.id }
                 },
@@ -148,7 +120,7 @@ const CourseForm = () => {
 
             // Step 5: Show success message and redirect
             showToast('success', 'Course created successfully');
-            router.push(`/course/${signedCourseEvent.id}`);
+            router.push(`/course/${courseEvent.id}`);
 
         } catch (error) {
             console.error('Error creating course:', error);
@@ -156,29 +128,26 @@ const CourseForm = () => {
         }
     };
 
-    const createLessonEvent = (lesson) => ({
-        kind: lesson.price ? 30402 : 30023,
-        content: lesson.content,
-        created_at: Math.floor(Date.now() / 1000),
-        tags: [
+    const createLessonEvent = (lesson) => {
+        const event = new NDKEvent(ndk);
+        event.kind = lesson.price ? 30402 : 30023;
+        event.content = lesson.content;
+        event.tags = [
             ['d', lesson.id],
             ['title', lesson.title],
             ['summary', lesson.summary],
             ['image', lesson.image],
             ...lesson.topics.map(topic => ['t', topic]),
             ['published_at', Math.floor(Date.now() / 1000).toString()],
-            ...(lesson.price ? [
-                ['price', lesson.price],
-                ['location', `https://plebdevs.com/${lesson.topics[1]}/${lesson.id}`]
-            ] : [])
-        ]
-    });
+        ];
+        return event;
+    };
 
-    const createCourseEvent = (courseId, title, summary, coverImage, lessons) => ({
-        kind: 30004,
-        created_at: Math.floor(Date.now() / 1000),
-        content: "",
-        tags: [
+    const createCourseEvent = (courseId, title, summary, coverImage, lessons) => {
+        const event = new NDKEvent(ndk);
+        event.kind = 30004;
+        event.content = "";
+        event.tags = [
             ['d', courseId],
             ['name', title],
             ['picture', coverImage],
@@ -186,8 +155,9 @@ const CourseForm = () => {
             ['description', summary],
             ['l', "Education"],
             ...lessons.map((lesson) => ['a', `${lesson.kind}:${lesson.pubkey}:${lesson.d}`]),
-        ],
-    });
+        ];
+        return event;
+    };
 
     const handleLessonChange = (e, index) => {
         const selectedLessonId = e.value;
@@ -235,6 +205,9 @@ const CourseForm = () => {
     };
 
     const getContentOptions = (index) => {
+        if (resourcesLoading || !resources || workshopsLoading || !workshops || draftsLoading || !drafts) {
+            return [];
+        }
         const draftOptions = drafts.map(draft => ({
             label: <ContentDropdownItem content={draft} onSelect={(content) => handleLessonSelect(content, index)} selected={lessons[index] && lessons[index].id === draft.id} />,
             value: draft.id
@@ -272,7 +245,10 @@ const CourseForm = () => {
         ];
     };
 
-    const lessonOptions = getContentOptions();
+    // const lessonOptions = getContentOptions();
+    if (resourcesLoading || workshopsLoading || draftsLoading) {
+        return <ProgressSpinner />;
+    }
 
     return (
         <form onSubmit={handleSubmit}>

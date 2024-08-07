@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { useNostr } from '@/hooks/useNostr';
-import { parseEvent, findKind0Fields, hexToNpub } from '@/utils/nostr';
-import { verifyEvent, nip19, nip04 } from 'nostr-tools';
+import { hexToNpub } from '@/utils/nostr';
+import { nip19, nip04 } from 'nostr-tools';
 import { v4 as uuidv4 } from 'uuid';
 import { useLocalStorageWithEffect } from '@/hooks/useLocalStorage';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { Button } from 'primereact/button';
 import { useToast } from '@/hooks/useToast';
 import { Tag } from 'primereact/tag';
+import { useNDKContext } from '@/context/NDKContext';
+import { NDKEvent } from '@nostr-dev-kit/ndk';
 import Image from 'next/image';
 import useResponsiveImageDimensions from '@/hooks/useResponsiveImageDimensions';
 import 'primeicons/primeicons.css';
@@ -21,20 +22,33 @@ const MDDisplay = dynamic(
     }
 );
 
-export default function Details() {
+function validateEvent(event) {
+    if (typeof event.kind !== "number") return "Invalid kind";
+    if (typeof event.content !== "string") return "Invalid content";
+    if (typeof event.created_at !== "number") return "Invalid created_at";
+    if (typeof event.pubkey !== "string") return "Invalid pubkey";
+    if (!event.pubkey.match(/^[a-f0-9]{64}$/)) return "Invalid pubkey format";
+
+    if (!Array.isArray(event.tags)) return "Invalid tags";
+    for (let i = 0; i < event.tags.length; i++) {
+        const tag = event.tags[i];
+        if (!Array.isArray(tag)) return "Invalid tag structure";
+        for (let j = 0; j < tag.length; j++) {
+            if (typeof tag[j] === "object") return "Invalid tag value";
+        }
+    }
+
+    return true;
+}
+
+export default function Draft() {
     const [draft, setDraft] = useState(null);
-
     const { returnImageProxy } = useImageProxy();
-
-    const { publishCourse, publishResource, fetchSingleEvent } = useNostr();
-
     const [user] = useLocalStorageWithEffect('user', {});
-
     const { width, height } = useResponsiveImageDimensions();
-
     const router = useRouter();
-
     const { showToast } = useToast();
+    const ndk = useNDKContext();
 
     useEffect(() => {
         if (router.isReady) {
@@ -52,32 +66,90 @@ export default function Details() {
     }, [router.isReady, router.query]);
 
     const handleSubmit = async () => {
-        if (draft) {
-            const { unsignedEvent, type } = await buildEvent(draft);
+        try {
+            if (draft) {
+                const { unsignedEvent, type } = await buildEvent(draft);
 
-            if (unsignedEvent) {
-                const published = await publishEvent(unsignedEvent, type);
-                console.log('published:', published);
-                // if successful, delete the draft, redirect to profile
-                if (published) {
-                    axios.delete(`/api/drafts/${draft.id}`)
-                        .then(res => {
-                            if (res.status === 204) {
-                                showToast('success', 'Success', 'Draft deleted successfully.');
-                                router.push(`/profile`);
-                            } else {
-                                showToast('error', 'Error', 'Failed to delete draft.');
-                            }
-                        })
-                        .catch(err => {
-                            console.error(err);
-                        });
+                const validationResult = validateEvent(unsignedEvent);
+                if (validationResult !== true) {
+                    console.error('Invalid event:', validationResult);
+                    showToast('error', 'Error', `Invalid event: ${validationResult}`);
+                    return;
                 }
-            } else {
-                showToast('error', 'Error', 'Failed to broadcast resource. Please try again.');
+
+                console.log('unsignedEvent:', unsignedEvent.validate());
+                console.log('unsignedEvent validation:', validationResult);
+
+                if (unsignedEvent) {
+                    const published = await unsignedEvent.publish();
+
+                    const saved = await handlePostResource(unsignedEvent);
+                    // if successful, delete the draft, redirect to profile
+                    if (published && saved) {
+                        axios.delete(`/api/drafts/${draft.id}`)
+                            .then(res => {
+                                if (res.status === 204) {
+                                    showToast('success', 'Success', 'Draft deleted successfully.');
+                                    router.push(`/profile`);
+                                } else {
+                                    showToast('error', 'Error', 'Failed to delete draft.');
+                                }
+                            })
+                            .catch(err => {
+                                console.error(err);
+                            });
+                    }
+                } else {
+                    showToast('error', 'Error', 'Failed to broadcast resource. Please try again.');
+                }
             }
+        } catch (err) {
+            console.error(err);
+            showToast('error', 'Failed to publish resource.', err.message);
         }
-    }
+    };
+
+    const handlePostResource = async (resource) => {
+        console.log('resourceeeeee:', resource.tags);
+        const dTag = resource.tags.find(tag => tag[0] === 'd')[1];
+        let price 
+        
+        try {
+            price = resource.tags.find(tag => tag[0] === 'price')[1];
+        } catch (err) {
+            console.error(err);
+            price = 0;
+        }
+
+        const nAddress = nip19.naddrEncode({
+            pubkey: resource.pubkey,
+            kind: resource.kind,
+            identifier: dTag,
+        });
+
+        const userResponse = await axios.get(`/api/users/${user.pubkey}`);
+
+        if (!userResponse.data) {
+            showToast('error', 'Error', 'User not found', 'Please try again.');
+            return;
+        }
+
+        const payload = {
+            id: dTag,
+            userId: userResponse.data.id,
+            price: Number(price),
+            noteId: nAddress,
+        };
+
+        const response = await axios.post(`/api/resources`, payload);
+
+        if (response.status !== 201) {
+            showToast('error', 'Error', 'Failed to create resource. Please try again.');
+            return;
+        }
+
+        return response.data;
+    };
 
     const handleDelete = async () => {
         if (draft) {
@@ -94,85 +166,16 @@ export default function Details() {
                     console.error(err);
                 });
         }
-    }
-
-    const publishEvent = async (event, type) => {
-        const dTag = event.tags.find(tag => tag[0] === 'd')[1];
-
-        const signedEvent = await window.nostr.signEvent(event);
-
-        const eventVerification = await verifyEvent(signedEvent);
-
-        if (!eventVerification) {
-            showToast('error', 'Error', 'Event verification failed. Please try again.');
-            return;
-        }
-
-        const nAddress = nip19.naddrEncode({
-            pubkey: signedEvent.pubkey,
-            kind: signedEvent.kind,
-            identifier: dTag,
-        })
-
-        const userResponse = await axios.get(`/api/users/${user.pubkey}`)
-
-        if (!userResponse.data) {
-            showToast('error', 'Error', 'User not found', 'Please try again.');
-            return;
-        }
-
-        const payload = {
-            id: dTag,
-            userId: userResponse.data.id,
-            price: Number(draft.price) || 0,
-            noteId: nAddress,
-        }
-
-        const response = await axios.post(`/api/resources`, payload);
-
-        if (response.status !== 201) {
-            showToast('error', 'Error', 'Failed to create resource. Please try again.');
-            return;
-        }
-
-        let published;
-        console.log('type:', type);
-
-        if (type === 'resource' || type === 'workshop') {
-            published = await publishResource(signedEvent);
-        } else if (type === 'course') {
-            published = await publishCourse(signedEvent);
-        }
-
-        if (published) {
-            // check if the event is published
-            const publishedEvent = await fetchSingleEvent(signedEvent.id);
-
-            if (publishedEvent) {
-                // show success message
-                showToast('success', 'Success', `${type} published successfully.`);
-                // delete the draft
-                await axios.delete(`/api/drafts/${draft.id}`)
-                    .then(res => {
-                        if (res.status === 204) {
-                            showToast('success', 'Success', 'Draft deleted successfully.');
-                            router.push(`/profile`);
-                        } else {
-                            showToast('error', 'Error', 'Failed to delete draft.');
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                    });
-            }
-        }
-    }
+    };
 
     const buildEvent = async (draft) => {
         const NewDTag = uuidv4();
-        let event = {};
+        const event = new NDKEvent(ndk);
         let type;
         let encryptedContent;
+
+        console.log('Draft:', draft);
+        console.log('NewDTag:', NewDTag);
 
         switch (draft?.type) {
             case 'resource':
@@ -180,21 +183,21 @@ export default function Details() {
                     // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
                     encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
                 }
-                event = {
-                    kind: draft?.price ? 30402 : 30023, // Determine kind based on if price is present
-                    content: draft?.price ? encryptedContent : draft.content,
-                    created_at: Math.floor(Date.now() / 1000),
-                    tags: [
-                        ['d', NewDTag],
-                        ['title', draft.title],
-                        ['summary', draft.summary],
-                        ['image', draft.image],
-                        ...draft.topics.map(topic => ['t', topic]),
-                        ['published_at', Math.floor(Date.now() / 1000).toString()],
-                        // Include price and location tags only if price is present
-                        ...(draft?.price ? [['price', draft.price.toString()], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
-                    ]
-                };
+
+                event.kind = draft?.price ? 30402 : 30023; // Determine kind based on if price is present
+                event.content = draft?.price ? encryptedContent : draft.content;
+                event.created_at = Math.floor(Date.now() / 1000);
+                event.pubkey = user.pubkey;
+                event.tags = [
+                    ['d', NewDTag],
+                    ['title', draft.title],
+                    ['summary', draft.summary],
+                    ['image', draft.image],
+                    ...draft.topics.map(topic => ['t', topic]),
+                    ['published_at', Math.floor(Date.now() / 1000).toString()],
+                    ...(draft?.price ? [['price', draft.price.toString()], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
+                ];
+
                 type = 'resource';
                 break;
             case 'workshop':
@@ -202,40 +205,40 @@ export default function Details() {
                     // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
                     encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
                 }
-                event = {
-                    kind: draft?.price ? 30402 : 30023,
-                    content: draft?.price ? encryptedContent : draft.content,
-                    created_at: Math.floor(Date.now() / 1000),
-                    tags: [
-                        ['d', NewDTag],
-                        ['title', draft.title],
-                        ['summary', draft.summary],
-                        ['image', draft.image],
-                        ...draft.topics.map(topic => ['t', topic]),
-                        ['published_at', Math.floor(Date.now() / 1000).toString()],
-                    ]
-                };
+
+                event.kind = draft?.price ? 30402 : 30023;
+                event.content = draft?.price ? encryptedContent : draft.content;
+                event.created_at = Math.floor(Date.now() / 1000);
+                event.pubkey = user.pubkey;
+                event.tags = [
+                    ['d', NewDTag],
+                    ['title', draft.title],
+                    ['summary', draft.summary],
+                    ['image', draft.image],
+                    ...draft.topics.map(topic => ['t', topic]),
+                    ['published_at', Math.floor(Date.now() / 1000).toString()],
+                ];
+
                 type = 'workshop';
                 break;
             case 'course':
-                event = {
-                    kind: 30023,
-                    content: draft.content,
-                    created_at: Math.floor(Date.now() / 1000),
-                    tags: [
-                        ['d', NewDTag],
-                        ['title', draft.title],
-                        ['summary', draft.summary],
-                        ['image', draft.image],
-                        ...draft.topics.map(topic => ['t', topic]),
-                        ['published_at', Math.floor(Date.now() / 1000).toString()],
-                    ]
-                };
+                event.kind = 30023;
+                event.content = draft.content;
+                event.created_at = Math.floor(Date.now() / 1000);
+                event.pubkey = user.pubkey;
+                event.tags = [
+                    ['d', NewDTag],
+                    ['title', draft.title],
+                    ['summary', draft.summary],
+                    ['image', draft.image],
+                    ...draft.topics.map(topic => ['t', topic]),
+                    ['published_at', Math.floor(Date.now() / 1000).toString()],
+                ];
+
                 type = 'course';
                 break;
             default:
-                event = null;
-                type = 'unknown';
+                return null;
         }
 
         return { unsignedEvent: event, type };
@@ -244,7 +247,7 @@ export default function Details() {
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
             <div className='w-full flex flex-row justify-between max-tab:flex-col max-mob:flex-col'>
-                {/* <i className='pi pi-arrow-left pl-8 cursor-pointer hover:opacity-75 max-tab:pl-2 max-mob:pl-2' onClick={() => router.push('/')} /> */}
+                <i className='pi pi-arrow-left pl-8 cursor-pointer hover:opacity-75 max-tab:pl-2 max-mob:pl-2' onClick={() => router.push('/')} />
                 <div className='w-[75vw] mx-auto flex flex-row items-start justify-between max-tab:flex-col max-mob:flex-col max-tab:w-[95vw] max-mob:w-[95vw]'>
                     <div className='flex flex-col items-start max-w-[45vw] max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
                         <div className='pt-2 flex flex-row justify-start w-full'>
@@ -254,8 +257,7 @@ export default function Details() {
                                 return (
                                     <Tag className='mr-2 text-white' key={index} value={topic}></Tag>
                                 )
-                            })
-                            }
+                            })}
                         </div>
                         <h1 className='text-4xl mt-6'>{draft?.title}</h1>
                         <p className='text-xl mt-6'>{draft?.summary}</p>
@@ -271,7 +273,7 @@ export default function Details() {
                                 <p className='text-lg'>
                                     Created by{' '}
                                     <a href={`https://nostr.com/${hexToNpub(user?.pubkey)}`} rel='noreferrer noopener' target='_blank' className='text-blue-500 hover:underline'>
-                                        {user?.username || user?.pubkey.slice(0, 10)}{'... '}
+                                        {user?.username || user?.name || user?.pubkey.slice(0, 10)}{'... '}
                                     </a>
                                 </p>
                             )}

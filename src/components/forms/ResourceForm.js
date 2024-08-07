@@ -4,10 +4,8 @@ import { InputText } from "primereact/inputtext";
 import { InputNumber } from "primereact/inputnumber";
 import { InputSwitch } from "primereact/inputswitch";
 import { Button } from "primereact/button";
-import { useRouter } from "next/router";
-import { useNostr } from "@/hooks/useNostr";
+import { useRouter } from "next/router";;
 import { useLocalStorageWithEffect } from "@/hooks/useLocalStorage";
-import EditorHeader from "./Editor/EditorHeader";
 import { useToast } from "@/hooks/useToast";
 import dynamic from 'next/dynamic';
 const MDEditor = dynamic(
@@ -29,7 +27,6 @@ const ResourceForm = ({ draft = null }) => {
 
     const [user] = useLocalStorageWithEffect('user', {});
     const { showToast } = useToast();
-    const { publishAll } = useNostr();
     const router = useRouter();
 
     const handleContentChange = useCallback((value) => {
@@ -94,151 +91,6 @@ const ResourceForm = ({ draft = null }) => {
         }
     };
 
-    // const saveFreeResource = async (payload) => {
-    //     const newresourceId = uuidv4();
-    //     const event = {
-    //         kind: 30023,
-    //         content: payload.content,
-    //         created_at: Math.floor(Date.now() / 1000),
-    //         tags: [
-    //             ['d', newresourceId],
-    //             ['title', payload.title],
-    //             ['summary', payload.summary],
-    //             ['image', ''],
-    //             ['t', ...topics],
-    //             ['published_at', Math.floor(Date.now() / 1000).toString()],
-    //         ]
-    //     };
-
-    //     const signedEvent = await window.nostr.signEvent(event);
-
-    //     const eventVerification = await verifyEvent(signedEvent);
-
-    //     if (!eventVerification) {
-    //         showToast('error', 'Error', 'Event verification failed. Please try again.');
-    //         return;
-    //     }
-
-    //     const nAddress = nip19.naddrEncode({
-    //         pubkey: signedEvent.pubkey,
-    //         kind: signedEvent.kind,
-    //         identifier: newresourceId,
-    //     })
-
-    //     console.log('nAddress:', nAddress);
-
-    //     const userResponse = await axios.get(`/api/users/${user.pubkey}`)
-
-    //     if (!userResponse.data) {
-    //         showToast('error', 'Error', 'User not found', 'Please try again.');
-    //         return;
-    //     }
-
-    //     const resourcePayload = {
-    //         id: newresourceId,
-    //         userId: userResponse.data.id,
-    //         price: 0,
-    //         noteId: nAddress,
-    //     }
-    //     const response = await axios.post(`/api/resources`, resourcePayload);
-
-    //     console.log('response:', response);
-
-    //     if (response.status !== 201) {
-    //         showToast('error', 'Error', 'Failed to create resource. Please try again.');
-    //         return;
-    //     }
-
-    //     const publishResponse = await publishAll(signedEvent);
-
-    //     if (!publishResponse) {
-    //         showToast('error', 'Error', 'Failed to publish resource. Please try again.');
-    //         return;
-    //     } else if (publishResponse?.failedRelays) {
-    //         publishResponse?.failedRelays.map(relay => {
-    //             showToast('warn', 'Warning', `Failed to publish to relay: ${relay}`);
-    //         });
-    //     }
-
-    //     publishResponse?.successfulRelays.map(relay => {
-    //         showToast('success', 'Success', `Published to relay: ${relay}`);
-    //     })
-    // }
-
-    // // For images, whether included in the markdown content or not, clients SHOULD use image tags as described in NIP-58. This allows clients to display images in carousel format more easily.
-    // const savePaidResource = async (payload) => {
-    //     // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
-    //     const encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY ,process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, payload.content);
-    //     const newresourceId = uuidv4();
-    //     const event = {
-    //         kind: 30402,
-    //         content: encryptedContent,
-    //         created_at: Math.floor(Date.now() / 1000),
-    //         tags: [
-    //             ['title', payload.title],
-    //             ['summary', payload.summary],
-    //             ['t', ...topics],
-    //             ['image', ''],
-    //             ['d', newresourceId],
-    //             ['location', `https://plebdevs.com/resource/${newresourceId}`],
-    //             ['published_at', Math.floor(Date.now() / 1000).toString()],
-    //             ['price', payload.price]
-    //         ]
-    //     };
-
-    //     const signedEvent = await window.nostr.signEvent(event);
-
-    //     const eventVerification = await verifyEvent(signedEvent);
-
-    //     if (!eventVerification) {
-    //         showToast('error', 'Error', 'Event verification failed. Please try again.');
-    //         return;
-    //     }
-
-    //     const nAddress = nip19.naddrEncode({
-    //         pubkey: signedEvent.pubkey,
-    //         kind: signedEvent.kind,
-    //         identifier: newresourceId,
-    //     })
-
-    //     console.log('nAddress:', nAddress);
-
-    //     const userResponse = await axios.get(`/api/users/${user.pubkey}`)
-
-    //     if (!userResponse.data) {
-    //         showToast('error', 'Error', 'User not found', 'Please try again.');
-    //         return;
-    //     }
-
-    //     const resourcePayload = {
-    //         id: newresourceId,
-    //         userId: userResponse.data.id,
-    //         price: payload.price || 0,
-    //         noteId: nAddress,
-    //     }
-    //     const response = await axios.post(`/api/resources`, resourcePayload);
-
-    //     if (response.status !== 201) {
-    //         showToast('error', 'Error', 'Failed to create resource. Please try again.');
-    //         return;
-    //     }
-
-    //     const publishResponse = await publishAll(signedEvent);
-
-    //     if (!publishResponse) {
-    //         showToast('error', 'Error', 'Failed to publish resource. Please try again.');
-    //         return;
-    //     } else if (publishResponse?.failedRelays) {
-    //         publishResponse?.failedRelays.map(relay => {
-    //             showToast('warn', 'Warning', `Failed to publish to relay: ${relay}`);
-    //         });
-    //     }
-
-    //     publishResponse?.successfulRelays.map(relay => {
-    //         showToast('success', 'Success', `Published to relay: ${relay}`);
-    //     })
-    // }
-
     const handleTopicChange = (index, value) => {
         const updatedTopics = topics.map((topic, i) => i === index ? value : topic);
         setTopics(updatedTopics);
@@ -254,39 +106,6 @@ const ResourceForm = ({ draft = null }) => {
         const updatedTopics = topics.filter((_, i) => i !== index);
         setTopics(updatedTopics);
     };
-
-    // Define custom toolbar for the editor
-    const customToolbar = (
-        <div id="toolbar">
-            {/* Include existing toolbar items */}
-            <span className="ql-formats">
-                <select className="ql-header" defaultValue="">
-                    <option value="1">Heading</option>
-                    <option value="2">Subheading</option>
-                    <option value="">Normal</option>
-                </select>
-            </span>
-            <span className="ql-formats">
-                <button className="ql-bold"></button>
-                <button className="ql-italic"></button>
-                <button className="ql-underline"></button>
-            </span>
-            <span className="ql-formats">
-                <button className="ql-list" value="ordered"></button>
-                <button className="ql-list" value="bullet"></button>
-                <button className="ql-indent" value="-1"></button>
-                <button className="ql-indent" value="+1"></button>
-            </span>
-            <span className="ql-formats">
-                <button className="ql-link"></button>
-                <button className="ql-image"></button>
-                <button className="ql-video"></button> {/* This is your custom video button */}
-            </span>
-            <span className="ql-formats">
-                <button className="ql-clean"></button>
-            </span>
-        </div>
-    );
 
     return (
         <form onSubmit={handleSubmit}>

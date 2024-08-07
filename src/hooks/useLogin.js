@@ -1,15 +1,15 @@
 import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useNostr } from './useNostr';
 import axios from 'axios';
 import { generateSecretKey, getPublicKey } from 'nostr-tools';
 import { findKind0Fields } from "@/utils/nostr";
 import { useToast } from './useToast';
+import { useNDKContext } from "@/context/NDKContext";
 
 export const useLogin = () => {
     const router = useRouter();
     const { showToast } = useToast();
-    const { fetchKind0 } = useNostr();
+    const ndk = useNDKContext();
 
     // Attempt Auto Login on render
     useEffect(() => {
@@ -26,7 +26,8 @@ export const useLogin = () => {
                     window.localStorage.setItem('user', JSON.stringify(response.data));
                 } else if (response.status === 204) {
                     // User not found, create a new user
-                    const kind0 = await fetchKind0(publicKey);
+                    const author = await ndk.getUser({ pubkey: publicKey });
+                    const kind0 = await author.fetchProfile();
 
                     console.log('kind0:', kind0);
 
@@ -57,7 +58,7 @@ export const useLogin = () => {
         };
 
         autoLogin();
-    }, []);
+    }, [ndk, showToast]);
 
     const nostrLogin = useCallback(async () => {
         if (!window || !window.nostr) {
@@ -77,7 +78,8 @@ export const useLogin = () => {
       
           if (response.status === 204) {
             // User not found, create a new user
-            const kind0 = await fetchKind0(publicKey);
+            const author = await ndk.getUser({ pubkey: publicKey });
+            const kind0 = await author.fetchProfile();
       
             let fields = {};
             if (kind0) {
@@ -100,7 +102,7 @@ export const useLogin = () => {
           console.error('Error during login:', error);
           showToast('error', 'Login Error', error.message || 'Failed to log in');
         }
-      }, [router, showToast, fetchKind0]);
+      }, [router, showToast, ndk]);
 
     const anonymousLogin = useCallback(() => {
         try {

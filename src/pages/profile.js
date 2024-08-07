@@ -15,6 +15,8 @@ const Profile = () => {
   const { returnImageProxy } = useImageProxy();
   const menu = useRef(null);
 
+  console.log('user:', user);
+
   const purchases = [];
 
   const menuItems = [

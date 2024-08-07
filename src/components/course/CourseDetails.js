@@ -53,7 +53,6 @@ export default function CourseDetails({ processedEvent }) {
         const author = await ndk.getUser({ pubkey });
         const profile = await author.fetchProfile();
         const fields = await findKind0Fields(profile);
-        console.log('fields:', fields);
         if (fields) {
             setAuthor(fields);
         }
