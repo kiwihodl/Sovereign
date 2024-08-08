@@ -40,11 +40,13 @@ export default NextAuth({
                         // Check if user exists, create if not
                         const response = await axios.get(`${BASE_URL}/api/users/${credentials.pubkey}`);
                         if (response.status === 200 && response.data) {
-                            return response.data;
+                            const fields = await findKind0Fields(profile);
+                            return { pubkey: credentials.pubkey, ...fields };
                         } else if (response.status === 204) {
                             // Create user
                             if (profile) {
                                 const fields = await findKind0Fields(profile);
+                                console.log('FEEEEELDS', fields);
                                 const payload = { pubkey: credentials.pubkey, ...fields };
 
                                 const createUserResponse = await axios.post(`${BASE_URL}/api/users`, payload);

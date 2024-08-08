@@ -19,6 +19,19 @@ export const getResourceById = async (id) => {
     });
 };
 
+export async function isResourcePartOfAnyCourse(resourceId) {
+    const courses = await prisma.course.findMany({
+        where: {
+            resources: {
+                some: {
+                    id: resourceId
+                }
+            }
+        }
+    });
+    return courses.length > 0;
+}
+
 export const createResource = async (data) => {
     return await prisma.resource.create({
         data,

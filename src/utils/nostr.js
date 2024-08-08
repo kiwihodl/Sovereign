@@ -1,6 +1,7 @@
 import { nip19 } from "nostr-tools";
 
 export const findKind0Fields = async (kind0) => {
+    console.log('kind0', kind0);
     let fields = {}
 
     const usernameProperties = ['name', 'displayName', 'display_name', 'username', 'handle', 'alias'];
@@ -20,7 +21,7 @@ export const findKind0Fields = async (kind0) => {
         fields.username = username;
     }
 
-    const avatar = findTruthyPropertyValue(kind0, ['picture', 'avatar', 'profilePicture', 'profile_picture']);
+    const avatar = findTruthyPropertyValue(kind0, ['picture', 'avatar', 'profilePicture', 'profile_picture', 'image']);
 
     if (avatar) {
         fields.avatar = avatar;

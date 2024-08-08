@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { useRouter } from 'next/router';
-import { parseEvent, findKind0Fields, hexToNpub } from '@/utils/nostr';
+import { parseEvent, findKind0Fields } from '@/utils/nostr';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { getSatAmountFromInvoice } from '@/utils/lightning';
 import ZapDisplay from '@/components/zaps/ZapDisplay';
 import { Tag } from 'primereact/tag';
+import { Button } from 'primereact/button';
 import { nip19, nip04 } from 'nostr-tools';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
+import { useToast } from '@/hooks/useToast';
 import { useNDKContext } from '@/context/NDKContext';
 import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscription';
 import 'primeicons/primeicons.css';
@@ -38,11 +41,13 @@ export default function Details() {
     const [zapAmount, setZapAmount] = useState(null);
     const [paidResource, setPaidResource] = useState(false);
     const [decryptedContent, setDecryptedContent] = useState(null);
+    const [authorView, setAuthorView] = useState(false);
 
     const ndk = useNDKContext();
     const { data: session, status } = useSession();
     const [user, setUser] = useState(null);
     const { returnImageProxy } = useImageProxy();
+    const { showToast } = useToast();
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: processedEvent });
 
     const router = useRouter();
@@ -102,6 +107,9 @@ export default function Details() {
 
                     if (event) {
                         setEvent(event);
+                        if (user && user.pubkey === event.pubkey) {
+                            setAuthorView(true);
+                        }
                     }
                 } catch (error) {
                     console.error('Error fetching event:', error);
@@ -111,7 +119,7 @@ export default function Details() {
                 fetchEvent(slug);
             }
         }
-    }, [router.isReady, router.query, ndk]);
+    }, [router.isReady, router.query, ndk, user]);
 
     useEffect(() => {
         const fetchAuthor = async (pubkey) => {
@@ -171,6 +179,25 @@ export default function Details() {
         setZapAmount(total);
     }, [zaps]);
 
+    const handleDelete = async () => {
+        try {
+            const response = await axios.delete(`/api/resources/${processedEvent.id}`);
+            if (response.status === 204) {
+                showToast('success', 'Success', 'Resource deleted successfully.');
+                router.push('/');
+            }
+        } catch (error) {
+            if (error.response && error.response.data && error.response.data.error.includes("Invalid `prisma.resource.delete()`")) {
+                showToast('error', 'Error', 'Resource cannot be deleted because it is part of a course, delete the course first.');
+            }
+            else if (error.response && error.response.data && error.response.data.error) {
+                showToast('error', 'Error', error.response.data.error);
+            } else {
+                showToast('error', 'Error', 'Failed to delete resource. Please try again.');
+            }
+        }
+    }
+
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
             <div className='w-full flex flex-row justify-between max-tab:flex-col max-mob:flex-col'>
@@ -227,6 +254,14 @@ export default function Details() {
                     </div>
                 </div>
             </div>
+            {authorView && (
+                <div className='w-[75vw] mx-auto flex flex-row justify-end mt-12'>
+                    <div className='w-fit flex flex-row justify-between'>
+                    <Button onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
+                    <Button onClick={handleDelete} label="Delete" severity='danger' outlined className="w-auto m-2 mr-0" />
+                    </div>
+                </div>
+            )}
             {typeof window !== 'undefined' && nAddress !== null && (
                 <div className='px-24'>
                     <ZapThreadsWrapper

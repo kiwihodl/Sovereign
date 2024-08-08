@@ -89,7 +89,7 @@ const UserAvatar = () => {
                 icon="pi pi-user"
                 className="text-[#f8f8ff]"
                 rounded
-                onClick={() => router.push('/login')}
+                onClick={() => router.push('/auth/signin')}
                 size={windowWidth < 768 ? 'small' : 'normal'}
             />
         );

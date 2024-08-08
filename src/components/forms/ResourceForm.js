@@ -7,6 +7,8 @@ import { Button } from "primereact/button";
 import { useRouter } from "next/router";;
 import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/useToast";
+import { useNDKContext } from "@/context/NDKContext";
+import { NDKEvent } from "@nostr-dev-kit/ndk";
 import dynamic from 'next/dynamic';
 const MDEditor = dynamic(
     () => import("@uiw/react-md-editor"),
@@ -16,7 +18,7 @@ const MDEditor = dynamic(
 );
 import 'primeicons/primeicons.css';
 
-const ResourceForm = ({ draft = null }) => {
+const ResourceForm = ({ draft = null, isPublished = false }) => {
     const [title, setTitle] = useState(draft?.title || '');
     const [summary, setSummary] = useState(draft?.summary || '');
     const [isPaidResource, setIsPaidResource] = useState(draft?.price ? true : false);
@@ -29,6 +31,12 @@ const ResourceForm = ({ draft = null }) => {
     const { data: session, status } = useSession();
     const { showToast } = useToast();
     const router = useRouter();
+    const ndk = useNDKContext();
+
+    useEffect(() => {
+        console.log('isPublished', isPublished);
+        console.log('draft', draft);
+    }, [isPublished, draft]);
 
     useEffect(() => {
         if (session) {
@@ -51,6 +59,69 @@ const ResourceForm = ({ draft = null }) => {
             setTopics(draft.topics || []);
         }
     }, [draft]);
+
+    const buildEvent = async (draft) => {
+        const dTag = draft.d
+        const event = new NDKEvent(ndk);
+        let encryptedContent;
+
+        if (draft?.price) {
+            // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
+            encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
+        }
+
+        event.kind = draft?.price ? 30402 : 30023; // Determine kind based on if price is present
+        event.content = draft?.price ? encryptedContent : draft.content;
+        event.created_at = Math.floor(Date.now() / 1000);
+        event.pubkey = user.pubkey;
+        event.tags = [
+            ['d', dTag],
+            ['title', draft.title],
+            ['summary', draft.summary],
+            ['image', draft.image],
+            ...draft.topics.map(topic => ['t', topic]),
+            ['published_at', Math.floor(Date.now() / 1000).toString()],
+            ...(draft?.price ? [['price', draft.price.toString()], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
+        ];
+
+        return event;
+    };
+
+    const handlePublishedResource = async (e) => {
+        e.preventDefault();
+
+        // create new object with state fields
+        const updatedDraft = {
+            title,
+            summary,
+            price,
+            content,
+            image: coverImage,
+            topics: [...topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'resource']
+        }
+
+        console.log('handlePublishedResource', updatedDraft);
+
+        const event = await buildEvent(updatedDraft);
+
+        console.log('event', event);
+
+        try {
+            await ndk.connect();
+
+            const published = await ndk.publish(event);
+
+            if (published) {
+                showToast('success', 'Success', 'Resource published successfully.');
+                router.push(`/resource/${event.id}`);
+            } else {
+                showToast('error', 'Error', 'Failed to publish resource. Please try again.');
+            }
+        } catch (error) {
+            console.error(error);
+            showToast('error', 'Error', 'Failed to publish resource. Please try again.');
+        }
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -115,7 +186,7 @@ const ResourceForm = ({ draft = null }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={isPublished && draft ? handlePublishedResource : handleSubmit}>
             <div className="p-inputgroup flex-1">
                 <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
             </div>
