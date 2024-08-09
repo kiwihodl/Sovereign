@@ -1,45 +1,33 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNDKContext } from '@/context/NDKContext';
-import { useContentIdsQuery } from '@/hooks/apiQueries/useContentIdsQuery';
+import axios from 'axios';
 
 const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY;
 
 export function useCoursesQuery() {
     const [isClient, setIsClient] = useState(false);
-
-    const { contentIds, contentIdsLoading, contentIdsError, refetchContentIds } = useContentIdsQuery();
     const ndk = useNDKContext();
 
     useEffect(() => {
         setIsClient(true);
     }, []);
 
-    useEffect(() => {
-        refetchContentIds();
-    }, [refetchContentIds]);
-
-    const hasRequiredProperties = (event) => {
-        if (contentIdsLoading) {
-            return false;
-        }
-
-        const hasCourseTag = event.tags.some(([tag, value]) => tag === "t" && value === "course");
-        const hasId = contentIds.includes(event.id);
-        return hasCourseTag && hasId;
+    const hasRequiredProperties = (event, contentIds) => {
+        // currently no topic tag added
+        // const hasCourseTag = event.tags.some(([tag, value]) => tag === "t" && value === "course");
+        const hasId = event.tags.some(([tag, value]) => tag === "d" && contentIds.includes(value));
+        return hasId;
     };
 
     const fetchCoursesFromNDK = async () => {
         try {
-            if (contentIdsLoading) {
-                return []; // or a loading state indication
-            }
-            if (contentIdsError) {
-                console.error('Error fetching content IDs:', contentIdsError);
-                return [];
-            }
-            if (!contentIds) {
-                return [];
+            const response = await axios.get(`/api/content/all`);
+            const contentIds = response.data;
+
+            if (!contentIds || contentIds.length === 0) {
+                console.log('No content IDs found');
+                return []; // Return early if no content IDs are found
             }
 
             await ndk.connect();
@@ -47,9 +35,11 @@ export function useCoursesQuery() {
             const filter = { kinds: [30004], authors: [AUTHOR_PUBKEY] };
             const events = await ndk.fetchEvents(filter);
 
+            console.log('events', events);
+
             if (events && events.size > 0) {
                 const eventsArray = Array.from(events);
-                const courses = eventsArray.filter(event => hasRequiredProperties(event));
+                const courses = eventsArray.filter(event => hasRequiredProperties(event, contentIds));
                 return courses;
             }
             return [];
@@ -62,8 +52,8 @@ export function useCoursesQuery() {
     const { data: courses, isLoading: coursesLoading, error: coursesError, refetch: refetchCourses } = useQuery({
         queryKey: ['courses', isClient],
         queryFn: fetchCoursesFromNDK,
-        staleTime: 1000 * 60 * 30, // 30 minutes
-        refetchInterval: 1000 * 60 * 30, // 30 minutes
+        // staleTime: 1000 * 60 * 30, // 30 minutes
+        // refetchInterval: 1000 * 60 * 30, // 30 minutes
         enabled: isClient,
     });
 

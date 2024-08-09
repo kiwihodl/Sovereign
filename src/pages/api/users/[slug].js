@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       case 'PUT':
         if (!isPubkey) {
           // Update operation should be done with an ID, not a pubkey
-          const updatedUser = await updateUser(parseInt(slug), req.body);
+          const updatedUser = await updateUser(slug, req.body);
           res.status(200).json(updatedUser);
         } else {
           // Handle attempt to update user with pubkey

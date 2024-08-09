@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/useToast';
 import { useNDKContext } from '@/context/NDKContext';
 import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscription';
 import 'primeicons/primeicons.css';
+
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
     {
@@ -31,6 +32,7 @@ const BitcoinConnectPayButton = dynamic(
 );
 
 const privkey = process.env.NEXT_PUBLIC_APP_PRIV_KEY;
+const pubkey = process.env.NEXT_PUBLIC_APP_PUBLIC_KEY;
 
 export default function Details() {
     const [event, setEvent] = useState(null);
@@ -54,6 +56,7 @@ export default function Details() {
 
     useEffect(() => {
         if (session) {
+            console.log('session:', session);
             setUser(session.user);
         }
     }, [session]);
@@ -77,17 +80,14 @@ export default function Details() {
     useEffect(() => {
         const decryptContent = async () => {
             if (user && paidResource) {
-                if (!user.purchased.includes(processedEvent.id)) {
-                // decrypt the content
-                console.log('privkey', privkey);
-                console.log('user.pubkey', user.pubkey);
-                console.log('processedEvent.content', processedEvent.content);
-                const decryptedContent = await nip04.decrypt(privkey, user.pubkey, processedEvent.content);
-                console.log('decryptedContent', decryptedContent);
-                setDecryptedContent(decryptedContent);
+                if (user.purchased.includes(processedEvent.id) || (user?.role && user?.role.subscribed)) {
+                    // decrypt the content
+                    const decryptedContent = await nip04.decrypt(privkey, pubkey, processedEvent.content);
+                    console.log('decryptedContent', decryptedContent);
+                    setDecryptedContent(decryptedContent);
+                }
             }
         }
-    }
         decryptContent();
     }, [user, paidResource, processedEvent]);
 
@@ -181,7 +181,7 @@ export default function Details() {
 
     const handleDelete = async () => {
         try {
-            const response = await axios.delete(`/api/resources/${processedEvent.id}`);
+            const response = await axios.delete(`/api/resources/${processedEvent.d}`);
             if (response.status === 204) {
                 showToast('success', 'Success', 'Resource deleted successfully.');
                 router.push('/');
@@ -274,7 +274,11 @@ export default function Details() {
             )}
             <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
                 {
-                    processedEvent?.content && <MDDisplay source={processedEvent.content} />
+                    decryptedContent ? (
+                        <MDDisplay source={decryptedContent} />
+                    ) : (
+                        processedEvent?.content && <MDDisplay source={processedEvent.content} />
+                    )
                 }
             </div>
         </div>

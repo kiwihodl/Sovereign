@@ -44,94 +44,84 @@ const CourseForm = () => {
         }
     }, [session]);
 
-        /**
-     * Course Creation Flow:
-     * 1. Generate a new course ID
-     * 2. Process each lesson:
-     *    - If unpublished: create event, publish to Nostr, save to DB, delete draft
-     *    - If published: use existing data
-     * 3. Create and publish course event to Nostr
-     * 4. Save course to database
-     * 5. Show success message and redirect to course page
-     */
+    useEffect(() => {
+        console.log('selectedLessons:', selectedLessons);
+    }, [selectedLessons]);
 
-    const handleSubmit = async (e) => {
+    const handleDraftSubmit = async (e) => {
         e.preventDefault();
 
-        const newCourseId = uuidv4();
-        const processedLessons = [];
+        // Prepare the lessons from selected lessons
+        const resources = await Promise.all(selectedLessons.map(async (lesson) => {
+            // if .type is present than this lesson is a draft we need to publish
+            if (lesson?.type) {
+                const event = createLessonEvent(lesson);
+                const published = await event.publish();
+
+                if (!published) {
+                    throw new Error(`Failed to publish lesson: ${lesson.title}`);
+                }
+
+                // Now post to resources
+                const resource = await axios.post('/api/resources', {
+                    id: event.tags.find(tag => tag[0] === 'd')[1],
+                    userId: user.id,
+                    price: lesson.price || 0,
+                    noteId: event.id,
+                });
+
+                if (resource.status !== 201) {
+                    throw new Error(`Failed to post resource: ${lesson.title}`);
+                }
+
+                // now delete the draft
+                const deleted = await axios.delete(`/api/drafts/${lesson.id}`);
+
+                if (deleted.status !== 204) {
+                    throw new Error(`Failed to delete draft: ${lesson.title}`);
+                }
+
+                return {
+                    id: lesson.id,
+                    userId: user.id,
+                    price: lesson.price || 0,
+                    noteId: event.id,
+                }
+            } else {
+                return {
+                    id: lesson.d,
+                    userId: user.id,
+                    price: lesson.price || 0,
+                    noteId: lesson.id,
+                }
+            }
+        }));
+
+        console.log('resources:', resources);
+
+        const payload = {
+            userId: user.id,
+            title,
+            summary,
+            image: coverImage,
+            price: price || 0,
+            resources, // Send the array of lesson/resource IDs
+        };
+
+        console.log('payload:', payload);
 
         try {
-            // Step 1: Process lessons
-            for (const lesson of selectedLessons) {
-                let noteId = lesson.noteId;
+            // Post the course draft to the API
+            const response = await axios.post('/api/courses/drafts', payload);
 
-                if (!lesson.published_at) {
-                    // Publish unpublished lesson
-                    const event = createLessonEvent(lesson);
-                    const published = await event.publish();
+            console.log('response:', response);
 
-                    if (!published) {
-                        throw new Error(`Failed to publish lesson: ${lesson.title}`);
-                    }
-
-                    noteId = event.id;
-
-                    // Save to db and delete draft
-                    await Promise.all([
-                        axios.post('/api/resources', {
-                            id: lesson.id,
-                            noteId: noteId,
-                            userId: user.id,
-                            price: lesson.price || 0,
-                        }),
-                        axios.delete(`/api/drafts/${lesson.id}`)
-                    ]);
-                }
-                // if the lesson was already published we will have d tag, otherwise we will have id
-                // if the lesson was already published we will have kind tag, otherwise we will use price tag to determine the kind
-                // if the lesson was already published we will have pubkey tag, otherwise we will use user.pubkey
-                processedLessons.push({ 
-                    d: lesson?.d || lesson.id, 
-                    kind: lesson.kind ?? (lesson.price ? 30402 : 30023),
-                    pubkey: lesson.pubkey || user.pubkey
-                });
-            }
-
-            // Step 2: Create and publish course
-            const courseEvent = createCourseEvent(newCourseId, title, summary, coverImage, processedLessons);
-            const published = await courseEvent.publish();
-
-            console.log('published', published);
-
-            if (!published) {
-                throw new Error('Failed to publish course');
-            }
-
-            // Step 3: Save course to db
-            console.log('processedLessons:', processedLessons);
-            await axios.post('/api/courses', {
-                id: newCourseId,
-                resources: {
-                    connect: processedLessons.map(lesson => ({ id: lesson?.d }))
-                },
-                noteId: courseEvent.id,
-                user: {
-                    connect: { id: user.id }
-                },
-                price: price || 0
-            });
-
-            // step 4: Update all resources to have the course id
-            await Promise.all(processedLessons.map(lesson => axios.put(`/api/resources/${lesson?.d}`, { courseId: newCourseId })));
-
-            // Step 5: Show success message and redirect
-            showToast('success', 'Course created successfully');
-            router.push(`/course/${courseEvent.id}`);
-
+            // If successful, navigate to the course page
+            showToast('success', 'Course draft saved successfully');
+            router.push(`/course/${response.data.id}/draft`);
         } catch (error) {
-            console.error('Error creating course:', error);
-            showToast('error', error.message || 'Failed to create course. Please try again.');
+            console.error('Error saving course draft:', error);
+            showToast('error', 'Failed to save course draft. Please try again.');
         }
     };
 
@@ -146,22 +136,6 @@ const CourseForm = () => {
             ['image', lesson.image],
             ...lesson.topics.map(topic => ['t', topic]),
             ['published_at', Math.floor(Date.now() / 1000).toString()],
-        ];
-        return event;
-    };
-
-    const createCourseEvent = (courseId, title, summary, coverImage, lessons) => {
-        const event = new NDKEvent(ndk);
-        event.kind = 30004;
-        event.content = "";
-        event.tags = [
-            ['d', courseId],
-            ['name', title],
-            ['picture', coverImage],
-            ['image', coverImage],
-            ['description', summary],
-            ['l', "Education"],
-            ...lessons.map((lesson) => ['a', `${lesson.kind}:${lesson.pubkey}:${lesson.d}`]),
         ];
         return event;
     };
@@ -258,7 +232,7 @@ const CourseForm = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleDraftSubmit}>
             <div className="p-inputgroup flex-1">
                 <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
             </div>

@@ -96,6 +96,7 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
             summary,
             price,
             content,
+            d: draft.d,
             image: coverImage,
             topics: [...topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'resource']
         }
@@ -112,8 +113,11 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
             const published = await ndk.publish(event);
 
             if (published) {
+                // update the resource with new noteId
+                const response = await axios.put(`/api/resources/${draft.d}`, { noteId: event.id });
+                console.log('response', response);
                 showToast('success', 'Success', 'Resource published successfully.');
-                router.push(`/resource/${event.id}`);
+                router.push(`/details/${event.id}`);
             } else {
                 showToast('error', 'Error', 'Failed to publish resource. Please try again.');
             }

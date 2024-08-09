@@ -11,8 +11,6 @@ export default function SignIn() {
 
     const { data: session, status } = useSession(); // Get the current session's data and status
 
-    //   const ndk = useNDKContext()
-
     useEffect(() => {
         console.log("session", session)
     }, [session])
@@ -33,7 +31,6 @@ export default function SignIn() {
         try {
             const user = await nip07signer.user()
 
-            console.log("user in signin", user)
             const pubkey = user?._pubkey
             signIn("nostr", { pubkey })
         } catch (error) {

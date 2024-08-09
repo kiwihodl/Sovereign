@@ -32,6 +32,24 @@ export async function isResourcePartOfAnyCourse(resourceId) {
     return courses.length > 0;
 }
 
+export const updateLessonInCourse = async (courseId, resourceId, data) => {
+    return await prisma.course.update({
+        where: { id: courseId },
+        data: {
+            resources: {
+                update: {
+                    where: { id: resourceId },
+                    data: {
+                        title: data.title,
+                        summary: data.summary,
+                        // Add any other fields you want to update in the lesson
+                    }
+                }
+            }
+        }
+    });
+};
+
 export const createResource = async (data) => {
     return await prisma.resource.create({
         data,

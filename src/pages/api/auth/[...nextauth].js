@@ -41,7 +41,14 @@ export default NextAuth({
                         const response = await axios.get(`${BASE_URL}/api/users/${credentials.pubkey}`);
                         if (response.status === 200 && response.data) {
                             const fields = await findKind0Fields(profile);
-                            return { pubkey: credentials.pubkey, ...fields };
+
+                            // Combine user object with kind0Fields, giving priority to kind0Fields
+                            const combinedUser = { ...fields, ...response.data };
+                            
+                            // Update the user on the backend if necessary
+                            // await axios.put(`${BASE_URL}/api/users/${combinedUser.id}`, combinedUser);
+
+                            return combinedUser;
                         } else if (response.status === 204) {
                             // Create user
                             if (profile) {
@@ -63,7 +70,7 @@ export default NextAuth({
     ],
     callbacks: {
         async jwt({ token, user }) {
-            // Add user to the token if user object exists
+            // Add combined user object to the token
             if (user) {
                 token.user = user;
             }

@@ -84,7 +84,7 @@ export default function Draft() {
                     return;
                 }
 
-                console.log('unsignedEvent:', unsignedEvent.validate());
+                console.log('unsignedEvent:', unsignedEvent.validate(), unsignedEvent);
                 console.log('unsignedEvent validation:', validationResult);
 
                 if (unsignedEvent) {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import Image from "next/image";
 import { Button } from "primereact/button";
 import { useImageProxy } from "@/hooks/useImageProxy";
@@ -8,6 +8,25 @@ const ContentListItem = (content) => {
     const { returnImageProxy } = useImageProxy();
     const router = useRouter();
     const isDraft = Object.keys(content).includes('type');
+    const isCourse = content && content?.resources && content?.resources?.length > 0;
+
+    const handleClick = () => {
+        let path = '';
+    
+        if (isDraft) {
+            path = '/draft';
+        } else if (isCourse) {
+            path = '/course';
+        } else {
+            path = '/details';
+        }
+    
+        const draftSuffix = isCourse ? '/draft' : '';
+        const fullPath = `${path}/${content.id}${draftSuffix}`;
+    
+        router.push(fullPath);
+    };
+    
 
     return (
         <div className="p-4 border-bottom-1 surface-border" key={content.id}>
@@ -26,7 +45,7 @@ const ContentListItem = (content) => {
                     </div>
                     <div className="text-right">
                         <Button
-                            onClick={() => router.push(`${ isDraft ? '/draft' : '/details' }/${content.id}`)}
+                            onClick={handleClick}
                             label="Open"
                             outlined
                         />
