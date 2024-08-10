@@ -7,14 +7,25 @@ import { useImageProxy } from "@/hooks/useImageProxy";
 import { useSession } from 'next-auth/react';
 import UserContent from "@/components/profile/UserContent";
 import Image from "next/image";
-import BitcoinConnectButton from "@/components/profile/BitcoinConnect";
+import BitcoinConnectButton from "@/components/bitcoinConnect/BitcoinConnect";
 
 const Profile = () => {
     const [user, setUser] = useState(null);
+    const [bitcoinConnect, setBitcoinConnect] = useState(false);
 
     const { data: session, status } = useSession();
     const { returnImageProxy } = useImageProxy();
     const menu = useRef(null);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const bitcoinConnectConfig = window.localStorage.getItem('bc:config');
+
+        if (bitcoinConnectConfig) {
+            setBitcoinConnect(true);
+        }
+    }, []);
 
     useEffect(() => {
         if (session) {
@@ -74,7 +85,7 @@ const Profile = () => {
                     </h2>
                     <div className="flex flex-col w-1/2 mx-auto my-4 justify-between items-center">
                         <h2>Connect Your Lightning Wallet</h2>
-                        <BitcoinConnectButton />
+                        {bitcoinConnect ? <BitcoinConnectButton /> : <p>Connecting...</p>}
                     </div>
                     <div className="flex flex-col w-1/2 mx-auto my-4 justify-between items-center">
                         <h2>Subscription</h2>

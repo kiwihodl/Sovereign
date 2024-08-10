@@ -15,6 +15,8 @@ import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import { useToast } from '@/hooks/useToast';
 import { useNDKContext } from '@/context/NDKContext';
 import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscription';
+import { LightningAddress } from "@getalby/lightning-tools";
+import PaymentButton from '@/components/bitcoinConnect/PaymentButton';
 import 'primeicons/primeicons.css';
 
 const MDDisplay = dynamic(
@@ -56,7 +58,6 @@ export default function Details() {
 
     useEffect(() => {
         if (session) {
-            console.log('session:', session);
             setUser(session.user);
         }
     }, [session]);
@@ -80,10 +81,9 @@ export default function Details() {
     useEffect(() => {
         const decryptContent = async () => {
             if (user && paidResource) {
-                if (user.purchased.includes(processedEvent.id) || (user?.role && user?.role.subscribed)) {
+                if (user?.purchased?.includes(processedEvent.id) || (user?.role && user?.role.subscribed)) {
                     // decrypt the content
                     const decryptedContent = await nip04.decrypt(privkey, pubkey, processedEvent.content);
-                    console.log('decryptedContent', decryptedContent);
                     setDecryptedContent(decryptedContent);
                 }
             }
@@ -198,6 +198,27 @@ export default function Details() {
         }
     }
 
+    const renderContent = () => {
+        if (decryptedContent) {
+            return <MDDisplay source={decryptedContent} />;
+        }
+        if (paidResource && !decryptedContent) {
+            return <p className="text-center text-xl text-red-500">This content is paid and needs to be purchased before viewing.</p>;
+        }
+        if (processedEvent?.content) {
+            return <MDDisplay source={processedEvent.content} />;
+        }
+        return null;
+    };
+
+    const handlePaymentSuccess = (response) => {
+        console.log("response in higher level", response)
+    }
+
+    const handlePaymentError = (error) => {
+        console.log("error in higher level", error)
+    }
+
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
             <div className='w-full flex flex-row justify-between max-tab:flex-col max-mob:flex-col'>
@@ -240,15 +261,10 @@ export default function Details() {
                                     height={194}
                                     className="w-[344px] h-[194px] object-cover object-top rounded-lg"
                                 />
-                                {bitcoinConnect ? (
-                                    <div>
-                                        <BitcoinConnectPayButton onClick={handleZapEvent} />
-                                    </div>
-                                ) : (
-                                    <div className="w-full flex justify-end">
-                                        <ZapDisplay zapAmount={zapAmount} event={processedEvent} zapsLoading={zapsLoading} />
-                                    </div>
-                                )}
+                                <div className='w-full flex flex-row justify-between'>
+                                    {paidResource && !decryptedContent && <PaymentButton lnAddress={'bitcoinplebdev@stacker.news'} amount={processedEvent.price} onSuccess={handlePaymentSuccess} onError={handlePaymentError} />}
+                                    <ZapDisplay zapAmount={zapAmount} event={processedEvent} zapsLoading={zapsLoading} />
+                                </div>
                             </div>
                         )}
                     </div>
@@ -257,8 +273,8 @@ export default function Details() {
             {authorView && (
                 <div className='w-[75vw] mx-auto flex flex-row justify-end mt-12'>
                     <div className='w-fit flex flex-row justify-between'>
-                    <Button onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
-                    <Button onClick={handleDelete} label="Delete" severity='danger' outlined className="w-auto m-2 mr-0" />
+                        <Button onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
+                        <Button onClick={handleDelete} label="Delete" severity='danger' outlined className="w-auto m-2 mr-0" />
                     </div>
                 </div>
             )}
@@ -273,13 +289,7 @@ export default function Details() {
                 </div>
             )}
             <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
-                {
-                    decryptedContent ? (
-                        <MDDisplay source={decryptedContent} />
-                    ) : (
-                        processedEvent?.content && <MDDisplay source={processedEvent.content} />
-                    )
-                }
+                {renderContent()}
             </div>
         </div>
     );

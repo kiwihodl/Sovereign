@@ -11,7 +11,7 @@ const ZapDisplay = ({ zapAmount, event, zapsLoading }) => {
         let timeout;
         if (!zapsLoading && zapAmount === 0) {
             setExtraLoading(true);
-            timeout = setTimeout(() => setExtraLoading(false), 5000);
+            timeout = setTimeout(() => setExtraLoading(false), 3000);
         }
         return () => clearTimeout(timeout);
     }, [zapsLoading, zapAmount]);
