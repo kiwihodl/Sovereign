@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import { initializeBitcoinConnect } from './BitcoinConnect';
 import { LightningAddress } from '@getalby/lightning-tools';
 import { useToast } from '@/hooks/useToast';
+import axios from 'axios'; // Import axios for API calls
 
 const PayButton = dynamic(
   () => import('@getalby/bitcoin-connect-react').then((mod) => mod.PayButton),
@@ -11,7 +12,7 @@ const PayButton = dynamic(
   }
 );
 
-const PaymentButton = ({ lnAddress, amount, onSuccess, onError }) => {
+const PaymentButton = ({ lnAddress, amount, onSuccess, onError, userId, resourceId }) => {
   const [invoice, setInvoice] = useState(null);
   const { showToast } = useToast();
   const [pollingInterval, setPollingInterval] = useState(null);
@@ -64,14 +65,31 @@ const PaymentButton = ({ lnAddress, amount, onSuccess, onError }) => {
   };
 
   const handlePaymentSuccess = async (response) => {
-    stopPolling(); // Stop polling after success
-
-    // Close the modal
+    stopPolling();
     await closeModal();
 
-    // After the modal is closed, show the success toast
-    showToast('success', 'Payment Successful', `Paid ${amount} sats`);
-    if (onSuccess) onSuccess(response);
+    try {
+      // Create a new purchase record
+      const purchaseData = {
+        userId: userId,
+        resourceId: resourceId,
+        amountPaid: parseInt(amount, 10) // Convert amount to integer
+      };
+
+      // Make an API call to add the purchase to the user
+      const result = await axios.post('/api/purchases', purchaseData);
+
+      if (result.status === 200) {
+        showToast('success', 'Payment Successful', `Paid ${amount} sats and updated user purchases`);
+        if (onSuccess) onSuccess(response);
+      } else {
+        throw new Error('Failed to update user purchases');
+      }
+    } catch (error) {
+      console.error('Error updating user purchases:', error);
+      showToast('error', 'Purchase Update Failed', 'Payment was successful, but failed to update user purchases.');
+      if (onError) onError(error);
+    }
   };
 
   const handlePaymentError = (error) => {

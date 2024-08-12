@@ -44,6 +44,20 @@ export const getUserByPubkey = async (pubkey) => {
     });
 }
 
+export const addPurchaseToUser = async (userId, purchaseData) => {
+    return await prisma.user.update({
+      where: { id: userId },
+      data: {
+        purchased: {
+          create: purchaseData
+        }
+      },
+      include: {
+        purchased: true
+      }
+    });
+  };
+
 export const createUser = async (data) => {
     return await prisma.user.create({
         data,

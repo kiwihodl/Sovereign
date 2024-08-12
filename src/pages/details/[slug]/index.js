@@ -262,7 +262,15 @@ export default function Details() {
                                     className="w-[344px] h-[194px] object-cover object-top rounded-lg"
                                 />
                                 <div className='w-full flex flex-row justify-between'>
-                                    {paidResource && !decryptedContent && <PaymentButton lnAddress={'bitcoinplebdev@stacker.news'} amount={processedEvent.price} onSuccess={handlePaymentSuccess} onError={handlePaymentError} />}
+                                    {paidResource && !decryptedContent && <PaymentButton
+                                        lnAddress={'bitcoinplebdev@stacker.news'}
+                                        amount={processedEvent.price}
+                                        onSuccess={handlePaymentSuccess}
+                                        onError={handlePaymentError}
+                                        userId={user.id}  // Pass the user ID
+                                        resourceId={processedEvent.id}  // Pass the course/resource ID
+                                    />}
+
                                     <ZapDisplay zapAmount={zapAmount} event={processedEvent} zapsLoading={zapsLoading} />
                                 </div>
                             </div>
