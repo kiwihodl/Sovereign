@@ -44,17 +44,24 @@ export const getUserByPubkey = async (pubkey) => {
     });
 }
 
-export const addPurchaseToUser = async (userId, purchaseData) => {
+export const addResourcePurchaseToUser = async (userId, purchaseData) => {
     return await prisma.user.update({
       where: { id: userId },
       data: {
         purchased: {
-          create: purchaseData
-        }
+          create: {
+            resourceId: purchaseData.resourceId,
+            amountPaid: purchaseData.amountPaid,
+          },
+        },
       },
       include: {
-        purchased: true
-      }
+        purchased: {
+          include: {
+            resource: true,
+          },
+        },
+      },
     });
   };
 

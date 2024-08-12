@@ -1,11 +1,11 @@
-import { addPurchaseToUser } from "@/db/models/userModels";
+import { addResourcePurchaseToUser } from "@/db/models/userModels";
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const { userId, resourceId, amountPaid } = req.body;
 
-      const updatedUser = await addPurchaseToUser(userId, {
+      const updatedUser = await addResourcePurchaseToUser(userId, {
         resourceId,
         amountPaid: parseInt(amountPaid, 10) // Ensure amountPaid is an integer
       });

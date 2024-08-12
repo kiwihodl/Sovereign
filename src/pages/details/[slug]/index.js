@@ -48,7 +48,7 @@ export default function Details() {
     const [authorView, setAuthorView] = useState(false);
 
     const ndk = useNDKContext();
-    const { data: session, status } = useSession();
+    const { data: session, update } = useSession();
     const [user, setUser] = useState(null);
     const { returnImageProxy } = useImageProxy();
     const { showToast } = useToast();
@@ -81,12 +81,20 @@ export default function Details() {
     useEffect(() => {
         const decryptContent = async () => {
             if (user && paidResource) {
-                if (user?.purchased?.includes(processedEvent.id) || (user?.role && user?.role.subscribed)) {
+                if (user?.purchased?.length > 0) {
+                    const purchasedResource = user?.purchased.find(purchase => purchase.resourceId === processedEvent.d);
+                    if (purchasedResource) {
+                        console.log("purchasedResource", purchasedResource)
+                        const decryptedContent = await nip04.decrypt(privkey, pubkey, processedEvent.content);
+                        setDecryptedContent(decryptedContent);
+                    }
+                } else if (user?.role && user?.role.subscribed) {
                     // decrypt the content
                     const decryptedContent = await nip04.decrypt(privkey, pubkey, processedEvent.content);
                     setDecryptedContent(decryptedContent);
                 }
             }
+
         }
         decryptContent();
     }, [user, paidResource, processedEvent]);
@@ -211,12 +219,20 @@ export default function Details() {
         return null;
     };
 
-    const handlePaymentSuccess = (response) => {
-        console.log("response in higher level", response)
+    const handlePaymentSuccess = async (response, newResource) => {
+        if (response && response?.preimage) {
+            console.log("newResource", newResource)
+            // Refetch session to get the latest user data
+            const updated = await update();
+            console.log("session after update", updated)
+            // router.reload(); // Optionally, reload the page if necessary
+        } else {
+            showToast('error', 'Error', 'Failed to purchase resource. Please try again.');
+        }
     }
 
     const handlePaymentError = (error) => {
-        console.log("error in higher level", error)
+        showToast('error', 'Payment Error', `Failed to purchase resource. Please try again. Error: ${error}`);
     }
 
     return (
@@ -267,9 +283,11 @@ export default function Details() {
                                         amount={processedEvent.price}
                                         onSuccess={handlePaymentSuccess}
                                         onError={handlePaymentError}
-                                        userId={user.id}  // Pass the user ID
-                                        resourceId={processedEvent.id}  // Pass the course/resource ID
+                                        resourceId={processedEvent.d}
                                     />}
+
+                                    {/* if the resource has been paid for show a green paid x sats text */}
+                                    {paidResource && decryptedContent && <p className='text-green-500'>Paid {processedEvent.price} sats</p>}
 
                                     <ZapDisplay zapAmount={zapAmount} event={processedEvent} zapsLoading={zapsLoading} />
                                 </div>

@@ -20,6 +20,43 @@ const ndk = new NDK({
     explicitRelayUrls: relayUrls,
 });
 
+const authorize = async (pubkey) => {
+    await ndk.connect();
+    const user = ndk.getUser({ pubkey });
+
+    try {
+        const profile = await user.fetchProfile();
+
+        // Check if user exists, create if not
+        const response = await axios.get(`${BASE_URL}/api/users/${pubkey}`);
+        if (response.status === 200 && response.data) {
+            const fields = await findKind0Fields(profile);
+
+            // Combine user object with kind0Fields, giving priority to kind0Fields
+            const combinedUser = { ...fields, ...response.data };
+
+            // Update the user on the backend if necessary
+            // await axios.put(`${BASE_URL}/api/users/${combinedUser.id}`, combinedUser);
+
+            return combinedUser;
+        } else if (response.status === 204) {
+            // Create user
+            if (profile) {
+                const fields = await findKind0Fields(profile);
+                console.log('FEEEEELDS', fields);
+                const payload = { pubkey, ...fields };
+
+                const createUserResponse = await axios.post(`${BASE_URL}/api/users`, payload);
+                return createUserResponse.data;
+            }
+        }
+    } catch (error) {
+        console.error("Nostr login error:", error);
+    }
+    return null;
+}
+
+
 export default NextAuth({
     providers: [
         CredentialsProvider({
@@ -30,46 +67,19 @@ export default NextAuth({
             },
             authorize: async (credentials) => {
                 if (credentials?.pubkey) {
-                    await ndk.connect();
-
-                    const user = ndk.getUser({ pubkey: credentials.pubkey });
-
-                    try {
-                        const profile = await user.fetchProfile();
-
-                        // Check if user exists, create if not
-                        const response = await axios.get(`${BASE_URL}/api/users/${credentials.pubkey}`);
-                        if (response.status === 200 && response.data) {
-                            const fields = await findKind0Fields(profile);
-
-                            // Combine user object with kind0Fields, giving priority to kind0Fields
-                            const combinedUser = { ...fields, ...response.data };
-                            
-                            // Update the user on the backend if necessary
-                            // await axios.put(`${BASE_URL}/api/users/${combinedUser.id}`, combinedUser);
-
-                            return combinedUser;
-                        } else if (response.status === 204) {
-                            // Create user
-                            if (profile) {
-                                const fields = await findKind0Fields(profile);
-                                console.log('FEEEEELDS', fields);
-                                const payload = { pubkey: credentials.pubkey, ...fields };
-
-                                const createUserResponse = await axios.post(`${BASE_URL}/api/users`, payload);
-                                return createUserResponse.data;
-                            }
-                        }
-                    } catch (error) {
-                        console.error("Nostr login error:", error);
-                    }
+                    return await authorize(credentials.pubkey);
                 }
                 return null;
             },
         }),
     ],
     callbacks: {
-        async jwt({ token, user }) {
+        async jwt({ token, trigger, user }) {
+            if (trigger === "update") {
+                // if we trigger an update call the authorize function again
+                const newUser = await authorize(token.user.pubkey);
+                token.user = newUser;
+            }
             // Add combined user object to the token
             if (user) {
                 token.user = user;

@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import { initializeBitcoinConnect } from './BitcoinConnect';
 import { LightningAddress } from '@getalby/lightning-tools';
 import { useToast } from '@/hooks/useToast';
+import { useSession } from 'next-auth/react';
 import axios from 'axios'; // Import axios for API calls
 
 const PayButton = dynamic(
@@ -12,10 +13,18 @@ const PayButton = dynamic(
   }
 );
 
-const PaymentButton = ({ lnAddress, amount, onSuccess, onError, userId, resourceId }) => {
+const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resourceId }) => {
   const [invoice, setInvoice] = useState(null);
+  const [userId, setUserId] = useState(null);
   const { showToast } = useToast();
   const [pollingInterval, setPollingInterval] = useState(null);
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    if (session?.user) {
+      setUserId(session.user.id);
+    }
+  }, [session]);
 
   useEffect(() => {
     initializeBitcoinConnect();
@@ -77,7 +86,7 @@ const PaymentButton = ({ lnAddress, amount, onSuccess, onError, userId, resource
       };
 
       // Make an API call to add the purchase to the user
-      const result = await axios.post('/api/purchases', purchaseData);
+      const result = await axios.post('/api/purchase/resource', purchaseData);
 
       if (result.status === 200) {
         showToast('success', 'Payment Successful', `Paid ${amount} sats and updated user purchases`);
@@ -138,4 +147,4 @@ const PaymentButton = ({ lnAddress, amount, onSuccess, onError, userId, resource
   );
 };
 
-export default PaymentButton;
+export default ResourcePaymentButton;
