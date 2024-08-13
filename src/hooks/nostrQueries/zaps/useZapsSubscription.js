@@ -1,67 +1,68 @@
 import { useState, useEffect } from 'react';
-import { useNDKContext } from '@/context/NDKContext';
+import { useNDKContext } from "@/context/NDKContext";
 
-export function useZapsSubscription({ event }) {
-    const [isClient, setIsClient] = useState(false);
-    const [zaps, setZaps] = useState([]);
-    const [zapsLoading, setZapsLoading] = useState(true);
-    const [zapsError, setZapsError] = useState(null);
-    const ndk = useNDKContext();
+export function useZapsSubscription({event}) {
+  const [zaps, setZaps] = useState([]);
+  const [zapsLoading, setZapsLoading] = useState(true);
+  const [zapsError, setZapsError] = useState(null);
+  const ndk = useNDKContext();
 
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
+  useEffect(() => {
+    let subscription;
+    let isFirstZap = true;
+    const zapIds = new Set(); // To keep track of zap IDs we've already seen
 
-    useEffect(() => {
-        if (!isClient || !ndk || !event) return;
+    async function subscribeToZaps() {
+      try {
+        const filters = [
+          { kinds: [9735], "#e": [event.id] },
+          { kinds: [9735], "#a": [`${event.kind}:${event.id}:${event.d}`] }
+        ];
+        await ndk.connect();
+        console.log("filters", filters);
+        subscription = ndk.subscribe(filters);
 
-        let subscription = null;
+        subscription.on('event', (zapEvent) => {
+          console.log("event", zapEvent);
+          
+          // Check if we've already seen this zap
+          if (!zapIds.has(zapEvent.id)) {
+            zapIds.add(zapEvent.id);
+            setZaps((prevZaps) => [...prevZaps, zapEvent]);
 
-        const fetchZapsFromNDK = async () => {
-            try {
-                await ndk.connect();
-                const uniqueEvents = new Set();
-
-                const filters = [
-                    { kinds: [9735], "#e": [event.id] },
-                    { kinds: [9735], "#a": [`${event.kind}:${event.id}:${event.d}`] }
-                ];
-
-                subscription = ndk.subscribe(filters);
-
-                subscription.on('event', (zap) => {
-                    uniqueEvents.add(zap);
-                    setZaps(Array.from(uniqueEvents));
-                    setZapsLoading(false);
-                });
-
-                subscription.on('eose', () => {
-                    setZaps(Array.from(uniqueEvents));
-                    setZapsLoading(false);
-                });
-
-                // if there are no zaps for 15 seconds and no eose to stop loading
-                setTimeout(() => {
-                    if (uniqueEvents.size === 0) {
-                        setZapsLoading(false);
-                        setZaps(Array.from(uniqueEvents));
-                    }
-                }, 15000);
-
-            } catch (error) {
-                setZapsError('Error fetching zaps from NDK: ' + error);
-                setZapsLoading(false);
+            if (isFirstZap) {
+              setZapsLoading(false);
+              isFirstZap = false;
             }
-        };
+          }
+        });
 
-        fetchZapsFromNDK();
+        subscription.on('eose', () => {
+          console.log("eose");
+          // Only set loading to false if no zaps have been received yet
+          if (isFirstZap) {
+            setZapsLoading(false);
+          }
+        });
 
-        return () => {
-            if (subscription) {
-                subscription.stop();
-            }
-        };
-    }, [isClient, ndk, event]);
+        await subscription.start();
+      } catch (error) {
+        console.error("Error subscribing to zaps:", error);
+        setZapsError(error.message);
+        setZapsLoading(false);
+      }
+    }
 
-    return { zaps, zapsLoading, zapsError };
+    if (event && Object.keys(event).length > 0) {
+      subscribeToZaps();
+    }
+
+    return () => {
+      if (subscription) {
+        subscription.stop();
+      }
+    };
+  }, [event, ndk]);
+
+  return { zaps, zapsLoading, zapsError };
 }

@@ -5,12 +5,24 @@ import { useRouter } from "next/router";
 import ResourcePaymentButton from "@/components/bitcoinConnect/ResourcePaymentButton";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
 import { useImageProxy } from "@/hooks/useImageProxy";
+import { useZapsSubscription } from "@/hooks/nostrQueries/zaps/useZapsSubscription";
+import { getTotalFromZaps } from "@/utils/lightning";
 
-const ResourceDetails = ({processedEvent,topics, title, summary, image, price, author, paidResource, decryptedContent, zapAmount, zapsLoading, handlePaymentSuccess, handlePaymentError}) => {
+const ResourceDetails = ({processedEvent, topics, title, summary, image, price, author, paidResource, decryptedContent, handlePaymentSuccess, handlePaymentError}) => {
+    const [zapAmount, setZapAmount] = useState(null);
+
     const router = useRouter();
     const { slug } = router.query;
     const { returnImageProxy } = useImageProxy();
+    const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: processedEvent });
 
+    useEffect(() => {
+        if (!zaps) return;
+
+        const total = getTotalFromZaps(zaps, processedEvent);
+
+        setZapAmount(total);
+    }, [zaps, processedEvent]);
 
     return (
         <div className='w-full flex flex-row justify-between max-tab:flex-col max-mob:flex-col'>

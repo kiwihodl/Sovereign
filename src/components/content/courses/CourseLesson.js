@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Tag } from "primereact/tag";
 import Image from "next/image";
 import { useImageProxy } from "@/hooks/useImageProxy";
-import { getSatAmountFromInvoice } from "@/utils/lightning";
+import { getTotalFromZaps } from "@/utils/lightning";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
 import dynamic from "next/dynamic";
 import { useZapsQuery } from "@/hooks/nostrQueries/zaps/useZapsQuery";
@@ -45,19 +45,10 @@ const CourseLesson = ({ lesson, course }) => {
     useEffect(() => {
         if (!zaps || zapsLoading || zapsError) return;
 
-        let total = 0;
-        zaps.forEach((zap) => {
-            if (zap.tags.find(tag => tag[0] === "e" && tag[1] === lesson.id) || zap.tags.find(tag => tag[0] === "a" && tag[1] === `${lesson.kind}:${lesson.id}:${lesson.d}`)) {
-                const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
-                const invoice = bolt11Tag ? bolt11Tag[1] : null;
-                if (invoice) {
-                    const amount = getSatAmountFromInvoice(invoice);
-                    total += amount;
-                }
-            }
-        });
+        const total = getTotalFromZaps(zaps, lesson);
+
         setZapAmount(total);
-    }, [zaps, zapsLoading, zapsError]);
+    }, [zaps, zapsLoading, zapsError, lesson]);
 
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>

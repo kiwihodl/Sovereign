@@ -2,21 +2,14 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { parseEvent, findKind0Fields } from '@/utils/nostr';
-import { useImageProxy } from '@/hooks/useImageProxy';
-import { getSatAmountFromInvoice } from '@/utils/lightning';
-import ZapDisplay from '@/components/zaps/ZapDisplay';
-import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { nip19, nip04 } from 'nostr-tools';
 import { useSession } from 'next-auth/react';
-import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import { useToast } from '@/hooks/useToast';
 import { useNDKContext } from '@/context/NDKContext';
 import ResourceDetails from '@/components/content/resources/ResourceDetails';
-import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscription';
-import ResourcePaymentButton from '@/components/bitcoinConnect/ResourcePaymentButton';
 import 'primeicons/primeicons.css';
 
 const MDDisplay = dynamic(
@@ -33,9 +26,7 @@ export default function Details() {
     const [event, setEvent] = useState(null);
     const [processedEvent, setProcessedEvent] = useState({});
     const [author, setAuthor] = useState(null);
-    const [bitcoinConnect, setBitcoinConnect] = useState(false);
     const [nAddress, setNAddress] = useState(null);
-    const [zapAmount, setZapAmount] = useState(null);
     const [paidResource, setPaidResource] = useState(false);
     const [decryptedContent, setDecryptedContent] = useState(null);
     const [authorView, setAuthorView] = useState(false);
@@ -43,9 +34,7 @@ export default function Details() {
     const ndk = useNDKContext();
     const { data: session, update } = useSession();
     const [user, setUser] = useState(null);
-    const { returnImageProxy } = useImageProxy();
     const { showToast } = useToast();
-    const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: processedEvent });
 
     const router = useRouter();
 
@@ -60,16 +49,6 @@ export default function Details() {
             setPaidResource(true);
         }
     }, [processedEvent]);
-
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-
-        const bitcoinConnectConfig = window.localStorage.getItem('bc:config');
-
-        if (bitcoinConnectConfig) {
-            setBitcoinConnect(true);
-        }
-    }, []);
 
     useEffect(() => {
         const decryptContent = async () => {
@@ -165,22 +144,6 @@ export default function Details() {
         }
     }, [processedEvent]);
 
-    useEffect(() => {
-        if (!zaps) return;
-
-        let total = 0;
-        zaps.forEach((zap) => {
-            const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
-            const invoice = bolt11Tag ? bolt11Tag[1] : null;
-            if (invoice) {
-                const amount = getSatAmountFromInvoice(invoice);
-                total += amount;
-            }
-        });
-
-        setZapAmount(total);
-    }, [zaps]);
-
     const handleDelete = async () => {
         try {
             const response = await axios.delete(`/api/resources/${processedEvent.d}`);
@@ -239,8 +202,6 @@ export default function Details() {
                 author={author}
                 paidResource={paidResource}
                 decryptedContent={decryptedContent}
-                zapAmount={zapAmount}
-                zapsLoading={zapsLoading}
                 handlePaymentSuccess={handlePaymentSuccess}
                 handlePaymentError={handlePaymentError}
             />

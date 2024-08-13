@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import ZapDisplay from '@/components/zaps/ZapDisplay';
-import { getSatAmountFromInvoice } from '@/utils/lightning';
+import { getTotalFromZaps } from '@/utils/lightning';
 import { Tag } from 'primereact/tag';
 import { nip19 } from 'nostr-tools';
 import { useSession } from 'next-auth/react';
@@ -95,17 +95,10 @@ export default function CourseDetails({ processedEvent }) {
     useEffect(() => {
         if (!zaps || zaps.length === 0) return;
 
-        let total = 0;
-        zaps.forEach((zap) => {
-            const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
-            const invoice = bolt11Tag ? bolt11Tag[1] : null;
-            if (invoice) {
-                const amount = getSatAmountFromInvoice(invoice);
-                total += amount;
-            }
-        });
+        const total = getTotalFromZaps(zaps, processedEvent);
+
         setZapAmount(total);
-    }, [zaps]);
+    }, [zaps, processedEvent]);
 
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
