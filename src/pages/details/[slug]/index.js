@@ -14,20 +14,13 @@ import dynamic from 'next/dynamic';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import { useToast } from '@/hooks/useToast';
 import { useNDKContext } from '@/context/NDKContext';
+import ResourceDetails from '@/components/content/resources/ResourceDetails';
 import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscription';
-import { LightningAddress } from "@getalby/lightning-tools";
-import PaymentButton from '@/components/bitcoinConnect/PaymentButton';
+import ResourcePaymentButton from '@/components/bitcoinConnect/ResourcePaymentButton';
 import 'primeicons/primeicons.css';
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
-    {
-        ssr: false,
-    }
-);
-
-const BitcoinConnectPayButton = dynamic(
-    () => import('@getalby/bitcoin-connect-react').then((mod) => mod.PayButton),
     {
         ssr: false,
     }
@@ -139,9 +132,10 @@ export default function Details() {
                     authors: [pubkey]
                 }
 
-                const author = await ndk.fetchEvent(filter);
+                const author = await ndk.fetchEvent(filter);                
                 if (author) {
                     const fields = await findKind0Fields(JSON.parse(author.content));
+                    console.log("fields", fields);
                     setAuthor(fields);
                 }
             } catch (error) {
@@ -206,6 +200,20 @@ export default function Details() {
         }
     }
 
+    const handlePaymentSuccess = async (response, newResource) => {
+        if (response && response?.preimage) {
+            console.log("newResource", newResource);
+            const updated = await update();
+            console.log("session after update", updated);
+        } else {
+            showToast('error', 'Error', 'Failed to purchase resource. Please try again.');
+        }
+    }
+
+    const handlePaymentError = (error) => {
+        showToast('error', 'Payment Error', `Failed to purchase resource. Please try again. Error: ${error}`);
+    }
+
     const renderContent = () => {
         if (decryptedContent) {
             return <MDDisplay source={decryptedContent} />;
@@ -217,85 +225,25 @@ export default function Details() {
             return <MDDisplay source={processedEvent.content} />;
         }
         return null;
-    };
-
-    const handlePaymentSuccess = async (response, newResource) => {
-        if (response && response?.preimage) {
-            console.log("newResource", newResource)
-            // Refetch session to get the latest user data
-            const updated = await update();
-            console.log("session after update", updated)
-            // router.reload(); // Optionally, reload the page if necessary
-        } else {
-            showToast('error', 'Error', 'Failed to purchase resource. Please try again.');
-        }
-    }
-
-    const handlePaymentError = (error) => {
-        showToast('error', 'Payment Error', `Failed to purchase resource. Please try again. Error: ${error}`);
     }
 
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
-            <div className='w-full flex flex-row justify-between max-tab:flex-col max-mob:flex-col'>
-                <i className='pi pi-arrow-left pl-8 cursor-pointer hover:opacity-75 max-tab:pl-2 max-mob:pl-2' onClick={() => router.push('/')} />
-                <div className='w-[75vw] mx-auto flex flex-row items-start justify-between max-tab:flex-col max-mob:flex-col max-tab:w-[95vw] max-mob:w-[95vw]'>
-                    <div className='flex flex-col items-start max-w-[45vw] max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
-                        <div className='pt-2 flex flex-row justify-start w-full'>
-                            {processedEvent && processedEvent.topics && processedEvent.topics.length > 0 && (
-                                processedEvent.topics.map((topic, index) => (
-                                    <Tag className='mr-2 text-white' key={index} value={topic}></Tag>
-                                ))
-                            )
-                            }
-                        </div>
-                        <h1 className='text-4xl mt-6'>{processedEvent?.title}</h1>
-                        <p className='text-xl mt-6'>{processedEvent?.summary}</p>
-                        <div className='flex flex-row w-full mt-6 items-center'>
-                            <Image
-                                alt="avatar image"
-                                src={returnImageProxy(author?.avatar, author?.pubkey)}
-                                width={50}
-                                height={50}
-                                className="rounded-full mr-4"
-                            />
-                            <p className='text-lg'>
-                                Created by{' '}
-                                <a rel='noreferrer noopener' target='_blank' className='text-blue-500 hover:underline'>
-                                    {author?.username}
-                                </a>
-                            </p>
-                        </div>
-                    </div>
-                    <div className='flex flex-col max-tab:mt-12 max-mob:mt-12'>
-                        {processedEvent && (
-                            <div className='flex flex-col items-center justify-between rounded-lg h-72 p-4 bg-gray-700 drop-shadow-md'>
-                                <Image
-                                    alt="resource thumbnail"
-                                    src={returnImageProxy(processedEvent.image)}
-                                    width={344}
-                                    height={194}
-                                    className="w-[344px] h-[194px] object-cover object-top rounded-lg"
-                                />
-                                <div className='w-full flex flex-row justify-between'>
-                                    {paidResource && !decryptedContent && <PaymentButton
-                                        lnAddress={'bitcoinplebdev@stacker.news'}
-                                        amount={processedEvent.price}
-                                        onSuccess={handlePaymentSuccess}
-                                        onError={handlePaymentError}
-                                        resourceId={processedEvent.d}
-                                    />}
-
-                                    {/* if the resource has been paid for show a green paid x sats text */}
-                                    {paidResource && decryptedContent && <p className='text-green-500'>Paid {processedEvent.price} sats</p>}
-
-                                    <ZapDisplay zapAmount={zapAmount} event={processedEvent} zapsLoading={zapsLoading} />
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
+            <ResourceDetails 
+                processedEvent={processedEvent}
+                topics={processedEvent.topics}
+                title={processedEvent.title}
+                summary={processedEvent.summary}
+                image={processedEvent.image}
+                price={processedEvent.price}
+                author={author}
+                paidResource={paidResource}
+                decryptedContent={decryptedContent}
+                zapAmount={zapAmount}
+                zapsLoading={zapsLoading}
+                handlePaymentSuccess={handlePaymentSuccess}
+                handlePaymentError={handlePaymentError}
+            />
             {authorView && (
                 <div className='w-[75vw] mx-auto flex flex-row justify-end mt-12'>
                     <div className='w-fit flex flex-row justify-between'>

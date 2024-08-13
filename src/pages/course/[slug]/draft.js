@@ -2,8 +2,8 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { parseEvent, findKind0Fields } from "@/utils/nostr";
-import DraftCourseDetails from "@/components/course/DraftCourseDetails";
-import DraftCourseLesson from "@/components/course/DraftCourseLesson";
+import DraftCourseDetails from "@/components/content/courses/DraftCourseDetails";
+import DraftCourseLesson from "@/components/content/courses/DraftCourseLesson";
 import dynamic from 'next/dynamic';
 import { useNDKContext } from "@/context/NDKContext";
 
