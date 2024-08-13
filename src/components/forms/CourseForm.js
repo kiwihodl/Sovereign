@@ -34,7 +34,7 @@ const CourseForm = () => {
     const { drafts, draftsLoading, draftsError } = useDraftsQuery();
     const { data: session, status } = useSession();
     const [user, setUser] = useState(null);
-    const ndk = useNDKContext();
+    const { ndk, addSigner } = useNDKContext();
     const router = useRouter();
     const { showToast } = useToast();
 
@@ -50,6 +50,10 @@ const CourseForm = () => {
 
     const handleDraftSubmit = async (e) => {
         e.preventDefault();
+
+        if (!ndk.signer) {
+            await addSigner();
+        }
 
         // Prepare the lessons from selected lessons
         const resources = await Promise.all(selectedLessons.map(async (lesson) => {

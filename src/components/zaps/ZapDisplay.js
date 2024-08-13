@@ -19,8 +19,8 @@ const ZapDisplay = ({ zapAmount, event, zapsLoading }) => {
     return (
         <>
             <span className="text-xs cursor-pointer flex items-center relative hover:opacity-80" onClick={(e) => op.current.toggle(e)}>
-                <i className="pi pi-bolt text-yellow-300"></i>
-                <span className="relative flex items-center min-w-[20px] min-h-[20px]">
+                <i className="pi pi-bolt text-yellow-300 text-lg"></i>
+                <span className="relative flex items-center min-w-[20px] min-h-[20px] text-sm">
                     {zapsLoading || zapAmount === null || extraLoading ? (
                         <ProgressSpinner className="absolute top-0 left-0 w-[20px] h-[20px]" strokeWidth="8" animationDuration=".5s" />
                     ) : (

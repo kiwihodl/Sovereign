@@ -29,7 +29,7 @@ export default function DraftCourseDetails({ processedEvent, lessons }) {
     const { returnImageProxy } = useImageProxy();
     const { data: session, status } = useSession();
     const router = useRouter();
-    const ndk = useNDKContext();
+    const { ndk, addSigner } = useNDKContext();
 
     const fetchAuthor = useCallback(async (pubkey) => {
         if (!pubkey) return;
@@ -64,6 +64,10 @@ export default function DraftCourseDetails({ processedEvent, lessons }) {
         const processedLessons = [];
 
         try {
+            // Step 0: Add signer if not already added
+            if (!ndk.signer) {
+                await addSigner();
+              }
             // Step 1: Process lessons
             for (const lesson of lessons) {
                 processedLessons.push({ 

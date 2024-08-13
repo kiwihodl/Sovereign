@@ -75,6 +75,7 @@ export default NextAuth({
     ],
     callbacks: {
         async jwt({ token, trigger, user }) {
+            console.log('TRIGGER', trigger);
             if (trigger === "update") {
                 // if we trigger an update call the authorize function again
                 const newUser = await authorize(token.user.pubkey);
@@ -95,6 +96,12 @@ export default NextAuth({
         async redirect({ url, baseUrl }) {
             return baseUrl;
         },
+        async signOut({ token, session }) {
+            console.log('signOut', token, session);
+            token = {}
+            session = {}
+            return true
+          },
     },
     secret: process.env.NEXTAUTH_SECRET,
     session: { strategy: "jwt" },

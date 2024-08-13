@@ -5,6 +5,10 @@ import { Menu } from "primereact/menu";
 import { Column } from "primereact/column";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useSession } from 'next-auth/react';
+import { ProgressSpinner } from "primereact/progressspinner";
+import PurchasedListItem from "@/components/profile/PurchasedListItem";
+import { useNDKContext } from "@/context/NDKContext";
+import { formatDateTime } from "@/utils/time";
 import UserContent from "@/components/profile/UserContent";
 import Image from "next/image";
 import BitcoinConnectButton from "@/components/bitcoinConnect/BitcoinConnect";
@@ -15,6 +19,7 @@ const Profile = () => {
 
     const { data: session, status } = useSession();
     const { returnImageProxy } = useImageProxy();
+    const { ndk } = useNDKContext();
     const menu = useRef(null);
 
     useEffect(() => {
@@ -32,8 +37,6 @@ const Profile = () => {
             setUser(session.user);
         }
     }, [session]);
-
-    const purchases = [];
 
     const menuItems = [
         {
@@ -96,17 +99,28 @@ const Profile = () => {
                         />
                     </div>
                 </div>
-                <DataTable
-                    emptyMessage="No purchases"
-                    value={purchases}
-                    tableStyle={{ minWidth: "100%" }}
-                    header={header}
-                >
-                    <Column field="cost" header="Cost"></Column>
-                    <Column field="name" header="Name"></Column>
-                    <Column field="category" header="Category"></Column>
-                    <Column field="date" header="Date"></Column>
-                </DataTable>
+                {!session || !session?.user || !ndk ? (
+                    <ProgressSpinner />
+                ) : (
+                    <DataTable
+                        emptyMessage="No purchases"
+                        value={session.user?.purchased}
+                        tableStyle={{ minWidth: "100%" }}
+                        header={header}
+                    >
+                        <Column field="amountPaid" header="Cost"></Column>
+                        <Column
+                            body={(rowData) => {
+                                console.log("rowData", rowData);
+                                return <PurchasedListItem eventId={rowData?.resource?.noteId || rowData?.course?.noteId} category={rowData?.course ? "courses" : "resources"} />
+                            }}
+                            header="Name"
+                        ></Column>
+                        <Column body={session.user?.purchased?.some((item) => item.courseId) ? "course" : "resource"} header="Category"></Column>
+                        <Column body={rowData => formatDateTime(rowData?.createdAt)} header="Date"></Column>
+                    </DataTable>
+
+                )}
                 <UserContent />
             </div>
         )

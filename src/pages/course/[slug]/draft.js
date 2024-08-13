@@ -20,7 +20,7 @@ const DraftCourse = () => {
     const [lessonsWithAuthors, setLessonsWithAuthors] = useState([]);
 
     const router = useRouter();
-    const ndk = useNDKContext();
+    const {ndk, addSigner} = useNDKContext();
 
     const fetchAuthor = useCallback(async (pubkey) => {
         if (!pubkey) return;

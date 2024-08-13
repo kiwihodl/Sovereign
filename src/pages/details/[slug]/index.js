@@ -31,7 +31,7 @@ export default function Details() {
     const [decryptedContent, setDecryptedContent] = useState(null);
     const [authorView, setAuthorView] = useState(false);
 
-    const ndk = useNDKContext();
+    const {ndk, addSigner} = useNDKContext();
     const { data: session, update } = useSession();
     const [user, setUser] = useState(null);
     const { showToast } = useToast();

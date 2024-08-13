@@ -25,7 +25,7 @@ const UserContent = () => {
     const [user, setUser] = useState(null);
     const router = useRouter();
     const { showToast } = useToast();
-    const ndk = useNDKContext();
+    const {ndk, addSigner} = useNDKContext();
     const { courses, coursesLoading, coursesError } = useCoursesQuery();
     const { resources, resourcesLoading, resourcesError } = useResourcesQuery();
     const { workshops, workshopsLoading, workshopsError } = useWorkshopsQuery();

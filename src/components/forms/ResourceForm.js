@@ -31,7 +31,7 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
     const { data: session, status } = useSession();
     const { showToast } = useToast();
     const router = useRouter();
-    const ndk = useNDKContext();
+    const { ndk, addSigner } = useNDKContext();
 
     useEffect(() => {
         console.log('isPublished', isPublished);
@@ -108,6 +108,10 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
         console.log('event', event);
 
         try {
+            if (!ndk.signer) {
+                await addSigner();
+            }
+
             await ndk.connect();
 
             const published = await ndk.publish(event);

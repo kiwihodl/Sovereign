@@ -38,7 +38,7 @@ export default function CourseDetails({ processedEvent }) {
     const { returnImageProxy } = useImageProxy();
     const { data: session, status } = useSession();
     const router = useRouter();
-    const ndk = useNDKContext();
+    const {ndk, addSigner} = useNDKContext();
 
     useEffect(() => {
         if (session) {

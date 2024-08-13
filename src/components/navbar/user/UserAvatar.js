@@ -28,8 +28,8 @@ const UserAvatar = () => {
 
     const menu = useRef(null);
 
-    const handleLogout = () => {
-        signOut();
+    const handleLogout = async () => {
+        await signOut({ redirect: false }); // Wait for the sign-out to complete
         router.push('/').then(() => window.location.reload());
     }
 

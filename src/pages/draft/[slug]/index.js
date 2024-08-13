@@ -49,7 +49,7 @@ export default function Draft() {
     const { width, height } = useResponsiveImageDimensions();
     const router = useRouter();
     const { showToast } = useToast();
-    const ndk = useNDKContext();
+    const { ndk, addSigner } = useNDKContext();
 
     useEffect(() => {
         if (session) {
@@ -74,6 +74,10 @@ export default function Draft() {
 
     const handleSubmit = async () => {
         try {
+            if (!ndk.signer) {
+                await addSigner();
+            }
+
             if (draft) {
                 const { unsignedEvent, type } = await buildEvent(draft);
 

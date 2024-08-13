@@ -19,7 +19,7 @@ const Course = () => {
     const [lessons, setLessons] = useState([]);
 
     const router = useRouter();
-    const ndk = useNDKContext();
+    const {ndk, addSigner} = useNDKContext();
 
     const fetchAuthor = useCallback(async (pubkey) => {
         const author = await ndk.getUser({ pubkey });

@@ -7,7 +7,7 @@ const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY;
 
 export function useWorkshopsQuery() {
     const [isClient, setIsClient] = useState(false);
-    const ndk = useNDKContext();
+    const {ndk, addSigner} = useNDKContext();
 
     useEffect(() => {
         setIsClient(true);

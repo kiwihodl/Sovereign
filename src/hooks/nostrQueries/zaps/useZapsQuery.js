@@ -4,7 +4,7 @@ import { useNDKContext } from '@/context/NDKContext';
 
 export function useZapsQuery({ event, type }) {
     const [isClient, setIsClient] = useState(false);
-    const ndk = useNDKContext();
+    const {ndk, addSigner} = useNDKContext();
 
     useEffect(() => {
         setIsClient(true);

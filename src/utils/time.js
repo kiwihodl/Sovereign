@@ -3,6 +3,24 @@ export const formatUnixTimestamp = (time) => {
     return date.toDateString();
 }
 
+export const formatDateTime = (isoDate) => {
+    const date = new Date(isoDate);
+
+    // Example: Format to a more readable string
+    const formattedDate = date.toLocaleString("en-US", {
+        timeZone: "UTC", // Optional: You can change this to the user's time zone if needed
+        weekday: "long", // "long" for full name, "short" for abbreviated
+        year: "numeric",
+        month: "long", // "long" for full name, "short" for abbreviated
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+    });
+
+    return formattedDate;
+}
+
 export const formatTimestampToHowLongAgo = (time) => {
     const date = new Date(time * 1000);
     const now = new Date();

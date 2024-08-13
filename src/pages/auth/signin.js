@@ -2,12 +2,13 @@ import { signIn, useSession } from "next-auth/react"
 import { useState, useEffect } from "react"
 import { useNDKContext } from "@/context/NDKContext";
 import { Button } from 'primereact/button';
-import NDK, { NDKEvent, NDKNip07Signer } from "@nostr-dev-kit/ndk";
 
 export default function SignIn() {
     const [email, setEmail] = useState("")
     const [nostrPubkey, setNostrPubkey] = useState("")
     const [nostrPrivkey, setNostrPrivkey] = useState("")
+
+    const {ndk, addSigner} = useNDKContext();
 
     const { data: session, status } = useSession(); // Get the current session's data and status
 
@@ -22,14 +23,14 @@ export default function SignIn() {
 
     const handleNostrSignIn = async (e) => {
         e.preventDefault()
-        
-        const nip07signer = new NDKNip07Signer();
-        const ndk = new NDK({ signer: nip07signer });
 
-        await ndk.connect()
+        if (!ndk.signer) {
+            await addSigner();
+          }
+
 
         try {
-            const user = await nip07signer.user()
+            const user = await ndk.signer.user()
 
             const pubkey = user?._pubkey
             signIn("nostr", { pubkey })

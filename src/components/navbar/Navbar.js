@@ -73,7 +73,7 @@ const Navbar = () => {
                     onClick={(e) => menu.current.toggle(e)}></i>
                 <Menu model={menuItems} popup ref={menu} />
             </div> */}
-            <div onClick={() => router.push('/')} className="flex flex-row items-center justify-center cursor-pointer">
+            <div onClick={() => router.push('/').then(() => window.location.reload())} className="flex flex-row items-center justify-center cursor-pointer">
                 <Image
                     alt="logo"
                     src="/plebdevs-guy.jpg"

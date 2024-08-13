@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/useToast";
 export default function Edit() {
     const [event, setEvent] = useState(null);
 
-    const ndk = useNDKContext();
+    const {ndk, addSigner} = useNDKContext();
     const router = useRouter();
     const { showToast } = useToast();
 

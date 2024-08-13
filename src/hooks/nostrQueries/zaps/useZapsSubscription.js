@@ -5,7 +5,7 @@ export function useZapsSubscription({event}) {
   const [zaps, setZaps] = useState([]);
   const [zapsLoading, setZapsLoading] = useState(true);
   const [zapsError, setZapsError] = useState(null);
-  const ndk = useNDKContext();
+  const {ndk, addSigner} = useNDKContext();
 
   useEffect(() => {
     let subscription;
@@ -19,12 +19,9 @@ export function useZapsSubscription({event}) {
           { kinds: [9735], "#a": [`${event.kind}:${event.id}:${event.d}`] }
         ];
         await ndk.connect();
-        console.log("filters", filters);
         subscription = ndk.subscribe(filters);
 
-        subscription.on('event', (zapEvent) => {
-          console.log("event", zapEvent);
-          
+        subscription.on('event', (zapEvent) => {          
           // Check if we've already seen this zap
           if (!zapIds.has(zapEvent.id)) {
             zapIds.add(zapEvent.id);
