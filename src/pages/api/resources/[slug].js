@@ -1,4 +1,4 @@
-import { getResourceById, updateResource, deleteResource, isResourcePartOfAnyCourse } from "@/db/models/resourceModels";
+import { getResourceById, updateResource, deleteResource, isResourcePartOfAnyCourse, updateLessonInCourse } from "@/db/models/resourceModels";
 
 export default async function handler(req, res) {
   const { slug } = req.query;

@@ -46,6 +46,10 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
     }, [session]);
 
     useEffect(() => {
+        console.log('selectedLessons:', selectedLessons);
+    }, [selectedLessons]);
+
+    useEffect(() => {
         const fetchLessons = async () => {
             if (draft && draft?.resources) {
                 const parsedLessons = await Promise.all(
@@ -54,7 +58,7 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
                         return parsedLesson;
                     })
                 );
-                setSelectedLessons(parsedLessons);
+                setSelectedLessons([...selectedLessons, ...parsedLessons]);
                 setLoadingLessons(false); // Data is loaded
             } else {
                 setLoadingLessons(false); // No draft means no lessons to load
@@ -62,17 +66,14 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
         };
 
         fetchLessons();
-    }, [draft]);
+    }, [draft]); // Only depend on draft
 
     const fetchLessonEventFromNostr = async (eventId) => {
         try {
             await ndk.connect();
-
             const fetchedEvent = await ndk.fetchEvent(eventId);
-
             if (fetchedEvent) {
-                const parsedEvent = parseEvent(fetchedEvent);
-                return parsedEvent;
+                return parseEvent(fetchedEvent);
             }
         } catch (error) {
             showToast('error', 'Error', `Failed to fetch lesson: ${eventId}`);
@@ -142,6 +143,22 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
             }
         }));
 
+        // if this is a draft any added resources should be updated with courseId
+        if (draft) {
+            resources.forEach(resource => {
+                console.log('each resource:', resource);
+                if (!draft.resources.includes(resource.id)) {
+                    axios.put(`/api/resources/${resource.id}`, { courseId: draft.id })
+                    .then(response => {
+                        console.log('resource updated:', response);
+                    })
+                    .catch(error => {
+                        console.error('error updating resource:', error);
+                    });
+                }
+            });
+        }
+
         const payload = {
             user: {
                 connect: { id: user.id },
@@ -167,7 +184,8 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
                 response = await axios.post('/api/courses/drafts', payload);
                 showToast('success', 'Success', 'Course draft saved successfully');
             }
-            router.push(`/course/${response.data.id}/draft`);
+            console.log('response:', response);
+            // router.push(`/course/${response.data.id}/draft`);
         } catch (error) {
             console.error('Error saving course draft:', error);
             showToast('error', 'Failed to save course draft. Please try again.');

@@ -1,9 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
-import { parseEvent } from "@/utils/nostr";
-import ResourceForm from "@/components/forms/ResourceForm";
-import WorkshopForm from "@/components/forms/WorkshopForm";
 import CourseForm from "@/components/forms/CourseForm";
 import { useNDKContext } from "@/context/NDKContext";
 import { useToast } from "@/hooks/useToast";
@@ -14,6 +11,8 @@ export default function Edit() {
     const { ndk, addSigner } = useNDKContext();
     const router = useRouter();
     const { showToast } = useToast();
+
+    
 
     useEffect(() => {
         if (router.isReady) {

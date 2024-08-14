@@ -42,6 +42,7 @@ const DraftCourse = () => {
                 .then(res => {
                     console.log('res:', res.data);
                     setCourse(res.data);
+                    console.log('coursesssss:', res.data);
                     setLessons(res.data.resources); // Set the raw lessons
                 })
                 .catch(err => {
