@@ -6,7 +6,7 @@ import { InputSwitch } from "primereact/inputswitch";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
 import { ProgressSpinner } from "primereact/progressspinner";
-import { v4 as uuidv4, v4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { useSession } from 'next-auth/react';
 import { useNDKContext } from "@/context/NDKContext";
 import { useRouter } from "next/router";
@@ -19,13 +19,14 @@ import { parseEvent } from "@/utils/nostr";
 import ContentDropdownItem from "@/components/content/dropdowns/ContentDropdownItem";
 import 'primeicons/primeicons.css';
 
-const CourseForm = () => {
+const CourseForm = ({ draft = null, isPublished = false }) => {
     const [title, setTitle] = useState('');
     const [summary, setSummary] = useState('');
     const [checked, setChecked] = useState(false);
     const [price, setPrice] = useState(0);
     const [coverImage, setCoverImage] = useState('');
     const [lessons, setLessons] = useState([{ id: uuidv4(), title: 'Select a lesson' }]);
+    const [loadingLessons, setLoadingLessons] = useState(true);
     const [selectedLessons, setSelectedLessons] = useState([]);
     const [topics, setTopics] = useState(['']);
 
@@ -45,10 +46,53 @@ const CourseForm = () => {
     }, [session]);
 
     useEffect(() => {
-        console.log('selectedLessons:', selectedLessons);
-    }, [selectedLessons]);
+        const fetchLessons = async () => {
+            if (draft && draft.resources) {
+                const parsedLessons = await Promise.all(
+                    draft.resources.map(async (lesson) => {
+                        const parsedLesson = await fetchLessonEventFromNostr(lesson.noteId);
+                        return parsedLesson;
+                    })
+                );
+                setLessons(parsedLessons);
+                setLoadingLessons(false); // Data is loaded
+            } else {
+                setLoadingLessons(false); // No draft means no lessons to load
+            }
+        };
 
-    const handleDraftSubmit = async (e) => {
+        fetchLessons();
+    }, [draft]);
+
+    const fetchLessonEventFromNostr = async (eventId) => {
+        try {
+            await ndk.connect();
+
+            const fetchedEvent = await ndk.fetchEvent(eventId);
+
+            if (fetchedEvent) {
+                const parsedEvent = parseEvent(fetchedEvent);
+                return parsedEvent;
+            }
+        } catch (error) {
+            showToast('error', 'Error', `Failed to fetch lesson: ${eventId}`);
+        }
+    }
+
+    useEffect(() => {
+        if (draft) {
+            console.log('draft:', draft);
+            setTitle(draft.title);
+            setSummary(draft.summary);
+            setChecked(draft.price > 0);
+            setPrice(draft.price || 0);
+            setCoverImage(draft.image);
+            setSelectedLessons(draft.resources || []);
+            setTopics(draft.topics || ['']);
+        }
+    }, [draft]);
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!ndk.signer) {
@@ -57,7 +101,6 @@ const CourseForm = () => {
 
         // Prepare the lessons from selected lessons
         const resources = await Promise.all(selectedLessons.map(async (lesson) => {
-            // if .type is present than this lesson is a draft we need to publish
             if (lesson?.type) {
                 const event = createLessonEvent(lesson);
                 const published = await event.publish();
@@ -66,7 +109,6 @@ const CourseForm = () => {
                     throw new Error(`Failed to publish lesson: ${lesson.title}`);
                 }
 
-                // Now post to resources
                 const resource = await axios.post('/api/resources', {
                     id: event.tags.find(tag => tag[0] === 'd')[1],
                     userId: user.id,
@@ -78,7 +120,6 @@ const CourseForm = () => {
                     throw new Error(`Failed to post resource: ${lesson.title}`);
                 }
 
-                // now delete the draft
                 const deleted = await axios.delete(`/api/drafts/${lesson.id}`);
 
                 if (deleted.status !== 204) {
@@ -101,31 +142,70 @@ const CourseForm = () => {
             }
         }));
 
-        console.log('resources:', resources);
-
         const payload = {
             userId: user.id,
             title,
             summary,
             image: coverImage,
             price: price || 0,
-            resources, // Send the array of lesson/resource IDs
+            resources,
+            topics,
         };
 
-        console.log('payload:', payload);
-
         try {
-            // Post the course draft to the API
-            const response = await axios.post('/api/courses/drafts', payload);
-
-            console.log('response:', response);
-
-            // If successful, navigate to the course page
-            showToast('success', 'Course draft saved successfully');
+            let response;
+            if (draft) {
+                response = await axios.put(`/api/courses/drafts/${draft.id}`, payload);
+                showToast('success', 'Success', 'Course draft updated successfully');
+            } else {
+                response = await axios.post('/api/courses/drafts', payload);
+                showToast('success', 'Success', 'Course draft saved successfully');
+            }
             router.push(`/course/${response.data.id}/draft`);
         } catch (error) {
             console.error('Error saving course draft:', error);
             showToast('error', 'Failed to save course draft. Please try again.');
+        }
+    };
+
+    const handlePublishedCourse = async (e) => {
+        e.preventDefault();
+
+        if (!ndk.signer) {
+            await addSigner();
+        }
+
+        const event = new NDKEvent(ndk);
+        event.kind = price > 0 ? 30402 : 30023;
+        event.content = JSON.stringify({
+            title,
+            summary,
+            image: coverImage,
+            resources: selectedLessons.map(lesson => lesson.id),
+        });
+        event.tags = [
+            ['d', draft.id],
+            ['title', title],
+            ['summary', summary],
+            ['image', coverImage],
+            ...topics.map(topic => ['t', topic]),
+            ['published_at', Math.floor(Date.now() / 1000).toString()],
+            ['price', price.toString()],
+        ];
+
+        try {
+            const published = await ndk.publish(event);
+
+            if (published) {
+                const response = await axios.put(`/api/courses/${draft.id}`, { noteId: event.id });
+                showToast('success', 'Success', 'Course published successfully');
+                router.push(`/course/${event.id}`);
+            } else {
+                showToast('error', 'Error', 'Failed to publish course. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error publishing course:', error);
+            showToast('error', 'Failed to publish course. Please try again.');
         }
     };
 
@@ -231,12 +311,12 @@ const CourseForm = () => {
     };
 
     // const lessonOptions = getContentOptions();
-    if (resourcesLoading || workshopsLoading || draftsLoading) {
+    if (loadingLessons || resourcesLoading || workshopsLoading || draftsLoading) {
         return <ProgressSpinner />;
     }
 
     return (
-        <form onSubmit={handleDraftSubmit}>
+        <form onSubmit={isPublished ? handlePublishedCourse : handleSubmit}>
             <div className="p-inputgroup flex-1">
                 <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
             </div>
@@ -257,12 +337,15 @@ const CourseForm = () => {
             </div>
             <div className="mt-8 flex-col w-full">
                 <div className="mt-4 flex-col w-full">
-                    {selectedLessons.map((lesson, index) => (
+                    {selectedLessons.map(async (lesson, index) => {
+                        return (
                         <div key={lesson.id} className="p-inputgroup flex-1 mt-4">
                             <ContentDropdownItem content={lesson} selected={true} />
                             <Button icon="pi pi-times" className="p-button-danger" onClick={() => removeLesson(index)} />
                         </div>
-                    ))}
+                    )
+                })
+                    }
                     {lessons.map((lesson, index) => (
                         <div key={lesson.id} className="p-inputgroup flex-1 mt-4">
                             <Dropdown
@@ -291,7 +374,7 @@ const CourseForm = () => {
                 <Button type="button" icon="pi pi-plus" onClick={addTopic} className="p-button-outlined mt-2" />
             </div>
             <div className="flex justify-center mt-8">
-                <Button type="submit" label="Submit" className="p-button-raised p-button-success" />
+                <Button type="submit" label={draft ? (isPublished ? "Publish" : "Update") : "Submit"} className="p-button-raised p-button-success" />
             </div>
         </form>
     );

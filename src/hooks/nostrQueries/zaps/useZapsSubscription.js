@@ -35,7 +35,6 @@ export function useZapsSubscription({event}) {
         });
 
         subscription.on('eose', () => {
-          console.log("eose");
           // Only set loading to false if no zaps have been received yet
           if (isFirstZap) {
             setZapsLoading(false);

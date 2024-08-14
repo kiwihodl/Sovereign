@@ -7,14 +7,15 @@ import ZapDisplay from "@/components/zaps/ZapDisplay";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useZapsSubscription } from "@/hooks/nostrQueries/zaps/useZapsSubscription";
 import { getTotalFromZaps } from "@/utils/lightning";
+import { useSession } from "next-auth/react";
 
 const ResourceDetails = ({processedEvent, topics, title, summary, image, price, author, paidResource, decryptedContent, handlePaymentSuccess, handlePaymentError}) => {
     const [zapAmount, setZapAmount] = useState(null);
 
     const router = useRouter();
-    const { slug } = router.query;
     const { returnImageProxy } = useImageProxy();
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: processedEvent });
+    const { data: session, status } = useSession();
 
     useEffect(() => {
         if (!zaps) return;
@@ -75,7 +76,10 @@ const ResourceDetails = ({processedEvent, topics, title, summary, image, price, 
                                 />}
 
                                 {/* if the resource has been paid for show a green paid x sats text */}
-                                {paidResource && decryptedContent && <p className='text-green-500'>Paid {processedEvent.price} sats</p>}
+                                {paidResource && decryptedContent && author && !processedEvent?.pubkey === session?.user?.pubkey && <p className='text-green-500'>Paid {processedEvent.price} sats</p>}
+
+                                {/* if this is the author of the resource show a zap button */}
+                                {paidResource && author && processedEvent?.pubkey === session?.user?.pubkey && <p className='text-green-500'>Price {processedEvent.price} sats</p>}
 
                                 <ZapDisplay zapAmount={zapAmount} event={processedEvent} zapsLoading={zapsLoading} />
                             </div>

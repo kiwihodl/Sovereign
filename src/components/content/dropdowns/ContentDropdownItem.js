@@ -6,6 +6,7 @@ import { formatUnixTimestamp } from "@/utils/time";
 
 const ContentDropdownItem = ({ content, onSelect, selected }) => {
     const { returnImageProxy } = useImageProxy();
+    console.log('selected:', content);
 
     if (selected) {
         return (

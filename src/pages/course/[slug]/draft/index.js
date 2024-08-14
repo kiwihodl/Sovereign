@@ -21,6 +21,7 @@ const DraftCourse = () => {
 
     const router = useRouter();
     const {ndk, addSigner} = useNDKContext();
+    const { slug } = router.query;
 
     const fetchAuthor = useCallback(async (pubkey) => {
         if (!pubkey) return;
@@ -67,6 +68,7 @@ const DraftCourse = () => {
                             author
                         };
                     }
+                
                     return lesson; // Fallback to the original lesson if no event found
                 }));
 
@@ -79,7 +81,7 @@ const DraftCourse = () => {
 
     return (
         <>
-            <DraftCourseDetails processedEvent={course} lessons={lessonsWithAuthors} />
+            <DraftCourseDetails processedEvent={course} draftId={slug} lessons={lessonsWithAuthors} />
             {lessonsWithAuthors.length > 0 && lessonsWithAuthors.map((lesson, index) => (
                 <DraftCourseLesson key={lesson.id} lesson={lesson} course={course} />
             ))}

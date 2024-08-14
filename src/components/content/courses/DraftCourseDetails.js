@@ -21,7 +21,7 @@ const MDDisplay = dynamic(
     }
 );
 
-export default function DraftCourseDetails({ processedEvent, lessons }) {
+export default function DraftCourseDetails({ processedEvent, draftId, lessons }) {
     const [author, setAuthor] = useState(null);
     const [user, setUser] = useState(null);
 
@@ -181,7 +181,7 @@ export default function DraftCourseDetails({ processedEvent, lessons }) {
             <div className='w-[75vw] mx-auto flex flex-row justify-end mt-12'>
                 <div className='w-fit flex flex-row justify-between'>
                     <Button onClick={handleSubmit} label="Publish" severity='success' outlined className="w-auto m-2" />
-                    <Button onClick={() => router.push(`/draft/${draft?.id}/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
+                    <Button onClick={() => router.push(`/course/${draftId}/draft/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
                     <Button onClick={handleDelete} label="Delete" severity='danger' outlined className="w-auto m-2 mr-0" />
                 </div>
             </div>
