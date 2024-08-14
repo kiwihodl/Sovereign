@@ -47,14 +47,14 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
 
     useEffect(() => {
         const fetchLessons = async () => {
-            if (draft && draft.resources) {
+            if (draft && draft?.resources) {
                 const parsedLessons = await Promise.all(
                     draft.resources.map(async (lesson) => {
                         const parsedLesson = await fetchLessonEventFromNostr(lesson.noteId);
                         return parsedLesson;
                     })
                 );
-                setLessons(parsedLessons);
+                setSelectedLessons(parsedLessons);
                 setLoadingLessons(false); // Data is loaded
             } else {
                 setLoadingLessons(false); // No draft means no lessons to load
@@ -87,7 +87,7 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
             setChecked(draft.price > 0);
             setPrice(draft.price || 0);
             setCoverImage(draft.image);
-            setSelectedLessons(draft.resources || []);
+            // setSelectedLessons(draft.resources || []);
             setTopics(draft.topics || ['']);
         }
     }, [draft]);
@@ -143,18 +143,24 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
         }));
 
         const payload = {
-            userId: user.id,
+            user: {
+                connect: { id: user.id },
+            },
             title,
             summary,
             image: coverImage,
             price: price || 0,
-            resources,
+            resources: {
+                set: resources.map(resource => ({ id: resource.id })),
+            },
             topics,
-        };
+        };        
 
         try {
             let response;
             if (draft) {
+                // payload minus topics
+                delete payload.topics
                 response = await axios.put(`/api/courses/drafts/${draft.id}`, payload);
                 showToast('success', 'Success', 'Course draft updated successfully');
             } else {
@@ -337,7 +343,7 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
             </div>
             <div className="mt-8 flex-col w-full">
                 <div className="mt-4 flex-col w-full">
-                    {selectedLessons.map(async (lesson, index) => {
+                    {selectedLessons.map((lesson, index) => {
                         return (
                         <div key={lesson.id} className="p-inputgroup flex-1 mt-4">
                             <ContentDropdownItem content={lesson} selected={true} />
