@@ -7,13 +7,6 @@ import ZapDisplay from "@/components/zaps/ZapDisplay";
 import dynamic from "next/dynamic";
 import { useZapsQuery } from "@/hooks/nostrQueries/zaps/useZapsQuery";
 
-const BitcoinConnectPayButton = dynamic(
-    () => import('@getalby/bitcoin-connect-react').then((mod) => mod.PayButton),
-    {
-        ssr: false,
-    }
-);
-
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
     {
@@ -22,25 +15,10 @@ const MDDisplay = dynamic(
 );
 
 const CourseLesson = ({ lesson, course }) => {
-    const [bitcoinConnect, setBitcoinConnect] = useState(false);
     const [zapAmount, setZapAmount] = useState(0);
 
     const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: lesson, type: "lesson" });
     const { returnImageProxy } = useImageProxy();
-
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-
-        const bitcoinConnectConfig = window.localStorage.getItem('bc:config');
-
-        if (bitcoinConnectConfig) {
-            setBitcoinConnect(true);
-        }
-    }, []);
-
-    const handleZapEvent = async () => {
-        return;
-    }
 
     useEffect(() => {
         if (!zaps || zapsLoading || zapsError) return;
@@ -90,15 +68,9 @@ const CourseLesson = ({ lesson, course }) => {
                                     height={194}
                                     className="w-[344px] h-[194px] object-cover object-top rounded-lg"
                                 />
-                                {bitcoinConnect ? (
-                                    <div>
-                                        <BitcoinConnectPayButton onClick={handleZapEvent} />
-                                    </div>
-                                ) : (
-                                    <div className="w-full flex justify-end">
-                                        <ZapDisplay zapAmount={zapAmount} event={lesson} zapsLoading={zapsLoading} />
-                                    </div>
-                                )}
+                                <div className="w-full flex justify-end">
+                                    <ZapDisplay zapAmount={zapAmount} event={lesson} zapsLoading={zapsLoading} />
+                                </div>
                             </div>
                         )}
                     </div>

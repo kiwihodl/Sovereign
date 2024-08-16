@@ -8,7 +8,15 @@ const ContentListItem = (content) => {
     const { returnImageProxy } = useImageProxy();
     const router = useRouter();
     const isDraft = Object.keys(content).includes('type');
-    const isCourse = content && content?.resources && content?.resources?.length > 0;
+    const isCourse = content && content?.kind === 30004;
+
+    useEffect(() => {
+        if (content && content?.kind === 30004) {
+            console.log("isDraft", isDraft);
+            console.log("content", content);
+            console.log("isCourse", isCourse);
+        }
+    }, [content, isDraft, isCourse]);
 
     const handleClick = () => {
         let path = '';
@@ -21,8 +29,8 @@ const ContentListItem = (content) => {
             path = '/details';
         }
     
-        const draftSuffix = isCourse ? '/draft' : '';
-        const fullPath = `${path}/${content.id}${draftSuffix}`;
+        // const draftSuffix = isCourse ? '/draft' : '';
+        const fullPath = `${path}/${content.id}`;
     
         router.push(fullPath);
     };

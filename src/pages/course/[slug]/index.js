@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/router";
 import { parseCourseEvent, parseEvent, findKind0Fields } from "@/utils/nostr";
 import CourseDetails from "@/components/content/courses/CourseDetails";
-import CourseLesson from "@/components/courses/CourseLesson";
+import CourseLesson from "@/components/content/courses/CourseLesson";
 import dynamic from 'next/dynamic';
 import { useNDKContext } from "@/context/NDKContext";
 

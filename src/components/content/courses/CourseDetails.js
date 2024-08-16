@@ -21,16 +21,8 @@ const MDDisplay = dynamic(
     }
 );
 
-const BitcoinConnectPayButton = dynamic(
-    () => import('@getalby/bitcoin-connect-react').then((mod) => mod.PayButton),
-    {
-        ssr: false,
-    }
-);
-
 export default function CourseDetails({ processedEvent }) {
     const [author, setAuthor] = useState(null);
-    const [bitcoinConnect, setBitcoinConnect] = useState(false);
     const [nAddress, setNAddress] = useState(null);    
     const [zapAmount, setZapAmount] = useState(0);
     const [user, setUser] = useState(null);
@@ -46,15 +38,6 @@ export default function CourseDetails({ processedEvent }) {
         }
     }, [session]);
 
-    const handleZapEvent = async () => {
-        if (!processedEvent) return;
-
-        // Update zap event logic if necessary for NDK
-        const response = await zapEvent(processedEvent);
-
-        console.log('zap response:', response);
-    };
-
     const fetchAuthor = useCallback(async (pubkey) => {
         if (!pubkey) return;
         const author = await ndk.getUser({ pubkey });
@@ -64,16 +47,6 @@ export default function CourseDetails({ processedEvent }) {
             setAuthor(fields);
         }
     }, [ndk]);
-
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-
-        const bitcoinConnectConfig = window.localStorage.getItem('bc:config');
-
-        if (bitcoinConnectConfig) {
-            setBitcoinConnect(true);
-        }
-    }, []);
 
     useEffect(() => {
         if (processedEvent) {
@@ -141,15 +114,9 @@ export default function CourseDetails({ processedEvent }) {
                                     height={194}
                                     className="w-[344px] h-[194px] object-cover object-top rounded-lg"
                                 />
-                                {bitcoinConnect ? (
-                                    <div>
-                                        <BitcoinConnectPayButton onClick={handleZapEvent} />
-                                    </div>
-                                ) : (
                                     <div className='w-full flex justify-end'>
                                         <ZapDisplay zapAmount={zapAmount} event={processedEvent} zapsLoading={zapsLoading} />
                                     </div>
-                                )}
                             </div>
                         )}
                     </div>

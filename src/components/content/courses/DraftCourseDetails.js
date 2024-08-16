@@ -115,12 +115,12 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
             await axios.delete(`/api/courses/drafts/${processedEvent.id}`);
 
             // Step 6: Show success message and redirect
-            showToast('success', 'Course created successfully');
+            showToast('success', 'Success', 'Course created successfully');
             router.push(`/course/${courseEvent.id}`);
 
         } catch (error) {
             console.error('Error creating course:', error);
-            showToast('error', error.message || 'Failed to create course. Please try again.');
+            showToast('error', 'Error', error.message || 'Failed to create course. Please try again.');
         }
     };
 
