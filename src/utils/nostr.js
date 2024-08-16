@@ -134,6 +134,9 @@ export const parseCourseEvent = (event) => {
             case 'd':
                 eventData.d = tag[1];
                 break;
+            case 'price':
+                eventData.price = tag[1];
+                break;
             // How do we get topics / tags?
             case 'l':
                 // Grab index 1 and any subsequent elements in the array

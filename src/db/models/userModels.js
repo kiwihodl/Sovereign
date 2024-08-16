@@ -65,6 +65,20 @@ export const addResourcePurchaseToUser = async (userId, purchaseData) => {
     });
   };
 
+export const addCoursePurchaseToUser = async (userId, purchaseData) => {
+    return await prisma.user.update({
+      where: { id: userId },
+      data: {
+        purchased: {
+          create: {
+            courseId: purchaseData.courseId,
+            amountPaid: purchaseData.amountPaid,
+          },
+        },
+      },
+    });
+  };
+
 export const createUser = async (data) => {
     return await prisma.user.create({
         data,

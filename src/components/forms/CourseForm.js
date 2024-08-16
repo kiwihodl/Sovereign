@@ -22,6 +22,7 @@ import 'primeicons/primeicons.css';
 
 // todo dont allow adding courses as resources
 // todo need to update how I handle unpubbed resources
+// todo add back topics
 const CourseForm = ({ draft = null, isPublished = false }) => {
     const [title, setTitle] = useState('');
     const [summary, setSummary] = useState('');
@@ -111,7 +112,7 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
                 title,
                 summary,
                 image: coverImage,
-                price: checked ? price : 0,
+                price: price || 0,
                 topics,
             };
 

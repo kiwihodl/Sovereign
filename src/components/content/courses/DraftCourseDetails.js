@@ -85,7 +85,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
             }
 
             // Step 2: Create and publish course
-            const courseEvent = createCourseEvent(newCourseId, processedEvent.title, processedEvent.summary, processedEvent.image, processedLessons);
+            const courseEvent = createCourseEvent(newCourseId, processedEvent.title, processedEvent.summary, processedEvent.image, processedLessons, processedEvent.price);
             const published = await courseEvent.publish();
 
             console.log('published', published);
@@ -124,7 +124,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
         }
     };
 
-    const createCourseEvent = (courseId, title, summary, coverImage, lessons) => {
+    const createCourseEvent = (courseId, title, summary, coverImage, lessons, price) => {
         const event = new NDKEvent(ndk);
         event.kind = 30004;
         event.content = "";
@@ -135,6 +135,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
             ['image', coverImage],
             ['description', summary],
             ['l', "Education"],
+            ['price', price.toString()],
             ...lessons.map((lesson) => ['a', `${lesson.kind}:${lesson.pubkey}:${lesson.d}`]),
         ];
         return event;

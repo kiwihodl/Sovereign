@@ -5,6 +5,9 @@ import CourseDetails from "@/components/content/courses/CourseDetails";
 import CourseLesson from "@/components/content/courses/CourseLesson";
 import dynamic from 'next/dynamic';
 import { useNDKContext } from "@/context/NDKContext";
+import { useToast } from '@/hooks/useToast';
+import { useSession } from 'next-auth/react';
+import { nip04 } from 'nostr-tools';
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -17,9 +20,15 @@ const Course = () => {
     const [course, setCourse] = useState(null);
     const [lessonIds, setLessonIds] = useState([]);
     const [lessons, setLessons] = useState([]);
+    const [paidCourse, setPaidCourse] = useState(false);
+    const [decryptedContent, setDecryptedContent] = useState(null);
 
     const router = useRouter();
     const {ndk, addSigner} = useNDKContext();
+    const { data: session, update } = useSession();
+    const { showToast } = useToast();
+    const privkey = process.env.NEXT_PUBLIC_APP_PRIV_KEY;
+    const pubkey = process.env.NEXT_PUBLIC_APP_PUBLIC_KEY;
 
     const fetchAuthor = useCallback(async (pubkey) => {
         const author = await ndk.getUser({ pubkey });
@@ -95,9 +104,53 @@ const Course = () => {
         }
     }, [lessonIds, ndk, fetchAuthor]);
 
+    useEffect(() => {
+        if (course?.price) {
+            setPaidCourse(true);
+        }
+    }, [course]);
+
+    useEffect(() => {
+        const decryptContent = async () => {
+            if (session?.user && paidCourse) {
+                if (session.user?.purchased?.length > 0) {
+                    const purchasedCourse = session.user.purchased.find(purchase => purchase.resourceId === course.d);
+                    if (purchasedCourse) {
+                        const decryptedContent = await nip04.decrypt(privkey, pubkey, course.content);
+                        setDecryptedContent(decryptedContent);
+                    }
+                } else if (session.user?.role && session.user.role.subscribed) {
+                    const decryptedContent = await nip04.decrypt(privkey, pubkey, course.content);
+                    setDecryptedContent(decryptedContent);
+                }
+            }
+        }
+        decryptContent();
+    }, [session, paidCourse, course]);
+
+    const handlePaymentSuccess = async (response, newCourse) => {
+        if (response && response?.preimage) {
+            console.log("newCourse", newCourse);
+            const updated = await update();
+            console.log("session after update", updated);
+        } else {
+            showToast('error', 'Error', 'Failed to purchase course. Please try again.');
+        }
+    }
+
+    const handlePaymentError = (error) => {
+        showToast('error', 'Payment Error', `Failed to purchase course. Please try again. Error: ${error}`);
+    }
+
     return (
         <>
-            <CourseDetails processedEvent={course} />
+            <CourseDetails 
+                processedEvent={course} 
+                paidCourse={paidCourse}
+                decryptedContent={decryptedContent}
+                handlePaymentSuccess={handlePaymentSuccess}
+                handlePaymentError={handlePaymentError}
+            />
             {lessons.length > 0 && lessons.map((lesson, index) => (
                 <CourseLesson key={index} lesson={lesson} course={course} />
             ))}

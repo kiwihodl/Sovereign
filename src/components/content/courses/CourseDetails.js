@@ -4,7 +4,7 @@ import { useImageProxy } from '@/hooks/useImageProxy';
 import ZapDisplay from '@/components/zaps/ZapDisplay';
 import { getTotalFromZaps } from '@/utils/lightning';
 import { Tag } from 'primereact/tag';
-import { nip19 } from 'nostr-tools';
+import { nip19, nip04 } from 'nostr-tools';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
@@ -13,6 +13,7 @@ import { useNDKContext } from "@/context/NDKContext";
 import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscription';
 import { findKind0Fields } from '@/utils/nostr';
 import 'primeicons/primeicons.css';
+import ResourcePaymentButton from "@/components/bitcoinConnect/ResourcePaymentButton";
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -21,7 +22,7 @@ const MDDisplay = dynamic(
     }
 );
 
-export default function CourseDetails({ processedEvent }) {
+export default function CourseDetails({ processedEvent, paidCourse, decryptedContent, handlePaymentSuccess, handlePaymentError }) {
     const [author, setAuthor] = useState(null);
     const [nAddress, setNAddress] = useState(null);    
     const [zapAmount, setZapAmount] = useState(0);
@@ -31,6 +32,18 @@ export default function CourseDetails({ processedEvent }) {
     const { data: session, status } = useSession();
     const router = useRouter();
     const {ndk, addSigner} = useNDKContext();
+
+    useEffect(() => {
+        console.log("processedEvent", processedEvent);
+    }, [processedEvent]);
+
+    useEffect(() => {
+        console.log("zaps", zaps);
+    }, [zaps]);
+
+    useEffect(() => {
+        console.log("paidCourse", paidCourse);
+    }, [paidCourse]);
 
     useEffect(() => {
         if (session) {
@@ -108,15 +121,30 @@ export default function CourseDetails({ processedEvent }) {
                         {processedEvent && (
                             <div className='flex flex-col items-center justify-between rounded-lg h-72 p-4 bg-gray-700 drop-shadow-md'>
                                 <Image
-                                    alt="resource thumbnail"
+                                    alt="course thumbnail"
                                     src={returnImageProxy(processedEvent.image)}
                                     width={344}
                                     height={194}
                                     className="w-[344px] h-[194px] object-cover object-top rounded-lg"
                                 />
-                                    <div className='w-full flex justify-end'>
-                                        <ZapDisplay zapAmount={zapAmount} event={processedEvent} zapsLoading={zapsLoading} />
-                                    </div>
+                                <div className='w-full flex justify-between items-center'>
+                                    {paidCourse && !decryptedContent && (
+                                        <ResourcePaymentButton
+                                            lnAddress={'bitcoinplebdev@stacker.news'}
+                                            amount={processedEvent.price}
+                                            onSuccess={handlePaymentSuccess}
+                                            onError={handlePaymentError}
+                                            resourceId={processedEvent.d}
+                                        />
+                                    )}
+                                    {paidCourse && decryptedContent && author && processedEvent?.pubkey !== session?.user?.pubkey && (
+                                        <p className='text-green-500'>Paid {processedEvent.price} sats</p>
+                                    )}
+                                    {paidCourse && author && processedEvent?.pubkey === session?.user?.pubkey && (
+                                        <p className='text-green-500'>Price {processedEvent.price} sats</p>
+                                    )}
+                                    <ZapDisplay zapAmount={zapAmount} event={processedEvent} zapsLoading={zapsLoading} />
+                                </div>
                             </div>
                         )}
                     </div>
