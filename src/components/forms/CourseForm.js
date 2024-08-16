@@ -19,6 +19,9 @@ import { parseEvent } from "@/utils/nostr";
 import ContentDropdownItem from "@/components/content/dropdowns/ContentDropdownItem";
 import 'primeicons/primeicons.css';
 
+
+// todo dont allow adding courses as resources
+// todo need to update how I handle unpubbed resources
 const CourseForm = ({ draft = null, isPublished = false }) => {
     const [title, setTitle] = useState('');
     const [summary, setSummary] = useState('');
@@ -96,140 +99,37 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!ndk.signer) {
-            await addSigner();
+        if (!user) {
+            showToast('error', 'Error', 'User not authenticated');
+            return;
         }
-
-        // Prepare the lessons from selected lessons
-        const resources = await Promise.all(selectedLessons.map(async (lesson) => {
-            if (lesson?.type) {
-                const event = createLessonEvent(lesson);
-                const published = await event.publish();
-
-                if (!published) {
-                    throw new Error(`Failed to publish lesson: ${lesson.title}`);
-                }
-
-                const resource = await axios.post('/api/resources', {
-                    id: event.tags.find(tag => tag[0] === 'd')[1],
-                    userId: user.id,
-                    price: lesson.price || 0,
-                    noteId: event.id,
-                });
-
-                if (resource.status !== 201) {
-                    throw new Error(`Failed to post resource: ${lesson.title}`);
-                }
-
-                const deleted = await axios.delete(`/api/drafts/${lesson.id}`);
-
-                if (deleted.status !== 204) {
-                    throw new Error(`Failed to delete draft: ${lesson.title}`);
-                }
-
-                return {
-                    id: lesson.id,
-                    userId: user.id,
-                    price: lesson.price || 0,
-                    noteId: event.id,
-                }
-            } else {
-                return {
-                    id: lesson.d,
-                    userId: user.id,
-                    price: lesson.price || 0,
-                    noteId: lesson.id,
-                }
-            }
-        }));
-
-        // if this is a draft any added resources should be updated with courseId
-        if (draft) {
-            resources.forEach(resource => {
-                console.log('each resource:', resource);
-                if (!draft.resources.includes(resource.id)) {
-                    axios.put(`/api/resources/${resource.id}`, { courseId: draft.id })
-                    .then(response => {
-                        console.log('resource updated:', response);
-                    })
-                    .catch(error => {
-                        console.error('error updating resource:', error);
-                    });
-                }
-            });
-        }
-
-        const payload = {
-            user: {
-                connect: { id: user.id },
-            },
-            title,
-            summary,
-            image: coverImage,
-            price: price || 0,
-            resources: {
-                set: resources.map(resource => ({ id: resource.id })),
-            },
-            topics,
-        };        
 
         try {
-            let response;
-            if (draft) {
-                // payload minus topics
-                delete payload.topics
-                response = await axios.put(`/api/courses/drafts/${draft.id}`, payload);
-                showToast('success', 'Success', 'Course draft updated successfully');
-            } else {
-                response = await axios.post('/api/courses/drafts', payload);
-                showToast('success', 'Success', 'Course draft saved successfully');
+            // Step 1: Create the course draft
+            const courseDraftPayload = {
+                userId: user.id, // Make sure this is set
+                title,
+                summary,
+                image: coverImage,
+                price: checked ? price : 0,
+                topics,
+            };
+
+            const courseDraftResponse = await axios.post('/api/courses/drafts', courseDraftPayload);
+            const courseDraftId = courseDraftResponse.data.id;
+
+            // Step 2: Associate resources with the course draft
+            for (const lesson of selectedLessons) {
+                await axios.put(`/api/resources/${lesson.d}`, {
+                    courseDraftId: courseDraftId
+                });
             }
-            console.log('response:', response);
-            // router.push(`/course/${response.data.id}/draft`);
+
+            showToast('success', 'Success', 'Course draft saved successfully');
+            router.push(`/course/${courseDraftId}/draft`);
         } catch (error) {
             console.error('Error saving course draft:', error);
-            showToast('error', 'Failed to save course draft. Please try again.');
-        }
-    };
-
-    const handlePublishedCourse = async (e) => {
-        e.preventDefault();
-
-        if (!ndk.signer) {
-            await addSigner();
-        }
-
-        const event = new NDKEvent(ndk);
-        event.kind = price > 0 ? 30402 : 30023;
-        event.content = JSON.stringify({
-            title,
-            summary,
-            image: coverImage,
-            resources: selectedLessons.map(lesson => lesson.id),
-        });
-        event.tags = [
-            ['d', draft.id],
-            ['title', title],
-            ['summary', summary],
-            ['image', coverImage],
-            ...topics.map(topic => ['t', topic]),
-            ['published_at', Math.floor(Date.now() / 1000).toString()],
-            ['price', price.toString()],
-        ];
-
-        try {
-            const published = await ndk.publish(event);
-
-            if (published) {
-                const response = await axios.put(`/api/courses/${draft.id}`, { noteId: event.id });
-                showToast('success', 'Success', 'Course published successfully');
-                router.push(`/course/${event.id}`);
-            } else {
-                showToast('error', 'Error', 'Failed to publish course. Please try again.');
-            }
-        } catch (error) {
-            console.error('Error publishing course:', error);
-            showToast('error', 'Failed to publish course. Please try again.');
+            showToast('error', 'Failed to save course draft', error.response?.data?.details || error.message);
         }
     };
 
@@ -340,7 +240,7 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
     }
 
     return (
-        <form onSubmit={isPublished ? handlePublishedCourse : handleSubmit}>
+        <form onSubmit={handleSubmit}>
             <div className="p-inputgroup flex-1">
                 <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
             </div>
@@ -398,7 +298,7 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
                 <Button type="button" icon="pi pi-plus" onClick={addTopic} className="p-button-outlined mt-2" />
             </div>
             <div className="flex justify-center mt-8">
-                <Button type="submit" label={draft ? (isPublished ? "Publish" : "Update") : "Submit"} className="p-button-raised p-button-success" />
+                <Button type="submit" label="Create Draft" className="p-button-raised p-button-success" />
             </div>
         </form>
     );

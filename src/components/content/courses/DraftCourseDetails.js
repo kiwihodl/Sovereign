@@ -54,7 +54,14 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
     }, [session]);
 
     const handleDelete = () => {
-        console.log('delete');
+        axios.delete(`/api/courses/drafts/${processedEvent.id}`)
+        .then(() => {
+            showToast('success', 'Success', 'Draft Course deleted successfully');
+            router.push('/');
+        })
+        .catch((error) => {
+            showToast('error', 'Error', 'Failed to delete draft course');
+        });
     }
 
     const handleSubmit = async (e) => {

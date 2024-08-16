@@ -2,7 +2,6 @@ datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
 }
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,10 +12,10 @@ model User {
     username   String?    @unique
     avatar     String?
     purchased  Purchase[]
-    courses    Course[]   // Relation field added for courses created by the user
-    resources  Resource[] // Relation field added for resources created by the user
-    drafts     Draft[]    // Relation field added for drafts created by the user
-    courseDrafts CourseDraft[] // Relation field added for course drafts created by the user
+    courses    Course[] 
+    resources  Resource[]
+    courseDrafts CourseDraft[]
+    drafts     Draft[]
     role       Role?      @relation(fields: [roleId], references: [id])
     roleId     String?
     createdAt  DateTime   @default(now())
@@ -37,13 +36,13 @@ model Purchase {
     courseId    String?
     resource    Resource? @relation(fields: [resourceId], references: [id])
     resourceId  String?
-    amountPaid  Int       // in satoshis
+    amountPaid  Int
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @updatedAt
 }
 
 model Course {
-    id          String    @id // Client generates UUID
+    id          String    @id
     userId      String    
     user        User      @relation(fields: [userId], references: [id])
     price       Int       @default(0)
@@ -52,20 +51,22 @@ model Course {
     noteId      String?   @unique
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @updatedAt
+    courseDraft CourseDraft?
 }
 
 model Resource {
-    id        String    @id // Client generates UUID
-    userId    String    
-    user      User      @relation(fields: [userId], references: [id])
-    course    Course?   @relation(fields: [courseId], references: [id])
-    courseId  String?
-    price     Int       @default(0)
-    purchases Purchase[]
-    courseDrafts CourseDraft[]
-    noteId    String?   @unique
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
+    id            String       @id // Client generates UUID
+    userId        String    
+    user          User         @relation(fields: [userId], references: [id])
+    course        Course?      @relation(fields: [courseId], references: [id])
+    courseId      String?
+    courseDraft   CourseDraft? @relation(fields: [courseDraftId], references: [id])
+    courseDraftId String?
+    price         Int          @default(0)
+    purchases     Purchase[]
+    noteId        String?      @unique
+    createdAt     DateTime     @default(now())
+    updatedAt     DateTime     @updatedAt
 }
 
 model Draft {
@@ -84,14 +85,17 @@ model Draft {
 }
 
 model CourseDraft {
-    id        String    @id @default(uuid())
+    id        String     @id @default(uuid())
     userId    String
-    user      User      @relation(fields: [userId], references: [id])
+    user      User       @relation(fields: [userId], references: [id])
     resources Resource[]
     title     String
     summary   String
     image     String?
-    price     Int?      @default(0)
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
+    price     Int?       @default(0)
+    topics    String[]
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
+    course    Course?    @relation(fields: [courseId], references: [id])
+    courseId  String?    @unique
 }

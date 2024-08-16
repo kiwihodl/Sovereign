@@ -1,10 +1,9 @@
 import { getAllCourseDraftsByUserId, getCourseDraftById, updateCourseDraft, deleteCourseDraft } from "@/db/models/courseDraftModels";
+import prisma from "@/db/prisma";
 
 export default async function handler(req, res) {
     const { slug } = req.query;
-    console.log('slug:', slug);
     const userId = req.body?.userId || req.query?.userId;
-    console.log('userId:', userId);
 
     if (req.method === 'GET') {
         if (slug && !userId) {
@@ -29,18 +28,29 @@ export default async function handler(req, res) {
             res.status(400).json({ error: 'User ID is required' });
         }
     } else if (req.method === 'PUT') {
-        if (!slug) {
-            return res.status(400).json({ error: 'Slug is required to update a course draft' });
-        }
         try {
-            const updatedCourseDraft = await updateCourseDraft(slug, req.body);
+            const { slug } = req.query;
+            const { title, summary, image, price, topics } = req.body;
+
+            const updatedCourseDraft = await prisma.courseDraft.update({
+                where: { id: slug },
+                data: {
+                    title,
+                    summary,
+                    image,
+                    price,
+                    topics,
+                },
+            });
+
             res.status(200).json(updatedCourseDraft);
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            console.error('Error updating course draft:', error);
+            res.status(500).json({ error: 'Failed to update course draft' });
         }
     } else if (req.method === 'DELETE') {
         if (!slug) {
-            return res.status(400).json({ error: 'Slug is required to delete a course draft' });
+            return res.status(400).json({ error: 'Id is required to delete a course draft' });
         }
         try {
             await deleteCourseDraft(slug);

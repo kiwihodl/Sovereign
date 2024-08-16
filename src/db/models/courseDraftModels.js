@@ -39,14 +39,16 @@ export const createCourseDraft = async (data) => {
 
 // Update an existing CourseDraft by its ID
 export const updateCourseDraft = async (id, data) => {
+    const { resourceIds, ...otherData } = data;
     return await prisma.courseDraft.update({
         where: { id },
         data: {
-            ...data,
+            ...otherData,
             resources: {
-                set: data.resourceIds?.map((resourceId) => ({ id: resourceId })),
+                set: resourceIds?.map((resourceId) => ({ id: resourceId })),
             },
         },
+        include: { resources: true }
     });
 };
 
