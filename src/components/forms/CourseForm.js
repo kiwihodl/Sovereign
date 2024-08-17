@@ -26,8 +26,8 @@ import 'primeicons/primeicons.css';
 const CourseForm = ({ draft = null, isPublished = false }) => {
     const [title, setTitle] = useState('');
     const [summary, setSummary] = useState('');
-    const [checked, setChecked] = useState(false);
-    const [price, setPrice] = useState(0);
+    const [isPaidCourse, setIsPaidCourse] = useState(draft?.price ? true : false);
+    const [price, setPrice] = useState(draft?.price || 0);
     const [coverImage, setCoverImage] = useState('');
     const [lessons, setLessons] = useState([{ id: uuidv4(), title: 'Select a lesson' }]);
     const [loadingLessons, setLoadingLessons] = useState(true);
@@ -89,13 +89,17 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
             console.log('draft:', draft);
             setTitle(draft.title);
             setSummary(draft.summary);
-            setChecked(draft.price > 0);
+            setIsPaidCourse(draft.price > 0);
             setPrice(draft.price || 0);
             setCoverImage(draft.image);
             // setSelectedLessons(draft.resources || []);
             setTopics(draft.topics || ['']);
         }
     }, [draft]);
+
+    const handlePriceChange = (value) => {
+        setPrice(value);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -198,12 +202,20 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
         if (resourcesLoading || !resources || workshopsLoading || !workshops || draftsLoading || !drafts) {
             return [];
         }
-        const draftOptions = drafts.map(draft => ({
+
+        const filterContent = (content) => {
+            console.log('contentttttt', content);
+            // If there is price in content.tags, then it is a paid content 'price' in the 0 index and stringified int in the 1 index
+            const contentPrice = content.tags.find(tag => tag[0] === 'price') ? parseInt(content.tags.find(tag => tag[0] === 'price')[1]) : 0;
+            return isPaidCourse ? contentPrice > 0 : contentPrice === 0;
+        };
+
+        const draftOptions = drafts.filter(filterContent).map(draft => ({
             label: <ContentDropdownItem content={draft} onSelect={(content) => handleLessonSelect(content, index)} selected={lessons[index] && lessons[index].id === draft.id} />,
             value: draft.id
         }));
 
-        const resourceOptions = resources.map(resource => {
+        const resourceOptions = resources.filter(filterContent).map(resource => {
             const { id, kind, pubkey, content, title, summary, image, published_at, d, topics } = parseEvent(resource);
             return {
                 label: <ContentDropdownItem content={{ id, kind, pubkey, content, title, summary, image, published_at, d, topics }} onSelect={(content) => handleLessonSelect(content, index)} selected={lessons[index] && lessons[index].id === id} />,
@@ -211,7 +223,7 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
             };
         });
 
-        const workshopOptions = workshops.map(workshop => {
+        const workshopOptions = workshops.filter(filterContent).map(workshop => {
             const { id, kind, pubkey, content, title, summary, image, published_at, d, topics } = parseEvent(workshop);
             return {
                 label: <ContentDropdownItem content={{ id, kind, pubkey, content, title, summary, image, published_at, d, topics }} onSelect={(content) => handleLessonSelect(content, index)} selected={lessons[index] && lessons[index].id === id} />,
@@ -251,12 +263,17 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
             <div className="p-inputgroup flex-1 mt-4">
                 <InputText value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="Cover Image URL" />
             </div>
-            <div className="p-inputgroup flex-1 mt-4 flex-col">
+            <div className="p-inputgroup flex-1 mt-8 flex-col">
                 <p className="py-2">Paid Course</p>
-                <InputSwitch checked={checked} onChange={(e) => setChecked(e.value)} />
-                {checked && (
+                <InputSwitch checked={isPaidCourse} onChange={(e) => setIsPaidCourse(e.value)} />
+                {isPaidCourse && (
                     <div className="p-inputgroup flex-1 py-4">
-                        <InputNumber value={price} onValueChange={(e) => setPrice(e.value)} placeholder="Price (sats)" />
+                        <InputNumber 
+                            value={price} 
+                            onValueChange={(e) => handlePriceChange(e.value)} 
+                            placeholder="Price (sats)" 
+                            min={1}
+                        />
                     </div>
                 )}
             </div>

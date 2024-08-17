@@ -227,25 +227,10 @@ export default function Draft() {
                     ['image', draft.image],
                     ...draft.topics.map(topic => ['t', topic]),
                     ['published_at', Math.floor(Date.now() / 1000).toString()],
+                    ...(draft?.price ? [['price', draft.price.toString()], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
                 ];
 
                 type = 'workshop';
-                break;
-            case 'course':
-                event.kind = 30023;
-                event.content = draft.content;
-                event.created_at = Math.floor(Date.now() / 1000);
-                event.pubkey = user.pubkey;
-                event.tags = [
-                    ['d', NewDTag],
-                    ['title', draft.title],
-                    ['summary', draft.summary],
-                    ['image', draft.image],
-                    ...draft.topics.map(topic => ['t', topic]),
-                    ['published_at', Math.floor(Date.now() / 1000).toString()],
-                ];
-
-                type = 'course';
                 break;
             default:
                 return null;

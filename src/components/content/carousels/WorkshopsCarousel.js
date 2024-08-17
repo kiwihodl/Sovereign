@@ -31,7 +31,9 @@ export default function WorkshopsCarousel() {
         const fetch = async () => {
             try {
                 if (workshops && workshops.length > 0) {
+                    console.log('workshops', workshops);
                     const processedWorkshops = workshops.map(workshop => parseEvent(workshop));
+                    console.log('processedWorkshops', processedWorkshops);
                     setProcessedWorkshops(processedWorkshops);
                 } else {
                     console.log('No workshops fetched or empty array returned');

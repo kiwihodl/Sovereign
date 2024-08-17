@@ -8,6 +8,7 @@ import { useNDKContext } from "@/context/NDKContext";
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
 import { nip04 } from 'nostr-tools';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -21,12 +22,13 @@ const Course = () => {
     const [lessonIds, setLessonIds] = useState([]);
     const [lessons, setLessons] = useState([]);
     const [paidCourse, setPaidCourse] = useState(false);
-    const [decryptedContent, setDecryptedContent] = useState(null);
-
+    const [decryptionPerformed, setDecryptionPerformed] = useState(false);
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
     const {ndk, addSigner} = useNDKContext();
     const { data: session, update } = useSession();
     const { showToast } = useToast();
+
     const privkey = process.env.NEXT_PUBLIC_APP_PRIV_KEY;
     const pubkey = process.env.NEXT_PUBLIC_APP_PUBLIC_KEY;
 
@@ -112,21 +114,37 @@ const Course = () => {
 
     useEffect(() => {
         const decryptContent = async () => {
-            if (session?.user && paidCourse) {
-                if (session.user?.purchased?.length > 0) {
-                    const purchasedCourse = session.user.purchased.find(purchase => purchase.resourceId === course.d);
-                    if (purchasedCourse) {
-                        const decryptedContent = await nip04.decrypt(privkey, pubkey, course.content);
-                        setDecryptedContent(decryptedContent);
+            if (session?.user && paidCourse && !decryptionPerformed) {
+                setLoading(true);
+                const canAccess = 
+                    session.user.purchased?.some(purchase => purchase.courseId === course?.d) ||
+                    session.user?.role?.subscribed ||
+                    session.user?.pubkey === course?.pubkey;
+
+                if (canAccess && lessons.length > 0) {
+                    try {
+                        const decryptedLessons = await Promise.all(lessons.map(async (lesson) => {
+                            const decryptedContent = await nip04.decrypt(privkey, pubkey, lesson.content);
+                            return { ...lesson, content: decryptedContent };
+                        }));
+                        setLessons(decryptedLessons);
+                        setDecryptionPerformed(true);
+                    } catch (error) {
+                        console.error('Error decrypting lessons:', error);
                     }
-                } else if (session.user?.role && session.user.role.subscribed) {
-                    const decryptedContent = await nip04.decrypt(privkey, pubkey, course.content);
-                    setDecryptedContent(decryptedContent);
                 }
+                setLoading(false);
             }
+            setLoading(false);
         }
         decryptContent();
-    }, [session, paidCourse, course]);
+    }, [session, paidCourse, course, lessons, privkey, pubkey, decryptionPerformed]);
+
+    useEffect(() => {
+        if (course && lessons.length > 0 && (!paidCourse || decryptionPerformed)) {
+            setLoading(false);
+        }
+    }, [course, lessons, paidCourse, decryptionPerformed]);
 
     const handlePaymentSuccess = async (response, newCourse) => {
         if (response && response?.preimage) {
@@ -142,12 +160,21 @@ const Course = () => {
         showToast('error', 'Payment Error', `Failed to purchase course. Please try again. Error: ${error}`);
     }
 
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <ProgressSpinner />
+            </div>
+        );
+    }
+
     return (
         <>
             <CourseDetails 
                 processedEvent={course} 
                 paidCourse={paidCourse}
-                decryptedContent={decryptedContent}
+                lessons={lessons}
+                decryptionPerformed={decryptionPerformed}
                 handlePaymentSuccess={handlePaymentSuccess}
                 handlePaymentError={handlePaymentError}
             />
@@ -155,9 +182,7 @@ const Course = () => {
                 <CourseLesson key={index} lesson={lesson} course={course} />
             ))}
             <div className="mx-auto my-6">
-                {
-                    course?.content && <MDDisplay source={course.content} />
-                }
+                {course?.content && <MDDisplay source={course.content} />}
             </div>
         </>
     );

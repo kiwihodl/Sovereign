@@ -25,6 +25,7 @@ const EditCourseForm = ({ draft }) => {
     const [summary, setSummary] = useState('');
     const [checked, setChecked] = useState(false);
     const [price, setPrice] = useState(0);
+    const [isPaid, setIsPaid] = useState(false);
     const [coverImage, setCoverImage] = useState('');
     const [selectedLessons, setSelectedLessons] = useState([]);
     const [selectedLessonsLoading, setSelectedLessonsLoading] = useState(false);
@@ -63,10 +64,16 @@ const EditCourseForm = ({ draft }) => {
             setSummary(draft.summary);
             setChecked(draft.price > 0);
             setPrice(draft.price || 0);
+            setIsPaid(draft.price > 0);
             setCoverImage(draft.image);
             setTopics(draft.topics || ['']);
         }
     }, [draft, ndk, showToast, parseEvent]);
+
+    const handlePriceChange = (value) => {
+        setPrice(value);
+        setIsPaid(value > 0);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -90,7 +97,7 @@ const EditCourseForm = ({ draft }) => {
                 title,
                 summary,
                 image: coverImage,
-                price: checked ? price : 0,
+                price: isPaid ? price : 0,
                 topics,
                 resourceIds: lessonsToUpdate.filter(lesson => lesson && lesson.id).map(lesson => lesson.id)
             };        
@@ -137,7 +144,12 @@ const EditCourseForm = ({ draft }) => {
             return [];
         }
 
-        const resourceOptions = resources.map(resource => {
+        const filterContent = (content) => {
+            const contentPrice = content.price || 0;
+            return isPaid ? contentPrice > 0 : contentPrice === 0;
+        };
+
+        const resourceOptions = resources.filter(filterContent).map(resource => {
             const parsedResource = parseEvent(resource);
             return {
                 label: <ContentDropdownItem content={parsedResource} onSelect={handleLessonSelect} selected={selectedLessons.some(lesson => lesson.id === parsedResource.id)} />,
@@ -145,7 +157,7 @@ const EditCourseForm = ({ draft }) => {
             };
         });
 
-        const workshopOptions = workshops.map(workshop => {
+        const workshopOptions = workshops.filter(filterContent).map(workshop => {
             const parsedWorkshop = parseEvent(workshop);
             return {
                 label: <ContentDropdownItem content={parsedWorkshop} onSelect={handleLessonSelect} selected={selectedLessons.some(lesson => lesson.id === parsedWorkshop.id)} />,
@@ -179,7 +191,7 @@ const EditCourseForm = ({ draft }) => {
                 <InputSwitch checked={checked} onChange={(e) => setChecked(e.value)} />
                 {checked && (
                     <div className="p-inputgroup flex-1 py-4">
-                        <InputNumber value={price} onValueChange={(e) => setPrice(e.value)} placeholder="Price (sats)" />
+                        <InputNumber value={price} onValueChange={(e) => handlePriceChange(e.value)} placeholder="Price (sats)" />
                     </div>
                 )}
             </div>

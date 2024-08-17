@@ -13,7 +13,8 @@ import { useNDKContext } from "@/context/NDKContext";
 import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscription';
 import { findKind0Fields } from '@/utils/nostr';
 import 'primeicons/primeicons.css';
-import ResourcePaymentButton from "@/components/bitcoinConnect/ResourcePaymentButton";
+import CoursePaymentButton from "@/components/bitcoinConnect/CoursePaymentButton";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -22,7 +23,7 @@ const MDDisplay = dynamic(
     }
 );
 
-export default function CourseDetails({ processedEvent, paidCourse, decryptedContent, handlePaymentSuccess, handlePaymentError }) {
+export default function CourseDetails({ processedEvent, paidCourse, lessons, decryptionPerformed, handlePaymentSuccess, handlePaymentError }) {
     const [author, setAuthor] = useState(null);
     const [nAddress, setNAddress] = useState(null);    
     const [zapAmount, setZapAmount] = useState(0);
@@ -44,6 +45,10 @@ export default function CourseDetails({ processedEvent, paidCourse, decryptedCon
     useEffect(() => {
         console.log("paidCourse", paidCourse);
     }, [paidCourse]);
+
+    useEffect(() => {
+        console.log("decryptionPerformed", decryptionPerformed);
+    }, [decryptionPerformed]);
 
     useEffect(() => {
         if (session) {
@@ -85,6 +90,14 @@ export default function CourseDetails({ processedEvent, paidCourse, decryptedCon
 
         setZapAmount(total);
     }, [zaps, processedEvent]);
+
+    if (!processedEvent || !author) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <ProgressSpinner />
+            </div>
+        );
+    }
 
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
@@ -128,8 +141,8 @@ export default function CourseDetails({ processedEvent, paidCourse, decryptedCon
                                     className="w-[344px] h-[194px] object-cover object-top rounded-lg"
                                 />
                                 <div className='w-full flex justify-between items-center'>
-                                    {paidCourse && !decryptedContent && (
-                                        <ResourcePaymentButton
+                                    {paidCourse && !decryptionPerformed && (
+                                        <CoursePaymentButton
                                             lnAddress={'bitcoinplebdev@stacker.news'}
                                             amount={processedEvent.price}
                                             onSuccess={handlePaymentSuccess}
@@ -137,7 +150,7 @@ export default function CourseDetails({ processedEvent, paidCourse, decryptedCon
                                             resourceId={processedEvent.d}
                                         />
                                     )}
-                                    {paidCourse && decryptedContent && author && processedEvent?.pubkey !== session?.user?.pubkey && (
+                                    {paidCourse && decryptionPerformed && author && processedEvent?.pubkey !== session?.user?.pubkey && (
                                         <p className='text-green-500'>Paid {processedEvent.price} sats</p>
                                     )}
                                     {paidCourse && author && processedEvent?.pubkey === session?.user?.pubkey && (
