@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { Button } from 'primereact/button';
+import { Dialog } from 'primereact/dialog';
 import { initializeBitcoinConnect } from './BitcoinConnect';
 import { LightningAddress } from '@getalby/lightning-tools';
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
-import axios from 'axios'; // Import axios for API calls
+import axios from 'axios';
 
-const PayButton = dynamic(
-  () => import('@getalby/bitcoin-connect-react').then((mod) => mod.PayButton),
-  {
-    ssr: false,
-  }
+const Payment = dynamic(
+  () => import('@getalby/bitcoin-connect-react').then((mod) => mod.Payment),
+  { ssr: false }
 );
 
 const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resourceId }) => {
   const [invoice, setInvoice] = useState(null);
   const [userId, setUserId] = useState(null);
   const { showToast } = useToast();
-  const [pollingInterval, setPollingInterval] = useState(null);
   const { data: session } = useSession();
+  const [dialogVisible, setDialogVisible] = useState(false);
 
   useEffect(() => {
     if (session?.user) {
@@ -47,45 +47,14 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
     fetchInvoice();
   }, [lnAddress, amount, onError, showToast]);
 
-  const startPolling = (invoice) => {
-    const intervalId = setInterval(async () => {
-      try {
-        const paid = await invoice.verifyPayment();
-        console.log('Polling for payment - Paid:', paid);
-        if (paid) {
-          clearInterval(intervalId); // Stop polling
-          handlePaymentSuccess(invoice);
-        }
-      } catch (error) {
-        console.error('Polling error:', error);
-        clearInterval(intervalId); // Stop polling on error
-        handlePaymentError(error);
-      }
-    }, 5000); // Poll every 5 seconds
-
-    setPollingInterval(intervalId);
-  };
-
-  const stopPolling = () => {
-    if (pollingInterval) {
-      clearInterval(pollingInterval);
-      setPollingInterval(null);
-    }
-  };
-
   const handlePaymentSuccess = async (response) => {
-    stopPolling();
-    await closeModal();
-
     try {
-      // Create a new purchase record
       const purchaseData = {
         userId: userId,
         resourceId: resourceId,
-        amountPaid: parseInt(amount, 10) // Convert amount to integer
+        amountPaid: parseInt(amount, 10)
       };
 
-      // Make an API call to add the purchase to the user
       const result = await axios.post('/api/purchase/resource', purchaseData);
 
       if (result.status === 200) {
@@ -99,51 +68,36 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
       showToast('error', 'Purchase Update Failed', 'Payment was successful, but failed to update user purchases.');
       if (onError) onError(error);
     }
-  };
-
-  const handlePaymentError = (error) => {
-    console.error('Payment failed:', error);
-    showToast('error', 'Payment Failed', error.message || 'An error occurred during payment.');
-    if (onError) onError(error);
-    stopPolling(); // Stop polling on error
-  };
-
-  const handleModalOpen = () => {
-    console.log('Modal opened');
-    if (invoice) {
-      startPolling(invoice); // Start polling when modal is opened
-    }
-  };
-
-  const handleModalClose = () => {
-    console.log('Modal closed');
-    stopPolling(); // Stop polling when modal is closed
-  };
-
-  const closeModal = async () => {
-    const { closeModal } = await import('@getalby/bitcoin-connect-react');
-    closeModal();
+    setDialogVisible(false);
   };
 
   return (
-    <div className="flex items-center">
-      {invoice ? (
-        <PayButton
-          invoice={invoice.paymentRequest}
-          onClick={handleModalOpen}
-          onPaid={handlePaymentSuccess}
-          onModalClose={handleModalClose}
-          title={`Pay ${amount} sats`}
-        >
-          Pay Now
-        </PayButton>
-      ) : (
-        <button disabled className="p-2 bg-gray-500 text-white rounded">
-          Loading...
-        </button>
-      )}
-      <span className="ml-2 text-white text-lg">{amount} sats</span>
-    </div>
+    <>
+      <Button 
+        label={`Pay ${amount} sats`}
+        icon="pi pi-wallet"
+        onClick={() => setDialogVisible(true)}
+        disabled={!invoice}
+        className="p-2 bg-blue-500 text-white rounded"
+      />
+      <Dialog 
+        visible={dialogVisible} 
+        onHide={() => setDialogVisible(false)}
+        header="Make Payment"
+        style={{ width: '50vw' }}
+      >
+        {invoice ? (
+          <Payment
+            invoice={invoice.paymentRequest}
+            onPaid={handlePaymentSuccess}
+            paymentMethods='all'
+            title={`Pay ${amount} sats`}
+          />
+        ) : (
+          <p>Loading payment details...</p>
+        )}
+      </Dialog>
+    </>
   );
 };
 
