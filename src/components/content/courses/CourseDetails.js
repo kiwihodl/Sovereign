@@ -39,6 +39,10 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
     }, [processedEvent]);
 
     useEffect(() => {
+        console.log("lessons", lessons);
+    }, [lessons]);
+
+    useEffect(() => {
         console.log("zaps", zaps);
     }, [zaps]);
 

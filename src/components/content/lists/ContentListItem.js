@@ -9,6 +9,7 @@ const ContentListItem = (content) => {
     const router = useRouter();
     const isDraft = Object.keys(content).includes('type');
     const isCourse = content && content?.kind === 30004;
+    const isCourseDraft = content && content?.resources?.length > 0 && !content?.kind;
 
     const handleClick = () => {
         let path = '';
@@ -17,11 +18,13 @@ const ContentListItem = (content) => {
             path = '/draft';
         } else if (isCourse) {
             path = '/course';
+        } else if (isCourseDraft) {
+            path = `/course/${content.id}/draft`
+            return router.push(path);
         } else {
             path = '/details';
         }
     
-        // const draftSuffix = isCourse ? '/draft' : '';
         const fullPath = `${path}/${content.id}`;
     
         router.push(fullPath);

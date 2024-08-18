@@ -6,6 +6,7 @@ import { useCoursesQuery } from "@/hooks/nostrQueries/content/useCoursesQuery";
 import { useResourcesQuery } from "@/hooks/nostrQueries/content/useResourcesQuery";
 import { useWorkshopsQuery } from "@/hooks/nostrQueries/content/useWorkshopsQuery";
 import { useDraftsQuery } from "@/hooks/apiQueries/useDraftsQuery";
+import { useCourseDraftsQuery } from "@/hooks/apiQueries/useCourseDraftsQuery";
 import { useContentIdsQuery } from "@/hooks/apiQueries/useContentIdsQuery";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/useToast";
@@ -29,6 +30,7 @@ const UserContent = () => {
     const { courses, coursesLoading, coursesError } = useCoursesQuery();
     const { resources, resourcesLoading, resourcesError } = useResourcesQuery();
     const { workshops, workshopsLoading, workshopsError } = useWorkshopsQuery();
+    const { courseDrafts, courseDraftsLoading, courseDraftsError } = useCourseDraftsQuery();
     const { drafts, draftsLoading, draftsError } = useDraftsQuery();
     const { contentIds, contentIdsLoading, contentIdsError, refetchContentIds } = useContentIdsQuery();
 
@@ -45,7 +47,8 @@ const UserContent = () => {
     const contentItems = [
         { label: "Published", icon: "pi pi-verified" },
         { label: "Drafts", icon: "pi pi-file-edit" },
-        { label: "Resources", icon: "pi pi-book" },
+        { label: "Draft Courses", icon: "pi pi-book" },
+        { label: "Resources", icon: "pi pi-file" },
         { label: "Workshops", icon: "pi pi-video" },
         { label: "Courses", icon: "pi pi-desktop" },
     ];
@@ -90,6 +93,8 @@ const UserContent = () => {
                     case 1:
                         return drafts || [];
                     case 2:
+                        return courseDrafts || [];
+                    case 3:
                         return resources?.map(parseEvent) || [];
                     case 3:
                         return workshops?.map(parseEvent) || [];
@@ -102,10 +107,10 @@ const UserContent = () => {
 
             setContent(getContentByIndex(activeIndex));
         }
-    }, [activeIndex, isClient, drafts, resources, workshops, courses, publishedContent])
+    }, [activeIndex, isClient, drafts, resources, workshops, courses, publishedContent, courseDrafts])
 
-    const isLoading = coursesLoading || resourcesLoading || workshopsLoading || draftsLoading || contentIdsLoading;
-    const isError = coursesError || resourcesError || workshopsError || draftsError || contentIdsError;
+    const isLoading = coursesLoading || resourcesLoading || workshopsLoading || draftsLoading || contentIdsLoading || courseDraftsLoading;
+    const isError = coursesError || resourcesError || workshopsError || draftsError || contentIdsError || courseDraftsError;
 
     return (
         <div className="w-[90vw] mx-auto max-tab:w-[100vw] max-mob:w-[100vw]">

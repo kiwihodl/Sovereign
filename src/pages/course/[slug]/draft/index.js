@@ -4,17 +4,11 @@ import axios from "axios";
 import { parseEvent, findKind0Fields } from "@/utils/nostr";
 import DraftCourseDetails from "@/components/content/courses/DraftCourseDetails";
 import DraftCourseLesson from "@/components/content/courses/DraftCourseLesson";
-import dynamic from 'next/dynamic';
 import { useNDKContext } from "@/context/NDKContext";
-
-const MDDisplay = dynamic(
-    () => import("@uiw/react-markdown-preview"),
-    {
-        ssr: false,
-    }
-);
+import { useSession } from "next-auth/react";
 
 const DraftCourse = () => {
+    const { data: session } = useSession();
     const [course, setCourse] = useState(null);
     const [lessons, setLessons] = useState([]);
     const [lessonsWithAuthors, setLessonsWithAuthors] = useState([]);
@@ -40,7 +34,6 @@ const DraftCourse = () => {
 
             axios.get(`/api/courses/drafts/${slug}`)
                 .then(res => {
-                    console.log('res:', res.data);
                     setCourse(res.data);
                     console.log('coursesssss:', res.data);
                     setLessons(res.data.resources); // Set the raw lessons
@@ -54,22 +47,33 @@ const DraftCourse = () => {
     useEffect(() => {
         const fetchLessonDetails = async () => {
             if (lessons.length > 0) {
+                console.log('lessons in fetchLessonDetails', lessons);
                 await ndk.connect();
 
                 const newLessonsWithAuthors = await Promise.all(lessons.map(async (lesson) => {
-                    const filter = {
-                        "#d": [lesson.id]
-                    };
-
-                    const event = await ndk.fetchEvent(filter);
-                    if (event) {
-                        const author = await fetchAuthor(event.pubkey);
-                        return {
-                            ...parseEvent(event),
-                            author
+                    // figure out if it is a resource or a draft
+                    const isDraft = !lesson.noteId;
+                    if (isDraft) {
+                        const parsedLessonObject = {
+                            ...lesson,
+                            author: session.user
+                        }
+                        return parsedLessonObject;
+                    } else {
+                        const filter = {
+                            "#d": [lesson.id]
                         };
+                        
+                        const event = await ndk.fetchEvent(filter);
+                        if (event) {
+                            const author = await fetchAuthor(event.pubkey);
+                            return {
+                                ...parseEvent(event),
+                                author
+                            };
+                        }
                     }
-                
+                        
                     return lesson; // Fallback to the original lesson if no event found
                 }));
 
@@ -78,7 +82,7 @@ const DraftCourse = () => {
         };
 
         fetchLessonDetails();
-    }, [lessons, ndk, fetchAuthor]);
+    }, [lessons, ndk, fetchAuthor, session]);
 
     return (
         <>

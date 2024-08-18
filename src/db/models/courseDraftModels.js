@@ -18,6 +18,7 @@ export const getCourseDraftById = async (id) => {
         include: {
             user: true, // Include the related user
             resources: true, // Include related resources
+            drafts: true, // Include related drafts
         },
     });
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { Tag } from 'primereact/tag';
@@ -6,6 +6,7 @@ import { Button } from 'primereact/button';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import axios from 'axios';
+import { nip04, nip19 } from 'nostr-tools';
 import { v4 as uuidv4 } from 'uuid';
 import { useSession } from 'next-auth/react';
 import { useNDKContext } from "@/context/NDKContext";
@@ -21,9 +22,30 @@ const MDDisplay = dynamic(
     }
 );
 
+function validateEvent(event) {
+    if (typeof event.kind !== "number") return "Invalid kind";
+    if (typeof event.content !== "string") return "Invalid content";
+    if (typeof event.created_at !== "number") return "Invalid created_at";
+    if (typeof event.pubkey !== "string") return "Invalid pubkey";
+    if (!event.pubkey.match(/^[a-f0-9]{64}$/)) return "Invalid pubkey format";
+
+    if (!Array.isArray(event.tags)) return "Invalid tags";
+    for (let i = 0; i < event.tags.length; i++) {
+        const tag = event.tags[i];
+        if (!Array.isArray(tag)) return "Invalid tag structure";
+        for (let j = 0; j < tag.length; j++) {
+            if (typeof tag[j] === "object") return "Invalid tag value";
+        }
+    }
+
+    return true;
+}
+
 export default function DraftCourseDetails({ processedEvent, draftId, lessons }) {
     const [author, setAuthor] = useState(null);
     const [user, setUser] = useState(null);
+    const [processedLessons, setProcessedLessons] = useState([]);
+    const hasRunEffect = useRef(false);
 
     const { showToast } = useToast();
     const { returnImageProxy } = useImageProxy();
@@ -42,6 +64,10 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
     }, [ndk]);
 
     useEffect(() => {
+        console.log('lessons in comp', lessons);
+    }, [lessons]);
+
+    useEffect(() => {
         if (processedEvent) {
             fetchAuthor(processedEvent?.user?.pubkey);
         }
@@ -55,33 +81,98 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
 
     const handleDelete = () => {
         axios.delete(`/api/courses/drafts/${processedEvent.id}`)
-        .then(() => {
-            showToast('success', 'Success', 'Draft Course deleted successfully');
-            router.push('/');
-        })
-        .catch((error) => {
-            showToast('error', 'Error', 'Failed to delete draft course');
-        });
+            .then(() => {
+                showToast('success', 'Success', 'Draft Course deleted successfully');
+                router.push('/');
+            })
+            .catch((error) => {
+                showToast('error', 'Error', 'Failed to delete draft course');
+            });
     }
+
+    const handlePostResource = async (resource) => {
+        console.log('resourceeeeee:', resource.tags);
+        const dTag = resource.tags.find(tag => tag[0] === 'd')[1];
+        let price
+
+        try {
+            price = resource.tags.find(tag => tag[0] === 'price')[1];
+        } catch (err) {
+            price = 0;
+        }
+
+        const nAddress = nip19.naddrEncode({
+            pubkey: resource.pubkey,
+            kind: resource.kind,
+            identifier: dTag,
+        });
+
+        const userResponse = await axios.get(`/api/users/${user.pubkey}`);
+
+        if (!userResponse.data) {
+            showToast('error', 'Error', 'User not found', 'Please try again.');
+            return;
+        }
+
+        const payload = {
+            id: dTag,
+            userId: userResponse.data.id,
+            price: Number(price),
+            noteId: nAddress
+        };
+
+        const response = await axios.post(`/api/resources`, payload);
+
+        if (response.status !== 201) {
+            showToast('error', 'Error', 'Failed to create resource. Please try again.');
+            return;
+        }
+
+        return response.data;
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         const newCourseId = uuidv4();
-        const processedLessons = [];
 
         try {
             // Step 0: Add signer if not already added
             if (!ndk.signer) {
                 await addSigner();
-              }
+            }
             // Step 1: Process lessons
-            for (const lesson of lessons) {
-                processedLessons.push({ 
-                    d: lesson?.d, 
-                    kind: lesson?.price ? 30402 : 30023,
-                    pubkey: lesson.pubkey
-                });
+            for (const lesson of processedLessons) {
+                // publish any draft lessons and delete draft lessons
+                const unpublished = lesson?.unpublished;
+                if (unpublished && Object.keys(unpublished).length > 0) {
+                    const validationResult = validateEvent(unpublished);
+                    if (validationResult !== true) {
+                        console.error('Invalid event:', validationResult);
+                        showToast('error', 'Error', `Invalid event: ${validationResult}`);
+                        return;
+                    }
+
+                    const published = await unpublished.publish();
+
+                    const saved = await handlePostResource(unpublished);
+
+                    console.log('saved', saved);
+
+                    if (published && saved) {
+                        axios.delete(`/api/drafts/${lesson?.d}`)
+                            .then(res => {
+                                if (res.status === 204) {
+                                    showToast('success', 'Success', 'Draft deleted successfully.');
+                                } else {
+                                    showToast('error', 'Error', 'Failed to delete draft.');
+                                }
+                            })
+                            .catch(err => {
+                                console.error(err);
+                            });
+                    }
+                }
             }
 
             // Step 2: Create and publish course
@@ -95,7 +186,6 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
             }
 
             // Step 3: Save course to db
-            console.log('processedLessons:', processedLessons);
             await axios.post('/api/courses', {
                 id: newCourseId,
                 resources: {
@@ -140,6 +230,99 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
         ];
         return event;
     };
+
+    useEffect(() => {
+        async function buildEvent(draft) {
+            const event = new NDKEvent(ndk);
+            let type;
+            let encryptedContent;
+
+            console.log('Draft:', draft);
+
+            switch (draft?.type) {
+                case 'resource':
+                    if (draft?.price) {
+                        // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
+                        encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
+                    }
+
+                    event.kind = draft?.price ? 30402 : 30023; // Determine kind based on if price is present
+                    event.content = draft?.price ? encryptedContent : draft.content;
+                    event.created_at = Math.floor(Date.now() / 1000);
+                    event.pubkey = user.pubkey;
+                    event.tags = [
+                        ['d', draft.id],
+                        ['title', draft.title],
+                        ['summary', draft.summary],
+                        ['image', draft.image],
+                        ...draft.topics.map(topic => ['t', topic]),
+                        ['published_at', Math.floor(Date.now() / 1000).toString()],
+                        ...(draft?.price ? [['price', draft.price.toString()], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
+                    ];
+
+                    type = 'resource';
+                    break;
+                case 'workshop':
+                    if (draft?.price) {
+                        // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
+                        encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
+                    }
+
+                    event.kind = draft?.price ? 30402 : 30023;
+                    event.content = draft?.price ? encryptedContent : draft.content;
+                    event.created_at = Math.floor(Date.now() / 1000);
+                    event.pubkey = user.pubkey;
+                    event.tags = [
+                        ['d', draft.id],
+                        ['title', draft.title],
+                        ['summary', draft.summary],
+                        ['image', draft.image],
+                        ...draft.topics.map(topic => ['t', topic]),
+                        ['published_at', Math.floor(Date.now() / 1000).toString()],
+                        ...(draft?.price ? [['price', draft.price.toString()], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
+                    ];
+
+                    type = 'workshop';
+                    break;
+                default:
+                    return null;
+            }
+
+            return { unsignedEvent: event, type };
+        }
+
+        async function buildDraftEvent(lesson) {
+            const { unsignedEvent, type } = await buildEvent(lesson);
+            return unsignedEvent
+        }
+
+        if (!hasRunEffect.current && lessons.length > 0 && user && author) {
+            hasRunEffect.current = true;
+            
+            lessons.forEach(async (lesson) => {
+                const isDraft = !lesson?.pubkey;
+                if (isDraft) {
+                    const unsignedEvent = await buildDraftEvent(lesson);
+                    setProcessedLessons(prev => [...prev, {
+                        d: lesson?.id,
+                        kind: lesson?.price ? 30402 : 30023,
+                        pubkey: unsignedEvent.pubkey,
+                        unpublished: unsignedEvent
+                    }]);
+                } else {
+                    setProcessedLessons(prev => [...prev, {
+                        d: lesson?.d,
+                        kind: lesson?.price ? 30402 : 30023,
+                        pubkey: lesson.pubkey
+                    }]);
+                }
+            });
+        }
+    }, [lessons, user, author, ndk]);
+
+    useEffect(() => {
+        console.log('processedLessons', processedLessons);
+    }, [processedLessons]);
 
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>

@@ -18,6 +18,7 @@ import ContentDropdownItem from "@/components/content/dropdowns/ContentDropdownI
 import 'primeicons/primeicons.css';
 
 // todo dealing with adding drafts as new lessons
+// todo disable ability to add a free lesson to a paid course and vice versa (or just make the user remove the lesson if they want to change the price)
 // todo deal with error where 2 new lessons popup when only one is added from the dropdown
 // todo on edit lessons need to make sure that the user is still choosing the order those lessons appear in the course
 const EditCourseForm = ({ draft }) => {
