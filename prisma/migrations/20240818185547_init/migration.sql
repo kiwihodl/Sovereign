@@ -91,6 +91,12 @@ CREATE TABLE "CourseDraft" (
     CONSTRAINT "CourseDraft_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "_CourseDraftToDraft" (
+    "A" TEXT NOT NULL,
+    "B" TEXT NOT NULL
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_pubkey_key" ON "User"("pubkey");
 
@@ -105,6 +111,12 @@ CREATE UNIQUE INDEX "Resource_noteId_key" ON "Resource"("noteId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "CourseDraft_courseId_key" ON "CourseDraft"("courseId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_CourseDraftToDraft_AB_unique" ON "_CourseDraftToDraft"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_CourseDraftToDraft_B_index" ON "_CourseDraftToDraft"("B");
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "Role"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -138,3 +150,9 @@ ALTER TABLE "CourseDraft" ADD CONSTRAINT "CourseDraft_userId_fkey" FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE "CourseDraft" ADD CONSTRAINT "CourseDraft_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_CourseDraftToDraft" ADD CONSTRAINT "_CourseDraftToDraft_A_fkey" FOREIGN KEY ("A") REFERENCES "CourseDraft"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_CourseDraftToDraft" ADD CONSTRAINT "_CourseDraftToDraft_B_fkey" FOREIGN KEY ("B") REFERENCES "Draft"("id") ON DELETE CASCADE ON UPDATE CASCADE;

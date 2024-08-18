@@ -2,14 +2,13 @@ import React from "react";
 import Image from "next/image";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { formatUnixTimestamp } from "@/utils/time";
-import { Button } from "primereact/button";
 
-const ContentDropdownItem = ({ content, onSelect }) => {
+const SelectedContentItem = ({ content }) => {
     const { returnImageProxy } = useImageProxy();
 
     return (
-        <div className="w-full border-t-2 border-gray-700 py-4">
-            <div className="flex flex-row gap-4 p-2">
+        <div className="w-full border-2 rounded-lg border-gray-700 p-2 rounded-tr-none rounded-br-none">
+            <div className="flex flex-row gap-4">
                 <Image
                     alt="content thumbnail"
                     src={returnImageProxy(content.image)}
@@ -24,12 +23,9 @@ const ContentDropdownItem = ({ content, onSelect }) => {
                         {content.published_at ? formatUnixTimestamp(content.published_at) : "not yet published"}
                     </div>
                 </div>
-                <div className="flex flex-col justify-end">
-                    <Button label="Select" onClick={() => onSelect(content)} />
-                </div>
             </div>
         </div>
     );
 };
 
-export default ContentDropdownItem;
+export default SelectedContentItem;

@@ -17,6 +17,7 @@ import { useDraftsQuery } from "@/hooks/apiQueries/useDraftsQuery";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { parseEvent } from "@/utils/nostr";
 import ContentDropdownItem from "@/components/content/dropdowns/ContentDropdownItem";
+import SelectedContentItem from "@/components/content/SelectedContentItem";
 import 'primeicons/primeicons.css';
 
 
@@ -29,9 +30,7 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
     const [isPaidCourse, setIsPaidCourse] = useState(draft?.price ? true : false);
     const [price, setPrice] = useState(draft?.price || 0);
     const [coverImage, setCoverImage] = useState('');
-    const [lessons, setLessons] = useState([{ id: uuidv4(), title: 'Select a lesson' }]);
-    const [loadingLessons, setLoadingLessons] = useState(true);
-    const [selectedLessons, setSelectedLessons] = useState([]);
+    const [selectedContent, setSelectedContent] = useState([]);
     const [topics, setTopics] = useState(['']);
 
     const { resources, resourcesLoading, resourcesError } = useResourcesQuery();
@@ -50,41 +49,6 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
     }, [session]);
 
     useEffect(() => {
-        console.log('selectedLessons:', selectedLessons);
-    }, [selectedLessons]);
-
-    useEffect(() => {
-        const fetchLessons = async () => {
-            if (draft && draft?.resources) {
-                const parsedLessons = await Promise.all(
-                    draft.resources.map(async (lesson) => {
-                        const parsedLesson = await fetchLessonEventFromNostr(lesson.noteId);
-                        return parsedLesson;
-                    })
-                );
-                setSelectedLessons([...selectedLessons, ...parsedLessons]);
-                setLoadingLessons(false); // Data is loaded
-            } else {
-                setLoadingLessons(false); // No draft means no lessons to load
-            }
-        };
-
-        fetchLessons();
-    }, [draft]); // Only depend on draft
-
-    const fetchLessonEventFromNostr = async (eventId) => {
-        try {
-            await ndk.connect();
-            const fetchedEvent = await ndk.fetchEvent(eventId);
-            if (fetchedEvent) {
-                return parseEvent(fetchedEvent);
-            }
-        } catch (error) {
-            showToast('error', 'Error', `Failed to fetch lesson: ${eventId}`);
-        }
-    }
-
-    useEffect(() => {
         if (draft) {
             console.log('draft:', draft);
             setTitle(draft.title);
@@ -92,7 +56,7 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
             setIsPaidCourse(draft.price > 0);
             setPrice(draft.price || 0);
             setCoverImage(draft.image);
-            // setSelectedLessons(draft.resources || []);
+            setSelectedContent(draft.resources.concat(draft.drafts) || []);
             setTopics(draft.topics || ['']);
         }
     }, [draft]);
@@ -110,25 +74,19 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
         }
 
         try {
-            // Step 1: Create the course draft
             const courseDraftPayload = {
-                userId: user.id, // Make sure this is set
+                userId: user.id,
                 title,
                 summary,
                 image: coverImage,
                 price: price || 0,
                 topics,
+                resources: selectedContent.filter(content => content.kind === 30023 || content.kind === 30402).map(resource => resource.d),
+                drafts: selectedContent.filter(content => !content.kind).map(draft => draft.id),
             };
 
             const courseDraftResponse = await axios.post('/api/courses/drafts', courseDraftPayload);
             const courseDraftId = courseDraftResponse.data.id;
-
-            // Step 2: Associate resources with the course draft
-            for (const lesson of selectedLessons) {
-                await axios.put(`/api/resources/${lesson.d}`, {
-                    courseDraftId: courseDraftId
-                });
-            }
 
             showToast('success', 'Success', 'Course draft saved successfully');
             router.push(`/course/${courseDraftId}/draft`);
@@ -138,50 +96,15 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
         }
     };
 
-    const createLessonEvent = (lesson) => {
-        const event = new NDKEvent(ndk);
-        event.kind = lesson.price ? 30402 : 30023;
-        event.content = lesson.content;
-        event.tags = [
-            ['d', lesson.id],
-            ['title', lesson.title],
-            ['summary', lesson.summary],
-            ['image', lesson.image],
-            ...lesson.topics.map(topic => ['t', topic]),
-            ['published_at', Math.floor(Date.now() / 1000).toString()],
-        ];
-        return event;
-    };
-
-    const handleLessonChange = (e, index) => {
-        const selectedLessonId = e.value;
-        const selectedLesson = getContentOptions(index).flatMap(group => group.items).find(lesson => lesson.value === selectedLessonId);
-
-        const updatedLessons = lessons.map((lesson, i) =>
-            i === index ? { ...lesson, id: selectedLessonId, title: selectedLesson.label.props.content.title } : lesson
-        );
-        setLessons(updatedLessons);
-    };
-
-    const handleLessonSelect = (content) => {
-        setSelectedLessons([...selectedLessons, content]);
-        addLesson();
-    };
-
-    const addLesson = () => {
-        setLessons([...lessons, { id: uuidv4(), title: 'Select a lesson' }]);
-    };
-
-    const removeLesson = (index) => {
-        const updatedLessons = lessons.filter((_, i) => i !== index);
-        const updatedSelectedLessons = selectedLessons.filter((_, i) => i !== index);
-
-        if (updatedLessons.length === 0) {
-            updatedLessons.push({ id: uuidv4(), title: 'Select a lesson' });
+    const handleContentSelect = (content) => {
+        if (!selectedContent.some(item => item.id === content.id)) {
+            setSelectedContent([...selectedContent, content]);
         }
+    };
 
-        setLessons(updatedLessons);
-        setSelectedLessons(updatedSelectedLessons);
+    const removeContent = (index) => {
+        const updatedContent = selectedContent.filter((_, i) => i !== index);
+        setSelectedContent(updatedContent);
     };
 
     const addTopic = () => {
@@ -198,36 +121,34 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
         setTopics(updatedTopics);
     };
 
-    const getContentOptions = (index) => {
+    const getContentOptions = () => {
         if (resourcesLoading || !resources || workshopsLoading || !workshops || draftsLoading || !drafts) {
             return [];
         }
 
         const filterContent = (content) => {
-            console.log('contentttttt', content);
-            // If there is price in content.tags, then it is a paid content 'price' in the 0 index and stringified int in the 1 index
-            const contentPrice = content.tags.find(tag => tag[0] === 'price') ? parseInt(content.tags.find(tag => tag[0] === 'price')[1]) : 0;
+            const contentPrice = content.tags ? (content.tags.find(tag => tag[0] === 'price') ? parseInt(content.tags.find(tag => tag[0] === 'price')[1]) : 0) : (content.price || 0);
             return isPaidCourse ? contentPrice > 0 : contentPrice === 0;
         };
 
         const draftOptions = drafts.filter(filterContent).map(draft => ({
-            label: <ContentDropdownItem content={draft} onSelect={(content) => handleLessonSelect(content, index)} selected={lessons[index] && lessons[index].id === draft.id} />,
-            value: draft.id
+            label: draft.title,
+            value: draft
         }));
 
         const resourceOptions = resources.filter(filterContent).map(resource => {
-            const { id, kind, pubkey, content, title, summary, image, published_at, d, topics } = parseEvent(resource);
+            const parsedResource = parseEvent(resource);
             return {
-                label: <ContentDropdownItem content={{ id, kind, pubkey, content, title, summary, image, published_at, d, topics }} onSelect={(content) => handleLessonSelect(content, index)} selected={lessons[index] && lessons[index].id === id} />,
-                value: id
+                label: parsedResource.title,
+                value: parsedResource
             };
         });
 
         const workshopOptions = workshops.filter(filterContent).map(workshop => {
-            const { id, kind, pubkey, content, title, summary, image, published_at, d, topics } = parseEvent(workshop);
+            const parsedWorkshop = parseEvent(workshop);
             return {
-                label: <ContentDropdownItem content={{ id, kind, pubkey, content, title, summary, image, published_at, d, topics }} onSelect={(content) => handleLessonSelect(content, index)} selected={lessons[index] && lessons[index].id === id} />,
-                value: id
+                label: parsedWorkshop.title,
+                value: parsedWorkshop
             };
         });
 
@@ -247,8 +168,7 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
         ];
     };
 
-    // const lessonOptions = getContentOptions();
-    if (loadingLessons || resourcesLoading || workshopsLoading || draftsLoading) {
+    if (resourcesLoading || workshopsLoading || draftsLoading) {
         return <ProgressSpinner />;
     }
 
@@ -279,29 +199,27 @@ const CourseForm = ({ draft = null, isPublished = false }) => {
             </div>
             <div className="mt-8 flex-col w-full">
                 <div className="mt-4 flex-col w-full">
-                    {selectedLessons.map((lesson, index) => {
-                        return (
-                        <div key={lesson.id} className="p-inputgroup flex-1 mt-4">
-                            <ContentDropdownItem content={lesson} selected={true} />
-                            <Button icon="pi pi-times" className="p-button-danger" onClick={() => removeLesson(index)} />
-                        </div>
-                    )
-                })
-                    }
-                    {lessons.map((lesson, index) => (
-                        <div key={lesson.id} className="p-inputgroup flex-1 mt-4">
-                            <Dropdown
-                                value={lesson.title}
-                                options={getContentOptions(index)}
-                                onChange={(e) => handleLessonChange(e, index)}
-                                placeholder="Select a Lesson"
-                                itemTemplate={(option) => option.label}
-                                optionLabel="label"
-                                optionGroupLabel="label"
-                                optionGroupChildren="items"
+                    {selectedContent.map((content, index) => (
+                        <div key={content.id} className="flex mt-4">
+                            <SelectedContentItem content={content} />
+                            <Button 
+                                icon="pi pi-times"
+                                className="p-button-danger rounded-tl-none rounded-bl-none" 
+                                onClick={() => removeContent(index)}
                             />
                         </div>
                     ))}
+                    <div className="p-inputgroup flex-1 mt-4">
+                        <Dropdown
+                            options={getContentOptions()}
+                            onChange={(e) => handleContentSelect(e.value)}
+                            placeholder="Select Content"
+                            itemTemplate={(option) => <ContentDropdownItem content={option.value} onSelect={handleContentSelect} />}
+                            optionLabel="label"
+                            optionGroupLabel="label"
+                            optionGroupChildren="items"
+                        />
+                    </div>
                 </div>
             </div>
             <div className="mt-4 flex-col w-full">

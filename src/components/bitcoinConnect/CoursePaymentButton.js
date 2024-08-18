@@ -76,10 +76,12 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
     return (
         <>
             <Button 
-                label={`Pay ${amount} sats`} 
+                label={`${amount} sats`} 
                 onClick={() => setDialogVisible(true)} 
                 disabled={!invoice}
-                severity='info'
+                severity='primary'
+                rounded
+                icon='pi pi-wallet'
                 className='text-[#f8f8ff] text-sm'
             />
             <Dialog 

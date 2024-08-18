@@ -70,18 +70,19 @@ model Resource {
 }
 
 model Draft {
-    id        String    @id @default(uuid())
-    userId    String
-    user      User      @relation(fields: [userId], references: [id])
-    type      String
-    title     String
-    summary   String
-    content   String
-    image     String?
-    price     Int?      @default(0)
-    topics    String[]
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
+    id            String       @id @default(uuid())
+    userId        String
+    user          User         @relation(fields: [userId], references: [id])
+    type          String
+    title         String
+    summary       String
+    content       String
+    image         String?
+    price         Int?         @default(0)
+    topics        String[]
+    createdAt     DateTime     @default(now())
+    updatedAt     DateTime     @updatedAt
+    courseDrafts  CourseDraft[]
 }
 
 model CourseDraft {
@@ -89,6 +90,7 @@ model CourseDraft {
     userId    String
     user      User       @relation(fields: [userId], references: [id])
     resources Resource[]
+    drafts    Draft[]
     title     String
     summary   String
     image     String?

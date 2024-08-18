@@ -74,11 +74,13 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
   return (
     <>
       <Button 
-        label={`Pay ${amount} sats`}
+        label={`${amount} sats`}
         icon="pi pi-wallet"
         onClick={() => setDialogVisible(true)}
         disabled={!invoice}
-        className="p-2 bg-blue-500 text-white rounded"
+        severity='primary'
+        rounded
+        className="text-[#f8f8ff] text-sm"
       />
       <Dialog 
         visible={dialogVisible} 
