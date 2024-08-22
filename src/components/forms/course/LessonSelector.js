@@ -38,34 +38,41 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent }) => {
                 }
             });
 
-        console.log("filteredContent", filteredContent);
-
-        const draftOptions = filteredContent.filter(content => !content.kind).map(content => ({
+        const draftResourceOptions = filteredContent.filter(content => content?.topics.includes('resource') && !content.kind).map(content => ({
             label: content.title,
             value: content
         }));
 
-        const resourceOptions = filteredContent.filter(content => content?.topics.includes('resource')).map(content => ({
+        const draftWorkshopOptions = filteredContent.filter(content => content?.topics.includes('workshop') && !content.kind).map(content => ({
             label: content.title,
             value: content
         }));
 
-        const workshopOptions = filteredContent.filter(content => content?.topics.includes('workshop')).map(content => ({
+        const resourceOptions = filteredContent.filter(content => content?.topics.includes('resource') && content.kind).map(content => ({
+            label: content.title,
+            value: content
+        }));
+
+        const workshopOptions = filteredContent.filter(content => content?.topics.includes('workshop') && content.kind).map(content => ({
             label: content.title,
             value: content
         }));
 
         setContentOptions([
             {
-                label: 'Drafts',
-                items: draftOptions
+                label: 'Draft Resources',
+                items: draftResourceOptions
             },
             {
-                label: 'Resources',
+                label: 'Draft Workshops',
+                items: draftWorkshopOptions
+            },
+            {
+                label: 'Published Resources',
                 items: resourceOptions
             },
             {
-                label: 'Workshops',
+                label: 'Published Workshops',
                 items: workshopOptions
             }
         ]);
