@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import MenuTab from "@/components/menutab/MenuTab";
 import ResourceForm from "@/components/forms/ResourceForm";
 import WorkshopForm from "@/components/forms/WorkshopForm";
-import CourseForm from "@/components/forms/CourseForm";
+// import CourseForm from "@/components/forms/CourseForm";
+import CourseForm from "@/components/forms/course/CourseForm";
 
 const Create = () => {
     const [activeIndex, setActiveIndex] = useState(0); // State to track the active tab index

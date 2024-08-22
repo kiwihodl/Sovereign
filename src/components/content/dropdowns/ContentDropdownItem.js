@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import Image from "next/image";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { formatUnixTimestamp } from "@/utils/time";
@@ -7,12 +7,16 @@ import { Button } from "primereact/button";
 const ContentDropdownItem = ({ content, onSelect }) => {
     const { returnImageProxy } = useImageProxy();
 
+    useEffect(() => {
+        console.log("content", content);
+    }, [content]);
+
     return (
         <div className="w-full border-t-2 border-gray-700 py-4">
             <div className="flex flex-row gap-4 p-2">
                 <Image
                     alt="content thumbnail"
-                    src={returnImageProxy(content.image)}
+                    src={returnImageProxy(content?.image)}
                     width={50}
                     height={50}
                     className="w-[100px] h-[100px] object-cover object-center border-round"

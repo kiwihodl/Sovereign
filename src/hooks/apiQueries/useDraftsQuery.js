@@ -20,31 +20,15 @@ export function useDraftsQuery() {
 
   const fetchDraftsDB = async () => {
     try {
-        let allDrafts = [];
       if (!user.id) {
         return [];
       }
       const response = await axios.get(`/api/drafts/all/${user.id}`);
       if (response.status === 200) {
-        allDrafts = response.data;
-        const courseDrafts = await fetchCourseDrafts();
-        allDrafts = [...allDrafts, ...courseDrafts];
+        return response.data;
       }
-      return allDrafts;
     } catch (error) {
       console.error('Error fetching drafts from DB:', error);
-      return [];
-    }
-  };
-
-  const fetchCourseDrafts = async () => {
-    try {
-      const response = await axios.get(`/api/courses/drafts/${user.id}/all`);
-      const drafts = response.data;
-      console.log('drafts:', drafts);
-      return drafts;
-    } catch (error) {
-      console.error('Error fetching course drafts from DB:', error);
       return [];
     }
   };
