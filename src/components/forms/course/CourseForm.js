@@ -36,10 +36,6 @@ const CourseForm = ({ draft = null }) => {
         }
     }, [resources, workshops, drafts, resourcesLoading, workshopsLoading, draftsLoading]);
 
-    useEffect(() => {
-        console.log("lessons", lessons);
-    }, [lessons]);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 

@@ -7,6 +7,7 @@ export const getAllCourseDraftsByUserId = async (userId) => {
         include: {
             user: true, // Include the related user
             resources: true, // Include related resources
+            drafts: true, // Include related drafts
         },
     });
 };
@@ -29,27 +30,34 @@ export const createCourseDraft = async (data) => {
         data: {
             ...data,
             resources: {
-                connect: data.resources.map((resource) => ({ id: resource.id })),
+                connect: data.resources?.map((resource) => ({ id: resource.id })) || [],
+            },
+            drafts: {
+                connect: data.drafts?.map((draft) => ({ id: draft.id })) || [],
             },
         },
         include: {
             resources: true,
+            drafts: true,
         }
     });
 };
 
 // Update an existing CourseDraft by its ID
 export const updateCourseDraft = async (id, data) => {
-    const { resourceIds, ...otherData } = data;
+    const { resourceIds, draftIds, ...otherData } = data;
     return await prisma.courseDraft.update({
         where: { id },
         data: {
             ...otherData,
             resources: {
-                set: resourceIds?.map((resourceId) => ({ id: resourceId })),
+                set: resourceIds?.map((resourceId) => ({ id: resourceId })) || [],
+            },
+            drafts: {
+                set: draftIds?.map((draftId) => ({ id: draftId })) || [],
             },
         },
-        include: { resources: true }
+        include: { resources: true, drafts: true }
     });
 };
 

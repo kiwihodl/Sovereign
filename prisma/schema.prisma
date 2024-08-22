@@ -82,7 +82,8 @@ model Draft {
     topics        String[]
     createdAt     DateTime     @default(now())
     updatedAt     DateTime     @updatedAt
-    courseDrafts  CourseDraft[]
+    courseDraft   CourseDraft? @relation(fields: [courseDraftId], references: [id])
+    courseDraftId String?
 }
 
 model CourseDraft {
