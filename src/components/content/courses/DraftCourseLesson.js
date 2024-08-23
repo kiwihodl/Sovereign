@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Tag } from "primereact/tag";
+import { Message } from "primereact/message";
 import Image from "next/image";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import dynamic from "next/dynamic";
@@ -13,6 +14,14 @@ const MDDisplay = dynamic(
 
 const DraftCourseLesson = ({ lesson, course }) => {
     const { returnImageProxy } = useImageProxy();
+    const [isPublished, setIsPublished] = useState(false);
+    useEffect(() => {
+        if (lesson?.kind) {
+            setIsPublished(true);
+        } else {
+            setIsPublished(false);
+        }
+    }, [lesson]);
 
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
@@ -42,6 +51,13 @@ const DraftCourseLesson = ({ lesson, course }) => {
                                     {lesson.author?.username || lesson.author?.name || lesson.author?.pubkey}
                                 </a>
                             </p>
+                        </div>
+                        <div className='flex flex-row w-full mt-6 items-center'>
+                            {isPublished ? (
+                                <Message severity="success" text="published" />
+                            ) : (
+                                <Message severity="info" text="draft" />
+                            )}
                         </div>
                     </div>
                     <div className='flex flex-col max-tab:mt-12 max-mob:mt-12'>

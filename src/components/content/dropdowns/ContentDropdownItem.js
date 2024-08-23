@@ -25,7 +25,7 @@ const ContentDropdownItem = ({ content, onSelect }) => {
                     <div className="text-lg text-900 font-bold">{content.title}</div>
                     <div className="w-full text-sm text-600 text-wrap">{content.summary}</div>
                     <div className="text-sm pt-6 text-gray-500">
-                        {content.published_at ? formatUnixTimestamp(content.published_at) : "not yet published"}
+                    {content.published_at ? `Published: ${formatUnixTimestamp(content.published_at)}` : "not yet published"}
                     </div>
                 </div>
                 <div className="flex flex-col justify-end">
