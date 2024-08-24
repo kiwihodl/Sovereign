@@ -10,16 +10,7 @@ export default async function handler(req, res) {
             try {
                 const courseDraft = await getCourseDraftById(slug);
                 
-                // For now we will combine resources and drafts into one array
-                const courseDraftWithResources = {
-                    ...courseDraft,
-                    resources: [...courseDraft.resources, ...courseDraft.drafts]
-                };
-                if (courseDraft) {
-                    res.status(200).json(courseDraftWithResources);
-                } else {
-                    res.status(404).json({ error: 'Course draft not found' });
-                }
+                res.status(200).json(courseDraft);
             } catch (error) {
                 res.status(500).json({ error: error.message });
             }

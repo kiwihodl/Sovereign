@@ -7,10 +7,6 @@ import { Button } from "primereact/button";
 const ContentDropdownItem = ({ content, onSelect }) => {
     const { returnImageProxy } = useImageProxy();
 
-    useEffect(() => {
-        console.log("content", content);
-    }, [content]);
-
     return (
         <div className="w-full border-t-2 border-gray-700 py-4">
             <div className="flex flex-row gap-4 p-2">

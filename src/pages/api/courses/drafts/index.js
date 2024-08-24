@@ -3,7 +3,7 @@ import prisma from "@/db/prisma";
 export default async function handler(req, res) {
     if (req.method === 'POST') {
         try {
-            const { userId, title, summary, image, price, topics, resources, drafts } = req.body;
+            const { userId, title, summary, image, price, topics } = req.body;
 
             if (!userId) {
                 return res.status(400).json({ error: 'userId is required' });
@@ -17,14 +17,8 @@ export default async function handler(req, res) {
                     price,
                     topics: topics || [],
                     user: { connect: { id: userId } },
-                    resources: {
-                        connect: resources ? resources.map(id => ({ id })) : []
-                    },
-                    drafts: {
-                        connect: drafts ? drafts.map(id => ({ id })) : []
-                    }
                 },
-                include: { resources: true, drafts: true }
+                include: { draftLessons: true }
             });
 
             res.status(201).json(courseDraft);

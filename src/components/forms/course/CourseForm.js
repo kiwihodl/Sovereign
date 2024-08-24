@@ -20,7 +20,7 @@ const CourseForm = ({ draft = null }) => {
     const [price, setPrice] = useState(draft?.price || 0);
     const [coverImage, setCoverImage] = useState(draft?.image || '');
     const [topics, setTopics] = useState(draft?.topics || ['']);
-    const [lessons, setLessons] = useState(draft?.resources || []);
+    const [lessons, setLessons] = useState(draft?.resources?.map((resource, index) => ({ ...resource, index })) || []);
     const [allContent, setAllContent] = useState([]);
 
     const { data: session } = useSession();
@@ -36,34 +36,59 @@ const CourseForm = ({ draft = null }) => {
         }
     }, [resources, workshops, drafts, resourcesLoading, workshopsLoading, draftsLoading]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!session?.user) {
-            showToast('error', 'Error', 'User not authenticated');
-            return;
-        }
-
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+  
         try {
-            const courseDraftPayload = {
-                userId: session?.user.id,
+            // First, create the courseDraft
+            const courseDraftData = {
+                userId: session.user.id,
                 title,
                 summary,
                 image: coverImage,
-                price: price || 0,
+                price: isPaidCourse ? price : 0,
                 topics,
-                resources: lessons.filter(content => content.kind === 30023 || content.kind === 30402).map(resource => resource.d),
-                drafts: lessons.filter(content => !content.kind).map(draft => draft.id),
             };
 
-            const response = await axios.post('/api/courses/drafts', courseDraftPayload);
-            const courseDraftId = response.data.id;
+            console.log('courseDraftData', courseDraftData);
 
-            showToast('success', 'Success', 'Course draft saved successfully');
-            router.push(`/course/${courseDraftId}/draft`);
+            const courseDraftResponse = await axios.post('/api/courses/drafts', courseDraftData);
+            const createdCourseDraft = courseDraftResponse.data;
+
+            // Now create all the lessonDrafts with the courseDraftId
+            const createdLessonDrafts = await Promise.all(
+                lessons.map(async (lessonDraft, index) => {
+                    console.log('lessonDraft', lessonDraft);
+                    const isResource = lessonDraft?.kind ? true : false;
+                    let payload = {};
+                    if (isResource) {
+                        payload = {
+                            courseDraftId: createdCourseDraft.id,
+                            resourceId: lessonDraft.d,
+                            index: index
+                        };
+                    } else {
+                        payload = {
+                            courseDraftId: createdCourseDraft.id,
+                            draftId: lessonDraft.id,
+                            index: index
+                        };
+                    }
+                    
+                    const response = await axios.post('/api/lessons/drafts', payload);
+                    console.log('Lesson draft created:', response.data);
+                    return response.data;
+                })
+            );
+
+            console.log('Course draft created:', createdCourseDraft);
+            console.log('Lesson drafts created:', createdLessonDrafts);
+
+            showToast('success', 'Success', 'Course draft created successfully');
+            router.push(`/course/${createdCourseDraft.id}/draft`);
         } catch (error) {
-            console.error('Error saving course draft:', error);
-            showToast('error', 'Failed to save course draft', error.response?.data?.details || error.message);
+            console.error('Error creating course draft:', error);
+            showToast('error', 'Error', 'Failed to create course draft');
         }
     };
 

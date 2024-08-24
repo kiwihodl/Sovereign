@@ -84,22 +84,23 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent }) => {
 
     const handleContentSelect = (selectedContent) => {
         if (selectedContent && !lessons.some(lesson => lesson.id === selectedContent.id)) {
-            setLessons([...lessons, selectedContent]);
+            setLessons([...lessons, { ...selectedContent, index: lessons.length }]);
         }
     };
 
     const removeLesson = (index) => {
-        const updatedLessons = lessons.filter((_, i) => i !== index);
+        const updatedLessons = lessons.filter((_, i) => i !== index)
+            .map((lesson, newIndex) => ({ ...lesson, index: newIndex }));
         setLessons(updatedLessons);
     };
 
     const handleNewResourceSave = (newResource) => {
-        setLessons([...lessons, newResource]);
+        setLessons([...lessons, { ...newResource, index: lessons.length }]);
         setShowResourceForm(false);
     };
 
     const handleNewWorkshopSave = (newWorkshop) => {
-        setLessons([...lessons, newWorkshop]);
+        setLessons([...lessons, { ...newWorkshop, index: lessons.length }]);
         setShowWorkshopForm(false);
     };
 
@@ -108,7 +109,7 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent }) => {
             <h3>Lessons</h3>
             {lessons.map((lesson, index) => (
                 <div key={lesson.id} className="flex mt-4">
-                    <SelectedContentItem content={lesson} />
+                    <SelectedContentItem content={{ ...lesson, index }} />
                     <Button 
                         icon="pi pi-times"
                         className="p-button-danger rounded-tl-none rounded-bl-none" 

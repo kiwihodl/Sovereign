@@ -2,103 +2,124 @@ datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
 }
+
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 model User {
-    id         String     @id @default(uuid())
-    pubkey     String     @unique
-    username   String?    @unique
-    avatar     String?
-    purchased  Purchase[]
-    courses    Course[] 
-    resources  Resource[]
+    id           String        @id @default(uuid())
+    pubkey       String        @unique
+    username     String?       @unique
+    avatar       String?
+    purchased    Purchase[]
+    courses      Course[]
+    resources    Resource[]
     courseDrafts CourseDraft[]
-    drafts     Draft[]
-    role       Role?      @relation(fields: [roleId], references: [id])
-    roleId     String?
-    createdAt  DateTime   @default(now())
-    updatedAt  DateTime   @updatedAt
+    drafts       Draft[]
+    role         Role?         @relation(fields: [roleId], references: [id])
+    roleId       String?
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
 }
 
 model Role {
-    id          String    @id @default(uuid())
-    subscribed  Boolean   @default(false)
-    users       User[]
+    id         String  @id @default(uuid())
+    subscribed Boolean @default(false)
+    users      User[]
 }
 
 model Purchase {
-    id          String    @id @default(uuid())
-    user        User      @relation(fields: [userId], references: [id])
-    userId      String
-    course      Course?   @relation(fields: [courseId], references: [id])
-    courseId    String?
-    resource    Resource? @relation(fields: [resourceId], references: [id])
-    resourceId  String?
-    amountPaid  Int
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
+    id         String    @id @default(uuid())
+    user       User      @relation(fields: [userId], references: [id])
+    userId     String
+    course     Course?   @relation(fields: [courseId], references: [id])
+    courseId   String?
+    resource   Resource? @relation(fields: [resourceId], references: [id])
+    resourceId String?
+    amountPaid Int
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+}
+
+model Lesson {
+    id         String   @id @default(uuid())
+    courseId   String
+    course     Course   @relation(fields: [courseId], references: [id])
+    resourceId String?
+    resource   Resource? @relation(fields: [resourceId], references: [id])
+    draftId    String?
+    draft      Draft?   @relation(fields: [draftId], references: [id])
+    index      Int
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+}
+
+model DraftLesson {
+    id            String      @id @default(uuid())
+    courseDraftId String
+    courseDraft   CourseDraft @relation(fields: [courseDraftId], references: [id])
+    resourceId    String?
+    resource      Resource?   @relation(fields: [resourceId], references: [id])
+    draftId       String?
+    draft         Draft?      @relation(fields: [draftId], references: [id])
+    index         Int
+    createdAt     DateTime    @default(now())
+    updatedAt     DateTime    @updatedAt
 }
 
 model Course {
-    id          String    @id
-    userId      String    
-    user        User      @relation(fields: [userId], references: [id])
-    price       Int       @default(0)
-    resources   Resource[]
-    purchases   Purchase[]
-    noteId      String?   @unique
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
-    courseDraft CourseDraft?
+    id        String     @id
+    userId    String
+    user      User       @relation(fields: [userId], references: [id])
+    price     Int        @default(0)
+    lessons   Lesson[]
+    purchases Purchase[]
+    noteId    String?    @unique
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
 }
 
 model Resource {
-    id            String       @id // Client generates UUID
-    userId        String    
-    user          User         @relation(fields: [userId], references: [id])
-    course        Course?      @relation(fields: [courseId], references: [id])
-    courseId      String?
-    courseDraft   CourseDraft? @relation(fields: [courseDraftId], references: [id])
-    courseDraftId String?
-    price         Int          @default(0)
-    purchases     Purchase[]
-    noteId        String?      @unique
-    createdAt     DateTime     @default(now())
-    updatedAt     DateTime     @updatedAt
+    id        String     @id // Client generates UUID
+    userId    String
+    user      User       @relation(fields: [userId], references: [id])
+    lessons   Lesson[]
+    draftLessons DraftLesson[]
+    price     Int        @default(0)
+    purchases Purchase[]
+    noteId    String?    @unique
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
 }
 
 model Draft {
-    id            String       @id @default(uuid())
-    userId        String
-    user          User         @relation(fields: [userId], references: [id])
-    type          String
-    title         String
-    summary       String
-    content       String
-    image         String?
-    price         Int?         @default(0)
-    topics        String[]
-    createdAt     DateTime     @default(now())
-    updatedAt     DateTime     @updatedAt
-    courseDraft   CourseDraft? @relation(fields: [courseDraftId], references: [id])
-    courseDraftId String?
+    id           String        @id @default(uuid())
+    userId       String
+    user         User          @relation(fields: [userId], references: [id])
+    type         String
+    title        String
+    summary      String
+    content      String
+    image        String?
+    price        Int?          @default(0)
+    topics       String[]
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
+    draftLessons DraftLesson[]
+    lessons      Lesson[]
 }
 
 model CourseDraft {
-    id        String     @id @default(uuid())
-    userId    String
-    user      User       @relation(fields: [userId], references: [id])
-    resources Resource[]
-    drafts    Draft[]
-    title     String
-    summary   String
-    image     String?
-    price     Int?       @default(0)
-    topics    String[]
-    createdAt DateTime   @default(now())
-    updatedAt DateTime   @updatedAt
-    course    Course?    @relation(fields: [courseId], references: [id])
-    courseId  String?    @unique
+    id           String        @id @default(uuid())
+    userId       String
+    user         User          @relation(fields: [userId], references: [id])
+    draftLessons DraftLesson[]
+    title        String
+    summary      String
+    image        String?
+    price        Int?          @default(0)
+    topics       String[]
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
 }

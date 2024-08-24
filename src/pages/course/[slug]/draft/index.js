@@ -36,7 +36,7 @@ const DraftCourse = () => {
                 .then(res => {
                     setCourse(res.data);
                     console.log('coursesssss:', res.data);
-                    setLessons(res.data.resources); // Set the raw lessons
+                    setLessons(res.data.draftLessons);
                 })
                 .catch(err => {
                     console.error(err);
@@ -47,21 +47,20 @@ const DraftCourse = () => {
     useEffect(() => {
         const fetchLessonDetails = async () => {
             if (lessons.length > 0) {
-                console.log('lessons in fetchLessonDetails', lessons);
                 await ndk.connect();
 
                 const newLessonsWithAuthors = await Promise.all(lessons.map(async (lesson) => {
                     // figure out if it is a resource or a draft
-                    const isDraft = !lesson.noteId;
+                    const isDraft = !lesson?.resource;
                     if (isDraft) {
                         const parsedLessonObject = {
-                            ...lesson,
+                            ...lesson?.draft,
                             author: session.user
                         }
                         return parsedLessonObject;
                     } else {
                         const filter = {
-                            "#d": [lesson.id]
+                            "#d": [lesson?.resource?.id]
                         };
                         
                         const event = await ndk.fetchEvent(filter);
