@@ -7,27 +7,22 @@ import { useRouter } from "next/router";
 const ContentListItem = (content) => {
     const { returnImageProxy } = useImageProxy();
     const router = useRouter();
-    const isDraft = Object.keys(content).includes('type');
-    const isCourse = content && content?.kind === 30004;
-    const isCourseDraft = content && content?.resources?.length > 0 && !content?.kind;
+    const isPublishedCourse = content?.kind === 30004;
+    const isDraftCourse = !content?.kind && content?.draftLessons;
+    const isResource = content?.kind && content?.kind === 30023;
+    const isDraft = !content?.kind && !content?.draftLessons;
 
     const handleClick = () => {
-        let path = '';
-    
-        if (isDraft) {
-            path = '/draft';
-        } else if (isCourse) {
-            path = '/course';
-        } else if (isCourseDraft) {
-            path = `/course/${content.id}/draft`
-            return router.push(path);
-        } else {
-            path = '/details';
+        console.log(content);
+        if (isPublishedCourse) {
+            router.push(`/course/${content.id}`);
+        } else if (isDraftCourse) {
+            router.push(`/course/${content.id}/draft`);
+        } else if (isResource) {
+            router.push(`/details/${content.id}`);
+        } else if (isDraft) {
+            router.push(`/draft/${content.id}`);
         }
-    
-        const fullPath = `${path}/${content.id}`;
-    
-        router.push(fullPath);
     };
     
 

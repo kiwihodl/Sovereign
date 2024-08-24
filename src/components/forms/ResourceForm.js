@@ -248,9 +248,9 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
             </div>
             <div className="mt-8 flex-col w-full">
                 <span className="pl-1 flex items-center">
-                    Additional Links
+                    External Links
                     <i className="pi pi-info-circle ml-2 cursor-pointer" 
-                       data-pr-tooltip="Add any relevant links that pair with this content"
+                       data-pr-tooltip="Add any relevant external links that pair with this content"
                        data-pr-position="right"
                        data-pr-at="right+5 top"
                        data-pr-my="left center-2"

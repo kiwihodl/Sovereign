@@ -244,7 +244,7 @@ export default function Draft() {
                         <p className='text-xl mt-6'>{draft?.summary}</p>
                         {draft?.additionalLinks && draft.additionalLinks.length > 0 && (
                             <div className='mt-6'>
-                                <h3 className='text-lg font-semibold mb-2'>Additional links:</h3>
+                                <h3 className='text-lg font-semibold mb-2'>External links:</h3>
                                 <ul className='list-disc list-inside'>
                                     {draft.additionalLinks.map((link, index) => (
                                         <li key={index}>

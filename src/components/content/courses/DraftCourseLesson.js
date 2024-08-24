@@ -64,7 +64,7 @@ const DraftCourseLesson = ({ lesson, course }) => {
                         <p className='text-xl mt-6'>{lesson?.summary}</p>
                         {lesson?.additionalLinks && lesson.additionalLinks.length > 0 && (
                             <div className='mt-6'>
-                                <h3 className='text-lg font-semibold mb-2'>Additional links:</h3>
+                                <h3 className='text-lg font-semibold mb-2'>External links:</h3>
                                 <ul className='list-disc list-inside'>
                                     {lesson.additionalLinks.map((link, index) => (
                                         <li key={index}>
