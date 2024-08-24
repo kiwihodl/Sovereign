@@ -17,6 +17,8 @@ const MDEditor = dynamic(
     }
 );
 import 'primeicons/primeicons.css';
+import { Tooltip } from 'primereact/tooltip';
+import 'primereact/resources/primereact.min.css';
 
 const ResourceForm = ({ draft = null, isPublished = false }) => {
     const [title, setTitle] = useState(draft?.title || '');
@@ -27,6 +29,7 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
     const [topics, setTopics] = useState(draft?.topics || ['']);
     const [content, setContent] = useState(draft?.content || '');
     const [user, setUser] = useState(null);
+    const [additionalLinks, setAdditionalLinks] = useState(draft?.additionalLinks || ['']);
 
     const { data: session, status } = useSession();
     const { showToast } = useToast();
@@ -57,6 +60,7 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
             setContent(draft.content);
             setCoverImage(draft.image);
             setTopics(draft.topics || []);
+            setAdditionalLinks(draft.additionalLinks || []);
         }
     }, [draft]);
 
@@ -98,7 +102,8 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
             content,
             d: draft.d,
             image: coverImage,
-            topics: [...topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'resource']
+            topics: [...topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'resource'],
+            additionalLinks: additionalLinks.filter(link => link.trim() !== '')
         }
 
         console.log('handlePublishedResource', updatedDraft);
@@ -148,7 +153,8 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
             price: isPaidResource ? price : null,
             content,
             image: coverImage,
-            topics: [...topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'resource']
+            topics: [...topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'resource'],
+            additionalLinks: additionalLinks.filter(link => link.trim() !== '')
         };
 
         if (!draft) {
@@ -193,6 +199,22 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
         setTopics(updatedTopics);
     };
 
+    const handleAdditionalLinkChange = (index, value) => {
+        const updatedAdditionalLinks = additionalLinks.map((link, i) => i === index ? value : link);
+        setAdditionalLinks(updatedAdditionalLinks);
+    };
+
+    const addAdditionalLink = (e) => {
+        e.preventDefault();
+        setAdditionalLinks([...additionalLinks, '']); // Add an empty string to the additionalLinks array
+    };
+
+    const removeAdditionalLink = (e, index) => {
+        e.preventDefault();
+        const updatedAdditionalLinks = additionalLinks.filter((_, i) => i !== index);
+        setAdditionalLinks(updatedAdditionalLinks);
+    };
+
     return (
         <form onSubmit={isPublished && draft ? handlePublishedResource : handleSubmit}>
             <div className="p-inputgroup flex-1">
@@ -223,6 +245,30 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
                         height={350}
                     />
                 </div>
+            </div>
+            <div className="mt-8 flex-col w-full">
+                <span className="pl-1 flex items-center">
+                    Additional Links
+                    <i className="pi pi-info-circle ml-2 cursor-pointer" 
+                       data-pr-tooltip="Add any relevant links that pair with this content"
+                       data-pr-position="right"
+                       data-pr-at="right+5 top"
+                       data-pr-my="left center-2"
+                       style={{ fontSize: '1rem', color: 'var(--primary-color)' }}
+                    />
+                </span>
+                {additionalLinks.map((link, index) => (
+                    <div className="p-inputgroup flex-1" key={index}>
+                        <InputText value={link} onChange={(e) => handleAdditionalLinkChange(index, e.target.value)} placeholder="https://plebdevs.com" className="w-full mt-2" />
+                        {index > 0 && (
+                            <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={(e) => removeAdditionalLink(e, index)} />
+                        )}
+                    </div>
+                ))}
+                <div className="w-full flex flex-row items-end justify-end py-2">
+                    <Button icon="pi pi-plus" onClick={addAdditionalLink} />
+                </div>
+                <Tooltip target=".pi-info-circle" />
             </div>
             <div className="mt-8 flex-col w-full">
                 {topics.map((topic, index) => (

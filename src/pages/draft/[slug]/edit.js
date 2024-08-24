@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import ResourceForm from "@/components/forms/ResourceForm";
 import WorkshopForm from "@/components/forms/WorkshopForm";
-import CourseForm from "@/components/forms/CourseForm";
+import CourseForm from "@/components/forms/course/CourseForm";
 
 const Edit = () => {
     const [draft, setDraft] = useState(null);

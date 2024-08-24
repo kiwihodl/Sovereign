@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { Tag } from "primereact/tag";
 import { Message } from "primereact/message";
+import { Button } from "primereact/button";
 import Image from "next/image";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { formatDateTime, formatUnixTimestamp } from "@/utils/time";
+import { useRouter } from "next/router";
+import axios from "axios";
+import { useNDKContext } from "@/context/NDKContext";
+import { nip04, nip19 } from "nostr-tools";
+import { v4 as uuidv4 } from "uuid";
+import { useSession } from "next-auth/react";
+import { NDKEvent } from "@nostr-dev-kit/ndk";
+import { useToast } from "@/hooks/useToast";
+import { validateEvent } from "@/utils/nostr";
 import dynamic from "next/dynamic";
 
 const MDDisplay = dynamic(
@@ -14,8 +24,21 @@ const MDDisplay = dynamic(
 );
 
 const DraftCourseLesson = ({ lesson, course }) => {
-    const { returnImageProxy } = useImageProxy();
     const [isPublished, setIsPublished] = useState(false);
+    const [user, setUser] = useState(null);
+
+    const router = useRouter();
+    const { returnImageProxy } = useImageProxy();
+    const { ndk, addSigner } = useNDKContext();
+    const { data: session } = useSession();
+    const { showToast } = useToast();
+
+    useEffect(() => {
+        if (session) {
+            setUser(session.user);
+        }
+    }, [session]);
+
     useEffect(() => {
         if (lesson?.kind) {
             console.log(lesson);
@@ -39,6 +62,20 @@ const DraftCourseLesson = ({ lesson, course }) => {
                         </div>
                         <h1 className='text-4xl mt-6'>{lesson?.title}</h1>
                         <p className='text-xl mt-6'>{lesson?.summary}</p>
+                        {lesson?.additionalLinks && lesson.additionalLinks.length > 0 && (
+                            <div className='mt-6'>
+                                <h3 className='text-lg font-semibold mb-2'>Additional links:</h3>
+                                <ul className='list-disc list-inside'>
+                                    {lesson.additionalLinks.map((link, index) => (
+                                        <li key={index}>
+                                            <a href={link} target="_blank" rel="noopener noreferrer" className='text-blue-500 hover:underline'>
+                                                {new URL(link).hostname}
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                         <div className='flex flex-row w-full mt-6 items-center'>
                             <Image
                                 alt="avatar thumbnail"
@@ -63,9 +100,17 @@ const DraftCourseLesson = ({ lesson, course }) => {
                         }
                         <div className='flex flex-row w-full mt-6 items-center'>
                             {isPublished ? (
-                                <Message severity="success" text="published" />
+                                <>
+                                    <Message severity="success" text="published" />
+                                    <Button onClick={() => router.push(`/details/${lesson.id}`)} label="View" outlined className="w-auto m-2" />
+                                    <Button onClick={() => router.push(`/details/${lesson.id}/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
+                                </>
                             ) : (
-                                <Message severity="info" text="draft" />
+                                <>
+                                    <Message severity="info" text="draft (unpublished)" />
+                                    <Button onClick={() => router.push(`/draft/${lesson.id}`)} label="View" outlined className="w-auto m-2" />
+                                    <Button onClick={() => router.push(`/draft/${lesson.id}/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
+                                </>
                             )}
                         </div>
                     </div>

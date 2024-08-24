@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { parseEvent } from "@/utils/nostr";
 import ResourceForm from "@/components/forms/ResourceForm";
 import WorkshopForm from "@/components/forms/WorkshopForm";
-import CourseForm from "@/components/forms/CourseForm";
+import CourseForm from "@/components/forms/course/CourseForm";
 import { useNDKContext } from "@/context/NDKContext";
 import { useToast } from "@/hooks/useToast";
 

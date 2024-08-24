@@ -80,7 +80,6 @@ model Course {
     updatedAt DateTime   @updatedAt
 }
 
-// Additional resources
 model Resource {
     id        String     @id // Client generates UUID
     userId    String
@@ -94,22 +93,23 @@ model Resource {
     updatedAt DateTime   @updatedAt
 }
 
-// Additional resources
+
 model Draft {
-    id           String        @id @default(uuid())
-    userId       String
-    user         User          @relation(fields: [userId], references: [id])
-    type         String
-    title        String
-    summary      String
-    content      String
-    image        String?
-    price        Int?          @default(0)
-    topics       String[]
-    createdAt    DateTime      @default(now())
-    updatedAt    DateTime      @updatedAt
-    draftLessons DraftLesson[]
-    lessons      Lesson[]
+    id              String        @id @default(uuid())
+    userId          String
+    user            User          @relation(fields: [userId], references: [id])
+    type            String
+    title           String
+    summary         String
+    content         String
+    image           String?
+    price           Int?          @default(0)
+    topics          String[]
+    additionalLinks String[]
+    createdAt       DateTime      @default(now())
+    updatedAt       DateTime      @updatedAt
+    draftLessons    DraftLesson[]
+    lessons         Lesson[]
 }
 
 model CourseDraft {

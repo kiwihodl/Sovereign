@@ -93,6 +93,7 @@ CREATE TABLE "Draft" (
     "image" TEXT,
     "price" INTEGER DEFAULT 0,
     "topics" TEXT[],
+    "additionalLinks" TEXT[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

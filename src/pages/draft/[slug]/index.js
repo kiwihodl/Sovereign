@@ -11,35 +11,19 @@ import { useToast } from '@/hooks/useToast';
 import { Tag } from 'primereact/tag';
 import { useNDKContext } from '@/context/NDKContext';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
+import { formatDateTime } from '@/utils/time';
 import Image from 'next/image';
 import useResponsiveImageDimensions from '@/hooks/useResponsiveImageDimensions';
 import 'primeicons/primeicons.css';
 import dynamic from 'next/dynamic';
+import { validateEvent } from '@/utils/nostr';
+
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
     {
         ssr: false,
     }
 );
-
-function validateEvent(event) {
-    if (typeof event.kind !== "number") return "Invalid kind";
-    if (typeof event.content !== "string") return "Invalid content";
-    if (typeof event.created_at !== "number") return "Invalid created_at";
-    if (typeof event.pubkey !== "string") return "Invalid pubkey";
-    if (!event.pubkey.match(/^[a-f0-9]{64}$/)) return "Invalid pubkey format";
-
-    if (!Array.isArray(event.tags)) return "Invalid tags";
-    for (let i = 0; i < event.tags.length; i++) {
-        const tag = event.tags[i];
-        if (!Array.isArray(tag)) return "Invalid tag structure";
-        for (let j = 0; j < tag.length; j++) {
-            if (typeof tag[j] === "object") return "Invalid tag value";
-        }
-    }
-
-    return true;
-}
 
 export default function Draft() {
     const [draft, setDraft] = useState(null);
@@ -206,6 +190,7 @@ export default function Draft() {
                     ...draft.topics.map(topic => ['t', topic]),
                     ['published_at', Math.floor(Date.now() / 1000).toString()],
                     ...(draft?.price ? [['price', draft.price.toString()], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
+                    ...(draft?.additionalLinks ? draft.additionalLinks.map(link => ['r', link]) : []),
                 ];
 
                 type = 'resource';
@@ -228,6 +213,7 @@ export default function Draft() {
                     ...draft.topics.map(topic => ['t', topic]),
                     ['published_at', Math.floor(Date.now() / 1000).toString()],
                     ...(draft?.price ? [['price', draft.price.toString()], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
+                    ...(draft?.additionalLinks ? draft.additionalLinks.map(link => ['r', link]) : []),
                 ];
 
                 type = 'workshop';
@@ -256,10 +242,24 @@ export default function Draft() {
                         </div>
                         <h1 className='text-4xl mt-6'>{draft?.title}</h1>
                         <p className='text-xl mt-6'>{draft?.summary}</p>
+                        {draft?.additionalLinks && draft.additionalLinks.length > 0 && (
+                            <div className='mt-6'>
+                                <h3 className='text-lg font-semibold mb-2'>Additional links:</h3>
+                                <ul className='list-disc list-inside'>
+                                    {draft.additionalLinks.map((link, index) => (
+                                        <li key={index}>
+                                            <a href={link} target="_blank" rel="noopener noreferrer" className='text-blue-500 hover:underline'>
+                                                {new URL(link).hostname}
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                         <div className='flex flex-row w-full mt-6 items-center'>
                             <Image
                                 alt="resource thumbnail"
-                                src={returnImageProxy(draft?.author?.avatar, draft?.author?.pubkey)}
+                                src={returnImageProxy(draft?.user?.avatar, draft?.user?.pubkey)}
                                 width={50}
                                 height={50}
                                 className="rounded-full mr-4"
@@ -273,6 +273,7 @@ export default function Draft() {
                                 </p>
                             )}
                         </div>
+                    <p className="pt-8 text-sm text-gray-400">{draft?.createdAt && formatDateTime(draft?.createdAt)}</p>
                     </div>
                     <div className='flex flex-col max-tab:mt-12 max-mob:mt-12'>
                         {draft && (

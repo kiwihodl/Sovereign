@@ -14,6 +14,7 @@ import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { findKind0Fields } from '@/utils/nostr';
 import { useToast } from '@/hooks/useToast';
 import { formatDateTime } from '@/utils/time';
+import { validateEvent } from '@/utils/nostr';
 import 'primeicons/primeicons.css';
 
 const MDDisplay = dynamic(
@@ -22,25 +23,6 @@ const MDDisplay = dynamic(
         ssr: false,
     }
 );
-
-function validateEvent(event) {
-    if (typeof event.kind !== "number") return "Invalid kind";
-    if (typeof event.content !== "string") return "Invalid content";
-    if (typeof event.created_at !== "number") return "Invalid created_at";
-    if (typeof event.pubkey !== "string") return "Invalid pubkey";
-    if (!event.pubkey.match(/^[a-f0-9]{64}$/)) return "Invalid pubkey format";
-
-    if (!Array.isArray(event.tags)) return "Invalid tags";
-    for (let i = 0; i < event.tags.length; i++) {
-        const tag = event.tags[i];
-        if (!Array.isArray(tag)) return "Invalid tag structure";
-        for (let j = 0; j < tag.length; j++) {
-            if (typeof tag[j] === "object") return "Invalid tag value";
-        }
-    }
-
-    return true;
-}
 
 export default function DraftCourseDetails({ processedEvent, draftId, lessons }) {
     const [author, setAuthor] = useState(null);
@@ -259,6 +241,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
                         ...draft.topics.map(topic => ['t', topic]),
                         ['published_at', Math.floor(Date.now() / 1000).toString()],
                         ...(draft?.price ? [['price', draft.price.toString()], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
+                        ...(draft?.additionalLinks ? draft.additionalLinks.map(link => ['r', link]) : []),
                     ];
 
                     type = 'resource';
@@ -281,6 +264,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
                         ...draft.topics.map(topic => ['t', topic]),
                         ['published_at', Math.floor(Date.now() / 1000).toString()],
                         ...(draft?.price ? [['price', draft.price.toString()], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
+                        ...(draft?.additionalLinks ? draft.additionalLinks.map(link => ['r', link]) : []),
                     ];
 
                     type = 'workshop';
@@ -360,7 +344,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
                         {processedEvent && (
                             <div className='flex flex-col items-center justify-between rounded-lg h-72 p-4 bg-gray-700 drop-shadow-md'>
                                 <Image
-                                    alt="resource thumbnail"
+                                    alt="course thumbnail"
                                     src={returnImageProxy(processedEvent.image)}
                                     width={344}
                                     height={194}

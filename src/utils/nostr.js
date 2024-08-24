@@ -36,6 +36,7 @@ export const parseEvent = (event) => {
         pubkey: event.pubkey || '',
         content: event.content || '',
         kind: event.kind || '',
+        additionalLinks: [],
         title: '',
         summary: '',
         image: '',
@@ -82,6 +83,9 @@ export const parseEvent = (event) => {
                 break;
             case 't':
                 tag[1] !== "plebdevs" && eventData.topics.push(tag[1]);
+                break;
+            case 'r':
+                eventData.additionalLinks.push(tag[1]);
                 break;
             default:
                 break;
@@ -144,6 +148,9 @@ export const parseCourseEvent = (event) => {
                     eventData.topics.push(topic);
                 });
                 break;
+            case 'r':
+                eventData.additionalLinks.push(tag[1]);
+                break;
             default:
                 break;
         }
@@ -154,4 +161,23 @@ export const parseCourseEvent = (event) => {
 
 export const hexToNpub = (hex) => {
     return nip19.npubEncode(hex);
+}
+
+export function validateEvent(event) {
+    if (typeof event.kind !== "number") return "Invalid kind";
+    if (typeof event.content !== "string") return "Invalid content";
+    if (typeof event.created_at !== "number") return "Invalid created_at";
+    if (typeof event.pubkey !== "string") return "Invalid pubkey";
+    if (!event.pubkey.match(/^[a-f0-9]{64}$/)) return "Invalid pubkey format";
+
+    if (!Array.isArray(event.tags)) return "Invalid tags";
+    for (let i = 0; i < event.tags.length; i++) {
+        const tag = event.tags[i];
+        if (!Array.isArray(tag)) return "Invalid tag structure";
+        for (let j = 0; j < tag.length; j++) {
+            if (typeof tag[j] === "object") return "Invalid tag value";
+        }
+    }
+
+    return true;
 }

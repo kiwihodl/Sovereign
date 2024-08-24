@@ -8,6 +8,8 @@ import { Button } from 'primereact/button';
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
 import 'primeicons/primeicons.css';
+import { Tooltip } from 'primereact/tooltip';
+import 'primereact/resources/primereact.min.css';
 
 const WorkshopForm = ({ draft = null }) => {
     const [title, setTitle] = useState(draft?.title || '');
@@ -17,6 +19,7 @@ const WorkshopForm = ({ draft = null }) => {
     const [videoUrl, setVideoUrl] = useState(draft?.content || '');
     const [coverImage, setCoverImage] = useState(draft?.image || '');
     const [topics, setTopics] = useState(draft?.topics || ['']);
+    const [additionalLinks, setAdditionalLinks] = useState(draft?.additionalLinks || ['']);
 
     const router = useRouter();
     const { data: session, status } = useSession();
@@ -38,6 +41,7 @@ const WorkshopForm = ({ draft = null }) => {
             setVideoUrl(draft.content);
             setCoverImage(draft.image);
             setTopics(draft.topics || ['']);
+            setAdditionalLinks(draft.additionalLinks || ['']);
         }
     }, [draft]);
 
@@ -72,7 +76,8 @@ const WorkshopForm = ({ draft = null }) => {
             content: embedCode,
             image: coverImage,
             user: userResponse.data.id,
-            topics: [...topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'workshop']
+            topics: [...topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'workshop'],
+            additionalLinks: additionalLinks.filter(link => link.trim() !== ''),
         };
 
         if (payload && payload.user) {
@@ -96,11 +101,6 @@ const WorkshopForm = ({ draft = null }) => {
         }
     };
 
-    const onUpload = (event) => {
-        showToast('success', 'Success', 'File Uploaded');
-        console.log(event.files[0]);
-    }
-
     const handleTopicChange = (index, value) => {
         const updatedTopics = topics.map((topic, i) => i === index ? value : topic);
         setTopics(updatedTopics);
@@ -115,6 +115,22 @@ const WorkshopForm = ({ draft = null }) => {
         e.preventDefault();
         const updatedTopics = topics.filter((_, i) => i !== index);
         setTopics(updatedTopics);
+    };
+
+    const handleLinkChange = (index, value) => {
+        const updatedLinks = additionalLinks.map((link, i) => i === index ? value : link);
+        setAdditionalLinks(updatedLinks);
+    };
+
+    const addLink = (e) => {
+        e.preventDefault();
+        setAdditionalLinks([...additionalLinks, '']);
+    };
+
+    const removeLink = (e, index) => {
+        e.preventDefault();
+        const updatedLinks = additionalLinks.filter((_, i) => i !== index);
+        setAdditionalLinks(updatedLinks);
     };
     
 
@@ -142,6 +158,30 @@ const WorkshopForm = ({ draft = null }) => {
             </div>
             <div className="p-inputgroup flex-1 mt-4">
                 <InputText value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="Cover Image URL" />
+            </div>
+            <div className="mt-8 flex-col w-full">
+                <span className="pl-1 flex items-center">
+                    Additional Links
+                    <i className="pi pi-info-circle ml-2 cursor-pointer" 
+                       data-pr-tooltip="Add any relevant or additional links that pair with this content"
+                       data-pr-position="right"
+                       data-pr-at="right+5 top"
+                       data-pr-my="left center-2"
+                       style={{ fontSize: '1rem', color: 'var(--primary-color)' }}
+                    />
+                </span>
+                {additionalLinks.map((link, index) => (
+                    <div className="p-inputgroup flex-1" key={index}>
+                        <InputText value={link} onChange={(e) => handleLinkChange(index, e.target.value)} placeholder="https://example.com" className="w-full mt-2" />
+                        {index > 0 && (
+                            <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={(e) => removeLink(e, index)} />
+                        )}
+                    </div>
+                ))}
+                <div className="w-full flex flex-row items-end justify-end py-2">
+                    <Button icon="pi pi-plus" onClick={addLink} />
+                </div>
+                <Tooltip target=".pi-info-circle" />
             </div>
             <div className="mt-4 flex-col w-full">
                 {topics.map((topic, index) => (

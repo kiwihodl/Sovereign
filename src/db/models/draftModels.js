@@ -27,20 +27,22 @@ export const createDraft = async (data) => {
                     id: data.user,
                 },
             },
+            additionalLinks: data.additionalLinks || [],
         },
     });
 };
 
 
 export const updateDraft = async (id, data) => {
-    const { user, ...otherData } = data;
+    const { user, additionalLinks, ...otherData } = data;
     return await prisma.draft.update({
         where: { id },
         data: {
             ...otherData,
             user: user ? {
                 connect: { id: user }
-            } : undefined
+            } : undefined,
+            additionalLinks: additionalLinks || undefined,
         },
     });
 };
