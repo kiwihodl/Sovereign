@@ -91,7 +91,15 @@ export const updateCourseDraft = async (id, data) => {
 
 // Delete a CourseDraft by its ID
 export const deleteCourseDraft = async (id) => {
-    return await prisma.courseDraft.delete({
-        where: { id },
+    return await prisma.$transaction(async (prisma) => {
+        // First, delete all associated DraftLessons
+        await prisma.draftLesson.deleteMany({
+            where: { courseDraftId: id },
+        });
+
+        // Then, delete the CourseDraft
+        return await prisma.courseDraft.delete({
+            where: { id },
+        });
     });
 };

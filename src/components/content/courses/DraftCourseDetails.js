@@ -13,6 +13,7 @@ import { useNDKContext } from "@/context/NDKContext";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { findKind0Fields } from '@/utils/nostr';
 import { useToast } from '@/hooks/useToast';
+import { formatDateTime } from '@/utils/time';
 import 'primeicons/primeicons.css';
 
 const MDDisplay = dynamic(
@@ -353,6 +354,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
                                 </a>
                             </p>
                         </div>
+                        <p className="pt-8 text-sm text-gray-400">{processedEvent?.createdAt && formatDateTime(processedEvent?.createdAt)}</p>
                     </div>
                     <div className='flex flex-col max-tab:mt-12 max-mob:mt-12'>
                         {processedEvent && (

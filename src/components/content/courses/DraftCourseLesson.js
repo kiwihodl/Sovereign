@@ -3,6 +3,7 @@ import { Tag } from "primereact/tag";
 import { Message } from "primereact/message";
 import Image from "next/image";
 import { useImageProxy } from "@/hooks/useImageProxy";
+import { formatDateTime, formatUnixTimestamp } from "@/utils/time";
 import dynamic from "next/dynamic";
 
 const MDDisplay = dynamic(
@@ -17,6 +18,7 @@ const DraftCourseLesson = ({ lesson, course }) => {
     const [isPublished, setIsPublished] = useState(false);
     useEffect(() => {
         if (lesson?.kind) {
+            console.log(lesson);
             setIsPublished(true);
         } else {
             setIsPublished(false);
@@ -52,6 +54,13 @@ const DraftCourseLesson = ({ lesson, course }) => {
                                 </a>
                             </p>
                         </div>
+                        {
+                            lesson?.createdAt ? (
+                                <p className="pt-8 text-sm text-gray-400">{formatDateTime(lesson?.createdAt)}</p>
+                            ) : (
+                                <p className="pt-8 text-sm text-gray-400">{formatUnixTimestamp(lesson?.published_at)}</p>
+                            )
+                        }
                         <div className='flex flex-row w-full mt-6 items-center'>
                             {isPublished ? (
                                 <Message severity="success" text="published" />

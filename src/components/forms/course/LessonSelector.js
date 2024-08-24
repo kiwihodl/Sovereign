@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
+import { Accordion, AccordionTab } from 'primereact/accordion';
 import ResourceForm from '../ResourceForm';
 import WorkshopForm from '../WorkshopForm';
 import ContentDropdownItem from '@/components/content/dropdowns/ContentDropdownItem';
@@ -82,16 +83,29 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent }) => {
         console.log("contentOptions", contentOptions);
     }, [contentOptions]);
 
-    const handleContentSelect = (selectedContent) => {
-        if (selectedContent && !lessons.some(lesson => lesson.id === selectedContent.id)) {
-            setLessons([...lessons, { ...selectedContent, index: lessons.length }]);
+    const handleContentSelect = (selectedContent, index) => {
+        if (selectedContent) {
+            const updatedLessons = [...lessons];
+            updatedLessons[index] = { ...selectedContent, index };
+            setLessons(updatedLessons);
         }
+    };
+
+    const handleRemoveContent = (index) => {
+        const updatedLessons = [...lessons];
+        updatedLessons[index] = { index }; // Reset the lesson to an empty state
+        setLessons(updatedLessons);
     };
 
     const removeLesson = (index) => {
         const updatedLessons = lessons.filter((_, i) => i !== index)
             .map((lesson, newIndex) => ({ ...lesson, index: newIndex }));
         setLessons(updatedLessons);
+    };
+
+    const addNewLesson = (e) => {
+        e.preventDefault(); // Prevent form submission
+        setLessons([...lessons, { index: lessons.length }]);
     };
 
     const handleNewResourceSave = (newResource) => {
@@ -104,35 +118,58 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent }) => {
         setShowWorkshopForm(false);
     };
 
+    const AccordianHeader = ({lesson, index}) => {
+        return (
+            <div className="flex justify-between items-center">
+                <p>Lesson {index + 1}</p>
+                <Button icon="pi pi-times" className="p-button-danger" onClick={() => removeLesson(index)} />
+            </div>
+        );
+    };
+
     return (
         <div className="mt-8">
             <h3>Lessons</h3>
-            {lessons.map((lesson, index) => (
-                <div key={lesson.id} className="flex mt-4">
-                    <SelectedContentItem content={{ ...lesson, index }} />
-                    <Button 
-                        icon="pi pi-times"
-                        className="p-button-danger rounded-tl-none rounded-bl-none" 
-                        onClick={() => removeLesson(index)}
-                    />
-                </div>
-            ))}
-            <div className="p-inputgroup flex-1 mt-4">
-                <Dropdown
-                    options={contentOptions}
-                    onChange={(e) => handleContentSelect(e.value)}
-                    placeholder="Select Existing Lesson"
-                    optionLabel="label"
-                    optionGroupLabel="label"
-                    optionGroupChildren="items"
-                    itemTemplate={(option) => <ContentDropdownItem content={option.value} onSelect={handleContentSelect} />}
-                    value={null}
-                />
-            </div>
-            <div className="flex mt-4">
-                <Button label="New Resource" onClick={() => setShowResourceForm(true)} className="mr-2" />
-                <Button label="New Workshop" onClick={() => setShowWorkshopForm(true)} />
-            </div>
+            <Accordion multiple>
+                {lessons.map((lesson, index) => (
+                    <AccordionTab key={index} header={<AccordianHeader lesson={lesson} index={index} />}>
+                        <div className="p-inputgroup flex-1 mt-4">
+                            <Dropdown
+                                options={contentOptions}
+                                onChange={(e) => handleContentSelect(e.value, index)}
+                                placeholder="Select Existing Lesson"
+                                optionLabel="label"
+                                optionGroupLabel="label"
+                                optionGroupChildren="items"
+                                itemTemplate={(option) => <ContentDropdownItem content={option.value} onSelect={(content) => handleContentSelect(content, index)} />}
+                                value={lesson.id ? lesson : null}
+                            />
+                        </div>
+                        <div className="flex mt-4">
+                            {lesson.id ? null : (
+                                <>
+                                    <Button label="New Resource" onClick={() => setShowResourceForm(true)} className="mr-2" />
+                                    <Button label="New Workshop" onClick={() => setShowWorkshopForm(true)} className="mr-2" />
+                                </>
+                            )}
+                        </div>
+                        {lesson.id && (
+                            <div className="mt-4">
+                                <SelectedContentItem 
+                                    content={lesson} 
+                                    onRemove={() => handleRemoveContent(index)}
+                                />
+                            </div>
+                        )}
+                    </AccordionTab>
+                ))}
+            </Accordion>
+            <Button 
+                label="Add New Lesson" 
+                onClick={addNewLesson} 
+                className="mt-4" 
+                type="button" // Explicitly set type to "button"
+            />
 
             <Dialog visible={showResourceForm} onHide={() => setShowResourceForm(false)} header="Create New Resource">
                 <ResourceForm onSave={handleNewResourceSave} isPaid={isPaidCourse} />

@@ -1,6 +1,12 @@
 export const formatUnixTimestamp = (time) => {
     const date = new Date(time * 1000); // Convert to milliseconds
-    return date.toDateString();
+    return date.toLocaleDateString("en-US", {
+        timeZone: "UTC",
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    });
 }
 
 export const formatDateTime = (isoDate) => {
@@ -12,10 +18,7 @@ export const formatDateTime = (isoDate) => {
         weekday: "long", // "long" for full name, "short" for abbreviated
         year: "numeric",
         month: "long", // "long" for full name, "short" for abbreviated
-        day: "numeric",
-        hour: "numeric",
-        minute: "numeric",
-        second: "numeric",
+        day: "numeric"
     });
 
     return formattedDate;

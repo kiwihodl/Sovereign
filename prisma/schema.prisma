@@ -80,6 +80,7 @@ model Course {
     updatedAt DateTime   @updatedAt
 }
 
+// Additional resources
 model Resource {
     id        String     @id // Client generates UUID
     userId    String
@@ -93,6 +94,7 @@ model Resource {
     updatedAt DateTime   @updatedAt
 }
 
+// Additional resources
 model Draft {
     id           String        @id @default(uuid())
     userId       String

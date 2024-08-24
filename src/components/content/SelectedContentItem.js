@@ -2,12 +2,22 @@ import React from "react";
 import Image from "next/image";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { formatUnixTimestamp } from "@/utils/time";
+import { Button } from 'primereact/button';
 
-const SelectedContentItem = ({ content }) => {
+const SelectedContentItem = ({ content, onRemove }) => {
     const { returnImageProxy } = useImageProxy();
 
     return (
-        <div className="w-full border-2 rounded-lg border-gray-700 p-2 rounded-tr-none rounded-br-none">
+        <div className="w-full border-2 rounded-lg border-gray-700 p-2 rounded-tr-none rounded-br-none relative">
+            <Button
+                icon="pi pi-times"
+                className="absolute top-2 right-2 py-1 px-2 w-auto h-auto"
+                severity="danger"
+                size="small"
+                rounded
+                onClick={onRemove}
+                aria-label="Remove"
+            />
             <div className="flex flex-row gap-4">
                 <Image
                     alt="content thumbnail"
