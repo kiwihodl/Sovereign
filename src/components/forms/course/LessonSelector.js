@@ -16,6 +16,7 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent }) => {
 
     useEffect(() => {
         updateContentOptions();
+        console.log("lessons", lessons);
     }, [allContent, isPaidCourse, lessons]);
 
     const updateContentOptions = () => {

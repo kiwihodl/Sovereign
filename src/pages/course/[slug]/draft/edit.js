@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
-import EditCourseForm from "@/components/forms/EditCourseForm";
+import CourseForm from "@/components/forms/course/CourseForm";
 import { useNDKContext } from "@/context/NDKContext";
 import { useToast } from "@/hooks/useToast";
 
@@ -34,7 +34,7 @@ export default function Edit() {
     return (
         <div className="w-[80vw] max-w-[80vw] mx-auto my-8 flex flex-col justify-center">
             <h2 className="text-center mb-8">Edit Course Draft</h2>
-            {draft && <EditCourseForm draft={draft} />}
+            {draft && <CourseForm draft={draft} />}
         </div>
     );
 }

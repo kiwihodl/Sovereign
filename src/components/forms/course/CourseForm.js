@@ -7,6 +7,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useToast } from '@/hooks/useToast';
+import { parseEvent } from '@/utils/nostr';
 import { useResourcesQuery } from '@/hooks/nostrQueries/content/useResourcesQuery';
 import { useWorkshopsQuery } from '@/hooks/nostrQueries/content/useWorkshopsQuery';
 import { useDraftsQuery } from '@/hooks/apiQueries/useDraftsQuery';
@@ -20,7 +21,7 @@ const CourseForm = ({ draft = null }) => {
     const [price, setPrice] = useState(draft?.price || 0);
     const [coverImage, setCoverImage] = useState(draft?.image || '');
     const [topics, setTopics] = useState(draft?.topics || ['']);
-    const [lessons, setLessons] = useState(draft?.resources?.map((resource, index) => ({ ...resource, index })) || []);
+    const [lessons, setLessons] = useState([]);
     const [allContent, setAllContent] = useState([]);
 
     const { data: session } = useSession();
@@ -29,6 +30,23 @@ const CourseForm = ({ draft = null }) => {
     const { resources, resourcesLoading, resourcesError } = useResourcesQuery();
     const { workshops, workshopsLoading, workshopsError } = useWorkshopsQuery();
     const { drafts, draftsLoading, draftsError } = useDraftsQuery();
+
+    useEffect(() => {
+        if (draft && resources && workshops && drafts) {
+            const populatedLessons = draft.draftLessons.map((lesson, index) => {
+                if (lesson?.resource) {
+                    const matchingResource = resources.find((resource) => resource.d === lesson.resource.d);
+                    return { ...parseEvent(matchingResource), index };
+                } else if (lesson?.draft) {
+                    const matchingDraft = drafts.find((draft) => draft.id === lesson.draft.id);
+                    return { ...matchingDraft, index };
+                }
+                return null;
+            }).filter(Boolean);
+
+            setLessons(populatedLessons);
+        }
+    }, [draft, resources, workshops, drafts]);
 
     useEffect(() => {
         if (!resourcesLoading && !workshopsLoading && !draftsLoading && resources && workshops && drafts) {
@@ -153,7 +171,7 @@ const CourseForm = ({ draft = null }) => {
                 <Button type="button" icon="pi pi-plus" onClick={addTopic} className="p-button-outlined mt-2" />
             </div>
             <div className="flex justify-center mt-8">
-                <Button type="submit" label="Create Course Draft" className="p-button-raised p-button-success" />
+                <Button type="submit" label={draft ? 'Update Course Draft' : 'Create Course Draft'} className="p-button-raised p-button-success" />
             </div>
         </form>
     );
