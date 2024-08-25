@@ -88,11 +88,10 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
     }, [processedEvent]);
 
     useEffect(() => {
-        if (!zaps || zaps.length === 0) return;
-
-        const total = getTotalFromZaps(zaps, processedEvent);
-
-        setZapAmount(total);
+        if (zaps.length > 0) {
+            const total = getTotalFromZaps(zaps, processedEvent);
+            setZapAmount(total);
+        }
     }, [zaps, processedEvent]);
 
     if (!processedEvent || !author) {
@@ -160,7 +159,11 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
                                     {paidCourse && author && processedEvent?.pubkey === session?.user?.pubkey && (
                                         <p className='text-green-500'>Price {processedEvent.price} sats</p>
                                     )}
-                                    <ZapDisplay zapAmount={zapAmount} event={processedEvent} zapsLoading={zapsLoading} />
+                                    <ZapDisplay 
+                                        zapAmount={zapAmount} 
+                                        event={processedEvent} 
+                                        zapsLoading={zapsLoading && zapAmount === 0} 
+                                    />
                                 </div>
                             </div>
                         )}

@@ -6,6 +6,7 @@ import { Button } from 'primereact/button';
 import { Menu } from 'primereact/menu';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import {useSession, signOut} from 'next-auth/react';
+import { Dialog } from 'primereact/dialog';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import styles from '../navbar.module.css';
@@ -14,6 +15,7 @@ const UserAvatar = () => {
     const router = useRouter();
     const [isClient, setIsClient] = useState(false);
     const [user, setUser] = useState(null);
+    const [visible, setVisible] = useState(false);
     const { returnImageProxy } = useImageProxy();
     const windowWidth = useWindowWidth();
 
@@ -84,6 +86,16 @@ const UserAvatar = () => {
         );
     } else {
         userAvatar = (
+            <div className='flex flex-row items-center justify-between'>
+            <Button severity='help' rounded label="About" className='text-[#f8f8ff] mr-4' onClick={() => setVisible(true)} />
+            <Dialog header="Header" visible={visible} style={{ width: '50vw' }} onHide={() => {if (!visible) return; setVisible(false); }}>
+                <p className="m-0">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+                    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                </p>
+            </Dialog>
             <Button
                 label="Login"
                 icon="pi pi-user"
@@ -91,7 +103,8 @@ const UserAvatar = () => {
                 rounded
                 onClick={() => router.push('/auth/signin')}
                 size={windowWidth < 768 ? 'small' : 'normal'}
-            />
+                />
+            </div>
         );
     }
 

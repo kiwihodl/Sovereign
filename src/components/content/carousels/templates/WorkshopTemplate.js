@@ -9,26 +9,24 @@ import ZapDisplay from "@/components/zaps/ZapDisplay";
 import { Tag } from "primereact/tag";
 
 const WorkshopTemplate = ({ workshop }) => {
-    const [zapAmount, setZapAmount] = useState(null);
+    const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: workshop });
+    const [zapAmount, setZapAmount] = useState(0);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
-    const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: workshop });
 
     useEffect(() => {
-        if (zapsLoading || !zaps) return;
-
-        const total = getTotalFromZaps(zaps, workshop);
-
-        setZapAmount(total);
-    }, [zaps, workshop, zapsLoading, zapsError]);
+        if (zaps.length > 0) {
+            const total = getTotalFromZaps(zaps, workshop);
+            setZapAmount(total);
+        }
+    }, [zaps, workshop]);
 
     if (zapsError) return <div>Error: {zapsError}</div>;
 
     return (
         <div className="flex flex-col items-center mx-auto px-4 mt-8 rounded-md">
-            {/* Wrap the image in a div with a relative class with a padding-bottom of 56.25% representing the aspect ratio of 16:9 */}
             <div
-                onClick={() => router.push(`/details/${workshop.id}`)}
+                onClick={() => router.replace(`/details/${workshop.id}`)}
                 className="relative w-full h-0 hover:opacity-80 transition-opacity duration-300 cursor-pointer"
                 style={{ paddingBottom: "56.25%" }}
             >
@@ -55,7 +53,11 @@ const WorkshopTemplate = ({ workshop }) => {
                     <p className="text-xs text-gray-400">
                         {formatTimestampToHowLongAgo(workshop.published_at)}
                     </p>
-                    <ZapDisplay zapAmount={zapAmount} event={workshop} zapsLoading={zapsLoading} />
+                    <ZapDisplay 
+                        zapAmount={zapAmount} 
+                        event={workshop} 
+                        zapsLoading={zapsLoading && zapAmount === 0} 
+                    />
                 </div>
                 {workshop?.topics && workshop?.topics.length > 0 && (
                     <div className="flex flex-row justify-start items-center mt-2">

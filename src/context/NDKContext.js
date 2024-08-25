@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import NDK, { NDKNip07Signer } from "@nostr-dev-kit/ndk";
+import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
 
 const NDKContext = createContext(null);
 
@@ -17,7 +18,7 @@ export const NDKProvider = ({ children }) => {
   const [ndk, setNdk] = useState(null);
 
   useEffect(() => {
-    const instance = new NDK({ explicitRelayUrls: relayUrls });
+    const instance = new NDK({ explicitRelayUrls: relayUrls, enableOutboxModel: true, outboxRelayUrls: ["wss://nos.lol/"], cacheAdapter: new NDKCacheAdapterDexie({ dbName: 'ndk-cache' }) });
     setNdk(instance);
   }, []);
 

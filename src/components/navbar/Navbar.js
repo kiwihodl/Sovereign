@@ -1,16 +1,18 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import UserAvatar from './user/UserAvatar';
 import MenuTab from '../menutab/MenuTab';
 import { Menubar } from 'primereact/menubar';
 import { Menu } from 'primereact/menu';
 import { useRouter } from 'next/router';
+import { Button } from 'primereact/button';
+import { Dialog } from 'primereact/dialog';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 
 const Navbar = () => {
     const router = useRouter();
-
+    const [visible, setVisible] = useState(false);
     const menu = useRef(null);
 
     const navbarHeight = '60px';
@@ -73,7 +75,7 @@ const Navbar = () => {
                     onClick={(e) => menu.current.toggle(e)}></i>
                 <Menu model={menuItems} popup ref={menu} />
             </div> */}
-            <div onClick={() => router.push('/').then(() => window.location.reload())} className="flex flex-row items-center justify-center cursor-pointer">
+            <div onClick={() => router.push('/')} className="flex flex-row items-center justify-center cursor-pointer">
                 <Image
                     alt="logo"
                     src="/plebdevs-guy.jpg"

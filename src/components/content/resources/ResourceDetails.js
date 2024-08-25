@@ -10,7 +10,7 @@ import { getTotalFromZaps } from "@/utils/lightning";
 import { useSession } from "next-auth/react";
 
 const ResourceDetails = ({processedEvent, topics, title, summary, image, price, author, paidResource, decryptedContent, handlePaymentSuccess, handlePaymentError}) => {
-    const [zapAmount, setZapAmount] = useState(null);
+    const [zapAmount, setZapAmount] = useState(0);
 
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
@@ -18,11 +18,10 @@ const ResourceDetails = ({processedEvent, topics, title, summary, image, price, 
     const { data: session, status } = useSession();
 
     useEffect(() => {
-        if (!zaps) return;
-
-        const total = getTotalFromZaps(zaps, processedEvent);
-
-        setZapAmount(total);
+        if (zaps.length > 0) {
+            const total = getTotalFromZaps(zaps, processedEvent);
+            setZapAmount(total);
+        }
     }, [zaps, processedEvent]);
 
     return (
@@ -81,7 +80,11 @@ const ResourceDetails = ({processedEvent, topics, title, summary, image, price, 
                                 {/* if this is the author of the resource show a zap button */}
                                 {paidResource && author && processedEvent?.pubkey === session?.user?.pubkey && <p className='text-green-500'>Price {processedEvent.price} sats</p>}
 
-                                <ZapDisplay zapAmount={zapAmount} event={processedEvent} zapsLoading={zapsLoading} />
+                                <ZapDisplay 
+                                    zapAmount={zapAmount} 
+                                    event={processedEvent} 
+                                    zapsLoading={zapsLoading && zapAmount === 0} 
+                                />
                             </div>
                         </div>
                     )}

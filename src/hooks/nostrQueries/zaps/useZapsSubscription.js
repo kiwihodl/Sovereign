@@ -1,44 +1,48 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNDKContext } from "@/context/NDKContext";
+import NDK, { NDKEvent, NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
 
-export function useZapsSubscription({event}) {
+export function useZapsSubscription({ event }) {
   const [zaps, setZaps] = useState([]);
   const [zapsLoading, setZapsLoading] = useState(true);
   const [zapsError, setZapsError] = useState(null);
-  const {ndk, addSigner} = useNDKContext();
+  const { ndk } = useNDKContext();
+
+  const addZap = useCallback((zapEvent) => {
+    setZaps((prevZaps) => {
+      if (prevZaps.some(zap => zap.id === zapEvent.id)) return prevZaps;
+      return [...prevZaps, zapEvent];
+    });
+  }, []);
 
   useEffect(() => {
     let subscription;
-    let isFirstZap = true;
-    const zapIds = new Set(); // To keep track of zap IDs we've already seen
+    const zapIds = new Set();
 
     async function subscribeToZaps() {
+      if (!event || !ndk) return;
+
       try {
         const filters = [
           { kinds: [9735], "#e": [event.id] },
-          { kinds: [9735], "#a": [`${event.kind}:${event.id}:${event.d}`] }
+          { kinds: [9735], "#a": [`${event.kind}:${event.pubkey}:${event.id}`] }
         ];
-        await ndk.connect();
-        subscription = ndk.subscribe(filters);
 
-        subscription.on('event', (zapEvent) => {          
-          // Check if we've already seen this zap
+        subscription = ndk.subscribe(filters, {
+          closeOnEose: false,
+          cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST
+        });
+
+        subscription.on('event', (zapEvent) => {
           if (!zapIds.has(zapEvent.id)) {
             zapIds.add(zapEvent.id);
-            setZaps((prevZaps) => [...prevZaps, zapEvent]);
-
-            if (isFirstZap) {
-              setZapsLoading(false);
-              isFirstZap = false;
-            }
+            addZap(zapEvent);
+            setZapsLoading(false);
           }
         });
 
         subscription.on('eose', () => {
-          // Only set loading to false if no zaps have been received yet
-          if (isFirstZap) {
-            setZapsLoading(false);
-          }
+          setZapsLoading(false);
         });
 
         await subscription.start();
@@ -49,16 +53,17 @@ export function useZapsSubscription({event}) {
       }
     }
 
-    if (event && Object.keys(event).length > 0) {
-      subscribeToZaps();
-    }
+    setZaps([]);
+    setZapsLoading(true);
+    setZapsError(null);
+    subscribeToZaps();
 
     return () => {
       if (subscription) {
         subscription.stop();
       }
     };
-  }, [event, ndk]);
+  }, [event, ndk, addZap]);
 
   return { zaps, zapsLoading, zapsError };
 }

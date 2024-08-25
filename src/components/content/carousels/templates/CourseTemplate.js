@@ -9,18 +9,17 @@ import { Tag } from "primereact/tag";
 import { useZapsSubscription } from "@/hooks/nostrQueries/zaps/useZapsSubscription";
 
 const CourseTemplate = ({ course }) => {
-  const [zapAmount, setZapAmount] = useState(null);
+  const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: course });
+  const [zapAmount, setZapAmount] = useState(0);
   const router = useRouter();
   const { returnImageProxy } = useImageProxy();
-  const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: course });
 
   useEffect(() => {
-    if (!zaps || zapsLoading || zapsError) return;
-
-    const total = getTotalFromZaps(zaps, course);
-
-    setZapAmount(total);
-  }, [course, zaps, zapsLoading, zapsError]);
+    if (zaps.length > 0) {
+      const total = getTotalFromZaps(zaps, course);
+      setZapAmount(total);
+    }
+  }, [zaps, course]);
 
   if (zapsError) return <div>Error: {zapsError}</div>;
 
@@ -30,7 +29,7 @@ const CourseTemplate = ({ course }) => {
     >
         {/* Wrap the image in a div with a relative class with a padding-bottom of 56.25% representing the aspect ratio of 16:9 */}
       <div
-        onClick={() => router.push(`/course/${course.id}`)}
+        onClick={() => router.replace(`/course/${course.id}`)}
         className="relative w-full h-0 hover:opacity-80 transition-opacity duration-300 cursor-pointer"
         style={{ paddingBottom: "56.25%" }}
       >
@@ -61,7 +60,11 @@ const CourseTemplate = ({ course }) => {
               formatTimestampToHowLongAgo(course.created_at)
             )}
           </p>
-          <ZapDisplay zapAmount={zapAmount} event={course} zapsLoading={zapsLoading} />
+          <ZapDisplay 
+            zapAmount={zapAmount} 
+            event={course} 
+            zapsLoading={zapsLoading && zapAmount === 0} 
+          />
         </div>
         {course?.topics && course?.topics.length > 0 && (
           <div className="flex flex-row justify-start items-center mt-2">

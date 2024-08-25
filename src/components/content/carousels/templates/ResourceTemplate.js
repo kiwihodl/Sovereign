@@ -9,19 +9,18 @@ import ZapDisplay from "@/components/zaps/ZapDisplay";
 import { useZapsSubscription } from "@/hooks/nostrQueries/zaps/useZapsSubscription";
 
 const ResourceTemplate = ({ resource }) => {
-  const [zapAmount, setZapAmount] = useState(null);
   const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: resource });
+  const [zapAmount, setZapAmount] = useState(0);
 
   const router = useRouter();
   const { returnImageProxy } = useImageProxy();
 
   useEffect(() => {
-    if (!zaps || zapsLoading || zapsError) return;
-
-    const total = getTotalFromZaps(zaps, resource);
-
-    setZapAmount(total);
-  }, [resource, zaps, zapsLoading, zapsError]);
+    if (zaps.length > 0) {
+      const total = getTotalFromZaps(zaps, resource);
+      setZapAmount(total);
+    }
+  }, [zaps, resource]);
 
   if (zapsError) return <div>Error: {zapsError}</div>;
 
@@ -31,7 +30,7 @@ const ResourceTemplate = ({ resource }) => {
     >
       {/* Wrap the image in a div with a relative class with a padding-bottom of 56.25% representing the aspect ratio of 16:9 */}
       <div
-        onClick={() => router.push(`/details/${resource.id}`)}
+        onClick={() => router.replace(`/details/${resource.id}`)}
         className="relative w-full h-0 hover:opacity-80 transition-opacity duration-300 cursor-pointer"
         style={{ paddingBottom: "56.25%" }}
       >
@@ -58,7 +57,11 @@ const ResourceTemplate = ({ resource }) => {
           <p className="text-xs text-gray-400">
             {formatTimestampToHowLongAgo(resource.published_at)}
           </p>
-          <ZapDisplay zapAmount={zapAmount} event={resource} zapsLoading={zapsLoading} />
+          <ZapDisplay 
+            zapAmount={zapAmount} 
+            event={resource} 
+            zapsLoading={zapsLoading && zapAmount === 0} 
+          />
         </div>
         {resource?.topics && resource?.topics.length > 0 && (
           <div className="flex flex-row justify-start items-center mt-2">
