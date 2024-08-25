@@ -5,6 +5,7 @@ import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { getTotalFromZaps } from "@/utils/lightning";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
+import { Tag } from "primereact/tag";
 import { useZapsSubscription } from "@/hooks/nostrQueries/zaps/useZapsSubscription";
 
 const CourseTemplate = ({ course }) => {
@@ -47,6 +48,11 @@ const CourseTemplate = ({ course }) => {
           {course.name || course.title}
         </h4>
         <p className="text-sm text-gray-500 line-clamp-2">{course.description || course.summary}</p>
+        {course.price && course.price > 0 ? (
+          <p className="text-sm text-gray-500 line-clamp-2">Price: {course.price} sats</p>
+        ) : (
+          <p className="text-sm text-gray-500 line-clamp-2">Free</p>
+        )}
         <div className="flex flex-row justify-between items-center mt-2">
           <p className="text-xs text-gray-400">
             {course?.published_at && course.published_at !== "" ? (
@@ -57,6 +63,13 @@ const CourseTemplate = ({ course }) => {
           </p>
           <ZapDisplay zapAmount={zapAmount} event={course} zapsLoading={zapsLoading} />
         </div>
+        {course?.topics && course?.topics.length > 0 && (
+          <div className="flex flex-row justify-start items-center mt-2">
+            {course.topics.map((topic, index) => (
+              <Tag key={index} value={topic} className="mr-2 text-white" />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

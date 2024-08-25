@@ -43,7 +43,7 @@ export const createCourseDraft = async (data) => {
     return await prisma.courseDraft.create({
         data: {
             ...data,
-            user: { connect: { id: data.userId } },
+            user: { connect: { id: data.user } },
         },
         include: {
             draftLessons: {

@@ -3,13 +3,13 @@ import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Accordion, AccordionTab } from 'primereact/accordion';
-import ResourceForm from '../ResourceForm';
-import WorkshopForm from '../WorkshopForm';
+import EmbeddedResourceForm from '@/components/forms/course/embedded/EmbeddedResourceForm';
+import EmbeddedWorkshopForm from '@/components/forms/course/embedded/EmbeddedWorkshopform';
 import ContentDropdownItem from '@/components/content/dropdowns/ContentDropdownItem';
 import SelectedContentItem from '@/components/content/SelectedContentItem';
 import { parseEvent } from '@/utils/nostr';
 
-const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent }) => {
+const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewResourceCreate, onNewWorkshopCreate }) => {
     const [showResourceForm, setShowResourceForm] = useState(false);
     const [showWorkshopForm, setShowWorkshopForm] = useState(false);
     const [contentOptions, setContentOptions] = useState([]);
@@ -114,14 +114,21 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent }) => {
         setLessons([...lessons, { index: lessons.length }]);
     };
 
-    const handleNewResourceSave = (newResource) => {
-        setLessons([...lessons, { ...newResource, index: lessons.length }]);
-        setShowResourceForm(false);
+    const handleNewResourceSave = async (newResource) => {
+        const createdResource = await onNewResourceCreate(newResource);
+        if (createdResource) {
+            handleContentSelect(createdResource, lessons.length);
+            setShowResourceForm(false);
+        }
     };
 
-    const handleNewWorkshopSave = (newWorkshop) => {
-        setLessons([...lessons, { ...newWorkshop, index: lessons.length }]);
-        setShowWorkshopForm(false);
+    const handleNewWorkshopSave = async (newWorkshop) => {
+        console.log('newWorkshop', newWorkshop);
+        const createdWorkshop = await onNewWorkshopCreate(newWorkshop);
+        if (createdWorkshop) {
+            handleContentSelect(createdWorkshop, lessons.length);
+            setShowWorkshopForm(false);
+        }
     };
 
     const handleTabChange = (e) => {
@@ -158,8 +165,8 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent }) => {
                         <div className="flex mt-4">
                             {lesson.id ? null : (
                                 <>
-                                    <Button label="New Resource" onClick={() => setShowResourceForm(true)} className="mr-2" />
-                                    <Button label="New Workshop" onClick={() => setShowWorkshopForm(true)} className="mr-2" />
+                                    <Button label="New Resource" onClick={(e) => {e.preventDefault(); setShowResourceForm(true)}} className="mr-2" />
+                                    <Button label="New Workshop" onClick={(e) => {e.preventDefault(); setShowWorkshopForm(true)}} className="mr-2" />
                                 </>
                             )}
                         </div>
@@ -181,12 +188,12 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent }) => {
                 type="button" // Explicitly set type to "button"
             />
 
-            <Dialog visible={showResourceForm} onHide={() => setShowResourceForm(false)} header="Create New Resource">
-                <ResourceForm onSave={handleNewResourceSave} isPaid={isPaidCourse} />
+            <Dialog className='w-full max-w-screen-md' visible={showResourceForm} onHide={() => setShowResourceForm(false)} header="Create New Resource">
+                <EmbeddedResourceForm onSave={handleNewResourceSave} isPaid={isPaidCourse} />
             </Dialog>
 
-            <Dialog visible={showWorkshopForm} onHide={() => setShowWorkshopForm(false)} header="Create New Workshop">
-                <WorkshopForm onSave={handleNewWorkshopSave} isPaid={isPaidCourse} />
+            <Dialog className='w-full max-w-screen-md' visible={showWorkshopForm} onHide={() => setShowWorkshopForm(false)} header="Create New Workshop">
+                <EmbeddedWorkshopForm onSave={handleNewWorkshopSave} isPaid={isPaidCourse} />
             </Dialog>
         </div>
     );

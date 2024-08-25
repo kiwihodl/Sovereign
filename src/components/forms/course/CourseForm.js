@@ -60,7 +60,7 @@ const CourseForm = ({ draft = null }) => {
         try {
             // First, create the courseDraft
             const courseDraftData = {
-                userId: session.user.id,
+                user: session.user.id,
                 title,
                 summary,
                 image: coverImage,
@@ -124,6 +124,34 @@ const CourseForm = ({ draft = null }) => {
         setTopics(updatedTopics);
     };
 
+    const handleNewResourceCreate = async (newResource) => {
+        try {
+            const response = await axios.post('/api/drafts', newResource);
+            const createdResource = response.data;
+            setAllContent(prevContent => [...prevContent, createdResource]);
+            return createdResource;
+        } catch (error) {
+            console.error('Error creating resource draft:', error);
+            showToast('error', 'Error', 'Failed to create resource draft');
+            return null;
+        }
+    };
+
+    const handleNewWorkshopCreate = async (newWorkshop) => {
+        try {
+            console.log('newWorkshop', newWorkshop);
+            const response = await axios.post('/api/drafts', newWorkshop);
+            console.log('response', response);
+            const createdWorkshop = response.data;
+            setAllContent(prevContent => [...prevContent, createdWorkshop]);
+            return createdWorkshop;
+        } catch (error) {
+            console.error('Error creating workshop draft:', error);
+            showToast('error', 'Error', 'Failed to create workshop draft');
+            return null;
+        }
+    };
+
     if (resourcesLoading || workshopsLoading || draftsLoading) {
         return <ProgressSpinner />;
     }
@@ -158,6 +186,8 @@ const CourseForm = ({ draft = null }) => {
                     lessons={lessons}
                     setLessons={setLessons}
                     allContent={allContent}
+                    onNewResourceCreate={handleNewResourceCreate}
+                    onNewWorkshopCreate={handleNewWorkshopCreate}
                 />
             <div className="mt-4 flex-col w-full">
                 {topics.map((topic, index) => (

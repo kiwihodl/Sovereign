@@ -3,6 +3,8 @@ import Image from "next/image";
 import { Button } from "primereact/button";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useRouter } from "next/router";
+import { Divider } from 'primereact/divider';
+        
 
 const ContentListItem = (content) => {
     const { returnImageProxy } = useImageProxy();
@@ -50,6 +52,7 @@ const ContentListItem = (content) => {
                     </div>
                 </div>
             </div>
+            <Divider />
         </div>
     );
 };
