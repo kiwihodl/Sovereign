@@ -44,8 +44,8 @@ model Purchase {
 
 model Lesson {
     id         String   @id @default(uuid())
-    courseId   String
-    course     Course   @relation(fields: [courseId], references: [id])
+    courseId   String?
+    course     Course?  @relation(fields: [courseId], references: [id])
     resourceId String?
     resource   Resource? @relation(fields: [resourceId], references: [id])
     draftId    String?

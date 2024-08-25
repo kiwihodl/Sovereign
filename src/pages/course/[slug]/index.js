@@ -107,6 +107,14 @@ const Course = () => {
     }, [lessonIds, ndk, fetchAuthor]);
 
     useEffect(() => {
+        console.log('lessons', lessons);
+    }, [lessons]);
+
+    useEffect(() => {
+        console.log('lessonIds', lessonIds);
+    }, [lessonIds]);
+
+    useEffect(() => {
         if (course?.price && course?.price > 0) {
             setPaidCourse(true);
         }

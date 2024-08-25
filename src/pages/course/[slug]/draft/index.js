@@ -55,6 +55,7 @@ const DraftCourse = () => {
                     if (isDraft) {
                         const parsedLessonObject = {
                             ...lesson?.draft,
+                            index: lesson.index,
                             author: session.user
                         }
                         return parsedLessonObject;
@@ -68,6 +69,7 @@ const DraftCourse = () => {
                             const author = await fetchAuthor(event.pubkey);
                             return {
                                 ...parseEvent(event),
+                                index: lesson.index,
                                 author
                             };
                         }

@@ -40,22 +40,14 @@ export const createCourse = async (data) => {
         data: {
             id: data.id,
             noteId: data.noteId,
-            user: { connect: { id: data.userId } },
+            price: data.price,
+            user: { connect: { id: data.user.connect.id } },
             lessons: {
-                create: data.lessons.map((lesson, index) => ({
-                    resourceId: lesson.resourceId,
-                    draftId: lesson.draftId,
-                    index: index
-                }))
+                connect: data.lessons.connect
             }
         },
         include: {
-            lessons: {
-                include: {
-                    resource: true,
-                    draft: true
-                }
-            },
+            lessons: true,
             user: true
         }
     });

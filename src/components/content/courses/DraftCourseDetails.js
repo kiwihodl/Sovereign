@@ -73,6 +73,27 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
             });
     }
 
+    const handlePostLesson = async (lesson) => {
+        console.log('lesson in handlePostLesson', lesson);
+        let payload;
+
+
+        if (lesson.d) {
+            payload = {
+                resourceId: lesson.d,
+                index: lesson.index
+            }
+        } else if (lesson.draftId) {
+            payload = {
+                draftId: lesson.draftId,
+                index: lesson.index
+            }
+        }
+
+        const response = await axios.post(`/api/lessons`, payload);
+        return response.data;
+    }
+
     const handlePostResource = async (resource) => {
         console.log('resourceeeeee:', resource.tags);
         const dTag = resource.tags.find(tag => tag[0] === 'd')[1];
@@ -125,64 +146,64 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
                 await addSigner();
             }
             // Step 1: Process lessons
+            const createdLessons = [];
             for (const lesson of processedLessons) {
-                // publish any draft lessons and delete draft lessons
-                const unpublished = lesson?.unpublished;
-                if (unpublished && Object.keys(unpublished).length > 0) {
-                    const validationResult = validateEvent(unpublished);
+                let savedLesson;
+                if (lesson.unpublished) {
+                    const validationResult = validateEvent(lesson.unpublished);
                     if (validationResult !== true) {
                         console.error('Invalid event:', validationResult);
                         showToast('error', 'Error', `Invalid event: ${validationResult}`);
                         return;
                     }
 
-                    const published = await unpublished.publish();
+                    const published = await lesson.unpublished.publish();
+                    savedLesson = await handlePostResource(lesson.unpublished);
 
-                    const saved = await handlePostResource(unpublished);
-
-                    console.log('saved', saved);
-
-                    if (published && saved) {
-                        axios.delete(`/api/drafts/${lesson?.d}`)
-                            .then(res => {
-                                if (res.status === 204) {
-                                    showToast('success', 'Success', 'Draft deleted successfully.');
-                                } else {
-                                    showToast('error', 'Error', 'Failed to delete draft.');
-                                }
-                            })
-                            .catch(err => {
-                                console.error(err);
-                            });
+                    if (published && savedLesson) {
+                        const deleted = await axios.delete(`/api/drafts/${lesson.d}`);
+                        if (deleted && deleted.status === 204) {
+                            const savedLesson = await handlePostLesson(lesson);
+                            if (savedLesson) {
+                                createdLessons.push(savedLesson);
+                            }
+                        }
+                    }
+                } else {
+                    const savedLesson = await handlePostLesson(lesson);
+                    if (savedLesson) {
+                        createdLessons.push(savedLesson);
                     }
                 }
             }
 
+            console.log('createdLessons', createdLessons);
+
             // Step 2: Create and publish course
             const courseEvent = createCourseEvent(newCourseId, processedEvent.title, processedEvent.summary, processedEvent.image, processedLessons, processedEvent.price);
             const published = await courseEvent.publish();
-
-            console.log('published', published);
 
             if (!published) {
                 throw new Error('Failed to publish course');
             }
 
             // Step 3: Save course to db
-            await axios.post('/api/courses', {
+            const courseData = {
                 id: newCourseId,
-                resources: {
-                    connect: processedLessons.map(lesson => ({ id: lesson?.d }))
+                lessons: {
+                    connect: createdLessons.map(lesson => ({ id: lesson.id }))
                 },
                 noteId: courseEvent.id,
                 user: {
                     connect: { id: user.id }
                 },
                 price: processedEvent?.price || 0
-            });
+            };
 
-            // step 4: Update all resources to have the course id
-            await Promise.all(processedLessons.map(lesson => axios.put(`/api/resources/${lesson?.d}`, { courseId: newCourseId })));
+            const createdCourse = await axios.post('/api/courses', courseData);
+
+            // Step 4: Update all lessons to have the course id
+            await Promise.all(createdLessons.map(lesson => axios.put(`/api/lessons/${lesson.id}`, { courseId: newCourseId })));
 
             // Step 5: Delete draft
             await axios.delete(`/api/courses/drafts/${processedEvent.id}`);
@@ -292,13 +313,15 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
                         d: lesson?.id,
                         kind: lesson?.price ? 30402 : 30023,
                         pubkey: unsignedEvent.pubkey,
+                        index: lesson.index,
                         unpublished: unsignedEvent
                     }]);
                 } else {
                     setProcessedLessons(prev => [...prev, {
                         d: lesson?.d,
                         kind: lesson?.price ? 30402 : 30023,
-                        pubkey: lesson.pubkey
+                        pubkey: lesson.pubkey,
+                        index: lesson.index
                     }]);
                 }
             });
@@ -323,6 +346,9 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
                         </div>
                         <h1 className='text-4xl mt-6'>{processedEvent?.title}</h1>
                         <p className='text-xl mt-6'>{processedEvent?.summary}</p>
+                        {processedEvent?.price && (
+                            <p className='text-lg mt-6'>Price: {processedEvent.price} sats</p>
+                        )}
                         <div className='flex flex-row w-full mt-6 items-center'>
                             <Image
                                 alt="avatar thumbnail"

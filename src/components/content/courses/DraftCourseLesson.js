@@ -76,6 +76,9 @@ const DraftCourseLesson = ({ lesson, course }) => {
                                 </ul>
                             </div>
                         )}
+                        {lesson?.price && (
+                            <p className='text-lg mt-6'>Price: {lesson.price} sats</p>
+                        )}
                         <div className='flex flex-row w-full mt-6 items-center'>
                             <Image
                                 alt="avatar thumbnail"
@@ -101,7 +104,7 @@ const DraftCourseLesson = ({ lesson, course }) => {
                         <div className='flex flex-row w-full mt-6 items-center'>
                             {isPublished ? (
                                 <>
-                                    <Message severity="success" text="published" />
+                                    <Message severity="success" text="published" className="w-auto m-2" />
                                     <Button onClick={() => router.push(`/details/${lesson.id}`)} label="View" outlined className="w-auto m-2" />
                                     <Button onClick={() => router.push(`/details/${lesson.id}/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
                                 </>

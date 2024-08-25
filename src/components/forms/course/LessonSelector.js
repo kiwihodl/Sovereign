@@ -26,7 +26,7 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent }) => {
         }
 
         const filterContent = (content) => {
-            const contentPrice = content.price || 0;
+            const contentPrice = content.price || content.tags.find(tag => tag[0] === 'price')?.[1] || 0;
             return isPaidCourse ? contentPrice > 0 : true;
         };
 
