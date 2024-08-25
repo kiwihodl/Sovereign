@@ -1,24 +1,26 @@
-import prisma from "@/db/prisma";
+import { createCourseDraft } from "@/db/models/courseDraftModels";
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
         try {
-            const { userId, title, summary, image, price, topics } = req.body;
+            const { userId, title, summary, image, price, topics, draftLessons } = req.body;
 
             if (!userId) {
                 return res.status(400).json({ error: 'userId is required' });
             }
 
-            const courseDraft = await prisma.courseDraft.create({
-                data: {
-                    title,
-                    summary,
-                    image,
-                    price,
-                    topics: topics || [],
-                    user: { connect: { id: userId } },
-                },
-                include: { draftLessons: true }
+            const courseDraft = await createCourseDraft({
+                userId,
+                title,
+                summary,
+                image,
+                price,
+                topics: [...new Set([...topics.map(topic => topic.trim().toLowerCase())])],
+                draftLessons: draftLessons?.map((lesson, index) => ({
+                    draftId: lesson.draftId,
+                    resourceId: lesson.resourceId,
+                    index
+                })) || []
             });
 
             res.status(201).json(courseDraft);

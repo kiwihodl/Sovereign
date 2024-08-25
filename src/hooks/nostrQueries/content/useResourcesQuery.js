@@ -14,10 +14,9 @@ export function useResourcesQuery() {
     }, []);
 
     const hasRequiredProperties = (event, contentIds) => {
-        const hasPlebDevs = event.tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
         const hasResource = event.tags.some(([tag, value]) => tag === "t" && value === "resource");
         const hasId = event.tags.some(([tag, value]) => tag === "d" && contentIds.includes(value));
-        return hasPlebDevs && hasResource && hasId;
+        return hasResource && hasId;
     };
 
     const fetchResourcesFromNDK = async () => {

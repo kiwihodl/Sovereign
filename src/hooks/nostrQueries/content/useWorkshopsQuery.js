@@ -14,10 +14,9 @@ export function useWorkshopsQuery() {
     }, []);
 
     const hasRequiredProperties = (event, contentIds) => {
-        const hasPlebDevs = event.tags.some(([tag, value]) => tag === "t" && value === "plebdevs");
         const hasWorkshop = event.tags.some(([tag, value]) => tag === "t" && value === "workshop");
         const hasId = event.tags.some(([tag, value]) => tag === "d" && contentIds.includes(value));
-        return hasPlebDevs && hasWorkshop && hasId;
+        return hasWorkshop && hasId;
     };
 
     const fetchWorkshopsFromNDK = async () => {

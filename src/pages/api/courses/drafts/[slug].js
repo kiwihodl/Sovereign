@@ -27,17 +27,15 @@ export default async function handler(req, res) {
     } else if (req.method === 'PUT') {
         try {
             const { slug } = req.query;
-            const { title, summary, image, price, topics } = req.body;
+            const { title, summary, image, price, topics, draftLessons } = req.body;
 
-            const updatedCourseDraft = await prisma.courseDraft.update({
-                where: { id: slug },
-                data: {
-                    title,
-                    summary,
-                    image,
-                    price,
-                    topics,
-                },
+            const updatedCourseDraft = await updateCourseDraft(slug, {
+                title,
+                summary,
+                image,
+                price,
+                topics,
+                draftLessons
             });
 
             res.status(200).json(updatedCourseDraft);

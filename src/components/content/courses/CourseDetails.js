@@ -116,8 +116,8 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
                                 ))
                             )}
                         </div>
-                        <h1 className='text-4xl mt-6'>{processedEvent?.title}</h1>
-                        <p className='text-xl mt-6'>{processedEvent?.summary}</p>
+                        <h1 className='text-4xl mt-6'>{processedEvent?.name}</h1>
+                        <p className='text-xl mt-6'>{processedEvent?.description}</p>
                         <div className='flex flex-row w-full mt-6 items-center'>
                             <Image
                                 alt="avatar thumbnail"

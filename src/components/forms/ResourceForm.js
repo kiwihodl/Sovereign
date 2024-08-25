@@ -102,7 +102,7 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
             content,
             d: draft.d,
             image: coverImage,
-            topics: [...topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'resource'],
+            topics: [...new Set([...topics.map(topic => topic.trim().toLowerCase()), 'resource'])],
             additionalLinks: additionalLinks.filter(link => link.trim() !== '')
         }
 
@@ -153,7 +153,7 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
             price: isPaidResource ? price : null,
             content,
             image: coverImage,
-            topics: [...topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'resource'],
+            topics: [...new Set([...topics.map(topic => topic.trim().toLowerCase()), 'resource'])],
             additionalLinks: additionalLinks.filter(link => link.trim() !== '')
         };
 

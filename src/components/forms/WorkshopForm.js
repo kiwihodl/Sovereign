@@ -76,7 +76,7 @@ const WorkshopForm = ({ draft = null }) => {
             content: embedCode,
             image: coverImage,
             user: userResponse.data.id,
-            topics: [...topics.map(topic => topic.trim().toLowerCase()), 'plebdevs', 'workshop'],
+            topics: [...new Set([...topics.map(topic => topic.trim().toLowerCase()), 'workshop'])],
             additionalLinks: additionalLinks.filter(link => link.trim() !== ''),
         };
 

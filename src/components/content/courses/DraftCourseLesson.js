@@ -6,14 +6,6 @@ import Image from "next/image";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { formatDateTime, formatUnixTimestamp } from "@/utils/time";
 import { useRouter } from "next/router";
-import axios from "axios";
-import { useNDKContext } from "@/context/NDKContext";
-import { nip04, nip19 } from "nostr-tools";
-import { v4 as uuidv4 } from "uuid";
-import { useSession } from "next-auth/react";
-import { NDKEvent } from "@nostr-dev-kit/ndk";
-import { useToast } from "@/hooks/useToast";
-import { validateEvent } from "@/utils/nostr";
 import dynamic from "next/dynamic";
 
 const MDDisplay = dynamic(
@@ -25,19 +17,9 @@ const MDDisplay = dynamic(
 
 const DraftCourseLesson = ({ lesson, course }) => {
     const [isPublished, setIsPublished] = useState(false);
-    const [user, setUser] = useState(null);
 
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
-    const { ndk, addSigner } = useNDKContext();
-    const { data: session } = useSession();
-    const { showToast } = useToast();
-
-    useEffect(() => {
-        if (session) {
-            setUser(session.user);
-        }
-    }, [session]);
 
     useEffect(() => {
         if (lesson?.kind) {

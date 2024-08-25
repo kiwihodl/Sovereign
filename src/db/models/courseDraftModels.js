@@ -71,7 +71,7 @@ export const updateCourseDraft = async (id, data) => {
                 create: draftLessons.map((lesson, index) => ({
                     draftId: lesson.draftId,
                     resourceId: lesson.resourceId,
-                    index: index
+                    index
                 }))
             }
         },

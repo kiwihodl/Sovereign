@@ -42,6 +42,20 @@ const CourseLesson = ({ lesson, course }) => {
                         </div>
                         <h1 className='text-4xl mt-6'>{lesson?.title}</h1>
                         <p className='text-xl mt-6'>{lesson?.summary}</p>
+                        {lesson?.additionalLinks && lesson.additionalLinks.length > 0 && (
+                            <div className='mt-6'>
+                                <h3 className='text-lg font-semibold mb-2'>External links:</h3>
+                                <ul className='list-disc list-inside'>
+                                    {lesson.additionalLinks.map((link, index) => (
+                                        <li key={index}>
+                                            <a href={link} target="_blank" rel="noopener noreferrer" className='text-blue-500 hover:underline'>
+                                                {new URL(link).hostname}
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                         <div className='flex flex-row w-full mt-6 items-center'>
                             <Image
                                 alt="avatar thumbnail"

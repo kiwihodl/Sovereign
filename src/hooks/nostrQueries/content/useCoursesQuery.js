@@ -14,8 +14,6 @@ export function useCoursesQuery() {
     }, []);
 
     const hasRequiredProperties = (event, contentIds) => {
-        // currently no topic tag added
-        // const hasCourseTag = event.tags.some(([tag, value]) => tag === "t" && value === "course");
         const hasId = event.tags.some(([tag, value]) => tag === "d" && contentIds.includes(value));
         return hasId;
     };

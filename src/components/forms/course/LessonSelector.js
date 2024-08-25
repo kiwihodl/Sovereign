@@ -13,11 +13,16 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent }) => {
     const [showResourceForm, setShowResourceForm] = useState(false);
     const [showWorkshopForm, setShowWorkshopForm] = useState(false);
     const [contentOptions, setContentOptions] = useState([]);
+    const [openTabs, setOpenTabs] = useState([]);
 
     useEffect(() => {
         updateContentOptions();
         console.log("lessons", lessons);
     }, [allContent, isPaidCourse, lessons]);
+
+    useEffect(() => {
+        setOpenTabs(lessons.map((_, index) => index));
+    }, [lessons]);
 
     const updateContentOptions = () => {
         if (!allContent || allContent.length === 0) {
@@ -26,7 +31,7 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent }) => {
         }
 
         const filterContent = (content) => {
-            const contentPrice = content.price || content.tags.find(tag => tag[0] === 'price')?.[1] || 0;
+            const contentPrice = content?.price || (content?.tags && content?.tags.find(tag => tag[0] === 'price')?.[1]) || 0;
             return isPaidCourse ? contentPrice > 0 : true;
         };
 
@@ -119,6 +124,10 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent }) => {
         setShowWorkshopForm(false);
     };
 
+    const handleTabChange = (e) => {
+        setOpenTabs(e.index);
+    };
+
     const AccordianHeader = ({lesson, index}) => {
         return (
             <div className="flex justify-between items-center">
@@ -131,7 +140,7 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent }) => {
     return (
         <div className="mt-8">
             <h3>Lessons</h3>
-            <Accordion multiple>
+            <Accordion multiple activeIndex={openTabs} onTabChange={handleTabChange}>
                 {lessons.map((lesson, index) => (
                     <AccordionTab key={index} header={<AccordianHeader lesson={lesson} index={index} />}>
                         <div className="p-inputgroup flex-1 mt-4">

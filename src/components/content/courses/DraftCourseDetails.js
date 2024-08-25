@@ -346,9 +346,9 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
                         </div>
                         <h1 className='text-4xl mt-6'>{processedEvent?.title}</h1>
                         <p className='text-xl mt-6'>{processedEvent?.summary}</p>
-                        {processedEvent?.price && (
+                        {processedEvent?.price && processedEvent?.price !== 0 ? (
                             <p className='text-lg mt-6'>Price: {processedEvent.price} sats</p>
-                        )}
+                        ) : null}
                         <div className='flex flex-row w-full mt-6 items-center'>
                             <Image
                                 alt="avatar thumbnail"
