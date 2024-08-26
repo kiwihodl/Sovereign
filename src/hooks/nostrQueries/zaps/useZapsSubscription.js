@@ -18,6 +18,7 @@ export function useZapsSubscription({ event }) {
   useEffect(() => {
     let subscription;
     const zapIds = new Set();
+    let timeoutId;
 
     async function subscribeToZaps() {
       if (!event || !ndk) return;
@@ -38,14 +39,26 @@ export function useZapsSubscription({ event }) {
             zapIds.add(zapEvent.id);
             addZap(zapEvent);
             setZapsLoading(false);
+            clearTimeout(timeoutId);
           }
         });
 
+        subscription.on('close', () => {
+          setZapsLoading(false);
+        })
+
         subscription.on('eose', () => {
+          console.log("eose in hook")
           setZapsLoading(false);
         });
 
         await subscription.start();
+
+        // Set a 4-second timeout to stop loading state if no zaps are received
+        timeoutId = setTimeout(() => {
+          setZapsLoading(false);
+        }, 4000);
+
       } catch (error) {
         console.error("Error subscribing to zaps:", error);
         setZapsError(error.message);
@@ -62,6 +75,7 @@ export function useZapsSubscription({ event }) {
       if (subscription) {
         subscription.stop();
       }
+      clearTimeout(timeoutId);
     };
   }, [event, ndk, addZap]);
 
