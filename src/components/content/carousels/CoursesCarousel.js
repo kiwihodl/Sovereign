@@ -3,7 +3,7 @@ import { Carousel } from 'primereact/carousel';
 import { parseCourseEvent } from '@/utils/nostr';
 import CourseTemplate from '@/components/content/carousels/templates/CourseTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
-import { useCoursesQuery } from '@/hooks/nostrQueries/content/useCoursesQuery';
+import { useCourses } from '@/hooks/nostr/useCourses';
 
 const responsiveOptions = [
     {
@@ -25,7 +25,7 @@ const responsiveOptions = [
 
 export default function CoursesCarousel() {
     const [processedCourses, setProcessedCourses] = useState([]);
-    const { courses, coursesLoading, coursesError, refetchCourses } = useCoursesQuery()
+    const { courses, coursesLoading, coursesError } = useCourses()
 
     useEffect(() => {
         const fetch = async () => {

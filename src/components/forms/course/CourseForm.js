@@ -8,9 +8,9 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useToast } from '@/hooks/useToast';
 import { parseEvent } from '@/utils/nostr';
-import { useResourcesQuery } from '@/hooks/nostrQueries/content/useResourcesQuery';
-import { useWorkshopsQuery } from '@/hooks/nostrQueries/content/useWorkshopsQuery';
 import { useDraftsQuery } from '@/hooks/apiQueries/useDraftsQuery';
+import { useResources } from '@/hooks/nostr/useResources';
+import { useWorkshops } from '@/hooks/nostr/useWorkshops';
 import axios from 'axios';
 import LessonSelector from './LessonSelector';
 
@@ -27,8 +27,8 @@ const CourseForm = ({ draft = null }) => {
     const { data: session } = useSession();
     const router = useRouter();
     const { showToast } = useToast();
-    const { resources, resourcesLoading, resourcesError } = useResourcesQuery();
-    const { workshops, workshopsLoading, workshopsError } = useWorkshopsQuery();
+    const { resources, resourcesLoading, resourcesError } = useResources();
+    const { workshops, workshopsLoading, workshopsError } = useWorkshops();
     const { drafts, draftsLoading, draftsError } = useDraftsQuery();
 
     useEffect(() => {

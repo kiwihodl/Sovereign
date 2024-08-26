@@ -4,7 +4,7 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import EmbeddedResourceForm from '@/components/forms/course/embedded/EmbeddedResourceForm';
-import EmbeddedWorkshopForm from '@/components/forms/course/embedded/EmbeddedWorkshopform';
+import EmbeddedWorkshopForm from '@/components/forms/course/embedded/EmbeddedWorkshopForm';
 import ContentDropdownItem from '@/components/content/dropdowns/ContentDropdownItem';
 import SelectedContentItem from '@/components/content/SelectedContentItem';
 import { parseEvent } from '@/utils/nostr';

@@ -3,7 +3,7 @@ import { Carousel } from 'primereact/carousel';
 import { parseEvent } from '@/utils/nostr';
 import ResourceTemplate from '@/components/content/carousels/templates/ResourceTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
-import { useResourcesQuery } from '@/hooks/nostrQueries/content/useResourcesQuery';
+import { useResources } from '@/hooks/nostr/useResources';
 
 const responsiveOptions = [
     {
@@ -25,7 +25,7 @@ const responsiveOptions = [
 
 export default function ResourcesCarousel() {
     const [processedResources, setProcessedResources] = useState([]);
-    const { resources, resourcesLoading, resourcesError, refetchResources } = useResourcesQuery()
+    const { resources, resourcesLoading, resourcesError } = useResources()
 
     useEffect(() => {
         const fetch = async () => {

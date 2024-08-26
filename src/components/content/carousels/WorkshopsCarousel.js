@@ -3,7 +3,7 @@ import { Carousel } from 'primereact/carousel';
 import { parseEvent } from '@/utils/nostr';
 import WorkshopTemplate from '@/components/content/carousels/templates/WorkshopTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
-import { useWorkshopsQuery } from '@/hooks/nostrQueries/content/useWorkshopsQuery';
+import { useWorkshops } from '@/hooks/nostr/useWorkshops';
 
 const responsiveOptions = [
     {
@@ -25,7 +25,7 @@ const responsiveOptions = [
 
 export default function WorkshopsCarousel() {
     const [processedWorkshops, setProcessedWorkshops] = useState([]);
-    const { workshops, workshopsLoading, workshopsError, refetchWorkshops } = useWorkshopsQuery();
+    const { workshops, workshopsLoading, workshopsError } = useWorkshops();
 
     useEffect(() => {
         const fetch = async () => {
