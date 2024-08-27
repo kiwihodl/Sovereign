@@ -237,6 +237,11 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
 
     useEffect(() => {
         async function buildEvent(draft) {
+            if (!draft) {
+                console.error('Draft is null or undefined');
+                return null;
+            }
+
             const event = new NDKEvent(ndk);
             let type;
             let encryptedContent;
@@ -298,24 +303,42 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
         }
 
         async function buildDraftEvent(lesson) {
-            const { unsignedEvent, type } = await buildEvent(lesson);
-            return unsignedEvent
+            if (!lesson) {
+                console.error('Lesson is null or undefined');
+                return null;
+            }
+
+            const result = await buildEvent(lesson);
+            if (!result) {
+                console.error('Failed to build event');
+                return null;
+            }
+
+            const { unsignedEvent, type } = result;
+            return unsignedEvent;
         }
 
         if (!hasRunEffect.current && lessons.length > 0 && user && author) {
             hasRunEffect.current = true;
             
             lessons.forEach(async (lesson) => {
+                if (!lesson) {
+                    console.error('Lesson is null or undefined');
+                    return;
+                }
+
                 const isDraft = !lesson?.pubkey;
                 if (isDraft) {
                     const unsignedEvent = await buildDraftEvent(lesson);
-                    setProcessedLessons(prev => [...prev, {
-                        d: lesson?.id,
-                        kind: lesson?.price ? 30402 : 30023,
-                        pubkey: unsignedEvent.pubkey,
-                        index: lesson.index,
-                        unpublished: unsignedEvent
-                    }]);
+                    if (unsignedEvent) {
+                        setProcessedLessons(prev => [...prev, {
+                            d: lesson?.id,
+                            kind: lesson?.price ? 30402 : 30023,
+                            pubkey: unsignedEvent.pubkey,
+                            index: lesson.index,
+                            unpublished: unsignedEvent
+                        }]);
+                    }
                 } else {
                     setProcessedLessons(prev => [...prev, {
                         d: lesson?.d,

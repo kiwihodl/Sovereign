@@ -8,7 +8,7 @@ import { useNDKContext } from "@/context/NDKContext";
 import { useSession } from "next-auth/react";
 
 const DraftCourse = () => {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const [course, setCourse] = useState(null);
     const [lessons, setLessons] = useState([]);
     const [lessonsWithAuthors, setLessonsWithAuthors] = useState([]);
@@ -46,7 +46,7 @@ const DraftCourse = () => {
 
     useEffect(() => {
         const fetchLessonDetails = async () => {
-            if (lessons.length > 0) {
+            if (lessons.length > 0 && status === "authenticated") {
                 await ndk.connect();
 
                 const newLessonsWithAuthors = await Promise.all(lessons.map(async (lesson) => {
@@ -56,7 +56,7 @@ const DraftCourse = () => {
                         const parsedLessonObject = {
                             ...lesson?.draft,
                             index: lesson.index,
-                            author: session.user
+                            author: session?.user || null // Use optional chaining and provide a fallback
                         }
                         return parsedLessonObject;
                     } else {
@@ -83,7 +83,11 @@ const DraftCourse = () => {
         };
 
         fetchLessonDetails();
-    }, [lessons, ndk, fetchAuthor, session]);
+    }, [lessons, ndk, fetchAuthor, session, status]);
+
+    if (status === "loading") {
+        return <div>Loading...</div>;
+    }
 
     return (
         <>
