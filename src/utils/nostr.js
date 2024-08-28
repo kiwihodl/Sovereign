@@ -42,6 +42,7 @@ export const parseEvent = (event) => {
         image: '',
         published_at: '',
         topics: [], // Added to hold all topics
+        type: 'resource', // Default type
     };
 
     // Iterate over the tags array to extract data
@@ -82,7 +83,11 @@ export const parseEvent = (event) => {
                 eventData.d = tag[1];
                 break;
             case 't':
-                tag[1] !== "plebdevs" && eventData.topics.push(tag[1]);
+                if (tag[1] === 'workshop') {
+                    eventData.type = 'workshop';
+                } else if (tag[1] !== "plebdevs") {
+                    eventData.topics.push(tag[1]);
+                }
                 break;
             case 'r':
                 eventData.additionalLinks.push(tag[1]);
@@ -114,7 +119,8 @@ export const parseCourseEvent = (event) => {
         created_at: event.created_at,
         topics: [],
         d: '',
-        tags: event.tags
+        tags: event.tags,
+        type: 'course',
     };
 
     // Iterate over the tags array to extract data
