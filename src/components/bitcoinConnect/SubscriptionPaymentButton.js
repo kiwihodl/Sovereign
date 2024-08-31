@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from 'primereact/button';
+import { ProgressSpinner } from 'primereact/progressspinner';
 import { initializeBitcoinConnect } from './BitcoinConnect';
 import { LightningAddress } from '@getalby/lightning-tools';
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
-import { useLocalStorageWithEffect } from '@/hooks/useLocalStroage';
+import { webln, nwc } from '@getalby/sdk';
+import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-
+import AlbyButton from '@/components/buttons/AlbyButton';
+import axios from 'axios';
 const PaymentModal = dynamic(
     () => import('@getalby/bitcoin-connect-react').then((mod) => mod.Payment),
     { ssr: false }
 );
 
-const SubscriptionPaymentButtons = ({ onSuccess, onError }) => {
+const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptionSuccess, setIsProcessing }) => {
     const [invoice, setInvoice] = useState(null);
-    const [paid, setPaid] = useState(null);
-    const [nwcUrl, setNwcUrl] = useState(null);
+    const [showRecurringOptions, setShowRecurringOptions] = useState(false);
+    const [nwcInput, setNwcInput] = useState('');
     const { showToast } = useToast();
     const { data: session } = useSession();
 
@@ -32,12 +35,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError }) => {
             intervalId = setInterval(async () => {
                 const paid = await invoice.verifyPayment();
 
-                console.log('paid', paid);
-          
                 if (paid && invoice.preimage) {
-                    setPaid({
-                        preimage: invoice.preimage,
-                    });
                     clearInterval(intervalId);
                     // handle success
                     onSuccess();
@@ -60,11 +58,10 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError }) => {
             await ln.fetch();
             const newInvoice = await ln.requestInvoice({ satoshi: amount });
             console.log('newInvoice', newInvoice);
-            setInvoice(newInvoice);
             return newInvoice;
         } catch (error) {
             console.error('Error fetching invoice:', error);
-            showToast('error', 'Invoice Error', 'Failed to fetch the invoice.');
+            showToast('error', 'Invoice Error', `Failed to fetch the invoice: ${error.message}`);
             if (onError) onError(error);
             return null;
         }
@@ -73,84 +70,168 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError }) => {
     const handlePaymentSuccess = async (response) => {
         console.log('Payment successful', response);
         clearInterval(checkPaymentInterval);
+        showToast('success', 'Payment Successful', 'Your payment has been processed successfully.');
+        if (onSuccess) onSuccess(response);
     };
 
     const handlePaymentError = async (error) => {
         console.error('Payment error', error);
         clearInterval(checkPaymentInterval);
+        showToast('error', 'Payment Failed', `An error occurred during payment: ${error.message}`);
+        if (onError) onError(error);
     };
 
     const handleRecurringSubscription = async () => {
-        const { init, launchModal, onConnected } = await import('@getalby/bitcoin-connect-react');
-        
-        init({
-            appName: 'plebdevs.com',
-            filters: ['nwc'],
-            onConnected: async (connector) => {
-                console.log('connector', connector);
-                if (connector.type === 'nwc') {
-                    console.log('connector inside nwc', connector);
-                    const nwcConnector = connector;
-                    const url = await nwcConnector.getNWCUrl();
-                    setNwcUrl(url);
-                    console.log('NWC URL:', url);
-                    // Here you can handle the NWC URL, e.g., send it to your backend
+        setIsProcessing(true);
+        const newNwc = nwc.NWCClient.withNewSecret();
+        const yearFromNow = new Date();
+        yearFromNow.setFullYear(yearFromNow.getFullYear() + 1);
+
+        try {
+            const initNwcOptions = {
+                name: "plebdevs.com",
+                requestMethods: ['pay_invoice'],
+                maxAmount: 25,
+                editable: false,
+                budgetRenewal: 'monthly',
+                expiresAt: yearFromNow,
+            };
+            await newNwc.initNWC(initNwcOptions);
+            showToast('info', 'Alby', 'Alby connection window opened.');
+            const newNWCUrl = newNwc.getNostrWalletConnectUrl();
+
+            if (newNWCUrl) {
+                const subscriptionResponse = await axios.put('/api/users/subscription', {
+                    userId: session.user.id,
+                    isSubscribed: true,
+                    nwc: newNWCUrl,
+                });
+
+                if (subscriptionResponse.status === 200) {
+                    showToast('success', 'Subscription Setup', 'Recurring subscription setup successful!');
+                    if (onRecurringSubscriptionSuccess) onRecurringSubscriptionSuccess();
+                } else {
+                    throw new Error(`Unexpected response status: ${subscriptionResponse.status}`);
                 }
-            },
-        });
+            } else {
+                throw new Error('Failed to generate NWC URL');
+            }
+        } catch (error) {
+            console.error('Error initializing NWC:', error);
+            showToast('error', 'Subscription Setup Failed', `Error: ${error.message}`);
+            if (onError) onError(error);
+        } finally {
+            setIsProcessing(false);
+        }
+    };
 
-        launchModal();
+    const handleManualNwcSubmit = async () => {
+        if (!nwcInput) {
+            showToast('error', 'NWC', 'Please enter a valid NWC URL');
+            return;
+        }
 
-        // Set up a listener for the connection event
-        const unsubscribe = onConnected((provider) => {
-            console.log('Connected provider:', provider);
-            const nwc = provider?.client?.options?.nostrWalletConnectUrl;
-            // try to make payment
-            // if successful, encrypt and send to db with subscription object on the user
-        });
+        setIsProcessing(true);
+        try {
+            const nwc = new webln.NostrWebLNProvider({
+                nostrWalletConnectUrl: nwcInput,
+            });
 
-        // Clean up the listener when the component unmounts
-        return () => {
-            unsubscribe();
-        };
+            await nwc.enable();
+
+            const invoice = await fetchInvoice();
+            if (!invoice || !invoice.paymentRequest) {
+                showToast('error', 'NWC', `Failed to fetch invoice from ${lnAddress}`);
+                return;
+            }
+
+            const payResponse = await nwc.sendPayment(invoice.paymentRequest);
+            if (!payResponse || !payResponse.preimage) {
+                showToast('error', 'NWC', 'Payment failed');
+                return;
+            }
+
+            showToast('success', 'NWC', 'Payment successful!');
+
+            try {
+                const subscriptionResponse = await axios.put('/api/users/subscription', {
+                    userId: session.user.id,
+                    isSubscribed: true,
+                    nwc: nwcInput,
+                });
+
+                if (subscriptionResponse.status === 200) {
+                    showToast('success', 'NWC', 'Subscription setup successful!');
+                    if (onRecurringSubscriptionSuccess) onRecurringSubscriptionSuccess();
+                } else {
+                    throw new Error('Unexpected response status');
+                }
+            } catch (error) {
+                console.error('Subscription setup error:', error);
+                showToast('error', 'NWC', 'Subscription setup failed. Please contact support.');
+                if (onError) onError(error);
+            }
+        } catch (error) {
+            console.error('NWC error:', error);
+            showToast('error', 'NWC', `An error occurred: ${error.message}`);
+            if (onError) onError(error);
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     return (
         <>
-            {
-                !invoice && (
-                    <div className="w-full flex flex-row justify-between">
-                        <Button
-                            label="Pay as you go"
-                            icon="pi pi-bolt"
-                            onClick={() => {
-                                fetchInvoice();
-                            }}
-                            severity='primary'
-                            className="mt-4 text-[#f8f8ff]"
-                        />
-                        <Button 
-                            label="Setup Recurring Subscription" 
-                            className="mt-4 text-[#f8f8ff]"
-                            onClick={handleRecurringSubscription}
-                        />
-                    </div>
-                )
-            }
-            {
-
-                invoice && invoice.paymentRequest && (
-                    <div className="w-full mx-auto mt-8">
-                        <PaymentModal
-                            invoice={invoice?.paymentRequest}
-                            onPaid={handlePaymentSuccess}
-                            onError={handlePaymentError}
-                            paymentMethods='external'
-                            title={`Pay ${amount} sats`}
-                        />
-                    </div>
-                )
-            }
+            {!invoice && (
+                <div className="w-full flex flex-row justify-between">
+                    <Button
+                        label="Pay as you go"
+                        icon="pi pi-bolt"
+                        onClick={async () => {
+                            const invoice = await fetchInvoice();
+                            setInvoice(invoice);
+                        }}
+                        severity='primary'
+                        className="mt-4 text-[#f8f8ff]"
+                    />
+                    <Button
+                        label="Setup Recurring Subscription"
+                        className="mt-4 text-[#f8f8ff]"
+                        onClick={() => setShowRecurringOptions(!showRecurringOptions)}
+                    />
+                </div>
+            )}
+            {showRecurringOptions && (
+                <div className="w-fit mx-auto flex flex-col items-center mt-4">
+                    <AlbyButton handleSubmit={handleRecurringSubscription} />
+                    <span className='my-4 text-lg font-bold'>or</span>
+                    <p className='text-lg font-bold'>Manually enter NWC URL</p>
+                    <span className='text-sm text-gray-500'>*make sure you set a budget of at least 25000 sats and set  budget renewal to monthly</span>
+                    <input
+                        type="text"
+                        value={nwcInput}
+                        onChange={(e) => setNwcInput(e.target.value)}
+                        placeholder="Enter NWC URL"
+                        className="w-full p-2 mb-4 border rounded"
+                    />
+                    <Button
+                        label="Submit"
+                        onClick={handleManualNwcSubmit}
+                        className="mt-4 text-[#f8f8ff]"
+                    />
+                </div>
+            )}
+            {invoice && invoice.paymentRequest && (
+                <div className="w-full mx-auto mt-8">
+                    <PaymentModal
+                        invoice={invoice?.paymentRequest}
+                        onPaid={handlePaymentSuccess}
+                        onError={handlePaymentError}
+                        paymentMethods='external'
+                        title={`Pay ${amount} sats`}
+                    />
+                </div>
+            )}
         </>
     );
 };

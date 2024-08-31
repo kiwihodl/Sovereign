@@ -31,7 +31,7 @@ const Profile = () => {
             setUser(session.user);
             if (session.user.role) {
                 setSubscribed(session.user.role.subscribed);
-                const subscribedAt = new Date(session.user.role.subscribedAt);
+                const subscribedAt = new Date(session.user.role.lastPaymentAt);
                 // The user is subscribed until the date in subscribedAt + 30 days
                 const subscribedUntil = new Date(subscribedAt.getTime() + 30 * 24 * 60 * 60 * 1000);
                 setSubscribedUntil(subscribedUntil);

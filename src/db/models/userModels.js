@@ -99,7 +99,7 @@ export const deleteUser = async (id) => {
     });
 };
 
-export const updateUserSubscription = async (userId, isSubscribed) => {
+export const updateUserSubscription = async (userId, isSubscribed, nwc) => {
   const now = new Date();
   return await prisma.user.update({
     where: { id: userId },
@@ -110,11 +110,13 @@ export const updateUserSubscription = async (userId, isSubscribed) => {
             subscribed: isSubscribed,
             subscriptionStartDate: isSubscribed ? now : null,
             lastPaymentAt: isSubscribed ? now : null,
+            nwc: nwc ? nwc : null,
           },
           update: {
             subscribed: isSubscribed,
             subscriptionStartDate: isSubscribed ? { set: now } : { set: null },
             lastPaymentAt: isSubscribed ? now : { set: null },
+            nwc: nwc ? nwc : null,
           },
         },
       },
