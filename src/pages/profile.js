@@ -3,6 +3,7 @@ import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Menu } from "primereact/menu";
 import { Column } from "primereact/column";
+import { Message } from "primereact/message";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from "primereact/progressspinner";
@@ -12,10 +13,13 @@ import { formatDateTime } from "@/utils/time";
 import UserContent from "@/components/profile/UserContent";
 import Image from "next/image";
 import BitcoinConnectButton from "@/components/bitcoinConnect/BitcoinConnect";
+import SubscribeModal from "@/components/profile/SubscribeModal";
 
 const Profile = () => {
     const [user, setUser] = useState(null);
-    const [bitcoinConnect, setBitcoinConnect] = useState(false);
+    const [subscribeModalVisible, setSubscribeModalVisible] = useState(false); // Add this state
+    const [subscribed, setSubscribed] = useState(false);
+    const [subscribedUntil, setSubscribedUntil] = useState(null);
 
     const { data: session, status } = useSession();
     const { returnImageProxy } = useImageProxy();
@@ -23,18 +27,15 @@ const Profile = () => {
     const menu = useRef(null);
 
     useEffect(() => {
-        if (typeof window === 'undefined') return;
-
-        const bitcoinConnectConfig = window.localStorage.getItem('bc:config');
-
-        if (bitcoinConnectConfig) {
-            setBitcoinConnect(true);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (session) {
+        if (session && session.user) {
             setUser(session.user);
+            if (session.user.role) {
+                setSubscribed(session.user.role.subscribed);
+                const subscribedAt = new Date(session.user.role.subscribedAt);
+                // The user is subscribed until the date in subscribedAt + 30 days
+                const subscribedUntil = new Date(subscribedAt.getTime() + 30 * 24 * 60 * 60 * 1000);
+                setSubscribedUntil(subscribedUntil);
+            }
         }
     }, [session]);
 
@@ -60,6 +61,10 @@ const Profile = () => {
             <span className="text-xl text-900 font-bold text-white">Purchases</span>
         </div>
     );
+
+    const openSubscribeModal = () => {
+        setSubscribeModalVisible(true);
+    };
 
     return (
         user && (
@@ -87,16 +92,26 @@ const Profile = () => {
                         {user.pubkey}
                     </h2>
                     <div className="flex flex-col w-1/2 mx-auto my-4 justify-between items-center">
-                        <h2>Connect Your Lightning Wallet</h2>
-                        {bitcoinConnect ? <BitcoinConnectButton /> : <p>Connecting...</p>}
+                        <h2 className="text-xl my-2">Connect Your Lightning Wallet</h2>
+                        <BitcoinConnectButton />
                     </div>
-                    <div className="flex flex-col w-1/2 mx-auto my-4 justify-between items-center">
-                        <h2>Subscription</h2>
-                        <p className="text-center">You currently have no active subscription</p>
-                        <Button
-                            label="Subscribe"
-                            className="p-button-raised p-button-success w-auto my-2 text-[#f8f8ff]"
-                        />
+                    <div className="flex flex-col w-1/2 mx-auto my-4 justify-between items-center border-2 border-gray-700 bg-[#121212] p-8 rounded-md">
+                        {subscribed ? (
+                            <>
+                                <Message severity="success" text="Subscribed!" />
+                                <p className="mt-8">Thank you for your support 🎉</p>
+                                <p className="text-sm text-gray-400">Pay-as-you-go subscription active until {subscribedUntil.toLocaleDateString()}</p>
+                            </>
+                        ) : (
+                            <>
+                                <Message severity="info" text="You currently have no active subscription" />
+                                <Button
+                                    label="Subscribe"
+                                    className="w-auto mt-8 text-[#f8f8ff]"
+                                    onClick={openSubscribeModal} // Add this onClick handler
+                                />
+                            </>
+                        )}
                     </div>
                 </div>
                 {!session || !session?.user || !ndk ? (
@@ -122,6 +137,11 @@ const Profile = () => {
 
                 )}
                 <UserContent />
+                <SubscribeModal
+                    visible={subscribeModalVisible}
+                    onHide={() => setSubscribeModalVisible(false)}
+                />
+
             </div>
         )
     );

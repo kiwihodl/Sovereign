@@ -98,3 +98,29 @@ export const deleteUser = async (id) => {
         where: { id },
     });
 };
+
+export const updateUserSubscription = async (userId, isSubscribed) => {
+  const now = new Date();
+  return await prisma.user.update({
+    where: { id: userId },
+    data: {
+      role: {
+        upsert: {
+          create: {
+            subscribed: isSubscribed,
+            subscriptionStartDate: isSubscribed ? now : null,
+            lastPaymentAt: isSubscribed ? now : null,
+          },
+          update: {
+            subscribed: isSubscribed,
+            subscriptionStartDate: isSubscribed ? { set: now } : { set: null },
+            lastPaymentAt: isSubscribed ? now : { set: null },
+          },
+        },
+      },
+    },
+    include: {
+      role: true,
+    },
+  });
+};

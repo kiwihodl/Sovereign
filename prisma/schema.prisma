@@ -17,16 +17,19 @@ model User {
     resources    Resource[]
     courseDrafts CourseDraft[]
     drafts       Draft[]
-    role         Role?         @relation(fields: [roleId], references: [id])
-    roleId       String?
+    role         Role?
     createdAt    DateTime      @default(now())
     updatedAt    DateTime      @updatedAt
 }
 
 model Role {
-    id         String  @id @default(uuid())
-    subscribed Boolean @default(false)
-    users      User[]
+    id           String    @id @default(uuid())
+    user         User      @relation(fields: [userId], references: [id])
+    userId       String    @unique
+    subscribed   Boolean   @default(false)
+    subscriptionStartDate DateTime?
+    lastPaymentAt         DateTime?
+    nwc                String?
 }
 
 model Purchase {

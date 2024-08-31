@@ -4,7 +4,6 @@ CREATE TABLE "User" (
     "pubkey" TEXT NOT NULL,
     "username" TEXT,
     "avatar" TEXT,
-    "roleId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -14,7 +13,11 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Role" (
     "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
     "subscribed" BOOLEAN NOT NULL DEFAULT false,
+    "subscriptionStartDate" TIMESTAMP(3),
+    "lastPaymentAt" TIMESTAMP(3),
+    "nwc" TEXT,
 
     CONSTRAINT "Role_pkey" PRIMARY KEY ("id")
 );
@@ -122,13 +125,16 @@ CREATE UNIQUE INDEX "User_pubkey_key" ON "User"("pubkey");
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Role_userId_key" ON "Role"("userId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Course_noteId_key" ON "Course"("noteId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Resource_noteId_key" ON "Resource"("noteId");
 
 -- AddForeignKey
-ALTER TABLE "User" ADD CONSTRAINT "User_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "Role"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Role" ADD CONSTRAINT "Role_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Purchase" ADD CONSTRAINT "Purchase_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

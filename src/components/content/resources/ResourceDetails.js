@@ -9,6 +9,8 @@ import { useZapsSubscription } from "@/hooks/nostrQueries/zaps/useZapsSubscripti
 import { getTotalFromZaps } from "@/utils/lightning";
 import { useSession } from "next-auth/react";
 
+const lnAddress = process.env.NEXT_PUBLIC_LN_ADDRESS;
+
 const ResourceDetails = ({processedEvent, topics, title, summary, image, price, author, paidResource, decryptedContent, handlePaymentSuccess, handlePaymentError}) => {
     const [zapAmount, setZapAmount] = useState(0);
 
@@ -67,7 +69,7 @@ const ResourceDetails = ({processedEvent, topics, title, summary, image, price, 
                             />
                             <div className='w-full flex flex-row justify-between'>
                                 {paidResource && !decryptedContent && <ResourcePaymentButton
-                                    lnAddress={'bitcoinplebdev@stacker.news'}
+                                    lnAddress={lnAddress}
                                     amount={price}
                                     onSuccess={handlePaymentSuccess}
                                     onError={handlePaymentError}

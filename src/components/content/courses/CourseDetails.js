@@ -34,6 +34,8 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
     const router = useRouter();
     const {ndk, addSigner} = useNDKContext();
 
+    const lnAddress = process.env.NEXT_PUBLIC_LN_ADDRESS;
+
     useEffect(() => {
         console.log("processedEvent", processedEvent);
     }, [processedEvent]);
@@ -146,7 +148,7 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
                                 <div className='w-full flex justify-between items-center'>
                                     {paidCourse && !decryptionPerformed && (
                                         <CoursePaymentButton
-                                            lnAddress={'bitcoinplebdev@stacker.news'}
+                                            lnAddress={lnAddress}
                                             amount={processedEvent.price}
                                             onSuccess={handlePaymentSuccess}
                                             onError={handlePaymentError}
