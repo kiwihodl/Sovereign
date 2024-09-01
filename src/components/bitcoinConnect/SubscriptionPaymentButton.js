@@ -7,9 +7,12 @@ import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
 import { webln, nwc } from '@getalby/sdk';
 import { useRouter } from 'next/router';
+import { Divider } from 'primereact/divider';
 import dynamic from 'next/dynamic';
 import AlbyButton from '@/components/buttons/AlbyButton';
 import axios from 'axios';
+import Image from 'next/image';
+
 const PaymentModal = dynamic(
     () => import('@getalby/bitcoin-connect-react').then((mod) => mod.Payment),
     { ssr: false }
@@ -192,17 +195,29 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
                             setInvoice(invoice);
                         }}
                         severity='primary'
-                        className="mt-4 text-[#f8f8ff]"
+                        className="w-fit mt-4 text-[#f8f8ff]"
                     />
                     <Button
                         label="Setup Recurring Subscription"
-                        className="mt-4 text-[#f8f8ff]"
+                        icon={
+                            <Image
+                                src="/images/nwc-logo.svg"
+                                alt="NWC Logo"
+                                width={16}
+                                height={16}
+                                className="mr-2"
+                            />
+                        }
+                        severity='help'
+                        className="w-fit mt-4 text-[#f8f8ff] bg-purple-600"
                         onClick={() => setShowRecurringOptions(!showRecurringOptions)}
                     />
                 </div>
             )}
             {showRecurringOptions && (
-                <div className="w-fit mx-auto flex flex-col items-center mt-4">
+                <>
+                    <Divider />
+                    <div className="w-fit mx-auto flex flex-col items-center mt-24">
                     <AlbyButton handleSubmit={handleRecurringSubscription} />
                     <span className='my-4 text-lg font-bold'>or</span>
                     <p className='text-lg font-bold'>Manually enter NWC URL</p>
@@ -217,9 +232,10 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
                     <Button
                         label="Submit"
                         onClick={handleManualNwcSubmit}
-                        className="mt-4 text-[#f8f8ff]"
+                        className="mt-4 w-fit text-[#f8f8ff]"
                     />
-                </div>
+                    </div>
+                </>
             )}
             {invoice && invoice.paymentRequest && (
                 <div className="w-full mx-auto mt-8">

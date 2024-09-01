@@ -18,7 +18,7 @@ const AlbySVG = () => (
 
 const AlbyButton = ({ handleSubmit }) => {
   return (
-    <Button className="p-button-success hover:opacity-75" style={{ backgroundColor: '#FFDE6E', borderColor: '#FFDE6E', padding: '10px 20px' }} onClick={handleSubmit}>
+    <Button className="w-fit p-button-success hover:opacity-75" style={{ backgroundColor: '#FFDE6E', borderColor: '#FFDE6E', padding: '10px 20px' }} onClick={handleSubmit}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
         <AlbySVG style={{ width: '21px', height: '22px' }} />
         <span style={{ color: 'black' }}>Generate with Alby</span>

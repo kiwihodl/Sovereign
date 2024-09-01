@@ -6,6 +6,8 @@ import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useToast } from '@/hooks/useToast';
+import { Card } from 'primereact/card';
+import { Badge } from 'primereact/badge';
 
 // todo encrypt nwc before saving in db
 const SubscribeModal = ({ visible, onHide }) => {
@@ -58,10 +60,10 @@ const SubscribeModal = ({ visible, onHide }) => {
 
     return (
         <Dialog
-            header="Subscribe"
+            header="Subscribe to PlebDevs"
             visible={visible}
-            style={{ width: '50vw' }}
             onHide={onHide}
+            className="p-fluid pb-0 w-fit"
         >
             {isProcessing ? (
                 <div className="w-full flex flex-col mx-auto justify-center items-center mt-4">
@@ -69,28 +71,40 @@ const SubscribeModal = ({ visible, onHide }) => {
                     <span className="ml-2">Processing subscription...</span>
                 </div>
             ) : (
-                <>
-                    <p className="m-0 font-bold">
-                        Subscribe to PlebDevs and get access to:
-                    </p>
-                    <ul>
-                        <li>- All of our content free and paid</li>
-                        <li>- PlebLab Bitcoin Hackerspace Slack</li>
-                        <li>- An exclusive calendar to book 1:1&apos;s with our team</li>
-                    </ul>
-                    <p className="m-0 font-bold">
-                        ALSO
-                    </p>
-                    <ul>
-                        <li>- I WILL MAKE SURE YOU WIN HARD AND LEVEL UP AS A DEV</li>
-                    </ul>
+                <Card className="shadow-lg">
+                    <div className="text-center mb-4">
+                        <h2 className="text-2xl font-bold text-primary">Unlock Premium Benefits</h2>
+                        <p className="text-gray-400">Subscribe now and elevate your development journey!</p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div className="flex items-center">
+                            <i className="pi pi-book text-2xl text-primary mr-2"></i>
+                            <span>Access ALL current and future content</span>
+                        </div>
+                        <div className="flex items-center">
+                            <i className="pi pi-users text-2xl text-primary mr-2"></i>
+                            <span>Join PlebLab Bitcoin Hackerspace Slack</span>
+                        </div>
+                        <div className="flex items-center">
+                            <i className="pi pi-calendar text-2xl text-primary mr-2"></i>
+                            <span>Exclusive 1:1 booking calendar</span>
+                        </div>
+                        <div className="flex items-center">
+                            <i className="pi pi-star text-2xl text-primary mr-2"></i>
+                            <span>Personal mentorship & guidance</span>
+                        </div>
+                    </div>
+                    <div className="text-center mb-4 flex flex-row justify-center">
+                        <Badge value="BONUS" severity="success" className="mr-2"></Badge>
+                        <span className="text-center font-bold">I WILL MAKE SURE YOU WIN HARD AND LEVEL UP AS A DEV!</span>
+                    </div>
                     <SubscriptionPaymentButtons
                         onSuccess={handleSubscriptionSuccess}
                         onRecurringSubscriptionSuccess={handleRecurringSubscriptionSuccess}
                         onError={handleSubscriptionError}
                         setIsProcessing={setIsProcessing}
                     />
-                </>
+                </Card>
             )}
         </Dialog>
     );

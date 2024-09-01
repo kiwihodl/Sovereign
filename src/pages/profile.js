@@ -100,7 +100,7 @@ const Profile = () => {
                             <>
                                 <Message severity="success" text="Subscribed!" />
                                 <p className="mt-8">Thank you for your support 🎉</p>
-                                <p className="text-sm text-gray-400">Pay-as-you-go subscription active until {subscribedUntil.toLocaleDateString()}</p>
+                                <p className="text-sm text-gray-400">Pay-as-you-go subscription will renew on {subscribedUntil.toLocaleDateString()}</p>
                             </>
                         ) : (
                             <>
