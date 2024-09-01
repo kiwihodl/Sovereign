@@ -22,15 +22,10 @@ const Profile = () => {
     const [subscribedUntil, setSubscribedUntil] = useState(null);
     const [subscriptionExpiredAt, setSubscriptionExpiredAt] = useState(null);
 
-    const { data: session, status, update } = useSession();
+    const { data: session } = useSession();
     const { returnImageProxy } = useImageProxy();
     const { ndk } = useNDKContext();
     const menu = useRef(null);
-
-    useEffect(() => {
-        // Refetch the session when the component mounts
-        update();
-    }, []);
 
     useEffect(() => {
         if (session && session.user) {
@@ -38,8 +33,8 @@ const Profile = () => {
             if (session.user.role) {
                 setSubscribed(session.user.role.subscribed);
                 const subscribedAt = new Date(session.user.role.lastPaymentAt);
-                // The user is subscribed until the date in subscribedAt + 30 days
-                const subscribedUntil = new Date(subscribedAt.getTime() + 30 * 24 * 60 * 60 * 1000);
+                // The user is subscribed until the date in subscribedAt + 31 days
+                const subscribedUntil = new Date(subscribedAt.getTime() + 31 * 24 * 60 * 60 * 1000);
                 setSubscribedUntil(subscribedUntil);
                 if (session.user.role.subscriptionExpiredAt) {
                     const expiredAt = new Date(session.user.role.subscriptionExpiredAt)

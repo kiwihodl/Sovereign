@@ -7,7 +7,7 @@ export const findKind0Fields = async (kind0) => {
 
     const findTruthyPropertyValue = (object, properties) => {
         for (const property of properties) {
-            if (object[property]) {
+            if (object?.[property]) {
                 return object[property];
             }
         }

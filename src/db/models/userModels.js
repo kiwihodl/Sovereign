@@ -1,102 +1,106 @@
 import prisma from "../prisma";
+import { webln } from "@getalby/sdk";
+import { LightningAddress } from "@getalby/sdk";
+
+const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
 
 export const getAllUsers = async () => {
-    return await prisma.user.findMany({
+  return await prisma.user.findMany({
+    include: {
+      role: true, // Include related role
+      purchased: {
         include: {
-            role: true, // Include related role
-            purchased: {
-                include: {
-                    course: true, // Include course details in purchases
-                    resource: true, // Include resource details in purchases
-                },
-            },
+          course: true, // Include course details in purchases
+          resource: true, // Include resource details in purchases
         },
-    });
+      },
+    },
+  });
 };
 
 export const getUserById = async (id) => {
-    return await prisma.user.findUnique({
-        where: { id },
+  return await prisma.user.findUnique({
+    where: { id },
+    include: {
+      role: true, // Include related role
+      purchased: {
         include: {
-            role: true, // Include related role
-            purchased: {
-                include: {
-                    course: true, // Include course details in purchases
-                    resource: true, // Include resource details in purchases
-                },
-            },
+          course: true, // Include course details in purchases
+          resource: true, // Include resource details in purchases
         },
-    });
+      },
+    },
+  });
 };
 
 export const getUserByPubkey = async (pubkey) => {
-    return await prisma.user.findUnique({
-        where: { pubkey },
+  return await prisma.user.findUnique({
+    where: { pubkey },
+    include: {
+      role: true, // Include related role
+      purchased: {
         include: {
-            role: true, // Include related role
-            purchased: {
-                include: {
-                    course: true, // Include course details in purchases
-                    resource: true, // Include resource details in purchases
-                },
-            },
+          course: true, // Include course details in purchases
+          resource: true, // Include resource details in purchases
         },
-    });
+      },
+    },
+  });
 }
 
 export const addResourcePurchaseToUser = async (userId, purchaseData) => {
-    return await prisma.user.update({
-      where: { id: userId },
-      data: {
-        purchased: {
-          create: {
-            resourceId: purchaseData.resourceId,
-            amountPaid: purchaseData.amountPaid,
-          },
+  return await prisma.user.update({
+    where: { id: userId },
+    data: {
+      purchased: {
+        create: {
+          resourceId: purchaseData.resourceId,
+          amountPaid: purchaseData.amountPaid,
         },
       },
-      include: {
-        purchased: {
-          include: {
-            resource: true,
-          },
+    },
+    include: {
+      purchased: {
+        include: {
+          resource: true,
         },
       },
-    });
-  };
+    },
+  });
+};
 
 export const addCoursePurchaseToUser = async (userId, purchaseData) => {
-    return await prisma.user.update({
-      where: { id: userId },
-      data: {
-        purchased: {
-          create: {
-            courseId: purchaseData.courseId,
-            amountPaid: purchaseData.amountPaid,
-          },
+  return await prisma.user.update({
+    where: { id: userId },
+    data: {
+      purchased: {
+        create: {
+          courseId: purchaseData.courseId,
+          amountPaid: purchaseData.amountPaid,
         },
       },
-    });
-  };
+    },
+  });
+};
 
 export const createUser = async (data) => {
-    return await prisma.user.create({
-        data,
-    });
+  return await prisma.user.create({
+    data,
+  });
 };
 
 export const updateUser = async (id, data) => {
-    console.log("user modelllll", id, data)
-    return await prisma.user.update({
-        where: { id },
-        data,
-    });
+  console.log("user modelllll", id, data)
+  return await prisma.user.update({
+    where: { id },
+    data,
+  });
 };
 
 export const deleteUser = async (id) => {
-    return await prisma.user.delete({
-        where: { id },
-    });
+  return await prisma.user.delete({
+    where: { id },
+  });
 };
 
 export const updateUserSubscription = async (userId, isSubscribed, nwc) => {
@@ -129,24 +133,27 @@ export const updateUserSubscription = async (userId, isSubscribed, nwc) => {
   });
 };
 
-export const checkAndUpdateExpiredSubscriptions = async () => {
+export const findExpiredSubscriptions = async () => {
   const now = new Date();
-  const oneHourAgo = new Date(now.getTime() - 1 * 60 * 60 * 1000);
-  const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+  const thirtyOneDaysAgo = new Date(now.getTime() - 31 * 24 * 60 * 60 * 1000);
 
-    const expiredSubscriptions = await prisma.role.findMany({
-      where: {
+  return await prisma.role.findMany({
+    where: {
       subscribed: true,
       lastPaymentAt: {
-        lt: fiveMinutesAgo
+        lt: thirtyOneDaysAgo
       }
     },
     select: {
-      userId: true
+      userId: true,
+      nwc: true
     }
   });
+};
 
-  const updatePromises = expiredSubscriptions.map(({ userId }) =>
+export const expireUserSubscriptions = async (userIds) => {
+  const now = new Date();
+  const updatePromises = userIds.map((userId) =>
     prisma.role.update({
       where: { userId },
       data: {
@@ -160,6 +167,5 @@ export const checkAndUpdateExpiredSubscriptions = async () => {
   );
 
   await prisma.$transaction(updatePromises);
-
-  return expiredSubscriptions.length;
+  return userIds.length;
 };
