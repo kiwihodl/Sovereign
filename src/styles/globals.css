@@ -25,6 +25,14 @@ h3 {
   @apply text-h3 font-blinker;
 }
 
+p {
+  @apply font-blinker;
+}
+
+div {
+  @apply font-blinker;
+}
+
 .p-tabmenu .p-tabmenu-nav {
   background-color: transparent !important;
   border: none !important;
