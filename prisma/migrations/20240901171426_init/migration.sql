@@ -15,8 +15,10 @@ CREATE TABLE "Role" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "subscribed" BOOLEAN NOT NULL DEFAULT false,
+    "admin" BOOLEAN NOT NULL DEFAULT false,
     "subscriptionStartDate" TIMESTAMP(3),
     "lastPaymentAt" TIMESTAMP(3),
+    "subscriptionExpiredAt" TIMESTAMP(3),
     "nwc" TEXT,
 
     CONSTRAINT "Role_pkey" PRIMARY KEY ("id")

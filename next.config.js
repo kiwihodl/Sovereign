@@ -1,4 +1,3 @@
-// next.config.js
 const removeImports = require("next-remove-imports")();
 
 module.exports = removeImports({
@@ -8,5 +7,13 @@ module.exports = removeImports({
   },
   webpack(config, options) {
     return config;
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/cron',
+        destination: '/api/cron',
+      },
+    ];
   },
 });

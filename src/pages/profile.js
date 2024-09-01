@@ -20,11 +20,17 @@ const Profile = () => {
     const [subscribeModalVisible, setSubscribeModalVisible] = useState(false); // Add this state
     const [subscribed, setSubscribed] = useState(false);
     const [subscribedUntil, setSubscribedUntil] = useState(null);
+    const [subscriptionExpiredAt, setSubscriptionExpiredAt] = useState(null);
 
-    const { data: session, status } = useSession();
+    const { data: session, status, update } = useSession();
     const { returnImageProxy } = useImageProxy();
     const { ndk } = useNDKContext();
     const menu = useRef(null);
+
+    useEffect(() => {
+        // Refetch the session when the component mounts
+        update();
+    }, []);
 
     useEffect(() => {
         if (session && session.user) {
@@ -35,6 +41,10 @@ const Profile = () => {
                 // The user is subscribed until the date in subscribedAt + 30 days
                 const subscribedUntil = new Date(subscribedAt.getTime() + 30 * 24 * 60 * 60 * 1000);
                 setSubscribedUntil(subscribedUntil);
+                if (session.user.role.subscriptionExpiredAt) {
+                    const expiredAt = new Date(session.user.role.subscriptionExpiredAt)
+                    setSubscriptionExpiredAt(expiredAt);
+                }
             }
         }
     }, [session]);
@@ -96,15 +106,26 @@ const Profile = () => {
                         <BitcoinConnectButton />
                     </div>
                     <div className="flex flex-col w-1/2 mx-auto my-4 justify-between items-center border-2 border-gray-700 bg-[#121212] p-8 rounded-md">
-                        {subscribed ? (
+                        {subscribed && (
                             <>
                                 <Message severity="success" text="Subscribed!" />
                                 <p className="mt-8">Thank you for your support 🎉</p>
                                 <p className="text-sm text-gray-400">Pay-as-you-go subscription will renew on {subscribedUntil.toLocaleDateString()}</p>
                             </>
-                        ) : (
+                        )}
+                        {(!subscribed && !subscriptionExpiredAt) && (
                             <>
                                 <Message severity="info" text="You currently have no active subscription" />
+                                <Button
+                                    label="Subscribe"
+                                    className="w-auto mt-8 text-[#f8f8ff]"
+                                    onClick={openSubscribeModal} // Add this onClick handler
+                                />
+                            </>
+                        )}
+                        {subscriptionExpiredAt && (
+                            <>
+                                <Message severity="warn" text={`Your subscription expired on ${subscriptionExpiredAt.toLocaleDateString()}`} />
                                 <Button
                                     label="Subscribe"
                                     className="w-auto mt-8 text-[#f8f8ff]"

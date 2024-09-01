@@ -111,12 +111,14 @@ export const updateUserSubscription = async (userId, isSubscribed, nwc) => {
             subscriptionStartDate: isSubscribed ? now : null,
             lastPaymentAt: isSubscribed ? now : null,
             nwc: nwc ? nwc : null,
+            subscriptionExpiredAt: null,
           },
           update: {
             subscribed: isSubscribed,
             subscriptionStartDate: isSubscribed ? { set: now } : { set: null },
             lastPaymentAt: isSubscribed ? now : { set: null },
             nwc: nwc ? nwc : null,
+            subscriptionExpiredAt: null,
           },
         },
       },
@@ -125,4 +127,39 @@ export const updateUserSubscription = async (userId, isSubscribed, nwc) => {
       role: true,
     },
   });
+};
+
+export const checkAndUpdateExpiredSubscriptions = async () => {
+  const now = new Date();
+  const oneHourAgo = new Date(now.getTime() - 1 * 60 * 60 * 1000);
+  const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+
+    const expiredSubscriptions = await prisma.role.findMany({
+      where: {
+      subscribed: true,
+      lastPaymentAt: {
+        lt: fiveMinutesAgo
+      }
+    },
+    select: {
+      userId: true
+    }
+  });
+
+  const updatePromises = expiredSubscriptions.map(({ userId }) =>
+    prisma.role.update({
+      where: { userId },
+      data: {
+        subscribed: false,
+        subscriptionStartDate: null,
+        lastPaymentAt: null,
+        nwc: null,
+        subscriptionExpiredAt: now,
+      }
+    })
+  );
+
+  await prisma.$transaction(updatePromises);
+
+  return expiredSubscriptions.length;
 };

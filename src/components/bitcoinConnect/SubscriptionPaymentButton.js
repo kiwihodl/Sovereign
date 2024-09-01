@@ -104,6 +104,26 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
             const newNWCUrl = newNwc.getNostrWalletConnectUrl();
 
             if (newNWCUrl) {
+                const nwc = new webln.NostrWebLNProvider({
+                    nostrWalletConnectUrl: newNWCUrl,
+                });
+
+                await nwc.enable();
+
+                const invoice = await fetchInvoice();
+
+                if (!invoice || !invoice.paymentRequest) {
+                    showToast('error', 'NWC', `Failed to fetch invoice from ${lnAddress}`);
+                    return;
+                }
+
+                const paymentResponse = await nwc.sendPayment(invoice.paymentRequest);
+
+                if (!paymentResponse || !paymentResponse?.preimage) {
+                    showToast('error', 'NWC', 'Payment failed');
+                    return;
+                }
+
                 const subscriptionResponse = await axios.put('/api/users/subscription', {
                     userId: session.user.id,
                     isSubscribed: true,
@@ -218,22 +238,22 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
                 <>
                     <Divider />
                     <div className="w-fit mx-auto flex flex-col items-center mt-24">
-                    <AlbyButton handleSubmit={handleRecurringSubscription} />
-                    <span className='my-4 text-lg font-bold'>or</span>
-                    <p className='text-lg font-bold'>Manually enter NWC URL</p>
-                    <span className='text-sm text-gray-500'>*make sure you set a budget of at least 25000 sats and set  budget renewal to monthly</span>
-                    <input
-                        type="text"
-                        value={nwcInput}
-                        onChange={(e) => setNwcInput(e.target.value)}
-                        placeholder="Enter NWC URL"
-                        className="w-full p-2 mb-4 border rounded"
-                    />
-                    <Button
-                        label="Submit"
-                        onClick={handleManualNwcSubmit}
-                        className="mt-4 w-fit text-[#f8f8ff]"
-                    />
+                        <AlbyButton handleSubmit={handleRecurringSubscription} />
+                        <span className='my-4 text-lg font-bold'>or</span>
+                        <p className='text-lg font-bold'>Manually enter NWC URL</p>
+                        <span className='text-sm text-gray-500'>*make sure you set a budget of at least 25000 sats and set  budget renewal to monthly</span>
+                        <input
+                            type="text"
+                            value={nwcInput}
+                            onChange={(e) => setNwcInput(e.target.value)}
+                            placeholder="Enter NWC URL"
+                            className="w-full p-2 mb-4 border rounded"
+                        />
+                        <Button
+                            label="Submit"
+                            onClick={handleManualNwcSubmit}
+                            className="mt-4 w-fit text-[#f8f8ff]"
+                        />
                     </div>
                 </>
             )}
