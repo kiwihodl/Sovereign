@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { InputText } from 'primereact/inputtext';
 import CommunityMenuTab from '@/components/menutab/CommunityMenuTab';
 import NostrFeed from './nostr';
@@ -18,8 +18,13 @@ const Feed = () => {
         router.push(`/feed?channel=${topic}`);
     };
 
+    // initialize the selected topic to the query parameter
+    useEffect(() => {
+        setSelectedTopic(router.query.channel);
+    }, [router.query.channel]);
+
     return (
-        <div className="bg-gray-900 h-full w-full min-bottom-bar:w-[87vw]">
+        <div className="bg-gray-900 h-full w-[100vw] min-bottom-bar:w-[87vw]">
             <div className="w-fit mx-4 pt-4 flex flex-col items-start">
                 <h1 className="text-3xl font-bold mb-4 ml-1">Community</h1>
                 <InputText
