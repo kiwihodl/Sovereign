@@ -28,7 +28,7 @@ const Create = () => {
     };
 
     return (
-        <div className="w-[80vw] max-w-[80vw] mx-auto my-8 flex flex-col justify-center">
+        <div className="w-full min-bottom-bar:w-[87vw] max-sidebar:w-[100vw] px-8 mx-auto my-8 flex flex-col justify-center">
             <h2 className="text-center mb-8">Create a {homeItems[activeIndex].label}</h2>
             <MenuTab items={homeItems} activeIndex={activeIndex} onTabChange={setActiveIndex} />
             {renderForm()}

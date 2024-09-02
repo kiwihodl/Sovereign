@@ -23,13 +23,11 @@ export default async function handler(req, res) {
         const client = await initializeClient();
 
         const channels = ['🤝general', '🌀random', '❓help', '🛠project-ideas', '🙌show-it-off', '🤡memes', '🧠learning'];
-        const messages = [];
-
-        for (const channelName of channels) {
+        const messagesPromises = channels.map(async (channelName) => {
             const channel = client.channels.cache.find(ch => ch.name === channelName);
             if (channel) {
                 const channelMessages = await channel.messages.fetch({ limit: 5 });
-                messages.push(...channelMessages.map(msg => ({
+                return channelMessages.map(msg => ({
                     id: msg.id,
                     content: msg.content,
                     author: msg.author.username,
@@ -37,9 +35,13 @@ export default async function handler(req, res) {
                     channel: msg.channel.name,
                     channelId: msg.channel.id,
                     timestamp: msg.createdAt
-                })));
+                }));
             }
-        }
+            return [];
+        });
+
+        const messagesArray = await Promise.all(messagesPromises);
+        const messages = messagesArray.flat();
 
         const filteredMessages = messages.filter(msg => msg.content.length > 0);
         filteredMessages.sort((a, b) => b.timestamp - a.timestamp);

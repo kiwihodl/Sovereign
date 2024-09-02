@@ -69,8 +69,8 @@ const Profile = () => {
 
     return (
         user && (
-            <div className="w-[90vw] mx-auto max-tab:w-[100vw] max-mob:w-[100vw]">
-                <div className="w-[85vw] flex flex-col justify-center mx-auto max-tab:w-[100vw] max-mob:w-[100vw]">
+            <div className="h-full w-full min-bottom-bar:w-[87vw] max-sidebar:w-[100vw] mx-auto">
+                <div className="w-full flex flex-col justify-center mx-auto">
                     <div className="relative flex w-full items-center justify-center">
                         <Image
                             alt="user's avatar"

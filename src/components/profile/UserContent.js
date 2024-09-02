@@ -113,7 +113,7 @@ const UserContent = () => {
     const isError = coursesError || resourcesError || workshopsError || draftsError || contentIdsError || courseDraftsError;
 
     return (
-        <div className="w-[90vw] mx-auto max-tab:w-[100vw] max-mob:w-[100vw]">
+        <div className="w-full min-bottom-bar:w-[87vw] mx-auto">
             <div className="border-y-2 border-gray-300 mt-12">
                 <h2 className="text-center my-4">Your Content</h2>
             </div>
@@ -132,7 +132,7 @@ const UserContent = () => {
                 />
             </div>
             <div className="w-full mx-auto my-8">
-                <div className="w-full mx-auto my-8">
+                <div className="w-full mx-auto my-8 px-8">
                     {isLoading ? (
                         <p>Loading...</p>
                     ) : isError ? (
