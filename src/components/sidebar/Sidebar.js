@@ -12,7 +12,7 @@ const Sidebar = () => {
     };
 
     return (
-        <div className='max-mob:hidden max-tab:hidden w-[15vw] bg-gray-800 p-4 fixed z-10 h-[100%]'>
+        <div className='max-sidebar:hidden w-[13vw] bg-gray-800 p-4 fixed z-10 h-[100%]'>
             <div onClick={() => router.push('/')} className={`w-full cursor-pointer hover:bg-gray-700 rounded-lg ${isActive('/') ? 'bg-gray-700' : ''}`}>
                 <p className="p-2 my-2 pl-5 rounded-md font-bold"><i className="pi pi-home" /> Home</p>
             </div>
@@ -35,8 +35,8 @@ const Sidebar = () => {
                 }}
                 className="unstyled border-none bg-transparent">
                 <AccordionTab header={"Chat"}>
-                    <div onClick={() => router.push('/chat/general')} className={`w-full cursor-pointer hover:bg-gray-700 rounded-lg ${isActive('/chat/general') ? 'bg-gray-700' : ''}`}>
-                        <p className="p-2 my-2 rounded-md font-bold"><i className="pi pi-hashtag"></i> general</p>
+                    <div onClick={() => router.push('/feed')} className={`w-full cursor-pointer hover:bg-gray-700 rounded-lg ${isActive('/feed') ? 'bg-gray-700' : ''}`}>
+                        <p className="p-2 my-2 rounded-md font-bold"><i className="pi pi-hashtag"></i> global</p>
                     </div>
                     <div onClick={() => router.push('/chat/nostr')} className={`w-full cursor-pointer hover:bg-gray-700 rounded-lg ${isActive('/chat/nostr') ? 'bg-gray-700' : ''}`}>
                         <p className="p-2 my-2 rounded-md font-bold"><i className="pi pi-hashtag"></i> nostr</p>

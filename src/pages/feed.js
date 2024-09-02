@@ -1,10 +1,53 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from 'primereact/card';
 import { Avatar } from 'primereact/avatar';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useQuery } from '@tanstack/react-query';
+import { TabMenu } from 'primereact/tabmenu';
+import { InputText } from 'primereact/inputtext';
+
+const MenuTab = ({ items, selectedTopic, onTabChange }) => {
+    const allItems = ['global', 'nostr', 'discord', 'stackernews'];
+
+    const menuItems = allItems.map((item, index) => {
+        let icon = 'pi pi-tag';
+
+        return {
+            label: (
+                <Button
+                    className={`${selectedTopic === item ? 'bg-primary text-white' : ''}`}
+                    onClick={() => onTabChange(item)}
+                    outlined={selectedTopic !== item}
+                    rounded
+                    size='small'
+                    label={item}
+                    icon={icon}
+                />
+            ),
+            command: () => onTabChange(item)
+        };
+    });
+
+    return (
+        <div className="w-full">
+            <TabMenu
+                model={menuItems}
+                activeIndex={allItems.indexOf(selectedTopic)}
+                onTabChange={(e) => onTabChange(allItems[e.index])}
+                pt={{
+                    menu: { className: 'bg-transparent border-none ml-2 my-4' },
+                    action: ({ context, parent }) => ({
+                        className: 'cursor-pointer select-none flex items-center relative no-underline overflow-hidden border-b-2 p-2 font-bold rounded-t-lg',
+                        style: { top: '2px' }
+                    }),
+                    menuitem: { className: 'mr-0' }
+                }}
+            />
+        </div>
+    );
+}
 
 const fetchDiscordMessages = async () => {
     const response = await fetch('/api/discord-messages');
@@ -15,6 +58,14 @@ const fetchDiscordMessages = async () => {
 };
 
 const Feed = () => {
+    const [selectedTopic, setSelectedTopic] = useState('global');
+    const [searchQuery, setSearchQuery] = useState('');
+    const allTopics = ['global', 'nostr', 'discord', 'stackernews'];
+
+    const handleTopicChange = (topic) => {
+        setSelectedTopic(topic);
+    };
+
     const { data, error, isLoading } = useQuery({
         queryKey: ['discordMessages'],
         queryFn: fetchDiscordMessages,
@@ -29,9 +80,6 @@ const Feed = () => {
     if (error) {
         return <div className="text-red-500 text-center p-4">Failed to load messages. Please try again later.</div>;
     }
-
-    // Destructure messages from data
-    // const messages = data?.messages || [];
 
     const header = (message) => (
         <div className="flex flex-row w-full items-center justify-between p-4 bg-gray-800 rounded-t-lg">
@@ -54,18 +102,36 @@ const Feed = () => {
                 {new Date(message.timestamp).toLocaleString()}
             </span>
             <Button
-                    label="View in Discord"
-                    icon="pi pi-external-link"
-                    outlined
-                    size="small"
-                    className='my-2'
-                    onClick={() => window.open(`https://discord.com/channels/${message.channelId}/${message.id}`, '_blank')}
-                />
+                label="View in Discord"
+                icon="pi pi-external-link"
+                outlined
+                size="small"
+                className='my-2'
+                onClick={() => window.open(`https://discord.com/channels/${message.channelId}/${message.id}`, '_blank')}
+            />
         </div>
     );
 
     return (
-        <div className="gap-4 p-4 bg-gray-900">
+        <div className="bg-gray-900 h-full w-full min-bottom-bar:w-[87vw]">
+            <div className="w-fit mx-4 pt-4 flex flex-col items-start">
+                <h1 className="text-3xl font-bold mb-4 ml-1">Community</h1>
+                <InputText
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search"
+                    icon="pi pi-search"
+                    className="w-full mb-2"
+                />
+            </div>
+            <div className="min-bottom-bar:hidden">
+                <MenuTab
+                    items={allTopics}
+                    selectedTopic={selectedTopic}
+                    onTabChange={handleTopicChange}
+                    className="max-w-[90%] mx-auto"
+                />
+            </div>
             {data && data.map(message => (
                 <Card
                     key={message.id}

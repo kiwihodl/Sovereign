@@ -14,6 +14,8 @@ module.exports = {
         'max-mob': {'max': '475px'},
         'max-tab': {'max': '768px'},
         'max-lap': {'max': '1440px'},
+        'max-sidebar': {'max': '1285px'},
+        'min-bottom-bar': {'min': '1285px'},
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

@@ -16,6 +16,7 @@ import {
     QueryClient,
     QueryClientProvider,
 } from '@tanstack/react-query'
+import BottomBar from '@/components/BottomBar';
 
 const queryClient = new QueryClient()
 
@@ -31,13 +32,14 @@ export default function MyApp({
                         <Layout>
                             <div className="flex flex-col min-h-screen">
                                 <Navbar />
-                                {/* <div className='flex'> */}
-                                {/* <Sidebar /> */}
-                                {/* <div className='max-w-[100vw] pl-[15vw]'> */}
-                                <div className='max-w-[100vw]'>
+                                <div className='flex'>
+                                <Sidebar />
+                                <div className='max-w-[100vw] pl-[13vw] max-sidebar:pl-0 pb-16 max-sidebar:pb-20'>
+                                {/* <div className='max-w-[100vw]'> */}
                                     <Component {...pageProps} />
                                 </div>
-                                {/* </div> */}
+                                </div>
+                                <BottomBar />
                             </div>
                         </Layout>
                     </ToastProvider>
