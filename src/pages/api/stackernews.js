@@ -4,10 +4,11 @@ export default async function handler(req, res) {
   try {
     const response = await axios.post('https://stacker.news/api/graphql', {
       query: `
-        query RecentItems {
+        query RecentDevItemsWithComments {
           items(
-            limit: 10,
-            sort: "NEW"
+            sub: "devs",
+            sort: "NEW",
+            limit: 10
           ) {
             items {
               id
@@ -18,6 +19,15 @@ export default async function handler(req, res) {
                 name
               }
               sats
+              comments {
+                id
+                text
+                createdAt
+                user {
+                  name
+                }
+                sats
+              }
             }
           }
         }
