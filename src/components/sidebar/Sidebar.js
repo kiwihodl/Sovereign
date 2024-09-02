@@ -38,16 +38,16 @@ const Sidebar = () => {
                 className="unstyled border-none bg-transparent">
                 <AccordionTab header={"Community"}>
                     <div onClick={() => router.push('/feed')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/feed') ? 'bg-gray-700' : ''}`}>
-                        <p className="rounded-md font-bold"><i className="pi pi-hashtag text-sm"></i> global</p>
+                        <p className="pl-2 rounded-md font-bold"><i className="pi pi-hashtag text-sm"></i> global</p>
                     </div>
                     <div onClick={() => router.push('/chat/nostr')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/chat/nostr') ? 'bg-gray-700' : ''}`}>
-                        <p className="rounded-md font-bold"><i className="pi pi-hashtag text-sm"></i> nostr</p>
+                        <p className="pl-2 rounded-md font-bold"><i className="pi pi-hashtag text-sm"></i> nostr</p>
                     </div>
                     <div onClick={() => router.push('/chat/discord')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/chat/discord') ? 'bg-gray-700' : ''}`}>
-                        <p className="rounded-md font-bold"><i className="pi pi-hashtag text-sm"></i> discord</p>
+                        <p className="pl-2 rounded-md font-bold"><i className="pi pi-hashtag text-sm"></i> discord</p>
                     </div>
                     <div onClick={() => router.push('/chat/stackernews')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/chat/stackernews') ? 'bg-gray-700' : ''}`}>
-                        <p className="rounded-md font-bold"><i className="pi pi-hashtag text-sm"></i> stackernews</p>
+                        <p className="pl-2 rounded-md font-bold"><i className="pi pi-hashtag text-sm"></i> stackernews</p>
                     </div>
                 </AccordionTab>
             </Accordion>

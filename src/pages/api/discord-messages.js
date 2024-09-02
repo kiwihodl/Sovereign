@@ -40,14 +40,20 @@ export default async function handler(req, res) {
             return [];
         });
 
-        const messagesArray = await Promise.all(messagesPromises);
-        const messages = messagesArray.flat();
+        const results = await Promise.allSettled(messagesPromises);
+        const messages = results
+            .filter(result => result.status === 'fulfilled')
+            .flatMap(result => result.value);
 
         const filteredMessages = messages.filter(msg => msg.content.length > 0);
         filteredMessages.sort((a, b) => b.timestamp - a.timestamp);
 
-        res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
-        res.status(200).json(filteredMessages.slice(0, 50));
+        if (filteredMessages.length === 0) {
+            res.status(204).end(); // No Content
+        } else {
+            res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
+            res.status(200).json(filteredMessages.slice(0, 50));
+        }
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'An error occurred while fetching messages' });

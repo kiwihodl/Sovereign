@@ -133,16 +133,20 @@ const Feed = () => {
                 />
             </div>
             <div className="mx-4 mt-4">
-            {data && data.map(message => (
-                <Card
-                key={message.id}
-                header={() => header(message)}
-                footer={() => footer(message)}
-                className="w-full bg-gray-700 shadow-lg hover:shadow-xl transition-shadow duration-300 mb-4"
-                >
-                    <p className="m-0 text-lg text-gray-200">{message.content}</p>
-                </Card>
-            ))}
+            {data && data.length > 0 ? (
+                data.map(message => (
+                    <Card
+                    key={message.id}
+                    header={() => header(message)}
+                    footer={() => footer(message)}
+                    className="w-full bg-gray-700 shadow-lg hover:shadow-xl transition-shadow duration-300 mb-4"
+                    >
+                        <p className="m-0 text-lg text-gray-200">{message.content}</p>
+                    </Card>
+                ))
+            ) : (
+                <div className="text-gray-400 text-center p-4">No messages available.</div>
+            )}
             </div>
         </div>
     );
