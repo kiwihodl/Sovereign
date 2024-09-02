@@ -13,41 +13,28 @@ const Sidebar = () => {
 
     return (
         <div className='max-sidebar:hidden w-[13vw] bg-gray-800 p-2 fixed z-10 h-[100%]'>
-            <div onClick={() => router.push('/')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/') ? 'bg-gray-700' : ''}`}>
-                <p className="pl-5 rounded-md font-bold"><i className="pi pi-home" /> Home</p>
+            <div onClick={() => router.push('/')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/') ? 'bg-gray-700' : ''}`}>
+            <i className="pi pi-home pl-5" /> <p className="pl-2 rounded-md font-bold">Home</p>
             </div>
-            <div onClick={() => router.push('/content')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content') ? 'bg-gray-700' : ''}`}>
-                <p className="pl-5 rounded-md font-bold"><i className="pi pi-video" /> Content</p>
+            <div onClick={() => router.push('/content')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content') ? 'bg-gray-700' : ''}`}>
+            <i className="pi pi-video pl-5" /> <p className="pl-2 rounded-md font-bold">Content</p>
             </div>
-            <div onClick={() => router.push('/create')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/create') ? 'bg-gray-700' : ''}`}>
-                <p className="pl-5 rounded-md font-bold"><i className="pi pi-plus" /> Create</p>
+            <div onClick={() => router.push('/create')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/create') ? 'bg-gray-700' : ''}`}>
+            <i className="pi pi-plus pl-5" /> <p className="pl-2 rounded-md font-bold">Create</p>
             </div>
-            <Accordion
-                activeIndex={0}
-                pt={{
-                    tab: {
-                        header: ({ context }) => ({
-                            className: 'border-none bg-transparent hover:bg-gray-700 rounded-lg',
-                        }),
-                        headerAction: ({ context }) => ({
-                            className: 'border-none bg-transparent py-3 my-2',
-                        }),
-                        content: { className: 'border-none bg-transparent pt-0 pl-0 ml-0' }
-                    }
-                }}
-                className="unstyled border-none bg-transparent">
-                <AccordionTab header={"Community"}>
-                    <div onClick={() => router.push('/feed')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/feed') ? 'bg-gray-700' : ''}`}>
-                        <p className="pl-2 rounded-md font-bold"><i className="pi pi-hashtag text-sm"></i> global</p>
+            <Accordion activeIndex={0}>
+                <AccordionTab header={"Community"} headerClassName='hover:bg-gray-700 rounded-lg'>
+                    <div onClick={() => router.push('/feed')} className={`w-full cursor-pointer py-2 hover:bg-gray-700 rounded-lg ${isActive('/feed') ? 'bg-gray-700' : ''}`}>
+                        <p className="pl-3 rounded-md font-bold"><i className="pi pi-hashtag text-sm"></i> global</p>
                     </div>
-                    <div onClick={() => router.push('/chat/nostr')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/chat/nostr') ? 'bg-gray-700' : ''}`}>
-                        <p className="pl-2 rounded-md font-bold"><i className="pi pi-hashtag text-sm"></i> nostr</p>
+                    <div onClick={() => router.push('/feed/nostr')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/feed/nostr') ? 'bg-gray-700' : ''}`}>
+                        <p className="pl-3 rounded-md font-bold"><i className="pi pi-hashtag text-sm"></i> nostr</p>
                     </div>
-                    <div onClick={() => router.push('/chat/discord')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/chat/discord') ? 'bg-gray-700' : ''}`}>
-                        <p className="pl-2 rounded-md font-bold"><i className="pi pi-hashtag text-sm"></i> discord</p>
+                    <div onClick={() => router.push('/feed/discord')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/feed/discord') ? 'bg-gray-700' : ''}`}>
+                        <p className="pl-3 rounded-md font-bold"><i className="pi pi-hashtag text-sm"></i> discord</p>
                     </div>
-                    <div onClick={() => router.push('/chat/stackernews')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/chat/stackernews') ? 'bg-gray-700' : ''}`}>
-                        <p className="pl-2 rounded-md font-bold"><i className="pi pi-hashtag text-sm"></i> stackernews</p>
+                    <div onClick={() => router.push('/feed/stackernews')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/feed/stackernews') ? 'bg-gray-700' : ''}`}>
+                        <p className="pl-3 rounded-md font-bold"><i className="pi pi-hashtag text-sm"></i> stackernews</p>
                     </div>
                 </AccordionTab>
             </Accordion>

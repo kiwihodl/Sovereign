@@ -4,77 +4,29 @@ import { Avatar } from 'primereact/avatar';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { useQuery } from '@tanstack/react-query';
-import { TabMenu } from 'primereact/tabmenu';
 import { InputText } from 'primereact/inputtext';
+import { useDiscordQuery } from '@/hooks/communityQueries/useDiscordQuery';
+import { useRouter } from 'next/router';
+import CommunityMenuTab from '@/components/menutab/CommunityMenuTab';
 
-const MenuTab = ({ items, selectedTopic, onTabChange }) => {
-    const allItems = ['global', 'nostr', 'discord', 'stackernews'];
-
-    const menuItems = allItems.map((item, index) => {
-        let icon = 'pi pi-tag';
-
-        return {
-            label: (
-                <Button
-                    className={`${selectedTopic === item ? 'bg-primary text-white' : ''}`}
-                    onClick={() => onTabChange(item)}
-                    outlined={selectedTopic !== item}
-                    rounded
-                    size='small'
-                    label={item}
-                    icon={icon}
-                />
-            ),
-            command: () => onTabChange(item)
-        };
-    });
-
-    return (
-        <div className="w-full">
-            <TabMenu
-                model={menuItems}
-                activeIndex={allItems.indexOf(selectedTopic)}
-                onTabChange={(e) => onTabChange(allItems[e.index])}
-                pt={{
-                    menu: { className: 'bg-transparent border-none ml-2 my-4' },
-                    action: ({ context, parent }) => ({
-                        className: 'cursor-pointer select-none flex items-center relative no-underline overflow-hidden border-b-2 p-2 font-bold rounded-t-lg',
-                        style: { top: '2px' }
-                    }),
-                    menuitem: { className: 'mr-0' }
-                }}
-            />
-        </div>
-    );
-}
-
-const fetchDiscordMessages = async () => {
-    const response = await fetch('/api/discord-messages');
-    if (!response.ok) {
-        throw new Error('Failed to fetch messages');
-    }
-    return response.json();
-};
-
-const Feed = () => {
+const StackernewsFeed = () => {
     const [selectedTopic, setSelectedTopic] = useState('global');
     const [searchQuery, setSearchQuery] = useState('');
     const allTopics = ['global', 'nostr', 'discord', 'stackernews'];
+
+    const router = useRouter();
+    const { data, error, isLoading } = useDiscordQuery({page: router.query.page});
 
     const handleTopicChange = (topic) => {
         setSelectedTopic(topic);
     };
 
-    const { data, error, isLoading } = useQuery({
-        queryKey: ['discordMessages'],
-        queryFn: fetchDiscordMessages,
-        staleTime: 60000, // 1 minute
-        refetchInterval: 60000, // Refetch every minute
-    });
-
     if (isLoading) {
-        return <ProgressSpinner className="w-full mx-auto" />
+        return (
+            <div className="h-[100vh] min-bottom-bar:w-[87vw] max-sidebar:w-[100vw]">
+                <ProgressSpinner className='w-full mt-24 mx-auto' />
+            </div>
+        );
     }
 
     if (error) {
@@ -125,7 +77,7 @@ const Feed = () => {
                 />
             </div>
             <div className="min-bottom-bar:hidden">
-                <MenuTab
+                <CommunityMenuTab
                     items={allTopics}
                     selectedTopic={selectedTopic}
                     onTabChange={handleTopicChange}
@@ -152,4 +104,4 @@ const Feed = () => {
     );
 };
 
-export default Feed;
+export default StackernewsFeed;

@@ -94,7 +94,7 @@ const Navbar = () => {
                 <Menubar
                     start={start}
                     end={UserAvatar}
-                    className='px-[2%] py-8 bg-gray-800 border-t-0 border-l-0 border-r-0 rounded-none fixed z-10 w-[100vw] max-tab:px-[5%] max-mob:px-[5%]'
+                    className='px-6 py-8 bg-gray-800 border-t-0 border-l-0 border-r-0 rounded-none fixed z-10 w-[100vw] max-tab:px-[5%] max-mob:px-[5%]'
                     style={{ height: navbarHeight }}
                 />
             </div>
