@@ -8,7 +8,7 @@ import { useCommunityNotes } from '@/hooks/nostr/useCommunityNotes';
 import { useRouter } from 'next/router';
 import { useNDKContext } from '@/context/NDKContext';
 import { findKind0Fields } from '@/utils/nostr';
-import NostrIcon from '../../../public/nostr.png';
+import NostrIcon from '../../../public/images/nostr.png';
 import Image from 'next/image';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { nip19 } from 'nostr-tools';

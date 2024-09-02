@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Button } from 'primereact/button';
 import { TabMenu } from 'primereact/tabmenu';
 import Image from 'next/image';
-import StackerNewsIcon from '../../../public/sn.svg';
-import NostrIcon from '../../../public/nostr.png';
+import StackerNewsIcon from '../../../public/images/sn.svg';
+import NostrIcon from '../../../public/images/nostr.png';
 
 const CommunityMenuTab = ({ selectedTopic, onTabChange }) => {
     const allItems = ['global', 'nostr', 'discord', 'stackernews'];

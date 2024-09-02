@@ -11,7 +11,7 @@ import { useRouter } from 'next/router';
 import { useCommunityNotes } from '@/hooks/nostr/useCommunityNotes';
 import { useNDKContext } from '@/context/NDKContext';
 import { findKind0Fields } from '@/utils/nostr';
-import NostrIcon from '../../../public/nostr.png';
+import NostrIcon from '../../../public/images/nostr.png';
 import Image from 'next/image';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { nip19 } from 'nostr-tools';
@@ -54,7 +54,28 @@ const GlobalFeed = () => {
     }, [nostrData]);
 
     const fetchAuthor = async (pubkey) => {
-        // ... (keep the existing fetchAuthor function)
+        try {
+            await ndk.connect();
+
+            const filter = {
+                kinds: [0],
+                authors: [pubkey]
+            }
+
+            const author = await ndk.fetchEvent(filter);
+            if (author) {
+                try {
+                    const fields = await findKind0Fields(JSON.parse(author.content));
+                    return fields;
+                } catch (error) {
+                    console.error('Error fetching author:', error);
+                }
+            } else {
+                return null;
+            }
+        } catch (error) {
+            console.error('Error fetching author:', error);
+        }
     }
 
     if (discordLoading || stackerNewsLoading || nostrLoading) {
@@ -68,6 +89,17 @@ const GlobalFeed = () => {
     if (discordError || stackerNewsError || nostrError) {
         return <div className="text-red-500 text-center p-4">Failed to load feed. Please try again later.</div>;
     }
+
+    const getAvatarImage = (item) => {
+        if (item.type === 'discord') {
+            return item.avatar ? returnImageProxy(item.avatar) : null;
+        } else if (item.type === 'nostr') {
+            return authorData[item.pubkey]?.avatar ? returnImageProxy(authorData[item.pubkey]?.avatar) : null;
+        } else if (item.type === 'stackernews') {
+            return item.user.image ? returnImageProxy(item.user.image) : null;
+        }
+        return null;
+    };
 
     const combinedFeed = [
         ...(discordData || []).map(item => ({ ...item, type: 'discord' })),
@@ -83,8 +115,7 @@ const GlobalFeed = () => {
         <div className="flex flex-row w-full items-center justify-between p-4 bg-gray-800 rounded-t-lg">
             <div className="flex flex-row items-center">
                 <Avatar 
-                    image={item.type === 'discord' ? item.avatar : 
-                           item.type === 'nostr' ? authorData[item.pubkey]?.avatar : null} 
+                    image={getAvatarImage(item)}
                     icon={item.type === 'stackernews' ? "pi pi-user" : null} 
                     shape="circle" 
                     size="large" 

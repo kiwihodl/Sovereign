@@ -9,9 +9,9 @@ import GlobalFeed from '@/components/feeds/GlobalFeed';
 import { useRouter } from 'next/router';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
-import StackerNewsIcon from '../../public/sn.svg';
-import NostrIcon from '../../public/nostr.png';
-
+import StackerNewsIcon from '../../public/images/sn.svg';
+import NostrIcon from '../../public/images/nostr.png';
+import { Button } from 'primereact/button';
 const Feed = () => {
     const [selectedTopic, setSelectedTopic] = useState('global');
     const [searchQuery, setSearchQuery] = useState('');
@@ -50,20 +50,21 @@ const Feed = () => {
     };
 
     return (
-        <div className="bg-gray-900 h-full w-[100vw] min-bottom-bar:w-[87vw]">
+        <div className="bg-gray-900 h-[100vh] w-[100vw] min-bottom-bar:w-[87vw]">
             <div className="w-fit mx-4 pt-4 flex flex-col items-start">
-                <div className='mb-4 flex flex-row items-center'>
-                    <h1 className="text-3xl font-bold ml-1">Community</h1>
-                    <Tag 
+                <div className='mb-4 flex flex-row items-end'>
+                    <h2 className="font-bold ml-1 mb-0">Community</h2>
+                    <Button 
                         icon={getTagIcon(title)}
-                        className='ml-2 text-sm p-2 text-[#f8f8ff] flex items-center'
+                        className='ml-2 text-sm p-2 py-1 flex items-center cursor-default hover:bg-transparent'
+                        outlined
                         severity={{
                             'global': 'success',
                             'discord': 'primary',
                             'stackernews': 'warning',
-                            'nostr': 'info'
+                            'nostr': 'help'
                         }[title] || 'info'}
-                        value={`${title}`} 
+                        label={`${title}`} 
                     />
                 </div>
                 <InputText
