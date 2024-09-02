@@ -4,22 +4,12 @@ import { Avatar } from 'primereact/avatar';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { InputText } from 'primereact/inputtext';
 import { useDiscordQuery } from '@/hooks/communityQueries/useDiscordQuery';
 import { useRouter } from 'next/router';
-import CommunityMenuTab from '@/components/menutab/CommunityMenuTab';
 
 const DiscordFeed = () => {
-    const [selectedTopic, setSelectedTopic] = useState('global');
-    const [searchQuery, setSearchQuery] = useState('');
-    const allTopics = ['global', 'nostr', 'discord', 'stackernews'];
-
     const router = useRouter();
     const { data, error, isLoading } = useDiscordQuery({page: router.query.page});
-
-    const handleTopicChange = (topic) => {
-        setSelectedTopic(topic);
-    };
 
     if (isLoading) {
         return (
@@ -40,9 +30,9 @@ const DiscordFeed = () => {
                 <p className="pl-4 font-bold text-xl text-white">{message.author}</p>
             </div>
             <div className="flex flex-col items-start justify-between">
-                <div className="flex flex-row w-full justify-between items-center my-1">
-                    <Tag value={message.channel} severity="primary" className="w-fit text-[#f8f8ff] bg-gray-600 mr-2" />
-                    <Tag icon="pi pi-discord" value="discord" className="w-fit text-[#f8f8ff] bg-blue-400" />
+                <div className="flex flex-row w-full justify-between items-center my-1 max-sidebar:flex-col max-sidebar:items-start">
+                    <Tag value={message.channel} severity="primary" className="w-fit text-[#f8f8ff] bg-gray-600 mr-2 max-sidebar:mr-0" />
+                    <Tag icon="pi pi-discord" value="discord" className="w-fit text-[#f8f8ff] bg-blue-400 max-sidebar:mt-1" />
                 </div>
             </div>
         </div>
@@ -66,24 +56,6 @@ const DiscordFeed = () => {
 
     return (
         <div className="bg-gray-900 h-full w-full min-bottom-bar:w-[87vw]">
-            <div className="w-fit mx-4 pt-4 flex flex-col items-start">
-                <h1 className="text-3xl font-bold mb-4 ml-1">Community</h1>
-                <InputText
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search"
-                    icon="pi pi-search"
-                    className="w-full mb-2"
-                />
-            </div>
-            <div className="min-bottom-bar:hidden">
-                <CommunityMenuTab
-                    items={allTopics}
-                    selectedTopic={selectedTopic}
-                    onTabChange={handleTopicChange}
-                    className="max-w-[90%] mx-auto"
-                />
-            </div>
             <div className="mx-4 mt-4">
             {data && data.length > 0 ? (
                 data.map(message => (

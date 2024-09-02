@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { Button } from 'primereact/button';
 import { TabMenu } from 'primereact/tabmenu';
 import Image from 'next/image';
@@ -6,6 +7,10 @@ import NostrIcon from '../../../public/nostr.png';
 
 const CommunityMenuTab = ({ selectedTopic, onTabChange }) => {
     const allItems = ['global', 'nostr', 'discord', 'stackernews'];
+
+    useEffect(() => {
+        console.log(selectedTopic);
+    }, [selectedTopic]);
 
     const menuItems = allItems.map((item, index) => {
         let icon;
