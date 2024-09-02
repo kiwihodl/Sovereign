@@ -12,69 +12,11 @@ import 'primeicons/primeicons.css';
 
 const Navbar = () => {
     const router = useRouter();
-    const [visible, setVisible] = useState(false);
-    const menu = useRef(null);
 
     const navbarHeight = '60px';
 
-    const menuItems = [
-        {
-            label: 'Home',
-            icon: 'pi pi-home',
-            command: () => {
-                // Add your edit functionality here
-            }
-        },
-        {
-            label: 'Content',
-            icon: 'pi pi-video',
-            command: () => {
-                // Add your delete functionality here
-            }
-        },
-        {
-            label: 'Chat',
-            icon: 'pi pi-comment',
-            items: [
-                {
-                    label: 'General',
-                    icon: 'pi pi-hashtag',
-                    command: () => {
-                        // Add your edit functionality here
-                    }
-                },
-                {
-                    label: 'Nostr',
-                    icon: 'pi pi-hashtag',
-                    command: () => {
-                        // Add your delete functionality here
-                    }
-                },
-                {
-                    label: 'Discord',
-                    icon: 'pi pi-hashtag',
-                    command: () => {
-                        // Add your delete functionality here
-                    }
-                },
-                {
-                    label: 'Stackernews',
-                    icon: 'pi pi-hashtag',
-                    command: () => {
-                        // Add your delete functionality here
-                    }
-                }
-            ]
-        }
-    ];
-
     const start = (
         <div className='flex items-center'>
-            {/* <div className='hidden max-tab:block max-mob:block max-tab:px-6 max-mob:px-6'>
-                <i className="pi pi-bars text-xl pt-1"
-                    onClick={(e) => menu.current.toggle(e)}></i>
-                <Menu model={menuItems} popup ref={menu} />
-            </div> */}
             <div onClick={() => router.push('/')} className="flex flex-row items-center justify-center cursor-pointer">
                 <Image
                     alt="logo"

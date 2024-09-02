@@ -1,0 +1,16 @@
+:root {
+    --green-500: #16a34a; /* Slightly darker green */
+    --green-600: #15803d; /* Corresponding darker shade */
+    --green-700: #166534; /* Corresponding even darker shade */
+  }
+  
+/* tags */
+.p-tag.p-tag-success {
+    background: var(--green-500);
+    color: #fff;
+  }
+  
+  .p-tag.p-tag-success:not(a) {
+    background: var(--green-500);
+    color: #fff;
+  }

@@ -13,7 +13,7 @@ const Sidebar = () => {
     };
 
     return (
-        <div className='max-sidebar:hidden w-[13vw] bg-gray-800 p-2 fixed z-10 h-[100%]'>
+        <div className='max-sidebar:hidden w-[13vw] bg-gray-800 p-2 fixed h-[100%]'>
             <div onClick={() => router.push('/')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/') ? 'bg-gray-700' : ''}`}>
                 <i className="pi pi-home pl-5" /> <p className="pl-2 rounded-md font-bold">Home</p>
             </div>

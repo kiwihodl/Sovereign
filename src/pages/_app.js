@@ -6,6 +6,7 @@ import { SessionProvider } from "next-auth/react"
 import Layout from '@/components/Layout';
 import '@/styles/globals.css'
 import 'primereact/resources/themes/lara-dark-blue/theme.css'
+import '@/styles/custom-theme.css'; // custom theme
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import "@uiw/react-md-editor/markdown-editor.css";

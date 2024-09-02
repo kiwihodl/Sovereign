@@ -17,7 +17,7 @@ const BottomBar = () => {
             <div onClick={() => router.push('/content')} className={`cursor-pointer p-2 rounded-lg ${isActive('/content') ? 'bg-gray-700' : ''}`}>
                 <i className="pi pi-video text-2xl" />
             </div>
-            <div onClick={() => router.push('/feed')} className={`cursor-pointer p-2 rounded-lg ${isActive('/feed') ? 'bg-gray-700' : ''}`}>
+            <div onClick={() => router.push('/feed?channel=global')} className={`cursor-pointer p-2 rounded-lg ${isActive('/feed?channel=global') ? 'bg-gray-700' : ''}`}>
                 <i className="pi pi-comments text-2xl" />
             </div>
         </div>
