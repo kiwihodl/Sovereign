@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { InputText } from 'primereact/inputtext';
 import CommunityMenuTab from '@/components/menutab/CommunityMenuTab';
-import NostrFeed from './nostr';
-import DiscordFeed from './discord';
-import StackerNewsFeed from './stackernews';
-import GlobalFeed from './global';
+import NostrFeed from '@/components/feeds/NostrFeed';
+import DiscordFeed from '@/components/feeds/DiscordFeed';
+import StackerNewsFeed from '@/components/feeds/StackerNewsFeed';
+import GlobalFeed from '@/components/feeds/GlobalFeed';
 import { useRouter } from 'next/router';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
-import StackerNewsIcon from '../../../public/sn.svg';
-import NostrIcon from '../../../public/nostr.png';
+import StackerNewsIcon from '../../public/sn.svg';
+import NostrIcon from '../../public/nostr.png';
 
 const Feed = () => {
     const [selectedTopic, setSelectedTopic] = useState('global');

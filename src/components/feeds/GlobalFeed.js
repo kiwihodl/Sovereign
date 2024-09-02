@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from 'primereact/card';
 import { Avatar } from 'primereact/avatar';
 import { Tag } from 'primereact/tag';
@@ -8,6 +8,13 @@ import { useDiscordQuery } from '@/hooks/communityQueries/useDiscordQuery';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import { useCommunityNotes } from '@/hooks/nostr/useCommunityNotes';
+import { useNDKContext } from '@/context/NDKContext';
+import { findKind0Fields } from '@/utils/nostr';
+import NostrIcon from '../../../public/nostr.png';
+import Image from 'next/image';
+import { useImageProxy } from '@/hooks/useImageProxy';
+import { nip19 } from 'nostr-tools';
 
 const StackerNewsIconComponent = () => (
     <svg width="16" height="16" className='mr-2' viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -25,8 +32,32 @@ const GlobalFeed = () => {
     const router = useRouter();
     const { data: discordData, error: discordError, isLoading: discordLoading } = useDiscordQuery({page: router.query.page});
     const { data: stackerNewsData, error: stackerNewsError, isLoading: stackerNewsLoading } = useQuery({queryKey: ['stackerNews'], queryFn: fetchStackerNews});
+    const { communityNotes: nostrData, error: nostrError, isLoading: nostrLoading } = useCommunityNotes();
+    const { ndk } = useNDKContext();
+    const { returnImageProxy } = useImageProxy();
 
-    if (discordLoading || stackerNewsLoading) {
+    const [authorData, setAuthorData] = useState({});
+
+    useEffect(() => {
+        const fetchAuthors = async () => {
+            const authorDataMap = {};
+            for (const message of nostrData) {
+                const author = await fetchAuthor(message.pubkey);
+                authorDataMap[message.pubkey] = author;
+            }
+            setAuthorData(authorDataMap);
+        };
+
+        if (nostrData && nostrData.length > 0) {
+            fetchAuthors();
+        }
+    }, [nostrData]);
+
+    const fetchAuthor = async (pubkey) => {
+        // ... (keep the existing fetchAuthor function)
+    }
+
+    if (discordLoading || stackerNewsLoading || nostrLoading) {
         return (
             <div className="h-[100vh] min-bottom-bar:w-[87vw] max-sidebar:w-[100vw]">
                 <ProgressSpinner className='w-full mt-24 mx-auto' />
@@ -34,32 +65,55 @@ const GlobalFeed = () => {
         );
     }
 
-    if (discordError || stackerNewsError) {
+    if (discordError || stackerNewsError || nostrError) {
         return <div className="text-red-500 text-center p-4">Failed to load feed. Please try again later.</div>;
     }
 
     const combinedFeed = [
         ...(discordData || []).map(item => ({ ...item, type: 'discord' })),
-        ...(stackerNewsData || []).map(item => ({ ...item, type: 'stackernews' }))
-    ].sort((a, b) => new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || a.createdAt));
+        ...(stackerNewsData || []).map(item => ({ ...item, type: 'stackernews' })),
+        ...(nostrData || []).map(item => ({ ...item, type: 'nostr' }))
+    ].sort((a, b) => {
+        const dateA = a.type === 'nostr' ? a.created_at * 1000 : new Date(a.timestamp || a.createdAt);
+        const dateB = b.type === 'nostr' ? b.created_at * 1000 : new Date(b.timestamp || b.createdAt);
+        return dateB - dateA;
+    });
 
     const header = (item) => (
         <div className="flex flex-row w-full items-center justify-between p-4 bg-gray-800 rounded-t-lg">
             <div className="flex flex-row items-center">
-                <Avatar image={item.type === 'discord' ? item.avatar : null} icon={item.type === 'stackernews' ? "pi pi-user" : null} shape="circle" size="large" className="border-2 border-blue-400" />
-                <p className="pl-4 font-bold text-xl text-white">{item.type === 'discord' ? item.author : item.user.name}</p>
+                <Avatar 
+                    image={item.type === 'discord' ? item.avatar : 
+                           item.type === 'nostr' ? authorData[item.pubkey]?.avatar : null} 
+                    icon={item.type === 'stackernews' ? "pi pi-user" : null} 
+                    shape="circle" 
+                    size="large" 
+                    className="border-2 border-blue-400" 
+                />
+                <p className="pl-4 font-bold text-xl text-white">
+                    {item.type === 'discord' ? item.author : 
+                     item.type === 'stackernews' ? item.user.name :
+                     authorData[item.pubkey]?.username || item.pubkey.substring(0, 12) + '...'}
+                </p>
             </div>
             <div className="flex flex-col items-start justify-between">
                 <div className="flex flex-row w-full justify-between items-center my-1 max-sidebar:flex-col max-sidebar:items-start">
-                    {item.type === 'discord' ? (
+                    {item.type === 'discord' && (
                         <>
                             <Tag value={item.channel} severity="primary" className="w-fit text-[#f8f8ff] bg-gray-600 mr-2 max-sidebar:mr-0" />
                             <Tag icon="pi pi-discord" value="discord" className="w-fit text-[#f8f8ff] bg-blue-400 max-sidebar:mt-1" />
                         </>
-                    ) : (
+                    )}
+                    {item.type === 'stackernews' && (
                         <>
                             <Tag value="~devs" severity="contrast" className="w-fit text-[#f8f8ff] mr-2 max-sidebar:mr-0" />
                             <Tag icon={<StackerNewsIconComponent />} value="stackernews" className="w-fit bg-gray-600 text-[#f8f8ff] max-sidebar:mt-1" />
+                        </>
+                    )}
+                    {item.type === 'nostr' && (
+                        <>
+                            <Tag icon="pi pi-hashtag" value="plebdevs" severity="primary" className="w-fit text-[#f8f8ff] bg-gray-600 mr-2 max-sidebar:mr-0" />
+                            <Tag icon={<Image src={NostrIcon} alt="Nostr" width={14} height={14} className='mr-[1px]' />} value="nostr" className="w-fit text-[#f8f8ff] bg-blue-400 max-sidebar:mt-1" />
                         </>
                     )}
                 </div>
@@ -70,18 +124,27 @@ const GlobalFeed = () => {
     const footer = (item) => (
         <div className="w-full flex justify-between items-center">
             <span className="bg-gray-800 rounded-lg p-2 text-sm text-gray-300">
-                {new Date(item.timestamp || item.createdAt).toLocaleString()}
+                {item.type === 'nostr' 
+                    ? new Date(item.created_at * 1000).toLocaleString()
+                    : new Date(item.timestamp || item.createdAt).toLocaleString()}
             </span>
             <Button
-                label={item.type === 'discord' ? "View in Discord" : "View on StackerNews"}
+                label={item.type === 'discord' ? "View in Discord" : 
+                       item.type === 'stackernews' ? "View on StackerNews" : 
+                       "View on Nostr"}
                 icon="pi pi-external-link"
                 outlined
-                severity={item.type === 'discord' ? "info" : "warning"}
+                severity={item.type === 'discord' ? "info" : 
+                          item.type === 'stackernews' ? "warning" : 
+                          "success"}
                 size="small"
                 className='my-2'
-                onClick={() => window.open(item.type === 'discord' ? 
-                    `https://discord.com/channels/${item.channelId}/${item.id}` : 
-                    `https://stacker.news/items/${item.id}`, '_blank')}
+                onClick={() => window.open(
+                    item.type === 'discord' ? `https://discord.com/channels/${item.channelId}/${item.id}` : 
+                    item.type === 'stackernews' ? `https://stacker.news/items/${item.id}` :
+                    `https://nostr.band/${nip19.noteEncode(item.id)}`, 
+                    '_blank'
+                )}
             />
         </div>
     );
@@ -97,8 +160,8 @@ const GlobalFeed = () => {
                     footer={() => footer(item)}
                     className="w-full bg-gray-700 shadow-lg hover:shadow-xl transition-shadow duration-300 mb-4"
                     >
-                        {item.type === 'discord' ? (
-                            <p className="m-0 text-lg text-gray-200">{item.content}</p>
+                        {item.type === 'discord' || item.type === 'nostr' ? (
+                            <p className="m-0 text-lg text-gray-200 overflow-hidden break-words">{item.content}</p>
                         ) : (
                             <>
                                 <h3 className="m-0 text-lg text-gray-200">{item.title}</h3>
