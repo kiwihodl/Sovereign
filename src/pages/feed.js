@@ -7,16 +7,17 @@ import DiscordFeed from '@/components/feeds/DiscordFeed';
 import StackerNewsFeed from '@/components/feeds/StackerNewsFeed';
 import GlobalFeed from '@/components/feeds/GlobalFeed';
 import { useRouter } from 'next/router';
-import { Message } from 'primereact/message';
-import { Tag } from 'primereact/tag';
+import MessageInput from '@/components/feeds/MessageInput';
 import StackerNewsIcon from '../../public/images/sn.svg';
 import NostrIcon from '../../public/images/nostr.png';
 import { Button } from 'primereact/button';
+
 const Feed = () => {
     const [selectedTopic, setSelectedTopic] = useState('global');
     const [searchQuery, setSearchQuery] = useState('');
     const [title, setTitle] = useState('Community');
     const allTopics = ['global', 'nostr', 'discord', 'stackernews'];
+    const [isMessageInputCollapsed, setIsMessageInputCollapsed] = useState(true);
 
     const router = useRouter();
 
@@ -49,12 +50,16 @@ const Feed = () => {
         }
     };
 
+    const toggleMessageInput = (e) => {
+        setIsMessageInputCollapsed(e.value);
+    };
+
     return (
         <div className="bg-gray-900 h-[100vh] w-[100vw] min-bottom-bar:w-[87vw]">
-            <div className="w-fit mx-4 pt-4 flex flex-col items-start">
+            <div className="w-[100vw] min-bottom-bar:w-[87vw] px-4 pt-4 flex flex-col items-start">
                 <div className='mb-4 flex flex-row items-end'>
-                    <h2 className="font-bold ml-1 mb-0">Community</h2>
-                    <Button 
+                    <h2 className="font-bold mb-0">Community</h2>
+                    <Button
                         icon={getTagIcon(title)}
                         className='ml-2 text-sm p-2 py-1 flex items-center cursor-default hover:bg-transparent'
                         outlined
@@ -64,16 +69,23 @@ const Feed = () => {
                             'stackernews': 'warning',
                             'nostr': 'help'
                         }[title] || 'info'}
-                        label={`${title}`} 
+                        label={`${title}`}
                     />
                 </div>
-                <InputText
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search"
-                    icon="pi pi-search"
-                    className="w-full mb-2"
-                />
+                <div className='w-full flex flex-row items-center justify-between mb-2'>
+                    <InputText
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search"
+                        icon="pi pi-search"
+                        className="w-fit"
+                    />
+                    <Button
+                        icon={isMessageInputCollapsed ? "pi pi-plus" : "pi pi-minus"}
+                        onClick={() => setIsMessageInputCollapsed(!isMessageInputCollapsed)}
+                    />
+                </div>
+                <MessageInput collapsed={isMessageInputCollapsed} onToggle={toggleMessageInput} />
             </div>
             <div className="min-bottom-bar:hidden">
                 <CommunityMenuTab
