@@ -2,9 +2,36 @@ import React, { useState } from 'react';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import { Panel } from 'primereact/panel';
+import { useNDKContext } from "@/context/NDKContext";
+import { NDKEvent } from "@nostr-dev-kit/ndk";
+import { useToast } from '@/hooks/useToast';
 
-const MessageInput = ({ collapsed, onToggle }) => {
+const MessageInput = ({ collapsed, onToggle, onMessageSent }) => {
     const [message, setMessage] = useState('');
+    const { ndk, addSigner } = useNDKContext();
+    const { showToast } = useToast();
+    const handleSubmit = async () => {
+        if (!message.trim() || !ndk) return;
+
+        try {
+            if (!ndk.signer) {
+                await addSigner();
+            }
+
+            const event = new NDKEvent(ndk);
+            event.kind = 1;
+            event.content = message;
+            event.tags = [['t', 'plebdevs']];
+
+            await event.publish();
+            showToast('success', 'Message Sent', 'Your message has been sent to the PlebDevs community.');
+            setMessage(''); // Clear the input after successful publish
+            onMessageSent(); // Call this function to close the accordion
+        } catch (error) {
+            console.error("Error publishing message:", error);
+            showToast('error', 'Error', 'There was an error sending your message. Please try again.');
+        }
+    };
 
     return (
         <Panel header={null} toggleable collapsed={collapsed} onToggle={onToggle} className="w-full" pt={{
@@ -36,6 +63,7 @@ const MessageInput = ({ collapsed, onToggle }) => {
                         icon="pi pi-send"
                         outlined
                         className='mt-2'
+                        onClick={handleSubmit}
                     />
                 </div>
             </div>

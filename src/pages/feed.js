@@ -11,6 +11,7 @@ import MessageInput from '@/components/feeds/MessageInput';
 import StackerNewsIcon from '../../public/images/sn.svg';
 import NostrIcon from '../../public/images/nostr.png';
 import { Button } from 'primereact/button';
+import { Divider } from 'primereact/divider';
 
 const Feed = () => {
     const [selectedTopic, setSelectedTopic] = useState('global');
@@ -54,6 +55,10 @@ const Feed = () => {
         setIsMessageInputCollapsed(e.value);
     };
 
+    const handleMessageSent = () => {
+        setIsMessageInputCollapsed(true);
+    };
+
     return (
         <div className="bg-gray-900 h-[100vh] w-[100vw] min-bottom-bar:w-[87vw]">
             <div className="w-[100vw] min-bottom-bar:w-[87vw] px-4 pt-4 flex flex-col items-start">
@@ -86,7 +91,12 @@ const Feed = () => {
                         onClick={() => setIsMessageInputCollapsed(!isMessageInputCollapsed)}
                     />
                 </div>
-                <MessageInput collapsed={isMessageInputCollapsed} onToggle={toggleMessageInput} />
+                <Divider />
+                <MessageInput 
+                    collapsed={isMessageInputCollapsed} 
+                    onToggle={toggleMessageInput} 
+                    onMessageSent={handleMessageSent}
+                />
             </div>
             <div className="min-bottom-bar:hidden">
                 <CommunityMenuTab

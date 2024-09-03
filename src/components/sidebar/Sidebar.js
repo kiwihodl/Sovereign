@@ -2,6 +2,7 @@ import React from 'react';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { useRouter } from 'next/router';
 import 'primeicons/primeicons.css';
+import styles from "./sidebar.module.css";
 
 const Sidebar = () => {
     const router = useRouter();
@@ -23,12 +24,14 @@ const Sidebar = () => {
             <div onClick={() => router.push('/create')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/create') ? 'bg-gray-700' : ''}`}>
                 <i className="pi pi-plus pl-5" /> <p className="pl-2 rounded-md font-bold">Create</p>
             </div>
-            <Accordion activeIndex={0}>
-                <AccordionTab pt={{
-                    headerAction: ({ context }) => ({
-                        className: `hover:bg-gray-700 rounded-lg ${isActive('/feed') ? 'bg-gray-700' : ''}`
-                    })
-                }}
+            <Accordion activeIndex={0} className={styles['p-accordion']}>
+                <AccordionTab 
+                    pt={{
+                        headerAction: ({ context }) => ({
+                            className: `hover:bg-gray-700 rounded-lg ${isActive('/feed') ? 'bg-gray-700' : ''} ${styles['p-accordion-header-link']}`
+                        }),
+                        content: styles['p-accordion-content']
+                    }}
                     header={"Community"}>
                     <div onClick={() => router.push('/feed?channel=global')} className={`w-full cursor-pointer py-2 hover:bg-gray-700 rounded-lg ${isActive('/feed?channel=global') ? 'bg-gray-700' : ''}`}>
                         <p className="pl-3 rounded-md font-bold"><i className="pi pi-hashtag text-sm"></i> global</p>

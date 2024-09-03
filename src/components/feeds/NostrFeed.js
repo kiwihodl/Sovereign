@@ -4,62 +4,51 @@ import { Avatar } from 'primereact/avatar';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { useCommunityNotes } from '@/hooks/nostr/useCommunityNotes';
-import { useRouter } from 'next/router';
 import { useNDKContext } from '@/context/NDKContext';
 import { findKind0Fields } from '@/utils/nostr';
 import NostrIcon from '../../../public/images/nostr.png';
 import Image from 'next/image';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { nip19 } from 'nostr-tools';
+import { useCommunityNotes } from '@/hooks/nostr/useCommunityNotes';
 
 const NostrFeed = () => {
-    const router = useRouter();
-    const { communityNotes, error, isLoading } = useCommunityNotes();
-    const { ndk, addSigner } = useNDKContext();
+    const { communityNotes, isLoading, error } = useCommunityNotes();
+    const { ndk } = useNDKContext();
     const { returnImageProxy } = useImageProxy();
-
     const [authorData, setAuthorData] = useState({});
 
     useEffect(() => {
-        const fetchAuthors = async () => {
-            const authorDataMap = {};
-            for (const message of communityNotes) {
-                const author = await fetchAuthor(message.pubkey);
-                authorDataMap[message.pubkey] = author;
+        communityNotes.forEach(note => {
+            if (!authorData[note.pubkey]) {
+                fetchAuthor(note.pubkey);
             }
-            setAuthorData(authorDataMap);
-        };
-
-        if (communityNotes && communityNotes.length > 0) {
-            fetchAuthors();
-        }
-    }, [communityNotes]);
+        });
+    }, [communityNotes, authorData]);
 
     const fetchAuthor = async (pubkey) => {
         try {
-            await ndk.connect();
-
             const filter = {
                 kinds: [0],
                 authors: [pubkey]
-            }
+            };
 
             const author = await ndk.fetchEvent(filter);
             if (author) {
                 try {
                     const fields = await findKind0Fields(JSON.parse(author.content));
-                    return fields;
+                    setAuthorData(prevData => ({
+                        ...prevData,
+                        [pubkey]: fields
+                    }));
                 } catch (error) {
                     console.error('Error fetching author:', error);
                 }
-            } else {
-                return null;
             }
         } catch (error) {
             console.error('Error fetching author:', error);
         }
-    }
+    };
 
     const renderHeader = (message) => {
         const author = authorData[message.pubkey];
@@ -115,7 +104,7 @@ const NostrFeed = () => {
     return (
         <div className="bg-gray-900 h-full w-full min-bottom-bar:w-[87vw]">
             <div className="mx-4 mt-4">
-                {communityNotes && communityNotes.length > 0 ? (
+                {communityNotes.length > 0 ? (
                     communityNotes.map(message => (
                         <Card
                             key={message.id}

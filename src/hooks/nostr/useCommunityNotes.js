@@ -1,52 +1,87 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNDKContext } from '@/context/NDKContext';
+import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
 
 export function useCommunityNotes() {
-    const [isClient, setIsClient] = useState(false);
-    const [communityNotes, setCommunityNotes] = useState();
-    // Add new state variables for loading and error
-    const [isLoading, setIsLoading] = useState(false);
+    const [communityNotes, setCommunityNotes] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const {ndk, addSigner} = useNDKContext();
+    const { ndk } = useNDKContext();
 
-    useEffect(() => {
-        setIsClient(true);
+    const addNote = useCallback((noteEvent) => {
+        setCommunityNotes((prevNotes) => {
+            if (prevNotes.some(note => note.id === noteEvent.id)) return prevNotes;
+            const newNotes = [noteEvent, ...prevNotes];
+            newNotes.sort((a, b) => b.created_at - a.created_at);
+            return newNotes;
+        });
     }, []);
 
-    const fetchCommunityNotesFromNDK = async () => {
+    useEffect(() => {
+        let subscription;
+        const noteIds = new Set();
+        let timeoutId;
+
+        async function subscribeToNotes() {
+            if (!ndk) return;
+
+            try {
+                await ndk.connect();
+
+                const filter = {
+                    kinds: [1],
+                    '#t': ['plebdevs']
+                };
+
+                subscription = ndk.subscribe(filter, {
+                    closeOnEose: false,
+                    cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST
+                });
+
+                subscription.on('event', (noteEvent) => {
+                    if (!noteIds.has(noteEvent.id)) {
+                        noteIds.add(noteEvent.id);
+                        addNote(noteEvent);
+                        setIsLoading(false);
+                        clearTimeout(timeoutId);
+                    }
+                });
+
+                subscription.on('close', () => {
+                    setIsLoading(false);
+                });
+
+                subscription.on('eose', () => {
+                    console.log("eose in useCommunityNotes");
+                    setIsLoading(false);
+                });
+
+                await subscription.start();
+
+                // Set a 4-second timeout to stop loading state if no notes are received
+                timeoutId = setTimeout(() => {
+                    setIsLoading(false);
+                }, 4000);
+
+            } catch (err) {
+                console.error('Error subscribing to notes:', err);
+                setError(err.message);
+                setIsLoading(false);
+            }
+        }
+
+        setCommunityNotes([]);
         setIsLoading(true);
         setError(null);
-        try {
-            await ndk.connect();
+        subscribeToNotes();
 
-            const filter = { kinds: [1], "#t": ["plebdevs"] };
-            const events = await ndk.fetchEvents(filter);
-
-            if (events && events.size > 0) {
-                const eventsArray = Array.from(events);
-                setCommunityNotes(eventsArray);
-                setIsLoading(false);
-                return eventsArray;
+        return () => {
+            if (subscription) {
+                subscription.stop();
             }
-            setIsLoading(false);
-            return [];
-        } catch (error) {
-            console.error('Error fetching community notes from NDK:', error);
-            setError(error);
-            setIsLoading(false);
-            return [];
-        }
-    };
-
-    useEffect(() => {
-        if (isClient) {
-            fetchCommunityNotesFromNDK().then(fetchedCommunityNotes => {
-                if (fetchedCommunityNotes && fetchedCommunityNotes.length > 0) {
-                    setCommunityNotes(fetchedCommunityNotes);
-                }
-            });
-        }
-    }, [isClient]);
+            clearTimeout(timeoutId);
+        };
+    }, [ndk, addNote]);
 
     return { communityNotes, isLoading, error };
 }
