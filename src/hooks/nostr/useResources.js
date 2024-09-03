@@ -8,8 +8,8 @@ export function useResources() {
     const [isClient, setIsClient] = useState(false);
     const [resources, setResources] = useState();
     // Add new state variables for loading and error
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [resourcesLoading, setResourcesLoading] = useState(false);
+    const [resourcesError, setResourcesError] = useState(null);
 
     const { contentIds } = useContentIdsQuery()
     const {ndk, addSigner} = useNDKContext();
@@ -25,12 +25,12 @@ export function useResources() {
     };
 
     const fetchResourcesFromNDK = async () => {
-        setIsLoading(true);
-        setError(null);
+        setResourcesLoading(true);
+        setResourcesError(null);
         try {
             if (!contentIds || contentIds.length === 0) {
                 console.log('No content IDs found');
-                setIsLoading(false);
+                setResourcesLoading(false);
                 return []; // Return early if no content IDs are found
             }
 
@@ -42,15 +42,15 @@ export function useResources() {
             if (events && events.size > 0) {
                 const eventsArray = Array.from(events);
                 const resources = eventsArray.filter(event => hasRequiredProperties(event, contentIds));
-                setIsLoading(false);
+                setResourcesLoading(false);
                 return resources;
             }
-            setIsLoading(false);
+            setResourcesLoading(false);
             return [];
         } catch (error) {
             console.error('Error fetching resources from NDK:', error);
-            setError(error);
-            setIsLoading(false);
+            setResourcesError(error);
+            setResourcesLoading(false);
             return [];
         }
     };
@@ -65,5 +65,5 @@ export function useResources() {
         }
     }, [isClient, contentIds]);
 
-    return { resources, isLoading, error };
+    return { resources, resourcesLoading, resourcesError };
 }

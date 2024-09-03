@@ -116,7 +116,7 @@ const DraftCourseLesson = ({ lesson, course }) => {
             </div>
             <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
                 {
-                    lesson?.content && <MDDisplay source={lesson.content} />
+                    lesson?.content && <MDDisplay className='p-4 rounded-lg' source={lesson.content} />
                 }
             </div>
         </div>

@@ -8,8 +8,8 @@ export function useWorkshops() {
     const [isClient, setIsClient] = useState(false);
     const [workshops, setWorkshops] = useState();
     // Add new state variables for loading and error
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [workshopsLoading, setWorkshopsLoading] = useState(false);
+    const [workshopsError, setWorkshopsError] = useState(null);
 
     const { contentIds } = useContentIdsQuery()
     const {ndk, addSigner} = useNDKContext();
@@ -25,12 +25,12 @@ export function useWorkshops() {
     };
 
     const fetchWorkshopsFromNDK = async () => {
-        setIsLoading(true);
-        setError(null);
+        setWorkshopsLoading(true);
+        setWorkshopsError(null);
         try {
             if (!contentIds || contentIds.length === 0) {
                 console.log('No content IDs found');
-                setIsLoading(false);
+                setWorkshopsLoading(false);
                 return []; // Return early if no content IDs are found
             }
 
@@ -42,15 +42,15 @@ export function useWorkshops() {
             if (events && events.size > 0) {
                 const eventsArray = Array.from(events);
                 const workshops = eventsArray.filter(event => hasRequiredProperties(event, contentIds));
-                setIsLoading(false);
+                setWorkshopsLoading(false);
                 return workshops;
             }
-            setIsLoading(false);
+            setWorkshopsLoading(false);
             return [];
         } catch (error) {
             console.error('Error fetching workshops from NDK:', error);
-            setError(error);
-            setIsLoading(false);
+            setWorkshopsError(error);
+            setWorkshopsLoading(false);
             return [];
         }
     };
@@ -65,5 +65,5 @@ export function useWorkshops() {
         }
     }, [isClient, contentIds]);
 
-    return { workshops, isLoading, error };
+    return { workshops, workshopsLoading, workshopsError };
 }

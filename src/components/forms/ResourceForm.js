@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { InputText } from "primereact/inputtext";
+import { InputTextarea } from "primereact/inputtextarea";
 import { InputNumber } from "primereact/inputnumber";
 import { InputSwitch } from "primereact/inputswitch";
 import { Button } from "primereact/button";
@@ -20,6 +21,7 @@ import 'primeicons/primeicons.css';
 import { Tooltip } from 'primereact/tooltip';
 import 'primereact/resources/primereact.min.css';
 
+// todo make the summarry save in a formatted way so we can keep this spaces and line breaks
 const ResourceForm = ({ draft = null, isPublished = false }) => {
     const [title, setTitle] = useState(draft?.title || '');
     const [summary, setSummary] = useState(draft?.summary || '');
@@ -221,7 +223,7 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
                 <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
             </div>
             <div className="p-inputgroup flex-1 mt-4">
-                <InputText value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" />
+                <InputTextarea value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" />
             </div>
             <div className="p-inputgroup flex-1 mt-4">
                 <InputText value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="Cover Image URL" />
@@ -229,7 +231,7 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
 
             <div className="p-inputgroup flex-1 mt-8 flex-col">
                 <p className="py-2">Paid Resource</p>
-                <InputSwitch checked={isPaidResource} onChange={(e) => setIsPaidResource(e.value)} />
+                <InputSwitch autoResize checked={isPaidResource} onChange={(e) => setIsPaidResource(e.value)} />
                 {isPaidResource && (
                     <div className="p-inputgroup flex-1 py-4">
                         <InputNumber value={price} onValueChange={(e) => setPrice(e.value)} placeholder="Price (sats)" />
@@ -284,7 +286,7 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
                 </div>
             </div>
             <div className="flex justify-center mt-8">
-                <Button type="submit" severity="success" outlined label={draft ? "Update" : "Submit"} />
+                <Button type="submit" severity="success" outlined label={draft ? "Update Draft" : "Save Draft"} />
             </div>
         </form>
     );

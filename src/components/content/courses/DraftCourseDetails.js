@@ -413,7 +413,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
             </div>
             <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
                 {
-                    processedEvent?.content && <MDDisplay source={processedEvent.content} />
+                    processedEvent?.content && <MDDisplay className='p-4 rounded-lg' source={processedEvent.content} />
                 }
             </div>
         </div>

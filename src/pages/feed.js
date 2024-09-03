@@ -81,6 +81,7 @@ const Feed = () => {
                         className="w-fit"
                     />
                     <Button
+                        className='text-[#f8f8ff]'
                         icon={isMessageInputCollapsed ? "pi pi-plus" : "pi pi-minus"}
                         onClick={() => setIsMessageInputCollapsed(!isMessageInputCollapsed)}
                     />

@@ -190,7 +190,7 @@ const Course = () => {
                 <CourseLesson key={index} lesson={lesson} course={course} />
             ))}
             <div className="mx-auto my-6">
-                {course?.content && <MDDisplay source={course.content} />}
+                {course?.content && <MDDisplay className='p-4 rounded-lg' source={course.content} />}
             </div>
         </>
     );

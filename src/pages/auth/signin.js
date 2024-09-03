@@ -45,26 +45,26 @@ export default function SignIn() {
     }
 
     return (
-        <div className="w-fit mx-auto mt-24 flex flex-col justify-center">
+        <div className="w-[100vw] mx-auto mt-24 flex flex-col justify-center">
             <h1 className="text-center mb-8">Sign In</h1>
             <Button
                 label={"login with nostr"}
                 icon="pi pi-user"
-                className="text-[#f8f8ff] w-[250px] my-4"
+                className="text-[#f8f8ff] w-[250px] my-4 mx-auto"
                 rounded
                 onClick={handleNostrSignIn}
             />
             <Button
                 label={"login anonymously"}
                 icon="pi pi-user"
-                className="text-[#f8f8ff] w-[250px] my-4"
+                className="text-[#f8f8ff] w-[250px] my-4 mx-auto"
                 rounded
                 onClick={handleAnonymousSignIn}
             />
             <Button
                 label={"login with email"}
                 icon="pi pi-envelope"
-                className="text-[#f8f8ff] w-[250px] my-4"
+                className="text-[#f8f8ff] w-[250px] my-4 mx-auto"
                 rounded
                 onClick={handleEmailSignIn}
             />

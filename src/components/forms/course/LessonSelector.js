@@ -154,7 +154,7 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
                             <Dropdown
                                 options={contentOptions}
                                 onChange={(e) => handleContentSelect(e.value, index)}
-                                placeholder="Select Existing Lesson"
+                                placeholder={lesson.id ? lesson.title : "Create New Lesson"}
                                 optionLabel="label"
                                 optionGroupLabel="label"
                                 optionGroupChildren="items"

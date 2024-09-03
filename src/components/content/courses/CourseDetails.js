@@ -107,7 +107,7 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
             <div className='w-full flex flex-row justify-between max-tab:flex-col max-mob:flex-col'>
-                <i className='pi pi-arrow-left pl-8 cursor-pointer hover:opacity-75 max-tab:pl-2 max-mob:pl-2' onClick={() => router.push('/')} />
+            <i className='pi pi-arrow-left pr-8 cursor-pointer hover:opacity-75' onClick={() => router.push('/')} />
                 <div className='w-[75vw] mx-auto flex flex-row items-start justify-between max-tab:flex-col max-mob:flex-col max-tab:w-[95vw] max-mob:w-[95vw]'>
                     <div className='flex flex-col items-start max-w-[45vw] max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
                         <div className='pt-2 flex flex-row justify-start w-full'>
@@ -184,7 +184,7 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
             )}
             <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
                 {
-                    processedEvent?.content && <MDDisplay source={processedEvent.content} />
+                    processedEvent?.content && <MDDisplay className='p-4 rounded-lg' source={processedEvent.content} />
                 }
             </div>
         </div>

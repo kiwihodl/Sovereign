@@ -179,13 +179,13 @@ export default function Details() {
 
     const renderContent = () => {
         if (decryptedContent) {
-            return <MDDisplay source={decryptedContent} />;
+            return <MDDisplay className='p-4 rounded-lg' source={decryptedContent} />;
         }
         if (paidResource && !decryptedContent) {
             return <p className="text-center text-xl text-red-500">This content is paid and needs to be purchased before viewing.</p>;
         }
         if (processedEvent?.content) {
-            return <MDDisplay source={processedEvent.content} />;
+            return <MDDisplay className='p-4 rounded-lg' source={processedEvent.content} />;
         }
         return null;
     }

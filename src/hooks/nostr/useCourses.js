@@ -8,8 +8,8 @@ export function useCourses() {
     const [isClient, setIsClient] = useState(false);
     const [courses, setCourses] = useState();
 
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [coursesLoading, setCoursesLoading] = useState(false);
+    const [coursesError, setCoursesError] = useState(null);
 
     const { contentIds } = useContentIdsQuery()
     const {ndk, addSigner} = useNDKContext();
@@ -24,12 +24,12 @@ export function useCourses() {
     };
 
     const fetchCoursesFromNDK = async () => {
-        setIsLoading(true);
-        setError(null);
+        setCoursesLoading(true);
+        setCoursesError(null);
         try {
             if (!contentIds || contentIds.length === 0) {
                 console.log('No content IDs found');
-                setIsLoading(false);
+                setCoursesLoading(false);
                 return []; // Return early if no content IDs are found
             }
 
@@ -41,15 +41,15 @@ export function useCourses() {
             if (events && events.size > 0) {
                 const eventsArray = Array.from(events);
                 const courses = eventsArray.filter(event => hasRequiredProperties(event, contentIds));
-                setIsLoading(false);
+                setCoursesLoading(false);
                 return courses;
             }
-            setIsLoading(false);
+            setCoursesLoading(false);
             return [];
         } catch (error) {
             console.error('Error fetching courses from NDK:', error);
-            setError(error);
-            setIsLoading(false);
+            setCoursesError(error);
+            setCoursesLoading(false);
             return [];
         }
     };
@@ -64,5 +64,5 @@ export function useCourses() {
         }
     }, [isClient, contentIds]);
 
-    return { courses, isLoading, error };
+    return { courses, coursesLoading, coursesError };
 }

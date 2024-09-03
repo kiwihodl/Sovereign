@@ -49,8 +49,22 @@ const CourseForm = ({ draft = null }) => {
     }, [draft, resources, workshops, drafts]);
 
     useEffect(() => {
-        if (!resourcesLoading && !workshopsLoading && !draftsLoading && resources && workshops && drafts) {
-            setAllContent([...resources, ...workshops, ...drafts]);
+        console.log('allContent', allContent);
+    }, [allContent]);
+
+    useEffect(() => {
+        if (!resourcesLoading && !workshopsLoading && !draftsLoading) {
+            let combinedContent = [];
+            if (resources) {
+                combinedContent = [...combinedContent, ...resources];
+            }
+            if (workshops) {
+                combinedContent = [...combinedContent, ...workshops];
+            }
+            if (drafts) {
+                combinedContent = [...combinedContent, ...drafts];
+            }
+            setAllContent(combinedContent);
         }
     }, [resources, workshops, drafts, resourcesLoading, workshopsLoading, draftsLoading]);
 

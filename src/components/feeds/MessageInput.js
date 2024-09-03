@@ -34,6 +34,7 @@ const MessageInput = ({ collapsed, onToggle }) => {
                     <Button
                         label="Send"
                         icon="pi pi-send"
+                        outlined
                         className='mt-2'
                     />
                 </div>
