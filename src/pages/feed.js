@@ -18,7 +18,6 @@ const Feed = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [title, setTitle] = useState('Community');
     const allTopics = ['global', 'nostr', 'discord', 'stackernews'];
-    const [isMessageInputCollapsed, setIsMessageInputCollapsed] = useState(true);
 
     const router = useRouter();
 
@@ -51,10 +50,6 @@ const Feed = () => {
         }
     };
 
-    const toggleMessageInput = (e) => {
-        setIsMessageInputCollapsed(e.value);
-    };
-
     const handleMessageSent = () => {
         setIsMessageInputCollapsed(true);
     };
@@ -85,16 +80,10 @@ const Feed = () => {
                         icon="pi pi-search"
                         className="w-fit"
                     />
-                    <Button
-                        className='text-[#f8f8ff]'
-                        icon={isMessageInputCollapsed ? "pi pi-plus" : "pi pi-minus"}
-                        onClick={() => setIsMessageInputCollapsed(!isMessageInputCollapsed)}
-                    />
                 </div>
                 <Divider />
                 <MessageInput 
-                    collapsed={isMessageInputCollapsed} 
-                    onToggle={toggleMessageInput} 
+                    collapsed={false} 
                     onMessageSent={handleMessageSent}
                 />
             </div>

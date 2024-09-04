@@ -6,7 +6,7 @@ import { useNDKContext } from "@/context/NDKContext";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { useToast } from '@/hooks/useToast';
 
-const MessageInput = ({ collapsed, onToggle, onMessageSent }) => {
+const MessageInput = ({ onMessageSent }) => {
     const [message, setMessage] = useState('');
     const { ndk, addSigner } = useNDKContext();
     const { showToast } = useToast();
@@ -34,7 +34,7 @@ const MessageInput = ({ collapsed, onToggle, onMessageSent }) => {
     };
 
     return (
-        <Panel header={null} toggleable collapsed={collapsed} onToggle={onToggle} className="w-full" pt={{
+        <Panel header={null} toggleable collapsed={false} className="w-full" pt={{
             header: {
                 className: 'bg-transparent',
                 border: 'none',
@@ -51,21 +51,20 @@ const MessageInput = ({ collapsed, onToggle, onMessageSent }) => {
                 <InputTextarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    rows={5}
-                    cols={30}
+                    rows={2}
+                    cols={10}
                     autoResize
                     placeholder="Type your message here..."
                     className="w-full"
                 />
-                <div className="w-full flex flex-row justify-end">
-                    <Button
-                        label="Send"
-                        icon="pi pi-send"
-                        outlined
-                        className='mt-2'
-                        onClick={handleSubmit}
-                    />
-                </div>
+            </div>
+            <div className="w-full flex flex-row justify-end mt-4">
+                <Button
+                    label="Send"
+                    icon="pi pi-send"
+                    outlined
+                    onClick={handleSubmit}
+                />
             </div>
         </Panel>
     );

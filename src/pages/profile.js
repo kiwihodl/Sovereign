@@ -1,130 +1,77 @@
-import React, { useRef, useState, useEffect } from "react";
-import { Button } from "primereact/button";
-import { DataTable } from "primereact/datatable";
-import { Menu } from "primereact/menu";
-import { Column } from "primereact/column";
-import { Message } from "primereact/message";
-import { Card } from "primereact/card";
-import { useImageProxy } from "@/hooks/useImageProxy";
-import { useSession } from 'next-auth/react';
-import { ProgressSpinner } from "primereact/progressspinner";
-import PurchasedListItem from "@/components/profile/PurchasedListItem";
-import { useNDKContext } from "@/context/NDKContext";
-import { formatDateTime } from "@/utils/time";
+import React, { useState, useEffect } from "react";
+import { TabView, TabPanel } from "primereact/tabview";
+import UserProfile from "@/components/profile/UserProfile";
+import UserSettings from "@/components/profile/UserSettings";
 import UserContent from "@/components/profile/UserContent";
-import Image from "next/image";
-import BitcoinConnectButton from "@/components/bitcoinConnect/BitcoinConnect";
 import UserSubscription from "@/components/profile/subscription/UserSubscription";
+import { useRouter } from "next/router";
 
 const Profile = () => {
-    const [user, setUser] = useState(null);
-    const { data: session } = useSession();
-    const { returnImageProxy } = useImageProxy();
-    const { ndk } = useNDKContext();
-    const menu = useRef(null);
+    const router = useRouter();
+    const [activeTab, setActiveTab] = useState(0);
+
+    const tabs = ["profile", "settings", "content", "subscribe"];
 
     useEffect(() => {
-        if (session?.user) {
-            setUser(session.user);
+        const { tab } = router.query;
+        if (tab) {
+            const index = tabs.indexOf(tab.toLowerCase());
+            if (index !== -1) {
+                setActiveTab(index);
+            }
         }
-    }, [session]);
+    }, [router.query]);
 
-    const menuItems = [
-        {
-            label: "Edit",
-            icon: "pi pi-pencil",
-            command: () => {
-                // Add your edit functionality here
-            },
-        },
-        {
-            label: "Delete",
-            icon: "pi pi-trash",
-            command: () => {
-                // Add your delete functionality here
-            },
-        },
-    ];
-
-    const header = (
-        <div className="flex flex-wrap align-items-center justify-content-between gap-2">
-            <span className="text-xl text-900 font-bold text-white">Purchases</span>
-        </div>
-    );
-
-    const openSubscribeModal = () => {
-        setSubscribeModalVisible(true);
+    const onTabChange = (e) => {
+        const newIndex = e.index;
+        setActiveTab(newIndex);
+        router.push(`/profile?tab=${tabs[newIndex]}`, undefined, { shallow: true });
     };
 
-    const subscriptionCardTitle = (
-        <div className="w-full flex flex-row justify-between items-center">
-            <span className="text-xl text-900 font-bold text-white">Plebdevs Subscription</span>
-            <i
-                className="pi pi-ellipsis-h text-2xlcursor-pointer hover:opacity-75"
-                onClick={(e) => menu.current.toggle(e)}
-            ></i>
-            <Menu model={menuItems} popup ref={menu} />
-        </div>
-    );
-
     return (
-        user && (
-            <div className="h-full w-full min-bottom-bar:w-[87vw] max-sidebar:w-[100vw] mx-auto">
-                <div className="w-full flex flex-col justify-center mx-auto">
-                    <div className="relative flex w-full items-center justify-center">
-                        <Image
-                            alt="user's avatar"
-                            src={returnImageProxy(user.avatar, user.pubkey)}
-                            width={100}
-                            height={100}
-                            className="rounded-full my-4"
-                        />
-                        <i
-                            className="pi pi-ellipsis-h absolute right-24 text-2xl my-4 cursor-pointer hover:opacity-75"
-                            onClick={(e) => menu.current.toggle(e)}
-                        ></i>
-                        <Menu model={menuItems} popup ref={menu} />
-                    </div>
-
-                    <h1 className="text-center text-2xl my-2">
-                        {user.username || "Anon"}
-                    </h1>
-                    <h2 className="text-center text-xl my-2 truncate max-tab:px-4 max-mob:px-4">
-                        {user.pubkey}
-                    </h2>
-                    <div className="flex flex-col w-1/2 mx-auto my-4 justify-between items-center">
-                        <h2 className="text-xl my-2">Connect Your Lightning Wallet</h2>
-                        <BitcoinConnectButton />
-                    </div>
-                    {user && (
-                        <UserSubscription user={user} />
-                    )}
-                </div>
-                {!session || !session?.user || !ndk ? (
-                    <ProgressSpinner />
-                ) : (
-                    <DataTable
-                        emptyMessage="No purchases"
-                        value={session.user?.purchased}
-                        tableStyle={{ minWidth: "100%" }}
-                        header={header}
-                    >
-                        <Column field="amountPaid" header="Cost"></Column>
-                        <Column
-                            body={(rowData) => {
-                                console.log("rowData", rowData);
-                                return <PurchasedListItem eventId={rowData?.resource?.noteId || rowData?.course?.noteId} category={rowData?.course ? "courses" : "resources"} />
-                            }}
-                            header="Name"
-                        ></Column>
-                        <Column body={session.user?.purchased?.some((item) => item.courseId) ? "course" : "resource"} header="Category"></Column>
-                        <Column body={rowData => formatDateTime(rowData?.createdAt)} header="Date"></Column>
-                    </DataTable>
-
-                )}
-                <UserContent />
-            </div>
-        )
+        <div className="w-full min-h-full min-bottom-bar:w-[87vw] mx-auto">
+            <TabView
+                pt={{
+                    root: {
+                        className: "bg-transparent",
+                    },
+                    panelContainer: {
+                        className: "bg-transparent m-0 p-0"
+                    }
+                }}
+                onTabChange={onTabChange}
+                activeIndex={activeTab}
+            >
+                <TabPanel header="Profile" pt={{
+                    headerAction: {
+                        className: "bg-transparent"
+                    },
+                }}>
+                    <UserProfile />
+                </TabPanel>
+                <TabPanel header="Settings" pt={{
+                    headerAction: {
+                        className: "bg-transparent"
+                    },
+                }}>
+                    <UserSettings />
+                </TabPanel>
+                <TabPanel header="Content" pt={{
+                    headerAction: {
+                        className: "bg-transparent"
+                    },
+                }}>
+                    <UserContent />
+                </TabPanel>
+                <TabPanel header="Subscribe" pt={{
+                    headerAction: {
+                        className: "bg-transparent"
+                    },
+                }}>
+                    <UserSubscription />
+                </TabPanel>
+            </TabView>
+        </div>
     );
 };
 

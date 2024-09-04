@@ -114,7 +114,7 @@ const UserContent = () => {
 
     return (
         <div className="w-full min-bottom-bar:w-[87vw] mx-auto">
-            <div className="border-y-2 border-gray-300 mt-12">
+            <div className="border-b-2 border-gray-300 mt-8">
                 <h2 className="text-center my-4">Your Content</h2>
             </div>
             <div className="flex flex-row w-full justify-between px-4">

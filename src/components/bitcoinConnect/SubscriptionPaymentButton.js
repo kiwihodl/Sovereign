@@ -18,7 +18,7 @@ const PaymentModal = dynamic(
     { ssr: false }
 );
 
-const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptionSuccess, setIsProcessing }) => {
+const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptionSuccess, setIsProcessing, oneTime = false, recurring = false }) => {
     const [invoice, setInvoice] = useState(null);
     const [showRecurringOptions, setShowRecurringOptions] = useState(false);
     const [nwcInput, setNwcInput] = useState('');
@@ -207,31 +207,35 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
         <>
             {!invoice && (
                 <div className="w-full flex flex-row justify-between">
-                    <Button
-                        label="Pay as you go"
-                        icon="pi pi-bolt"
-                        onClick={async () => {
-                            const invoice = await fetchInvoice();
-                            setInvoice(invoice);
-                        }}
-                        severity='primary'
-                        className="w-fit mt-4 text-[#f8f8ff]"
-                    />
-                    <Button
-                        label="Setup Recurring Subscription"
-                        icon={
-                            <Image
-                                src="/images/nwc-logo.svg"
-                                alt="NWC Logo"
-                                width={16}
-                                height={16}
-                                className="mr-2"
-                            />
-                        }
-                        severity='help'
-                        className="w-fit mt-4 text-[#f8f8ff] bg-purple-600"
-                        onClick={() => setShowRecurringOptions(!showRecurringOptions)}
-                    />
+                    {(oneTime || (!oneTime && !recurring)) && (
+                        <Button
+                            label="Pay as you go"
+                            icon="pi pi-bolt"
+                            onClick={async () => {
+                                const invoice = await fetchInvoice();
+                                setInvoice(invoice);
+                            }}
+                            severity='primary'
+                            className="w-fit mt-4 text-[#f8f8ff]"
+                        />
+                    )}
+                    {(recurring || (!oneTime && !recurring)) && (
+                        <Button
+                            label="Setup Recurring Subscription"
+                            icon={
+                                <Image
+                                    src="/images/nwc-logo.svg"
+                                    alt="NWC Logo"
+                                    width={16}
+                                    height={16}
+                                    className="mr-2"
+                                />
+                            }
+                            severity='help'
+                            className="w-fit mt-4 text-[#f8f8ff] bg-purple-600"
+                            onClick={() => setShowRecurringOptions(!showRecurringOptions)}
+                        />
+                    )}
                 </div>
             )}
             {showRecurringOptions && (
