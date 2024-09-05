@@ -20,7 +20,7 @@ const responsiveOptions = [
     }
 ];
 
-export default function GenericCarousel({items, selectedTopic}) {
+export default function GenericCarousel({items, selectedTopic, title}) {
     const [carousels, setCarousels] = useState([]);
 
     useEffect(() => {
@@ -35,16 +35,9 @@ export default function GenericCarousel({items, selectedTopic}) {
                 itemsPerCarousel = 1;
             }
 
-            const filteredItems = selectedTopic === 'All' 
-                ? items 
-                : items.filter(item => 
-                    item.topics && 
-                    (item.topics.includes(selectedTopic) || item.type === selectedTopic.toLowerCase())
-                );
-
             const newCarousels = [];
-            for (let i = 0; i < filteredItems.length; i += itemsPerCarousel) {
-                newCarousels.push(filteredItems.slice(i, i + itemsPerCarousel));
+            for (let i = 0; i < items.length; i += itemsPerCarousel) {
+                newCarousels.push(items.slice(i, i + itemsPerCarousel));
             }
             setCarousels(newCarousels);
         };
@@ -55,7 +48,8 @@ export default function GenericCarousel({items, selectedTopic}) {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [items, selectedTopic]);
+    }, [items]);
+
     return (
         <>
             {carousels.map((carouselItems, index) => (

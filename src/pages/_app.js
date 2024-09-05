@@ -35,7 +35,7 @@ export default function MyApp({
                                 <Navbar />
                                 <div className='flex'>
                                 <Sidebar />
-                                <div className='max-w-[100vw] pl-[13vw] max-sidebar:pl-0 pb-16 max-sidebar:pb-20'>
+                                <div className='max-w-[100vw] pl-[14vw] max-sidebar:pl-0 pb-16 max-sidebar:pb-20'>
                                 {/* <div className='max-w-[100vw]'> */}
                                     <Component {...pageProps} />
                                 </div>

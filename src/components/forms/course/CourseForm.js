@@ -53,12 +53,17 @@ const CourseForm = ({ draft = null }) => {
     }, [allContent]);
 
     useEffect(() => {
+        console.log('fasfsa', workshops)
+    }, [workshops])
+
+    useEffect(() => {
         if (!resourcesLoading && !workshopsLoading && !draftsLoading) {
             let combinedContent = [];
             if (resources) {
                 combinedContent = [...combinedContent, ...resources];
             }
             if (workshops) {
+                console.log('workssdfsdfdsf', workshops)
                 combinedContent = [...combinedContent, ...workshops];
             }
             if (drafts) {

@@ -45,6 +45,8 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
                 }
             });
 
+        console.log('filtered content', filteredContent)
+
         const draftResourceOptions = filteredContent.filter(content => content?.topics.includes('resource') && !content.kind).map(content => ({
             label: content.title,
             value: content
@@ -60,7 +62,7 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
             value: content
         }));
 
-        const workshopOptions = filteredContent.filter(content => content?.topics.includes('workshop') && content.kind).map(content => ({
+        const workshopOptions = filteredContent.filter(content => content?.type === "workshop" && content.kind).map(content => ({
             label: content.title,
             value: content
         }));

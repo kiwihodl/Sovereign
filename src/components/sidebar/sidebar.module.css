@@ -1,6 +1,7 @@
 .p-accordion .p-accordion-content {
     border: none !important;
     padding-top: 0px !important;
+    padding-bottom: 0px !important;
 }
 .p-accordion .p-accordion-header-link {
     border: none !important;

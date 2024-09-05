@@ -59,6 +59,7 @@ export function useWorkshops() {
         if (isClient && contentIds) {
             fetchWorkshopsFromNDK().then(fetchedWorkshops => {
                 if (fetchedWorkshops && fetchedWorkshops.length > 0) {
+                    console.log('fetchedworkshops', fetchedWorkshops)
                     setWorkshops(fetchedWorkshops);
                 }
             });
