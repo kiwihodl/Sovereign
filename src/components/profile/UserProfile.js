@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { DataTable } from "primereact/datatable";
 import { Button } from "primereact/button";
+import { Avatar } from "primereact/avatar";
 import { Menu } from "primereact/menu";
 import { Column } from "primereact/column";
 import { useImageProxy } from "@/hooks/useImageProxy";

@@ -15,10 +15,6 @@ const Sidebar = () => {
 
     const { data: session } = useSession();
 
-    const header = (text) => {
-        return <span onClick={() => router.push('/content')}>{text}</span>
-    };
-
     return (
         <div className='max-sidebar:hidden w-[14vw] bg-gray-800 p-2 fixed h-[100%] flex flex-col'>
             <div className="flex-grow overflow-y-auto">
@@ -26,7 +22,7 @@ const Sidebar = () => {
                     <i className="pi pi-home pl-5" /> <p className="pl-2 rounded-md font-bold text-lg">Home</p>
                 </div>
                 <Accordion activeIndex={0} className={styles['p-accordion']} style={{ marginBottom: '0px', paddingBottom: '0px' }}>
-                    <AccordionTab 
+                    <AccordionTab
                         pt={{
                             headerAction: ({ context }) => ({
                                 className: `hover:bg-gray-700 rounded-lg ${isActive('/content') || router.pathname === '/content' ? 'bg-gray-700' : ''} ${styles['p-accordion-header-link']}`
@@ -34,8 +30,11 @@ const Sidebar = () => {
                             content: styles['p-accordion-content'],
                             header: 'text-lg'
                         }}
-                        header={header('Content')}>
-                        <div onClick={() => router.push('/content?tag=courses')} className={`w-full cursor-pointer py-2 hover:bg-gray-700 rounded-lg ${isActive('/content?tag=courses') ? 'bg-gray-700' : ''}`}>
+                        header={'Content'}>
+                        <div onClick={() => router.push('/content?tag=all')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content?tag=all') ? 'bg-gray-700' : ''}`}>
+                            <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-eye text-sm pr-1"></i> All</p>
+                        </div>
+                        <div onClick={() => router.push('/content?tag=courses')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content?tag=courses') ? 'bg-gray-700' : ''}`}>
                             <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-desktop text-sm pr-1"></i> Courses</p>
                         </div>
                         <div onClick={() => router.push('/content?tag=workshops')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content?tag=workshops') ? 'bg-gray-700' : ''}`}>
@@ -53,7 +52,7 @@ const Sidebar = () => {
                     <i className="pi pi-star pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Subscribe</p>
                 </div>
                 <Accordion activeIndex={0} className={styles['p-accordion']}>
-                    <AccordionTab 
+                    <AccordionTab
                         pt={{
                             headerAction: ({ context }) => ({
                                 className: `hover:bg-gray-700 rounded-lg ${isActive('/feed') ? 'bg-gray-700' : ''} ${styles['p-accordion-header-link']}`
@@ -62,7 +61,7 @@ const Sidebar = () => {
                             header: 'text-lg'
                         }}
                         header={"Community"}>
-                        <div onClick={() => router.push('/feed?channel=global')} className={`w-full cursor-pointer py-2 hover:bg-gray-700 rounded-lg ${isActive('/feed?channel=global') ? 'bg-gray-700' : ''}`}>
+                        <div onClick={() => router.push('/feed?channel=global')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/feed?channel=global') ? 'bg-gray-700' : ''}`}>
                             <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-hashtag text-sm pr-1"></i> global</p>
                         </div>
                         <div onClick={() => router.push('/feed?channel=nostr')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/feed?channel=nostr') ? 'bg-gray-700' : ''}`}>

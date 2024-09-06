@@ -11,6 +11,8 @@
 .logo {
     border-radius: 25px;
     margin-right: 8px;
+    max-height: 60px;
+    max-width: 60px;
 }
 
 .title {

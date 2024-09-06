@@ -21,7 +21,7 @@ const MenuTab = ({ items, selectedTopic, onTabChange }) => {
         else if (item === 'Workshops') icon = 'pi pi-video';
         else if (item === 'Courses') icon = 'pi pi-desktop';
 
-        const queryParam = item === 'All' ? '' : `?tag=${item.toLowerCase()}`;
+        const queryParam = item === 'all' ? '' : `?tag=${item.toLowerCase()}`;
         const isActive = router.asPath === `/content${queryParam}`;
 
         return {

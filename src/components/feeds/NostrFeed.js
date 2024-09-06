@@ -19,12 +19,21 @@ const NostrFeed = () => {
     const [authorData, setAuthorData] = useState({});
 
     useEffect(() => {
-        communityNotes.forEach(note => {
-            if (!authorData[note.pubkey]) {
-                fetchAuthor(note.pubkey);
+        const fetchAuthors = async () => {
+            const authorDataMap = {};
+            for (const message of communityNotes) {
+                if (!authorDataMap[message.pubkey]) {
+                    const author = await fetchAuthor(message.pubkey);
+                    authorDataMap[message.pubkey] = author;
+                }
             }
-        });
-    }, [communityNotes, authorData]);
+            setAuthorData(authorDataMap);
+        };
+
+        if (communityNotes && communityNotes.length > 0) {
+            fetchAuthors();
+        }
+    }, [communityNotes]);
 
     const fetchAuthor = async (pubkey) => {
         try {
@@ -37,41 +46,43 @@ const NostrFeed = () => {
             if (author) {
                 try {
                     const fields = await findKind0Fields(JSON.parse(author.content));
-                    setAuthorData(prevData => ({
-                        ...prevData,
-                        [pubkey]: fields
-                    }));
+                    return fields;
                 } catch (error) {
                     console.error('Error fetching author:', error);
                 }
             }
+            return null;
         } catch (error) {
             console.error('Error fetching author:', error);
         }
     };
 
-    const renderHeader = (message) => {
-        const author = authorData[message.pubkey];
+    const getAvatarImage = (message) => {
+        return authorData[message.pubkey]?.avatar ? returnImageProxy(authorData[message.pubkey]?.avatar) : null;
+    };
 
-        if (!author || Object.keys(author).length === 0 || !author.username || !author.avatar) {
-            return null;
-        }
-
-        return (
-            <div className="flex flex-row w-full items-center justify-between p-4 bg-gray-800 rounded-t-lg">
-                <div className="flex flex-row items-center">
-                    <Avatar image={author?.avatar} shape="circle" size="large" className="border-2 border-blue-400" />
-                    <p className="pl-4 font-bold text-xl text-white">{author?.username || author?.pubkey.substring(0, 12) + '...'}</p>
-                </div>
-                <div className="flex flex-col items-start justify-between">
-                    <div className="flex flex-row w-full justify-between items-center my-1 max-sidebar:flex-col max-sidebar:items-start">
-                        <Tag icon="pi pi-hashtag" value="plebdevs" severity="primary" className="w-fit text-[#f8f8ff] bg-gray-600 mr-2 max-sidebar:mr-0" />
-                        <Tag icon={<Image src={NostrIcon} alt="Nostr" width={14} height={14} className='mr-[1px]' />} value="nostr" className="w-fit text-[#f8f8ff] bg-blue-400 max-sidebar:mt-1" />
-                    </div>
+    const renderHeader = (message) => (
+        <div className="flex flex-row w-full items-center justify-between p-4 bg-gray-800 rounded-t-lg">
+            <div className="flex flex-row items-center">
+                <Avatar 
+                    image={getAvatarImage(message)}
+                    icon={getAvatarImage(message) ? null : 'pi pi-user'}
+                    shape="circle" 
+                    size="large" 
+                    className="border-2 border-blue-400" 
+                />
+                <p className="pl-4 font-bold text-xl text-white">
+                    {authorData[message.pubkey]?.username || message.pubkey.substring(0, 12) + '...'}
+                </p>
+            </div>
+            <div className="flex flex-col items-start justify-between">
+                <div className="flex flex-row w-full justify-between items-center my-1 max-sidebar:flex-col max-sidebar:items-start">
+                    <Tag icon="pi pi-hashtag" value="plebdevs" severity="primary" className="w-fit text-[#f8f8ff] bg-gray-600 mr-2 max-sidebar:mr-0" />
+                    <Tag icon={<Image src={NostrIcon} alt="Nostr" width={14} height={14} className='mr-[1px]' />} value="nostr" className="w-fit text-[#f8f8ff] bg-blue-400 max-sidebar:mt-1" />
                 </div>
             </div>
-        );
-    }
+        </div>
+    );
 
     const footer = (message) => (
         <div className="w-full flex justify-between items-center">

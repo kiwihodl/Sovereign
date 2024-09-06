@@ -116,7 +116,7 @@ const GlobalFeed = () => {
             <div className="flex flex-row items-center">
                 <Avatar 
                     image={getAvatarImage(item)}
-                    icon={item.type === 'stackernews' ? "pi pi-user" : null} 
+                    icon={getAvatarImage(item) ? null : 'pi pi-user'}
                     shape="circle" 
                     size="large" 
                     className="border-2 border-blue-400" 
