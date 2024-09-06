@@ -113,7 +113,7 @@ const UserContent = () => {
     const isError = coursesError || resourcesError || workshopsError || draftsError || contentIdsError || courseDraftsError;
 
     return (
-        <div className="w-full min-bottom-bar:w-[87vw] mx-auto">
+        <div className="w-full min-bottom-bar:w-[86vw] mx-auto">
             <div className="border-b-2 border-gray-300 mt-8">
                 <h2 className="text-center my-4">Your Content</h2>
             </div>

@@ -41,7 +41,7 @@ export default function SignIn() {
   }
 
   return (
-    <div className="w-[100vw] min-bottom-bar:w-[82vw] mx-auto mt-24 flex flex-col justify-center">
+    <div className="w-[100vw] min-bottom-bar:w-[86vw] mx-auto mt-24 flex flex-col justify-center">
       <h1 className="text-center mb-8">Sign In</h1>
       <Button
         label={"login with nostr"}

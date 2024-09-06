@@ -57,7 +57,7 @@ const UserSettings = () => {
 
     return (
         user && (
-            <div className="h-full w-full min-bottom-bar:w-[87vw] max-sidebar:w-[100vw] mx-auto">
+            <div className="h-full w-full min-bottom-bar:w-[86vw] max-sidebar:w-[100vw] mx-auto">
                 <div className="w-full flex flex-col justify-center mx-auto">
                     <div className="relative flex w-full items-center justify-center">
                         <Image

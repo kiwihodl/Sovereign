@@ -25,7 +25,7 @@ const Edit = () => {
     }, [router.isReady, router.query]);
 
     return (
-        <div className="w-[80vw] max-w-[80vw] mx-auto my-8 flex flex-col justify-center">
+        <div className="w-full min-bottom-bar:w-[86vw] max-sidebar:w-[100vw] px-8 mx-auto my-8 flex flex-col justify-center">
             <h2 className="text-center mb-8">Edit Draft</h2>
             {draft?.type === 'course' && <CourseForm draft={draft} />}
             {draft?.type === 'workshop' && <WorkshopForm draft={draft} />}

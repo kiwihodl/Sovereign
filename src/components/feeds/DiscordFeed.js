@@ -13,7 +13,7 @@ const DiscordFeed = () => {
 
     if (isLoading) {
         return (
-            <div className="h-[100vh] min-bottom-bar:w-[87vw] max-sidebar:w-[100vw]">
+            <div className="h-[100vh] min-bottom-bar:w-[86vw] max-sidebar:w-[100vw]">
                 <ProgressSpinner className='w-full mt-24 mx-auto' />
             </div>
         );
@@ -55,7 +55,7 @@ const DiscordFeed = () => {
     );
 
     return (
-        <div className="bg-gray-900 h-full w-full min-bottom-bar:w-[87vw]">
+        <div className="bg-gray-900 h-full w-full min-bottom-bar:w-[86vw]">
             <div className="mx-4 mt-4">
             {data && data.length > 0 ? (
                 data.map(message => (

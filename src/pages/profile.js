@@ -29,7 +29,7 @@ const Profile = () => {
     };
 
     return (
-        <div className="w-full min-h-full min-bottom-bar:w-[87vw] mx-auto">
+        <div className="w-full min-h-full min-bottom-bar:w-[86vw] mx-auto">
             <TabView
                 pt={{
                     root: {
