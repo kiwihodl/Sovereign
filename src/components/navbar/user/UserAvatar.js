@@ -46,7 +46,7 @@ const UserAvatar = () => {
         return null; // Or return a loader/spinner/placeholder
     } else if (user && Object.keys(user).length > 0) {
         // User exists, show username or pubkey
-        const displayName = user.username || user.pubkey.slice(0, 10) + '...';
+        const displayName = user.username || user?.email || user?.pubkey.slice(0, 10) + '...';
 
         const items = [
             {
@@ -81,7 +81,7 @@ const UserAvatar = () => {
                         className={styles.logo}
                     />
                 </div>
-                <Menu model={items} popup ref={menu} />
+                <Menu model={items} popup ref={menu} className='w-[250px] break-words' />
             </>
         );
     } else {

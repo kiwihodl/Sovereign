@@ -70,7 +70,7 @@ const UserSettings = () => {
                     </div>
 
                     <h1 className="text-center text-2xl my-2">
-                        {user.username || "Anon"}
+                        {user.username || user?.email || "Anon"}
                     </h1>
                     <h2 className="text-center text-xl my-2 truncate max-tab:px-4 max-mob:px-4">
                         {user.pubkey}

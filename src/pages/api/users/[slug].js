@@ -2,14 +2,18 @@ import { getUserById, getUserByPubkey, updateUser, deleteUser } from "@/db/model
 
 export default async function handler(req, res) {
   const { slug } = req.query;
-  // Determine if slug is a pubkey or an ID
+  // Determine if slug is a pubkey, ID, or email
   const isPubkey = /^[0-9a-fA-F]{64}$/.test(slug);
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(slug);
 
   try {
     let user;
     if (isPubkey) {
       // If slug is a pubkey
       user = await getUserByPubkey(slug);
+    } else if (isEmail) {
+      // If slug is an email
+      user = await getUserByEmail(slug);
     } else {
       // Assume slug is an ID
       const id = parseInt(slug);

@@ -1,8 +1,14 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import EmailProvider from "next-auth/providers/email";
 import NDK from "@nostr-dev-kit/ndk";
 import axios from "axios";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import prisma from "@/db/prisma";
 import { findKind0Fields } from "@/utils/nostr";
+import { generateSecretKey, getPublicKey } from 'nostr-tools/pure'
+import { bytesToHex } from '@noble/hashes/utils'
+import { updateUser } from "@/db/models/userModels";
 
 const relayUrls = [
     "wss://nos.lol/",
@@ -43,7 +49,6 @@ const authorize = async (pubkey) => {
             // Create user
             if (profile) {
                 const fields = await findKind0Fields(profile);
-                console.log('FEEEEELDS', fields);
                 const payload = { pubkey, ...fields };
 
                 const createUserResponse = await axios.post(`${BASE_URL}/api/users`, payload);
@@ -58,6 +63,7 @@ const authorize = async (pubkey) => {
 
 
 export default NextAuth({
+    adapter: PrismaAdapter(prisma),
     providers: [
         CredentialsProvider({
             id: "nostr",
@@ -72,15 +78,43 @@ export default NextAuth({
                 return null;
             },
         }),
+        EmailProvider({
+            server: {
+                host: process.env.EMAIL_SERVER_HOST,
+                port: process.env.EMAIL_SERVER_PORT,
+                auth: {
+                    user: process.env.EMAIL_SERVER_USER,
+                    pass: process.env.EMAIL_SERVER_PASSWORD
+                }
+            },
+            from: process.env.EMAIL_FROM
+        }),
     ],
     callbacks: {
         async jwt({ token, trigger, user }) {
-            console.log('TRIGGER', trigger);
             if (trigger === "update") {
                 // if we trigger an update call the authorize function again
                 const newUser = await authorize(token.user.pubkey);
                 token.user = newUser;
             }
+            // if the user has no pubkey, generate a new key pair
+            if (token && token?.user && token?.user?.id && !token.user?.pubkey) {
+                try {
+                    let sk = generateSecretKey() 
+                    let pk = getPublicKey(sk)
+                    let skHex = bytesToHex(sk)
+                    const updatedUser = await updateUser(token.user.id, {pubkey: pk, privkey: skHex});
+                    if (!updatedUser) {
+                        console.error("Failed to update user");
+                        return null;
+                    }
+                    token.user = updatedUser;
+                } catch (error) {
+                    console.error("Ephemeral key pair generation error:", error);
+                    return null;
+                }
+            }
+
             // Add combined user object to the token
             if (user) {
                 token.user = user;
@@ -88,6 +122,7 @@ export default NextAuth({
             return token;
         },
         async session({ session, token }) {
+            console.log('SESSION', session);
             // Add user from token to session
             session.user = token.user;
             session.jwt = token;
@@ -97,7 +132,6 @@ export default NextAuth({
             return baseUrl;
         },
         async signOut({ token, session }) {
-            console.log('signOut', token, session);
             token = {}
             session = {}
             return true

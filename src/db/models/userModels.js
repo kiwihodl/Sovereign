@@ -85,12 +85,15 @@ export const addCoursePurchaseToUser = async (userId, purchaseData) => {
 
 export const createUser = async (data) => {
   return await prisma.user.create({
-    data,
+    data: {
+      ...data,
+      emailVerified: data.email ? new Date() : null,
+    },
   });
 };
 
 export const updateUser = async (id, data) => {
-  console.log("user modelllll", id, data)
+  console.log("Updating user", id, data)
   return await prisma.user.update({
     where: { id },
     data,
@@ -168,4 +171,19 @@ export const expireUserSubscriptions = async (userIds) => {
 
   await prisma.$transaction(updatePromises);
   return userIds.length;
+};
+
+export const getUserByEmail = async (email) => {
+  return await prisma.user.findUnique({
+    where: { email },
+    include: {
+      role: true,
+      purchased: {
+        include: {
+          course: true,
+          resource: true,
+        },
+      },
+    },
+  });
 };
