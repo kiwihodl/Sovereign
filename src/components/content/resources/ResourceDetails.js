@@ -9,7 +9,7 @@ import { useZapsSubscription } from "@/hooks/nostrQueries/zaps/useZapsSubscripti
 import { getTotalFromZaps } from "@/utils/lightning";
 import { useSession } from "next-auth/react";
 
-const lnAddress = process.env.NEXT_PUBLIC_LN_ADDRESS;
+const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
 
 const ResourceDetails = ({processedEvent, topics, title, summary, image, price, author, paidResource, decryptedContent, handlePaymentSuccess, handlePaymentError}) => {
     const [zapAmount, setZapAmount] = useState(0);

@@ -5,18 +5,22 @@ import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useNDKContext } from '@/context/NDKContext';
+import { useSession } from 'next-auth/react';
 import { findKind0Fields } from '@/utils/nostr';
 import NostrIcon from '../../../public/images/nostr.png';
 import Image from 'next/image';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { nip19 } from 'nostr-tools';
 import { useCommunityNotes } from '@/hooks/nostr/useCommunityNotes';
+import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 
 const NostrFeed = () => {
     const { communityNotes, isLoading, error } = useCommunityNotes();
     const { ndk } = useNDKContext();
     const { returnImageProxy } = useImageProxy();
+    const { data: session } = useSession();
     const [authorData, setAuthorData] = useState({});
+    const [npub, setNpub] = useState(null);
 
     useEffect(() => {
         const fetchAuthors = async () => {
@@ -34,6 +38,12 @@ const NostrFeed = () => {
             fetchAuthors();
         }
     }, [communityNotes]);
+
+    useEffect(() => {
+        if (session?.user?.pubkey) {
+            setNpub(nip19.npubEncode(session.user.pubkey));
+        }
+    }, [session]);
 
     const fetchAuthor = async (pubkey) => {
         try {
@@ -64,12 +74,12 @@ const NostrFeed = () => {
     const renderHeader = (message) => (
         <div className="flex flex-row w-full items-center justify-between p-4 bg-gray-800 rounded-t-lg">
             <div className="flex flex-row items-center">
-                <Avatar 
+                <Avatar
                     image={getAvatarImage(message)}
                     icon={getAvatarImage(message) ? null : 'pi pi-user'}
-                    shape="circle" 
-                    size="large" 
-                    className="border-2 border-blue-400" 
+                    shape="circle"
+                    size="large"
+                    className="border-2 border-blue-400"
                 />
                 <p className="pl-4 font-bold text-xl text-white">
                     {authorData[message.pubkey]?.username || message.pubkey.substring(0, 12) + '...'}
@@ -85,19 +95,31 @@ const NostrFeed = () => {
     );
 
     const footer = (message) => (
-        <div className="w-full flex justify-between items-center">
-            <span className="bg-gray-800 rounded-lg p-2 text-sm text-gray-300">
-                {new Date(message.created_at * 1000).toLocaleString()}
-            </span>
-            <Button
-                label="View on Nostr"
-                icon="pi pi-external-link"
-                outlined
-                size="small"
-                className='my-2'
-                onClick={() => window.open(`https://nostr.band/${nip19.noteEncode(message.id)}`, '_blank')}
-            />
-        </div>
+        <>
+            <div className="w-full flex justify-between items-center">
+                <span className="bg-gray-800 rounded-lg p-2 text-sm text-gray-300">
+                    {new Date(message.created_at * 1000).toLocaleString()}
+                </span>
+                <Button
+                    label="View on Nostr"
+                    icon="pi pi-external-link"
+                    outlined
+                    size="small"
+                    className='my-2'
+                    onClick={() => window.open(`https://nostr.band/${nip19.noteEncode(message.id)}`, '_blank')}
+                />
+            </div>
+            <div className="w-full">
+                {session?.user?.pubkey && (
+                    <ZapThreadsWrapper
+                        anchor={nip19.noteEncode(message.id)}
+                        user={npub}
+                        relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://nostr.mutinywallet.com/, wss://relay.mutinywallet.com/, wss://relay.primal.net/"
+                        disable=""
+                    />
+                )}
+            </div>
+        </>
     );
 
     if (isLoading) {

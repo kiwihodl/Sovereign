@@ -34,7 +34,7 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
     const router = useRouter();
     const {ndk, addSigner} = useNDKContext();
 
-    const lnAddress = process.env.NEXT_PUBLIC_LN_ADDRESS;
+    const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
 
     useEffect(() => {
         console.log("processedEvent", processedEvent);

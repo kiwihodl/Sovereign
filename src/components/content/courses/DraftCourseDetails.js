@@ -230,7 +230,8 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
             ['description', summary],
             ['l', "Education"],
             ['price', price.toString()],
-            ...lessons.map((lesson) => ['a', `${lesson.kind}:${lesson.pubkey}:${lesson.d}`]),
+            // map out the lessons by order of the index property which is on each lesson
+            ...lessons.sort((a, b) => a.index - b.index).map((lesson) => ['a', `${lesson.kind}:${lesson.pubkey}:${lesson.d}`]),
         ];
         return event;
     };
