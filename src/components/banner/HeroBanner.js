@@ -32,7 +32,7 @@ const HeroBanner = () => {
     return (
         <div className="relative flex justify-center items-center">
             <Image
-                src="/plebdevs-banner.jpg"
+                src="/images/plebdevs-banner.png"
                 alt="Banner"
                 width={1920}
                 height={1080}

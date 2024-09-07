@@ -1,5 +1,5 @@
 import { PrimeReactProvider } from 'primereact/api';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Navbar from '@/components/navbar/Navbar';
 import { ToastProvider } from '@/hooks/useToast';
 import { SessionProvider } from "next-auth/react"
@@ -24,28 +24,41 @@ const queryClient = new QueryClient()
 export default function MyApp({
     Component, pageProps: { session, ...pageProps }
 }) {
+    const [sidebarExpanded, setSidebarExpanded] = useState(true);
+
+    useEffect(() => {
+        const handleSidebarToggle = (event) => {
+            setSidebarExpanded(event.detail.isExpanded);
+        };
+
+        window.addEventListener('sidebarToggle', handleSidebarToggle);
+
+        return () => {
+            window.removeEventListener('sidebarToggle', handleSidebarToggle);
+        };
+    }, []);
+
     return (
         <PrimeReactProvider>
             <SessionProvider session={session}>
                 <NDKProvider>
                     <QueryClientProvider client={queryClient}>
-                    <ToastProvider>
-                        <Layout>
-                            <div className="flex flex-col min-h-screen">
-                                <Navbar />
-                                <div className='flex'>
-                                <Sidebar />
-                                <div className='max-w-[100vw] pl-[14vw] max-sidebar:pl-0 pb-16 max-sidebar:pb-20'>
-                                {/* <div className='max-w-[100vw]'> */}
-                                    <Component {...pageProps} />
+                        <ToastProvider>
+                            <Layout>
+                                <div className="flex flex-col min-h-screen">
+                                    <Navbar />
+                                    <div className='flex'>
+                                        <Sidebar />
+                                        <div className='max-w-[100vw] pl-[14vw] max-sidebar:pl-0 pb-16 max-sidebar:pb-20'>
+                                            <Component {...pageProps} />
+                                        </div>
+                                    </div>
+                                    <BottomBar />
                                 </div>
-                                </div>
-                                <BottomBar />
-                            </div>
-                        </Layout>
-                    </ToastProvider>
-                </QueryClientProvider>
-            </NDKProvider>
+                            </Layout>
+                        </ToastProvider>
+                    </QueryClientProvider>
+                </NDKProvider>
             </SessionProvider>
         </PrimeReactProvider>
     );
