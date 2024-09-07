@@ -30,14 +30,6 @@ const Sidebar = () => {
 
     return (
         <div className={`max-sidebar:hidden bg-gray-800 p-2 fixed h-[100%] flex flex-col transition-all duration-300 ease-in-out ${isExpanded ? 'w-[14vw]' : 'w-[50px]'}`}>
-            <Button
-                onClick={toggleSidebar}
-                size='small' 
-                className={`p-0 px-2 mt-1 w-fit ${isExpanded ? 'self-end' : 'self-center'}`}
-                outlined
-                icon={<i className={`pi ${isExpanded ? 'pi-chevron-left' : 'pi-chevron-right'} text-xs`} />}
-            >
-            </Button>
             <div className="flex-grow overflow-y-auto">
                 {isExpanded ? (
                     <div className="flex-grow overflow-y-auto">
@@ -119,6 +111,9 @@ const Sidebar = () => {
                         <div onClick={() => session ? signOut() : router.push('/auth/signin')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/auth/signin') ? 'bg-gray-700' : ''}`}>
                             <i className={`pi ${session ? 'pi-sign-out' : 'pi-sign-in'} pl-5 text-sm`} /> <p className="pl-2 rounded-md font-bold text-lg">{session ? 'Logout' : 'Login'}</p>
                         </div>
+                        <div onClick={toggleSidebar} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg`}>
+                            <i className={`pi pi-chevron-left pl-5 text-sm`} /> <p className="pl-2 rounded-md font-bold text-lg">{isExpanded ? 'close' : 'open'}</p>
+                        </div>
                         {/* todo: have to add this extra button to push the sidebar to the right space but it doesnt seem to cause any negative side effects? */}
                         <div onClick={signOut} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg`}>
                             <i className="pi pi-sign-out pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Logout</p>
@@ -127,6 +122,8 @@ const Sidebar = () => {
                 ) : (
                     <div className="flex flex-col items-center">
                         <i className="pi pi-cog my-4 cursor-pointer" onClick={() => router.push('/profile?tab=settings')} />
+                        <i className={`pi ${session ? 'pi-sign-out' : 'pi-sign-in'} my-4 cursor-pointer`} onClick={() => session ? signOut() : router.push('/auth/signin')} />
+                        <i className="pi pi-chevron-right my-4 cursor-pointer" onClick={toggleSidebar} />
                         <i className={`pi ${session ? 'pi-sign-out' : 'pi-sign-in'} my-4 cursor-pointer`} onClick={() => session ? signOut() : router.push('/auth/signin')} />
                     </div>
                 )}
