@@ -61,8 +61,7 @@ const authorize = async (pubkey) => {
     return null;
 }
 
-
-export default NextAuth({
+export const authOptions = {
     adapter: PrismaAdapter(prisma),
     providers: [
         CredentialsProvider({
@@ -145,4 +144,6 @@ export default NextAuth({
     pages: {
         signIn: "/auth/signin",
     },
-});
+};
+
+export default NextAuth(authOptions);
