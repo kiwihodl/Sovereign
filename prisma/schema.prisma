@@ -138,6 +138,7 @@ model Resource {
     price     Int        @default(0)
     purchases Purchase[]
     noteId    String?    @unique
+    videoId   String?
     createdAt DateTime   @default(now())
     updatedAt DateTime   @updatedAt
 }

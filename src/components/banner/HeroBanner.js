@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import useWindowWidth from '@/hooks/useWindowWidth';
 import Image from 'next/image';
 
 const HeroBanner = () => {
     const options = ['Bitcoin', 'Lightning', 'Nostr'];
     const [currentOption, setCurrentOption] = useState(0);
     const [isFlipping, setIsFlipping] = useState(false);
+
+    const windowWidth = useWindowWidth();
 
     const getColorClass = (option) => {
         switch (option) {
@@ -31,15 +34,17 @@ const HeroBanner = () => {
 
     return (
         <div className="relative flex justify-center items-center">
-            <Image
-                src="/images/plebdevs-banner.png"
-                alt="Banner"
-                width={1920}
-                height={1080}
-                quality={100}
-                className='opacity-70'
-            />
-            <div className="w-[75vw] sm:w-[65vw] md:w-[45vw] lg:w-[45vw] xl:w-[45vw] absolute text-center text-white text-xl h-full flex flex-col justify-evenly">
+            {windowWidth && (
+                <Image
+                    src="/images/plebdevs-banner.png"
+                    alt="Banner"
+                    width={windowWidth <= 1920 ? 1920 : windowWidth}
+                    height={1080}
+                    quality={100}
+                    className='opacity-70'
+                />
+            )}
+            <div className="w-[75vw] sm:w-[65vw] md:w-[45vw] lg:w-[45vw] xl:w-[37vw] absolute text-center text-white text-xl h-full flex flex-col justify-evenly">
                 <p className='text-2xl md:text-4xl lg:text-5xl xl:text-5xl'>Learn how to code</p>
                 <p className='text-2xl md:text-4xl lg:text-5xl xl:text-5xl'>
                     Build{' '}

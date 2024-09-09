@@ -10,6 +10,7 @@ import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import { useToast } from '@/hooks/useToast';
 import { useNDKContext } from '@/context/NDKContext';
 import ResourceDetails from '@/components/content/resources/ResourceDetails';
+import {ProgressSpinner} from 'primereact/progressspinner';
 import 'primeicons/primeicons.css';
 
 const MDDisplay = dynamic(
@@ -30,6 +31,8 @@ export default function Details() {
     const [paidResource, setPaidResource] = useState(false);
     const [decryptedContent, setDecryptedContent] = useState(null);
     const [authorView, setAuthorView] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const {ndk, addSigner} = useNDKContext();
     const { data: session, update } = useSession();
@@ -75,7 +78,9 @@ export default function Details() {
         if (router.isReady) {
             const { slug } = router.query;
 
-            const fetchEvent = async (slug) => {
+            const fetchEvent = async (slug, retryCount = 0) => {
+                setLoading(true);
+                setError(null);
                 try {
                     await ndk.connect();
 
@@ -88,13 +93,33 @@ export default function Details() {
                     if (event) {
                         setEvent(event);
                         if (user && user.pubkey === event.pubkey) {
+                            const decryptedContent = await nip04.decrypt(privkey, pubkey, event.content);
+                            setDecryptedContent(decryptedContent);
                             setAuthorView(true);
+                        }
+                    } else {
+                        if (retryCount < 1) {
+                            // Wait for 2 seconds before retrying
+                            await new Promise(resolve => setTimeout(resolve, 3000));
+                            return fetchEvent(slug, retryCount + 1);
+                        } else {
+                            setError("Event not found");
                         }
                     }
                 } catch (error) {
                     console.error('Error fetching event:', error);
+                    if (retryCount < 1) {
+                        // Wait for 2 seconds before retrying
+                        await new Promise(resolve => setTimeout(resolve, 3000));
+                        return fetchEvent(slug, retryCount + 1);
+                    } else {
+                        setError("Failed to fetch event. Please try again.");
+                    }
+                } finally {
+                    setLoading(false);
                 }
             };
+
             if (ndk) {
                 fetchEvent(slug);
             }
@@ -190,21 +215,35 @@ export default function Details() {
         return null;
     }
 
+    if (loading) {
+        return <div className="mx-auto">
+            <ProgressSpinner />
+        </div>;
+    }
+
+    if (error) {
+        return <div className="w-full mx-auto h-screen">
+            <div className="text-red-500 text-xl">{error}</div>
+        </div>;
+    }
+
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
-            <ResourceDetails 
-                processedEvent={processedEvent}
-                topics={processedEvent.topics}
-                title={processedEvent.title}
-                summary={processedEvent.summary}
-                image={processedEvent.image}
-                price={processedEvent.price}
-                author={author}
-                paidResource={paidResource}
-                decryptedContent={decryptedContent}
-                handlePaymentSuccess={handlePaymentSuccess}
-                handlePaymentError={handlePaymentError}
-            />
+            {processedEvent && (
+                <ResourceDetails 
+                    processedEvent={processedEvent}
+                    topics={processedEvent.topics}
+                    title={processedEvent.title}
+                    summary={processedEvent.summary}
+                    image={processedEvent.image}
+                    price={processedEvent.price}
+                    author={author}
+                    paidResource={paidResource}
+                    decryptedContent={decryptedContent}
+                    handlePaymentSuccess={handlePaymentSuccess}
+                    handlePaymentError={handlePaymentError}
+                />
+            )}
             {authorView && (
                 <div className='w-[75vw] mx-auto flex flex-row justify-end mt-12'>
                     <div className='w-fit flex flex-row justify-between'>
@@ -224,7 +263,9 @@ export default function Details() {
                 </div>
             )}
             <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
-                {renderContent()}
+                {
+                    processedEvent && processedEvent.content && renderContent()
+                }
             </div>
         </div>
     );

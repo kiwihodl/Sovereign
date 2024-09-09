@@ -121,7 +121,6 @@ export const authOptions = {
             return token;
         },
         async session({ session, token }) {
-            console.log('SESSION', session);
             // Add user from token to session
             session.user = token.user;
             session.jwt = token;

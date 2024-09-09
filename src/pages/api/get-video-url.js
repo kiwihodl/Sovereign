@@ -12,20 +12,36 @@ const s3Client = new S3Client({
   },
 })
 
+const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY
+
 export default async function handler(req, res) {
-  const session = await getServerSession(req, res, authOptions)
-
-  if (!session) {
-    return res.status(401).json({ error: "Unauthorized" })
-  }
-
-  const { videoKey } = req.query
-
-  if (!videoKey) {
-    return res.status(400).json({ error: "Video key is required" })
-  }
-
   try {
+    // Check if the request method is GET
+    if (req.method !== 'GET') {
+      return res.status(405).json({ error: "Method Not Allowed" })
+    }
+
+    const session = await getServerSession(req, res, authOptions)
+
+    if (!session) {
+      return res.status(401).json({ error: "Unauthorized" })
+    }
+
+    const { videoKey } = req.query
+
+    if (!videoKey || typeof videoKey !== 'string') {
+      return res.status(400).json({ error: "Invalid or missing video key" })
+    }
+
+    // Check if the user is authorized to access the video
+    if (!session.user.role?.subscribed && session.user.pubkey !== AUTHOR_PUBKEY) {
+      const purchasedVideo = session.user.purchased?.find(purchase => purchase?.resource?.videoId === videoKey)
+      console.log("purchasedVideo", purchasedVideo)
+      if (!purchasedVideo) {
+        return res.status(403).json({ error: "Forbidden: You don't have access to this video" })
+      }
+    }
+
     const command = new GetObjectCommand({
       Bucket: "plebdevs-bucket",
       Key: videoKey,
@@ -37,7 +53,7 @@ export default async function handler(req, res) {
 
     res.redirect(signedUrl)
   } catch (error) {
-    console.error("Error generating signed URL:", error)
-    res.status(500).json({ error: "Failed to generate video URL" })
+    console.error("Error in get-video-url handler:", error)
+    res.status(500).json({ error: "Internal Server Error" })
   }
 }

@@ -30,6 +30,7 @@ export default function Draft() {
     const { returnImageProxy } = useImageProxy();
     const { data: session, status } = useSession();
     const [user, setUser] = useState(null);
+    const [videoId, setVideoId] = useState(null);
     const { width, height } = useResponsiveImageDimensions();
     const router = useRouter();
     const { showToast } = useToast();
@@ -63,7 +64,7 @@ export default function Draft() {
             }
 
             if (draft) {
-                const { unsignedEvent, type } = await buildEvent(draft);
+                const { unsignedEvent, type, videoId } = await buildEvent(draft);
 
                 const validationResult = validateEvent(unsignedEvent);
                 if (validationResult !== true) {
@@ -78,7 +79,7 @@ export default function Draft() {
                 if (unsignedEvent) {
                     const published = await unsignedEvent.publish();
 
-                    const saved = await handlePostResource(unsignedEvent);
+                    const saved = await handlePostResource(unsignedEvent, videoId);
                     // if successful, delete the draft, redirect to profile
                     if (published && saved) {
                         axios.delete(`/api/drafts/${draft.id}`)
@@ -104,7 +105,7 @@ export default function Draft() {
         }
     };
 
-    const handlePostResource = async (resource) => {
+    const handlePostResource = async (resource, videoId) => {
         console.log('resourceeeeee:', resource.tags);
         const dTag = resource.tags.find(tag => tag[0] === 'd')[1];
         let price 
@@ -133,6 +134,7 @@ export default function Draft() {
             userId: userResponse.data.id,
             price: Number(price),
             noteId: nAddress,
+            videoId: videoId ? videoId : null
         };
 
         const response = await axios.post(`/api/resources`, payload);
@@ -167,6 +169,7 @@ export default function Draft() {
         const event = new NDKEvent(ndk);
         let type;
         let encryptedContent;
+        let videoId;
 
         console.log('Draft:', draft);
         console.log('NewDTag:', NewDTag);
@@ -203,8 +206,10 @@ export default function Draft() {
 
                 if (draft?.content.includes('.mp4') || draft?.content.includes('.mov') || draft?.content.includes('.avi') || draft?.content.includes('.wmv') || draft?.content.includes('.flv') || draft?.content.includes('.webm')) {
                     // todo update this for dev and prod
+                    const extractedVideoId = draft.content.split('?videoKey=')[1].split('"')[0];
+                    videoId = extractedVideoId;
                     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
-                    const videoEmbed = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><video src="${baseUrl}/api/get-video-url?videoKey=${encodeURIComponent(draft.content)}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" controls></video></div>`;
+                    const videoEmbed = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><video src="${baseUrl}/api/get-video-url?videoKey=${encodeURIComponent(extractedVideoId)}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" controls></video></div>`;
                     if (draft?.price) {
                         const encryptedVideoUrl = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, videoEmbed);
                         draft.content = encryptedVideoUrl;
@@ -234,7 +239,7 @@ export default function Draft() {
                 return null;
         }
 
-        return { unsignedEvent: event, type };
+        return { unsignedEvent: event, type, videoId };
     };
 
     return (
@@ -251,10 +256,13 @@ export default function Draft() {
                                 )
                             })}
                         </div>
-                        <h1 className='text-4xl mt-6'>{draft?.title}</h1>
-                        <p className='text-xl mt-6'>{draft?.summary}</p>
+                        <h1 className='text-4xl mt-4'>{draft?.title}</h1>
+                        <p className='text-xl mt-4'>{draft?.summary}</p>
+                        {draft?.price && (
+                            <p className='text-lg mt-4'>Price: {draft.price}</p>
+                        )}
                         {draft?.additionalLinks && draft.additionalLinks.length > 0 && (
-                            <div className='mt-6'>
+                            <div className='mt-4'>
                                 <h3 className='text-lg font-semibold mb-2'>External links:</h3>
                                 <ul className='list-disc list-inside'>
                                     {draft.additionalLinks.map((link, index) => (
