@@ -39,16 +39,16 @@ const HeroBanner = () => {
                 quality={100}
                 className='opacity-70'
             />
-            <div className="max-mob:min-w-full max-tab:min-w-[38%] min-w-[35%] absolute text-center text-white text-xl h-full flex flex-col justify-evenly">
-                <p className='text-xl md:text-3xl lg:text-4xl xl:text-5xl'>Learn how to code</p>
-                <p className='text-xl md:text-3xl lg:text-4xl xl:text-5xl'>
+            <div className="w-[75vw] sm:w-[65vw] md:w-[45vw] lg:w-[45vw] xl:w-[45vw] absolute text-center text-white text-xl h-full flex flex-col justify-evenly">
+                <p className='text-2xl md:text-4xl lg:text-5xl xl:text-5xl'>Learn how to code</p>
+                <p className='text-2xl md:text-4xl lg:text-5xl xl:text-5xl'>
                     Build{' '}
                     <span className={`inline-block w-[50%] ${isFlipping ? 'flip-enter-active' : ''} ${getColorClass(options[currentOption])}`}>
                         {options[currentOption]}
                     </span>
                     {' '}Apps
                 </p>
-                <p className='text-xl md:text-3xl lg:text-4xl xl:text-5xl'>Become a developer</p>
+                <p className='text-2xl md:text-4xl lg:text-5xl xl:text-5xl'>Become a developer</p>
             </div>
 
         </div>

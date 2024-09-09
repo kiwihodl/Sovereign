@@ -201,6 +201,18 @@ export default function Draft() {
                     encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
                 }
 
+                if (draft?.content.includes('.mp4') || draft?.content.includes('.mov') || draft?.content.includes('.avi') || draft?.content.includes('.wmv') || draft?.content.includes('.flv') || draft?.content.includes('.webm')) {
+                    // todo update this for dev and prod
+                    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+                    const videoEmbed = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><video src="${baseUrl}/api/get-video-url?videoKey=${encodeURIComponent(draft.content)}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" controls></video></div>`;
+                    if (draft?.price) {
+                        const encryptedVideoUrl = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, videoEmbed);
+                        draft.content = encryptedVideoUrl;
+                    } else {
+                        draft.content = videoEmbed;
+                    }
+                }
+
                 event.kind = draft?.price ? 30402 : 30023;
                 event.content = draft?.price ? encryptedContent : draft.content;
                 event.created_at = Math.floor(Date.now() / 1000);
@@ -232,9 +244,8 @@ export default function Draft() {
                 <div className='w-[75vw] mx-auto flex flex-row items-start justify-between'>
                     <div className='flex flex-col items-start max-w-[45vw] max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
                         <div className='pt-2 flex flex-row justify-start w-full'>
-                            {/* List out topics */}
                             {draft?.topics && draft.topics.map((topic, index) => {
-                                if (topic === "plebdevs") return;
+                                if (topic === "") return;
                                 return (
                                     <Tag className='mr-2 text-white' key={index} value={topic}></Tag>
                                 )
@@ -302,7 +313,9 @@ export default function Draft() {
             </div>
             <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
                 {
-                    draft?.content && <MDDisplay className='p-4 rounded-lg' source={draft.content} />
+                    (
+                        draft?.content && <MDDisplay className='p-4 rounded-lg' source={draft.content} />
+                    )
                 }
             </div>
         </div>

@@ -48,7 +48,7 @@ export default function ResourcesCarousel() {
 
     return (
         <>
-            <h2 className="ml-[6%] mt-4">Resources</h2>
+            <h3 className="ml-[6%] mt-4">Resources</h3>
             <Carousel 
                 value={resourcesLoading || !processedResources.length ? [{}, {}, {}] : [...processedResources]}
                 numVisible={2}

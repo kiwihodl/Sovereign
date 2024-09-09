@@ -49,7 +49,7 @@ export default function WorkshopsCarousel() {
 
     return (
         <>
-            <h2 className="ml-[6%] mt-4">Workshops</h2>
+            <h3 className="ml-[6%] mt-4">Workshops</h3>
             <Carousel 
                 value={workshopsLoading || !processedWorkshops.length ? [{}, {}, {}] : [...processedWorkshops]}
                 numVisible={2}

@@ -19,8 +19,6 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" })
   }
 
-  console.log("Session:", session)
-
   const { videoKey } = req.query
 
   if (!videoKey) {
@@ -34,10 +32,10 @@ export default async function handler(req, res) {
     })
 
     const signedUrl = await getSignedUrl(s3Client, command, {
-      expiresIn: 10, // URL expires in 10 seconds
+      expiresIn: 3600, // URL expires in 1 hour
     })
 
-    res.status(200).json({ url: signedUrl })
+    res.redirect(signedUrl)
   } catch (error) {
     console.error("Error generating signed URL:", error)
     res.status(500).json({ error: "Failed to generate video URL" })

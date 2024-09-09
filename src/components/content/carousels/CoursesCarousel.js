@@ -50,7 +50,7 @@ export default function CoursesCarousel() {
 
     return (
         <>
-            <h2 className="ml-[6%] mt-4">Courses</h2>
+            <h3 className="ml-[6%] mt-4">Courses</h3>
             <div className={"min-h-[384px]"}>
                 <Carousel
                     value={coursesLoading || !processedCourses.length ? [{}, {}, {}] : [...processedCourses]}

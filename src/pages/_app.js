@@ -24,19 +24,19 @@ const queryClient = new QueryClient()
 export default function MyApp({
     Component, pageProps: { session, ...pageProps }
 }) {
-    const [sidebarExpanded, setSidebarExpanded] = useState(true);
+    // const [sidebarExpanded, setSidebarExpanded] = useState(true);
 
-    useEffect(() => {
-        const handleSidebarToggle = (event) => {
-            setSidebarExpanded(event.detail.isExpanded);
-        };
+    // useEffect(() => {
+    //     const handleSidebarToggle = (event) => {
+    //         setSidebarExpanded(event.detail.isExpanded);
+    //     };
 
-        window.addEventListener('sidebarToggle', handleSidebarToggle);
+    //     window.addEventListener('sidebarToggle', handleSidebarToggle);
 
-        return () => {
-            window.removeEventListener('sidebarToggle', handleSidebarToggle);
-        };
-    }, []);
+    //     return () => {
+    //         window.removeEventListener('sidebarToggle', handleSidebarToggle);
+    //     };
+    // }, []);
 
     return (
         <PrimeReactProvider>
