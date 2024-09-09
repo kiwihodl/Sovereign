@@ -6,8 +6,9 @@ import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useDiscordQuery } from '@/hooks/communityQueries/useDiscordQuery';
 import { useRouter } from 'next/router';
+import { highlightText } from '@/utils/text';
 
-const DiscordFeed = () => {
+const DiscordFeed = ({ searchQuery }) => {
     const router = useRouter();
     const { data, error, isLoading } = useDiscordQuery({page: router.query.page});
 
@@ -54,18 +55,22 @@ const DiscordFeed = () => {
         </div>
     );
 
+    const filteredData = data.filter(message =>
+        message.content.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
         <div className="bg-gray-900 h-full w-full min-bottom-bar:w-[86vw]">
             <div className="mx-4 mt-4">
-            {data && data.length > 0 ? (
-                data.map(message => (
+            {filteredData && filteredData.length > 0 ? (
+                filteredData.map(message => (
                     <Card
                     key={message.id}
                     header={() => header(message)}
                     footer={() => footer(message)}
                     className="w-full bg-gray-700 shadow-lg hover:shadow-xl transition-shadow duration-300 mb-4"
                     >
-                        <p className="m-0 text-lg text-gray-200">{message.content}</p>
+                        <p className="m-0 text-lg text-gray-200">{highlightText(message.content, searchQuery)}</p>
                     </Card>
                 ))
             ) : (

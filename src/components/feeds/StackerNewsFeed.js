@@ -5,6 +5,7 @@ import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useQuery } from '@tanstack/react-query';
+import { highlightText } from '@/utils/text';
 import axios from 'axios';
 
 const StackerNewsIconComponent = () => (
@@ -19,7 +20,7 @@ const fetchStackerNews = async () => {
 	return response.data.data.items.items; // Note the change here
 };
 
-const StackerNewsFeed = () => {
+const StackerNewsFeed = ({ searchQuery }) => {
 	const { data: items, isLoading, error } = useQuery({queryKey: ['stackerNews'], queryFn: fetchStackerNews});
 
     useEffect(() => {
@@ -71,18 +72,22 @@ const StackerNewsFeed = () => {
 		</div>
 	);
 
+	const filteredItems = items.filter(item =>
+		item.title.toLowerCase().includes(searchQuery.toLowerCase())
+	);
+
 	return (
 		<div className="bg-gray-900 h-full w-full min-bottom-bar:w-[86vw]">
 			<div className="mx-4 mt-4">
-					{items && items.length > 0 ? (
-						items.map(item => (
+					{filteredItems && filteredItems.length > 0 ? (
+						filteredItems.map(item => (
 							<Card
 								key={item.id}
 								header={() => header(item)}
 								footer={() => footer(item)}
 								className="w-full bg-gray-700 shadow-lg hover:shadow-xl transition-shadow duration-300 mb-4"
 							>
-								<h3 className="m-0 text-lg text-gray-200">{item.title}</h3>
+								<h3 className="m-0 text-lg text-gray-200">{highlightText(item.title, searchQuery)}</h3>
 								<p className="text-sm text-gray-400">
 									Comments: {item.comments.length} | Sats: {item.sats}
 								</p>

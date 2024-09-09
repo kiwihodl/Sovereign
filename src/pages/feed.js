@@ -15,9 +15,9 @@ import { Divider } from 'primereact/divider';
 
 const Feed = () => {
     const [selectedTopic, setSelectedTopic] = useState('global');
-    const [searchQuery, setSearchQuery] = useState('');
     const [title, setTitle] = useState('Community');
     const allTopics = ['global', 'nostr', 'discord', 'stackernews'];
+    const [searchQuery, setSearchQuery] = useState('');
 
     const router = useRouter();
 
@@ -96,16 +96,16 @@ const Feed = () => {
                 />
             </div>
             {
-                selectedTopic === 'global' && <GlobalFeed />
+                selectedTopic === 'global' && <GlobalFeed searchQuery={searchQuery} />
             }
             {
-                selectedTopic === 'nostr' && <NostrFeed />
+                selectedTopic === 'nostr' && <NostrFeed searchQuery={searchQuery} />
             }
             {
-                selectedTopic === 'discord' && <DiscordFeed />
+                selectedTopic === 'discord' && <DiscordFeed searchQuery={searchQuery} />
             }
             {
-                selectedTopic === 'stackernews' && <StackerNewsFeed />
+                selectedTopic === 'stackernews' && <StackerNewsFeed searchQuery={searchQuery} />
             }
         </div>
     );

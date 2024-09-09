@@ -14,6 +14,7 @@ import { findKind0Fields } from '@/utils/nostr';
 import NostrIcon from '../../../public/images/nostr.png';
 import Image from 'next/image';
 import { useImageProxy } from '@/hooks/useImageProxy';
+import { highlightText } from '@/utils/text';
 import { nip19 } from 'nostr-tools';
 
 const StackerNewsIconComponent = () => (
@@ -28,7 +29,7 @@ const fetchStackerNews = async () => {
     return response.data.data.items.items;
 };
 
-const GlobalFeed = () => {
+const GlobalFeed = ({searchQuery}) => {
     const router = useRouter();
     const { data: discordData, error: discordError, isLoading: discordLoading } = useDiscordQuery({page: router.query.page});
     const { data: stackerNewsData, error: stackerNewsError, isLoading: stackerNewsLoading } = useQuery({queryKey: ['stackerNews'], queryFn: fetchStackerNews});
@@ -109,6 +110,14 @@ const GlobalFeed = () => {
         const dateA = a.type === 'nostr' ? a.created_at * 1000 : new Date(a.timestamp || a.createdAt);
         const dateB = b.type === 'nostr' ? b.created_at * 1000 : new Date(b.timestamp || b.createdAt);
         return dateB - dateA;
+    }).filter(item => {
+        const searchLower = searchQuery.toLowerCase();
+        if (item.type === 'discord' || item.type === 'nostr') {
+            return item.content.toLowerCase().includes(searchLower);
+        } else if (item.type === 'stackernews') {
+            return item.title.toLowerCase().includes(searchLower);
+        }
+        return false;
     });
 
     const header = (item) => (
@@ -192,10 +201,14 @@ const GlobalFeed = () => {
                     className="w-full bg-gray-700 shadow-lg hover:shadow-xl transition-shadow duration-300 mb-4"
                     >
                         {item.type === 'discord' || item.type === 'nostr' ? (
-                            <p className="m-0 text-lg text-gray-200 overflow-hidden break-words">{item.content}</p>
+                            <p className="m-0 text-lg text-gray-200 overflow-hidden break-words">
+                                {highlightText(item.content, searchQuery)}
+                            </p>
                         ) : (
                             <>
-                                <h3 className="m-0 text-lg text-gray-200">{item.title}</h3>
+                                <h3 className="m-0 text-lg text-gray-200">
+                                    {highlightText(item.title, searchQuery)}
+                                </h3>
                                 <p className="text-sm text-gray-400">
                                     Comments: {item.comments.length} | Sats: {item.sats}
                                 </p>
@@ -204,7 +217,9 @@ const GlobalFeed = () => {
                     </Card>
                 ))
             ) : (
-                <div className="text-gray-400 text-center p-4">No items available.</div>
+                <div className="text-gray-400 text-center p-4">
+                    {searchQuery ? "No matching items found." : "No items available."}
+                </div>
             )}
             </div>
         </div>

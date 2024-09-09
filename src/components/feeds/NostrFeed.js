@@ -12,9 +12,10 @@ import Image from 'next/image';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { nip19 } from 'nostr-tools';
 import { useCommunityNotes } from '@/hooks/nostr/useCommunityNotes';
+import { highlightText } from '@/utils/text';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 
-const NostrFeed = () => {
+const NostrFeed = ({ searchQuery }) => {
     const { communityNotes, isLoading, error } = useCommunityNotes();
     const { ndk } = useNDKContext();
     const { returnImageProxy } = useImageProxy();
@@ -134,18 +135,24 @@ const NostrFeed = () => {
         return <div className="text-red-500 text-center p-4">Failed to load messages. Please try again later.</div>;
     }
 
+    const filteredNotes = communityNotes.filter(message =>
+        message.content.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
         <div className="bg-gray-900 h-full w-full min-bottom-bar:w-[86vw]">
             <div className="mx-4 mt-4">
-                {communityNotes.length > 0 ? (
-                    communityNotes.map(message => (
+                {filteredNotes.length > 0 ? (
+                    filteredNotes.map(message => (
                         <Card
                             key={message.id}
                             header={renderHeader(message)}
                             footer={() => footer(message)}
                             className="w-full bg-gray-700 shadow-lg hover:shadow-xl transition-shadow duration-300 mb-4"
                         >
-                            <p className="m-0 text-lg text-gray-200 overflow-hidden break-words">{message.content}</p>
+                            <p className="m-0 text-lg text-gray-200 overflow-hidden break-words">
+                                {highlightText(message.content, searchQuery)}
+                            </p>
                         </Card>
                     ))
                 ) : (
