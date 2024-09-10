@@ -6,6 +6,7 @@ import { useImageProxy } from "@/hooks/useImageProxy";
 import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from "primereact/progressspinner";
 import { useNDKContext } from "@/context/NDKContext";
+import useWindowWidth from "@/hooks/useWindowWidth";
 import Image from "next/image";
 import BitcoinConnectButton from "@/components/bitcoinConnect/BitcoinConnect";
 
@@ -14,6 +15,7 @@ const UserSettings = () => {
     const { data: session } = useSession();
     const { returnImageProxy } = useImageProxy();
     const { ndk } = useNDKContext();
+    const windowWidth = useWindowWidth();
 
     useEffect(() => {
         if (session?.user) {
@@ -62,7 +64,12 @@ const UserSettings = () => {
 
     return (
         user && (
-            <div className="h-full w-full min-bottom-bar:w-[86vw] max-sidebar:w-[100vw] mx-auto">
+            <div className="p-4">
+                {
+                    windowWidth < 768 && (
+                        <h1 className="text-3xl font-bold mb-6">Settings</h1>
+                    )
+                }
                 <div className="w-full flex flex-col justify-center mx-auto">
                     <div className="relative flex w-full items-center justify-center">
                         <Image

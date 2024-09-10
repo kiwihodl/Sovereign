@@ -103,16 +103,6 @@ const NostrFeed = ({ searchQuery }) => {
                             platform="nostr"
                             platformIcon={<Image src={NostrIcon} alt="Nostr" width={14} height={14} className='mr-[1px]' />}
                             platformLink={`https://nostr.band/${nip19.noteEncode(message.id)}`}
-                            additionalFooter={
-                                session?.user?.pubkey && (
-                                    <ZapThreadsWrapper
-                                        anchor={nip19.noteEncode(message.id)}
-                                        user={npub}
-                                        relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://nostr.mutinywallet.com/, wss://relay.mutinywallet.com/, wss://relay.primal.net/"
-                                        disable=""
-                                    />
-                                )
-                            }
                         />
                     ))
                 ) : (

@@ -38,8 +38,8 @@ const MessageInput = ({ onMessageSent }) => {
     const headerTemplate = (options) => {
         return (
             <div className="flex align-items-center justify-content-between my-1 py-2">
-                <GenericButton outlined severity="primary" size="small" className="py-1" onClick={options.onTogglerClick} icon={options.collapsed ? 'pi pi-chevron-down' : 'pi pi-chevron-up'} />
-                <h3 className="m-0 ml-2">New Message</h3>
+                <GenericButton outlined severity="primary" size="small" className="py-0" onClick={options.onTogglerClick} icon={options.collapsed ? 'pi pi-chevron-down' : 'pi pi-chevron-up'} />
+                <h2 className="m-0 ml-2">New Message</h2>
             </div>
         );
     };

@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useToast } from '@/hooks/useToast';
 import axios from 'axios';
 import { Card } from 'primereact/card';
-import { Button } from "primereact/button";
+import useWindowWidth from '@/hooks/useWindowWidth';
 import { Menu } from "primereact/menu";
 import { Message } from "primereact/message";
 import { ProgressSpinner } from 'primereact/progressspinner';
@@ -14,6 +14,7 @@ const UserSubscription = ({ user }) => {
     const { data: session, update } = useSession();
     const { showToast } = useToast();
     const router = useRouter();
+    const windowWidth = useWindowWidth();
     const [isProcessing, setIsProcessing] = useState(false);
     const [subscribed, setSubscribed] = useState(false);
     const [subscribedUntil, setSubscribedUntil] = useState(null);
@@ -117,7 +118,11 @@ const UserSubscription = ({ user }) => {
 
     return (
         <div className="p-4">
-            <h1 className="text-3xl font-bold mb-6">Subscription Management</h1>
+            {
+                windowWidth < 768 && (
+                    <h1 className="text-3xl font-bold mb-6">Subscription Management</h1>
+                )
+            }
             <Card title={subscriptionCardTitle} className="mb-6">
                 {subscribed && (
                     <div className="flex flex-col">

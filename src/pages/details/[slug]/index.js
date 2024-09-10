@@ -204,13 +204,13 @@ export default function Details() {
 
     const renderContent = () => {
         if (decryptedContent) {
-            return <MDDisplay className='p-4 rounded-lg' source={decryptedContent} />;
+            return <MDDisplay className='p-4 rounded-lg w-full' source={decryptedContent} />;
         }
         if (paidResource && !decryptedContent) {
             return <p className="text-center text-xl text-red-500">This content is paid and needs to be purchased before viewing.</p>;
         }
         if (processedEvent?.content) {
-            return <MDDisplay className='p-4 rounded-lg' source={processedEvent.content} />;
+            return <MDDisplay className='p-4 rounded-lg w-full' source={processedEvent.content} />;
         }
         return null;
     }
@@ -262,7 +262,7 @@ export default function Details() {
                     />
                 </div>
             )}
-            <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
+            <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:w-[100vw] max-mob:w-[100vw]'>
                 {
                     processedEvent && processedEvent.content && renderContent()
                 }

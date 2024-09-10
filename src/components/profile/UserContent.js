@@ -11,6 +11,7 @@ import { useContentIdsQuery } from "@/hooks/apiQueries/useContentIdsQuery";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/useToast";
 import { Divider } from "primereact/divider";
+import useWindowWidth from "@/hooks/useWindowWidth";
 import ContentList from "@/components/content/lists/ContentList";
 import { parseEvent } from "@/utils/nostr";
 import { ProgressSpinner } from "primereact/progressspinner";
@@ -23,7 +24,7 @@ const UserContent = () => {
     const [isClient, setIsClient] = useState(false);
     const [content, setContent] = useState([]);
     const [publishedContent, setPublishedContent] = useState([]);
-
+    const windowWidth = useWindowWidth();
     const { data: session, status } = useSession();
     const [user, setUser] = useState(null);
     const router = useRouter();
@@ -116,7 +117,11 @@ const UserContent = () => {
 
     return (
         <div className="p-4">
-            <h1 className="text-3xl font-bold mb-6">My Content</h1>
+            {
+                windowWidth < 768 && (
+                    <h1 className="text-3xl font-bold mb-6">My Content</h1>
+                )
+            }
             <div className="flex flex-row w-full justify-between px-8 max-tab:flex-col max-tab:px-0">
                 <MenuTab
                     items={contentItems}
@@ -128,10 +133,12 @@ const UserContent = () => {
                     label="Create"
                     severity="success"
                     outlined
-                    className="mt-2"
+                    className="mt-2 max-tab:w-[50%]"
                 />
             </div>
-            <Divider />
+            <div className="w-full px-8 max-tab:px-0">
+                <Divider />
+            </div>
             <div className="w-full mx-auto my-8">
                 <div className="w-full mx-auto px-8 max-tab:px-0">
                     {isLoading ? (

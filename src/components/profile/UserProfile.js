@@ -1,7 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
 import { DataTable } from "primereact/datatable";
-import { Button } from "primereact/button";
-import { Avatar } from "primereact/avatar";
 import { Menu } from "primereact/menu";
 import { Column } from "primereact/column";
 import { useImageProxy } from "@/hooks/useImageProxy";
@@ -10,12 +8,12 @@ import { ProgressSpinner } from "primereact/progressspinner";
 import PurchasedListItem from "@/components/profile/PurchasedListItem";
 import { useNDKContext } from "@/context/NDKContext";
 import { formatDateTime } from "@/utils/time";
-import { findKind0Fields } from "@/utils/nostr";
 import Image from "next/image";
-import BitcoinConnectButton from "@/components/bitcoinConnect/BitcoinConnect";
-import UserContent from "@/components/profile/UserContent";
 import SubscribeModal from "@/components/profile/subscription/SubscribeModal";
+import useWindowWidth from "@/hooks/useWindowWidth";
+
 const UserProfile = () => {
+    const windowWidth = useWindowWidth();
     const [user, setUser] = useState(null);
     const { data: session } = useSession();
     const { returnImageProxy } = useImageProxy();
@@ -53,7 +51,12 @@ const UserProfile = () => {
 
     return (
         user && (
-            <div className="h-full w-full min-bottom-bar:w-[86vw] max-sidebar:w-[100vw] mx-auto">
+            <div className="p-4">
+                {
+                    windowWidth < 768 && (
+                        <h1 className="text-3xl font-bold mb-6">Profile</h1>
+                    )
+                }
                 <div className="w-full flex flex-col justify-center mx-auto">
                     <div className="relative flex w-full items-center justify-center">
                         <Image
@@ -87,7 +90,7 @@ const UserProfile = () => {
                         emptyMessage="No purchases"
                         value={session.user?.purchased}
                         header={header}
-                        style={{ maxWidth: "90%", margin: "0 auto", borderRadius: "10px" }}
+                        style={{ maxWidth: windowWidth < 768 ? "100%" : "90%", margin: "0 auto", borderRadius: "10px" }}
                         pt={{
                             wrapper: {
                                 className: "rounded-lg rounded-t-none"
