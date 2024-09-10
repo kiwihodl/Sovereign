@@ -78,6 +78,11 @@ const SubscribeModal = ({ user }) => {
         }
     };
 
+    const onHide = () => {
+        setVisible(false);
+        setIsProcessing(false);
+    }
+
     const menuItems = [
         {
             label: "Renew Subscription",
@@ -147,7 +152,7 @@ const SubscribeModal = ({ user }) => {
             <Dialog
                 header="Subscribe to PlebDevs"
                 visible={visible}
-                onHide={() => setVisible(false)}
+                onHide={onHide}
                 className="p-fluid pb-0 w-fit"
             >
                 {isProcessing ? (

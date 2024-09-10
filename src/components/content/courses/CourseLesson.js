@@ -16,9 +16,16 @@ const MDDisplay = dynamic(
 
 const CourseLesson = ({ lesson, course }) => {
     const [zapAmount, setZapAmount] = useState(0);
-
+    const [paidResource, setPaidResource] = useState(false);
+    const [decryptedContent, setDecryptedContent] = useState(false);
     const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: lesson, type: "lesson" });
     const { returnImageProxy } = useImageProxy();
+
+    useEffect(() => {
+        if (course.price) {
+            setPaidResource(true);
+        }
+    }, [course]);
 
     useEffect(() => {
         if (!zaps || zapsLoading || zapsError) return;
@@ -27,6 +34,19 @@ const CourseLesson = ({ lesson, course }) => {
 
         setZapAmount(total);
     }, [zaps, zapsLoading, zapsError, lesson]);
+
+    const renderContent = () => {
+        if (decryptedContent) {
+            return <MDDisplay className='p-4 rounded-lg w-full' source={decryptedContent} />;
+        }
+        if (paidResource && !decryptedContent) {
+            return <p className="text-center text-xl text-red-500">This content is paid and needs to be purchased before viewing.</p>;
+        }
+        if (lesson?.content) {
+            return <MDDisplay className='p-4 rounded-lg w-full' source={lesson.content} />;
+        }
+        return null;
+    }
 
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
@@ -91,9 +111,7 @@ const CourseLesson = ({ lesson, course }) => {
                 </div>
             </div>
             <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
-                {
-                    lesson?.content && <MDDisplay className='p-4 rounded-lg' source={lesson.content} />
-                }
+                {renderContent()}
             </div>
         </div>
     )

@@ -73,14 +73,12 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
 
     const handlePaymentSuccess = async (response) => {
         console.log('Payment successful', response);
-        clearInterval(checkPaymentInterval);
         showToast('success', 'Payment Successful', 'Your payment has been processed successfully.');
         if (onSuccess) onSuccess(response);
     };
 
     const handlePaymentError = async (error) => {
         console.error('Payment error', error);
-        clearInterval(checkPaymentInterval);
         showToast('error', 'Payment Failed', `An error occurred during payment: ${error.message}`);
         if (onError) onError(error);
     };
