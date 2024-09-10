@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Dropdown } from 'primereact/dropdown';
-import { Button } from 'primereact/button';
+import GenericButton from '@/components/buttons/GenericButton';
 import { Dialog } from 'primereact/dialog';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import EmbeddedResourceForm from '@/components/forms/course/embedded/EmbeddedResourceForm';
@@ -141,7 +141,7 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
         return (
             <div className="flex justify-between items-center">
                 <p>Lesson {index + 1}</p>
-                <Button icon="pi pi-times" className="p-button-danger" onClick={() => removeLesson(index)} />
+                <GenericButton icon="pi pi-times" className="p-button-danger" onClick={() => removeLesson(index)} />
             </div>
         );
     };
@@ -167,8 +167,8 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
                         <div className="flex mt-4">
                             {lesson.id ? null : (
                                 <>
-                                    <Button label="New Resource" onClick={(e) => {e.preventDefault(); setShowResourceForm(true)}} className="mr-2" />
-                                    <Button label="New Workshop" onClick={(e) => {e.preventDefault(); setShowWorkshopForm(true)}} className="mr-2" />
+                                    <GenericButton label="New Resource" onClick={(e) => {e.preventDefault(); setShowResourceForm(true)}} className="mr-2" />
+                                    <GenericButton label="New Workshop" onClick={(e) => {e.preventDefault(); setShowWorkshopForm(true)}} className="mr-2" />
                                 </>
                             )}
                         </div>
@@ -183,7 +183,7 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
                     </AccordionTab>
                 ))}
             </Accordion>
-            <Button 
+            <GenericButton 
                 label="Add New Lesson" 
                 onClick={addNewLesson} 
                 className="mt-4" 

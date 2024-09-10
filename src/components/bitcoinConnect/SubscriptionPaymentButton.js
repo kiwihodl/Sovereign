@@ -10,6 +10,7 @@ import { useRouter } from 'next/router';
 import { Divider } from 'primereact/divider';
 import dynamic from 'next/dynamic';
 import AlbyButton from '@/components/buttons/AlbyButton';
+import GenericButton from '@/components/buttons/GenericButton';
 import axios from 'axios';
 import Image from 'next/image';
 
@@ -208,7 +209,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
             {!invoice && (
                 <div className="w-full flex flex-row justify-between">
                     {(oneTime || (!oneTime && !recurring)) && (
-                        <Button
+                        <GenericButton
                             label="Pay as you go"
                             icon="pi pi-bolt"
                             onClick={async () => {
@@ -220,7 +221,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
                         />
                     )}
                     {(recurring || (!oneTime && !recurring)) && (
-                        <Button
+                        <GenericButton
                             label="Setup Recurring Subscription"
                             icon={
                                 <Image
@@ -253,7 +254,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
                             placeholder="Enter NWC URL"
                             className="w-full p-2 mb-4 border rounded"
                         />
-                        <Button
+                        <GenericButton
                             label="Submit"
                             onClick={handleManualNwcSubmit}
                             className="mt-4 w-fit text-[#f8f8ff]"

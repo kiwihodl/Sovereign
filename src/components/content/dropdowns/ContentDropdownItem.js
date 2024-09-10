@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 import Image from "next/image";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { formatUnixTimestamp } from "@/utils/time";
-import { Button } from "primereact/button";
+import GenericButton from "@/components/buttons/GenericButton";
 
 const ContentDropdownItem = ({ content, onSelect }) => {
     const { returnImageProxy } = useImageProxy();
@@ -25,7 +25,7 @@ const ContentDropdownItem = ({ content, onSelect }) => {
                     </div>
                 </div>
                 <div className="flex flex-col justify-end">
-                    <Button label="Select" onClick={() => onSelect(content)} />
+                    <GenericButton label="Select" onClick={() => onSelect(content)} className="text-[#f8f8ff]" />
                 </div>
             </div>
         </div>

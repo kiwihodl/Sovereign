@@ -9,18 +9,18 @@ export function useDraftsQuery() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    if (session) {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (session?.user) {
       setUser(session.user);
     }
   }, [session]);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const fetchDraftsDB = async () => {
     try {
-      if (!user.id) {
+      if (!user?.id) {
         return [];
       }
       const response = await axios.get(`/api/drafts/all/${user.id}`);
@@ -34,11 +34,9 @@ export function useDraftsQuery() {
   };
 
   const { data: drafts, isLoading: draftsLoading, error: draftsError, refetch: refetchDrafts } = useQuery({
-    queryKey: ['drafts', isClient],
+    queryKey: ['drafts', isClient, user?.id],
     queryFn: fetchDraftsDB,
-    // staleTime: 1000 * 60 * 30, // 30 minutes
-    // refetchInterval: 1000 * 60 * 30, // 30 minutes
-    enabled: isClient && !!user.id, // Only enable if client-side and user ID is available
+    enabled: isClient && !!user?.id,
   });
 
   return { drafts, draftsLoading, draftsError, refetchDrafts };

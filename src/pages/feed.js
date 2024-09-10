@@ -10,7 +10,7 @@ import { useRouter } from 'next/router';
 import MessageInput from '@/components/feeds/MessageInput';
 import StackerNewsIcon from '../../public/images/sn.svg';
 import NostrIcon from '../../public/images/nostr.png';
-import { Button } from 'primereact/button';
+import GenericButton from '@/components/buttons/GenericButton';
 import { Divider } from 'primereact/divider';
 
 const Feed = () => {
@@ -59,7 +59,7 @@ const Feed = () => {
             <div className="w-[100vw] min-bottom-bar:w-[86vw] px-4 pt-4 flex flex-col items-start">
                 <div className='mb-4 flex flex-row items-end'>
                     <h2 className="font-bold mb-0">Community</h2>
-                    <Button
+                    <GenericButton
                         icon={getTagIcon(title)}
                         className='ml-2 text-sm p-2 py-1 flex items-center cursor-default hover:bg-transparent'
                         outlined

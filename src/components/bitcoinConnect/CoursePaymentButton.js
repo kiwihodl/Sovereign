@@ -6,6 +6,7 @@ import { initializeBitcoinConnect } from './BitcoinConnect';
 import { LightningAddress } from '@getalby/lightning-tools';
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
+import GenericButton from '@/components/buttons/GenericButton';
 import axios from 'axios'; // Import axios for API calls
 
 const Payment = dynamic(
@@ -75,7 +76,7 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
 
     return (
         <>
-            <Button 
+            <GenericButton 
                 label={`${amount} sats`} 
                 onClick={() => setDialogVisible(true)} 
                 disabled={!invoice}

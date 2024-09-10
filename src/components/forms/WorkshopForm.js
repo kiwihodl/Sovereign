@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputSwitch } from 'primereact/inputswitch';
-import { Button } from 'primereact/button';
+import GenericButton from '@/components/buttons/GenericButton';
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
 import 'primeicons/primeicons.css';
@@ -179,12 +179,12 @@ const WorkshopForm = ({ draft = null }) => {
                     <div className="p-inputgroup flex-1" key={index}>
                         <InputText value={link} onChange={(e) => handleLinkChange(index, e.target.value)} placeholder="https://example.com" className="w-full mt-2" />
                         {index > 0 && (
-                            <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={(e) => removeLink(e, index)} />
+                            <GenericButton icon="pi pi-times" className="p-button-danger mt-2" onClick={(e) => removeLink(e, index)} />
                         )}
                     </div>
                 ))}
                 <div className="w-full flex flex-row items-end justify-end py-2">
-                    <Button icon="pi pi-plus" onClick={addLink} />
+                    <GenericButton icon="pi pi-plus" onClick={addLink} />
                 </div>
                 <Tooltip target=".pi-info-circle" />
             </div>
@@ -193,16 +193,16 @@ const WorkshopForm = ({ draft = null }) => {
                     <div className="p-inputgroup flex-1" key={index}>
                         <InputText value={topic} onChange={(e) => handleTopicChange(index, e.target.value)} placeholder="Topic" className="w-full mt-2" />
                         {index > 0 && (
-                            <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={(e) => removeTopic(e, index)} />
+                            <GenericButton icon="pi pi-times" className="p-button-danger mt-2" onClick={(e) => removeTopic(e, index)} />
                         )}
                     </div>
                 ))}
                 <div className="w-full flex flex-row items-end justify-end py-2">
-                    <Button icon="pi pi-plus" onClick={addTopic} />
+                    <GenericButton icon="pi pi-plus" onClick={addTopic} />
                 </div>
             </div>
             <div className="flex justify-center mt-8">
-                <Button type="submit" severity="success" outlined label={draft ? "Update" : "Submit"} />
+                <GenericButton type="submit" severity="success" outlined label={draft ? "Update" : "Submit"} />
             </div>
         </form>
     );

@@ -11,7 +11,12 @@ const relayUrls = [
   "wss://relay.nostr.band/",
   "wss://nostr.mutinywallet.com/",
   "wss://relay.mutinywallet.com/",
-  "wss://relay.primal.net/"
+  "wss://relay.primal.net/",
+  "wss://nostr21.com/",
+  "wss://nostrue.com/",
+  "wss://nostr.band/",
+  "wss://nostr.land/",
+  "wss://purplerelay.com/",
 ];
 
 export const NDKProvider = ({ children }) => {

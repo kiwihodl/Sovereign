@@ -4,8 +4,8 @@ import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { InputNumber } from "primereact/inputnumber";
 import { InputSwitch } from "primereact/inputswitch";
-import { Button } from "primereact/button";
-import { useRouter } from "next/router";;
+import GenericButton from "@/components/buttons/GenericButton";
+import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/useToast";
 import { useNDKContext } from "@/context/NDKContext";
@@ -263,12 +263,12 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
                     <div className="p-inputgroup flex-1" key={index}>
                         <InputText value={link} onChange={(e) => handleAdditionalLinkChange(index, e.target.value)} placeholder="https://plebdevs.com" className="w-full mt-2" />
                         {index > 0 && (
-                            <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={(e) => removeAdditionalLink(e, index)} />
+                            <GenericButton icon="pi pi-times" className="p-button-danger mt-2" onClick={(e) => removeAdditionalLink(e, index)} />
                         )}
                     </div>
                 ))}
                 <div className="w-full flex flex-row items-end justify-end py-2">
-                    <Button icon="pi pi-plus" onClick={addAdditionalLink} />
+                    <GenericButton icon="pi pi-plus" onClick={addAdditionalLink} />
                 </div>
                 <Tooltip target=".pi-info-circle" />
             </div>
@@ -277,16 +277,16 @@ const ResourceForm = ({ draft = null, isPublished = false }) => {
                     <div className="p-inputgroup flex-1" key={index}>
                         <InputText value={topic} onChange={(e) => handleTopicChange(index, e.target.value)} placeholder="Topic" className="w-full mt-2" />
                         {index > 0 && (
-                            <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={(e) => removeTopic(e, index)} />
+                            <GenericButton icon="pi pi-times" className="p-button-danger mt-2" onClick={(e) => removeTopic(e, index)} />
                         )}
                     </div>
                 ))}
                 <div className="w-full flex flex-row items-end justify-end py-2">
-                    <Button icon="pi pi-plus" onClick={addTopic} />
+                    <GenericButton icon="pi pi-plus" onClick={addTopic} />
                 </div>
             </div>
             <div className="flex justify-center mt-8">
-                <Button type="submit" severity="success" outlined label={draft ? "Update Draft" : "Save Draft"} />
+                <GenericButton type="submit" severity="success" outlined label={draft ? "Update Draft" : "Save Draft"} />
             </div>
         </form>
     );

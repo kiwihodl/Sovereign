@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Tag } from "primereact/tag";
 import { Message } from "primereact/message";
-import { Button } from "primereact/button";
+import GenericButton from "@/components/buttons/GenericButton";
 import Image from "next/image";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { formatDateTime, formatUnixTimestamp } from "@/utils/time";
@@ -87,14 +87,14 @@ const DraftCourseLesson = ({ lesson, course }) => {
                             {isPublished ? (
                                 <>
                                     <Message severity="success" text="published" className="w-auto m-2" />
-                                    <Button onClick={() => router.push(`/details/${lesson.id}`)} label="View" outlined className="w-auto m-2" />
-                                    <Button onClick={() => router.push(`/details/${lesson.id}/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
+                                    <GenericButton onClick={() => router.push(`/details/${lesson.id}`)} label="View" outlined className="w-auto m-2" />
+                                    <GenericButton onClick={() => router.push(`/details/${lesson.id}/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
                                 </>
                             ) : (
                                 <>
                                     <Message severity="info" text="draft (unpublished)" />
-                                    <Button onClick={() => router.push(`/draft/${lesson.id}`)} label="View" outlined className="w-auto m-2" />
-                                    <Button onClick={() => router.push(`/draft/${lesson.id}/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
+                                    <GenericButton onClick={() => router.push(`/draft/${lesson.id}`)} label="View" outlined className="w-auto m-2" />
+                                    <GenericButton onClick={() => router.push(`/draft/${lesson.id}/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
                                 </>
                             )}
                         </div>

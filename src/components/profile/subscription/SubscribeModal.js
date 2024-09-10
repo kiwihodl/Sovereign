@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 import { useToast } from '@/hooks/useToast';
 import { Card } from 'primereact/card';
 import { Badge } from 'primereact/badge';
-import { Button } from "primereact/button";
+import GenericButton from '@/components/buttons/GenericButton';
 import { Menu } from "primereact/menu";
 import { Message } from "primereact/message";
 
@@ -126,7 +126,7 @@ const SubscribeModal = ({ user }) => {
                 {(!subscribed && !subscriptionExpiredAt) && (
                     <div className="flex flex-col">
                         <Message className="w-fit" severity="info" text="You currently have no active subscription" />
-                        <Button
+                        <GenericButton
                             label="Subscribe"
                             className="w-auto mt-8 text-[#f8f8ff]"
                             onClick={() => setVisible(true)}
@@ -136,7 +136,7 @@ const SubscribeModal = ({ user }) => {
                 {subscriptionExpiredAt && (
                     <div className="flex flex-col">
                         <Message className="w-fit" severity="warn" text={`Your subscription expired on ${subscriptionExpiredAt.toLocaleDateString()}`} />
-                        <Button
+                        <GenericButton
                             label="Subscribe"
                             className="w-auto mt-8 text-[#f8f8ff]"
                             onClick={() => setVisible(true)}

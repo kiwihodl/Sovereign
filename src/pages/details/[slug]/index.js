@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { parseEvent, findKind0Fields } from '@/utils/nostr';
-import { Button } from 'primereact/button';
+import GenericButton from '@/components/buttons/GenericButton';
 import { nip19, nip04 } from 'nostr-tools';
 import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
@@ -247,8 +247,8 @@ export default function Details() {
             {authorView && (
                 <div className='w-[75vw] mx-auto flex flex-row justify-end mt-12'>
                     <div className='w-fit flex flex-row justify-between'>
-                        <Button onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
-                        <Button onClick={handleDelete} label="Delete" severity='danger' outlined className="w-auto m-2 mr-0" />
+                        <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
+                        <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined className="w-auto m-2 mr-0" />
                     </div>
                 </div>
             )}

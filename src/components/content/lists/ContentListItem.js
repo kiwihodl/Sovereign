@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
 import Image from "next/image";
-import { Button } from "primereact/button";
+import GenericButton from "@/components/buttons/GenericButton";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useRouter } from "next/router";
 import { Divider } from 'primereact/divider';
@@ -44,7 +44,7 @@ const ContentListItem = (content) => {
                         <span>{content.summary}</span>
                     </div>
                     <div className="text-right">
-                        <Button
+                        <GenericButton
                             onClick={handleClick}
                             label="Open"
                             outlined

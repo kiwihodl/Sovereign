@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { Tag } from 'primereact/tag';
-import { Button } from 'primereact/button';
+import GenericButton from '@/components/buttons/GenericButton';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import axios from 'axios';
@@ -407,9 +407,9 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
             </div>
             <div className='w-[75vw] mx-auto flex flex-row justify-end mt-12'>
                 <div className='w-fit flex flex-row justify-between'>
-                    <Button onClick={handleSubmit} label="Publish" severity='success' outlined className="w-auto m-2" />
-                    <Button onClick={() => router.push(`/course/${draftId}/draft/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
-                    <Button onClick={handleDelete} label="Delete" severity='danger' outlined className="w-auto m-2 mr-0" />
+                    <GenericButton onClick={handleSubmit} label="Publish" severity='success' outlined className="w-auto m-2" />
+                    <GenericButton onClick={() => router.push(`/course/${draftId}/draft/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
+                    <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined className="w-auto m-2 mr-0" />
                 </div>
             </div>
             <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>

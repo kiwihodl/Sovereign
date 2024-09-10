@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { Button } from "primereact/button";
+import GenericButton from "@/components/buttons/GenericButton";
 import MenuTab from "@/components/menutab/MenuTab";
 import { useCourses } from "@/hooks/nostr/useCourses";
 import { useResources } from "@/hooks/nostr/useResources";
@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/useToast";
 import { Divider } from "primereact/divider";
 import ContentList from "@/components/content/lists/ContentList";
 import { parseEvent } from "@/utils/nostr";
+import { ProgressSpinner } from "primereact/progressspinner";
 import { useNDKContext } from "@/context/NDKContext";
 
 const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY;
@@ -122,7 +123,7 @@ const UserContent = () => {
                     activeIndex={activeIndex}
                     onTabChange={setActiveIndex}
                 />
-                <Button
+                <GenericButton
                     onClick={() => router.push("/create")}
                     label="Create"
                     severity="success"
@@ -134,7 +135,7 @@ const UserContent = () => {
             <div className="w-full mx-auto my-8">
                 <div className="w-full mx-auto px-8 max-tab:px-0">
                     {isLoading ? (
-                        <p>Loading...</p>
+                        <ProgressSpinner className="w-full mx-auto" />
                     ) : isError ? (
                         <p>Error loading content.</p>
                     ) : content.length > 0 ? (

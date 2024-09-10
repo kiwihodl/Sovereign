@@ -24,7 +24,7 @@ const WorkshopTemplate = ({ workshop }) => {
     if (zapsError) return <div>Error: {zapsError}</div>;
 
     return (
-        <div className="flex flex-col items-center mx-auto px-4 mt-8 rounded-md">
+        <div className="flex flex-col items-center mx-auto px-4 mt-8 rounded-md max-tab:px-0">
             <div
                 onClick={() => router.replace(`/details/${workshop.id}`)}
                 className="relative w-full h-0 hover:opacity-80 transition-opacity duration-300 cursor-pointer"

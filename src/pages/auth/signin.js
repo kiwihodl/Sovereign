@@ -1,7 +1,7 @@
 import { signIn, useSession } from "next-auth/react"
 import { useState, useEffect } from "react"
 import { useNDKContext } from "@/context/NDKContext";
-import { Button } from 'primereact/button';
+import GenericButton from "@/components/buttons/GenericButton";
 import { InputText } from 'primereact/inputtext';
 
 export default function SignIn() {
@@ -43,21 +43,21 @@ export default function SignIn() {
   return (
     <div className="w-[100vw] min-bottom-bar:w-[86vw] mx-auto mt-24 flex flex-col justify-center">
       <h1 className="text-center mb-8">Sign In</h1>
-      <Button
+      <GenericButton
         label={"login with nostr"}
         icon="pi pi-user"
         className="text-[#f8f8ff] w-[250px] my-4 mx-auto"
         rounded
         onClick={handleNostrSignIn}
       />
-      <Button
+      <GenericButton
         label={"login anonymously"}
         icon="pi pi-user"
         className="text-[#f8f8ff] w-[250px] my-4 mx-auto"
         rounded
         onClick={handleAnonymousSignIn}
       />
-      <Button
+      <GenericButton
         label={"login with email"}
         icon="pi pi-envelope"
         className="text-[#f8f8ff] w-[250px] my-4 mx-auto"
@@ -73,7 +73,7 @@ export default function SignIn() {
             placeholder="Enter your email"
             className="w-[250px] my-4"
           />
-          <Button
+          <GenericButton
             type="submit"
             label={"Submit"}
             icon="pi pi-check"

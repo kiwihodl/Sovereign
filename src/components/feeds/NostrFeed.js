@@ -1,8 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from 'primereact/card';
-import { Avatar } from 'primereact/avatar';
-import { Tag } from 'primereact/tag';
-import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useNDKContext } from '@/context/NDKContext';
 import { useSession } from 'next-auth/react';
@@ -10,9 +6,10 @@ import { findKind0Fields } from '@/utils/nostr';
 import NostrIcon from '../../../public/images/nostr.png';
 import Image from 'next/image';
 import { useImageProxy } from '@/hooks/useImageProxy';
+import useWindowWidth from '@/hooks/useWindowWidth';
 import { nip19 } from 'nostr-tools';
 import { useCommunityNotes } from '@/hooks/nostr/useCommunityNotes';
-import { highlightText } from '@/utils/text';
+import CommunityMessage from '@/components/feeds/messages/CommunityMessage';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 
 const NostrFeed = ({ searchQuery }) => {
@@ -22,6 +19,8 @@ const NostrFeed = ({ searchQuery }) => {
     const { data: session } = useSession();
     const [authorData, setAuthorData] = useState({});
     const [npub, setNpub] = useState(null);
+
+    const windowWidth = useWindowWidth();
 
     useEffect(() => {
         const fetchAuthors = async () => {
@@ -68,61 +67,6 @@ const NostrFeed = ({ searchQuery }) => {
         }
     };
 
-    const getAvatarImage = (message) => {
-        return authorData[message.pubkey]?.avatar ? returnImageProxy(authorData[message.pubkey]?.avatar) : null;
-    };
-
-    const renderHeader = (message) => (
-        <div className="flex flex-row w-full items-center justify-between p-4 bg-gray-800 rounded-t-lg">
-            <div className="flex flex-row items-center">
-                <Avatar
-                    image={getAvatarImage(message)}
-                    icon={getAvatarImage(message) ? null : 'pi pi-user'}
-                    shape="circle"
-                    size="large"
-                    className="border-2 border-blue-400"
-                />
-                <p className="pl-4 font-bold text-xl text-white">
-                    {authorData[message.pubkey]?.username || message.pubkey.substring(0, 12) + '...'}
-                </p>
-            </div>
-            <div className="flex flex-col items-start justify-between">
-                <div className="flex flex-row w-full justify-between items-center my-1 max-sidebar:flex-col max-sidebar:items-start">
-                    <Tag icon="pi pi-hashtag" value="plebdevs" severity="primary" className="w-fit text-[#f8f8ff] bg-gray-600 mr-2 max-sidebar:mr-0" />
-                    <Tag icon={<Image src={NostrIcon} alt="Nostr" width={14} height={14} className='mr-[1px]' />} value="nostr" className="w-fit text-[#f8f8ff] bg-blue-400 max-sidebar:mt-1" />
-                </div>
-            </div>
-        </div>
-    );
-
-    const footer = (message) => (
-        <>
-            <div className="w-full flex justify-between items-center">
-                <span className="bg-gray-800 rounded-lg p-2 text-sm text-gray-300">
-                    {new Date(message.created_at * 1000).toLocaleString()}
-                </span>
-                <Button
-                    label="View on Nostr"
-                    icon="pi pi-external-link"
-                    outlined
-                    size="small"
-                    className='my-2'
-                    onClick={() => window.open(`https://nostr.band/${nip19.noteEncode(message.id)}`, '_blank')}
-                />
-            </div>
-            <div className="w-full">
-                {session?.user?.pubkey && (
-                    <ZapThreadsWrapper
-                        anchor={nip19.noteEncode(message.id)}
-                        user={npub}
-                        relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://nostr.mutinywallet.com/, wss://relay.mutinywallet.com/, wss://relay.primal.net/"
-                        disable=""
-                    />
-                )}
-            </div>
-        </>
-    );
-
     if (isLoading) {
         return (
             <div className="h-[100vh] min-bottom-bar:w-[86vw] max-sidebar:w-[100vw]">
@@ -144,16 +88,32 @@ const NostrFeed = ({ searchQuery }) => {
             <div className="mx-4 mt-4">
                 {filteredNotes.length > 0 ? (
                     filteredNotes.map(message => (
-                        <Card
+                        <CommunityMessage
                             key={message.id}
-                            header={renderHeader(message)}
-                            footer={() => footer(message)}
-                            className="w-full bg-gray-700 shadow-lg hover:shadow-xl transition-shadow duration-300 mb-4"
-                        >
-                            <p className="m-0 text-lg text-gray-200 overflow-hidden break-words">
-                                {highlightText(message.content, searchQuery)}
-                            </p>
-                        </Card>
+                            message={{
+                                id: message.id,
+                                author: authorData[message.pubkey]?.username || message.pubkey.substring(0, 12) + '...',
+                                avatar: authorData[message.pubkey]?.avatar ? returnImageProxy(authorData[message.pubkey]?.avatar) : null,
+                                content: message.content,
+                                timestamp: message.created_at * 1000,
+                                channel: "plebdevs"
+                            }}
+                            searchQuery={searchQuery}
+                            windowWidth={windowWidth}
+                            platform="nostr"
+                            platformIcon={<Image src={NostrIcon} alt="Nostr" width={14} height={14} className='mr-[1px]' />}
+                            platformLink={`https://nostr.band/${nip19.noteEncode(message.id)}`}
+                            additionalFooter={
+                                session?.user?.pubkey && (
+                                    <ZapThreadsWrapper
+                                        anchor={nip19.noteEncode(message.id)}
+                                        user={npub}
+                                        relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://nostr.mutinywallet.com/, wss://relay.mutinywallet.com/, wss://relay.primal.net/"
+                                        disable=""
+                                    />
+                                )
+                            }
+                        />
                     ))
                 ) : (
                     <div className="text-gray-400 text-center p-4">No messages available.</div>

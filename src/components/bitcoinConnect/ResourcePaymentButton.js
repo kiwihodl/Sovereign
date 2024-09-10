@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { initializeBitcoinConnect } from './BitcoinConnect';
 import { LightningAddress } from '@getalby/lightning-tools';
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
 import axios from 'axios';
+import GenericButton from '@/components/buttons/GenericButton';
 
 const Payment = dynamic(
   () => import('@getalby/bitcoin-connect-react').then((mod) => mod.Payment),
@@ -73,7 +73,7 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
 
   return (
     <>
-      <Button 
+      <GenericButton 
         label={`${amount} sats`}
         icon="pi pi-wallet"
         onClick={() => setDialogVisible(true)}

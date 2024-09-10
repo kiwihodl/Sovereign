@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { Button } from 'primereact/button';
+import GenericButton from '@/components/buttons/GenericButton';
 import { Panel } from 'primereact/panel';
 import { useNDKContext } from "@/context/NDKContext";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
@@ -8,8 +8,10 @@ import { useToast } from '@/hooks/useToast';
 
 const MessageInput = ({ onMessageSent }) => {
     const [message, setMessage] = useState('');
+    const [collapsed, setCollapsed] = useState(false);
     const { ndk, addSigner } = useNDKContext();
     const { showToast } = useToast();
+
     const handleSubmit = async () => {
         if (!message.trim() || !ndk) return;
 
@@ -33,20 +35,23 @@ const MessageInput = ({ onMessageSent }) => {
         }
     };
 
+    const headerTemplate = (options) => {
+        return (
+            <div className="flex align-items-center justify-content-between my-1 py-2">
+                <GenericButton outlined severity="primary" size="small" className="py-1" onClick={options.onTogglerClick} icon={options.collapsed ? 'pi pi-chevron-down' : 'pi pi-chevron-up'} />
+                <h3 className="m-0 ml-2">New Message</h3>
+            </div>
+        );
+    };
+
     return (
-        <Panel header={null} toggleable collapsed={false} className="w-full" pt={{
-            header: {
-                className: 'bg-transparent',
-                border: 'none',
-            },
-            toggler: {
-                className: 'bg-transparent',
-                border: 'none',
-            },
-            togglerIcon: {
-                display: 'none',
-            },
-        }}>
+        <Panel 
+            headerTemplate={headerTemplate}
+            toggleable 
+            collapsed={collapsed} 
+            onToggle={(e) => setCollapsed(e.value)}
+            className="w-full"
+        >
             <div className="w-full flex flex-col">
                 <InputTextarea
                     value={message}
@@ -59,11 +64,12 @@ const MessageInput = ({ onMessageSent }) => {
                 />
             </div>
             <div className="w-full flex flex-row justify-end mt-4">
-                <Button
+                <GenericButton
                     label="Send"
                     icon="pi pi-send"
                     outlined
                     onClick={handleSubmit}
+                    className="w-fit py-2"
                 />
             </div>
         </Panel>

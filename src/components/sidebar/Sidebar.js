@@ -5,6 +5,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { Button } from 'primereact/button';
 import 'primeicons/primeicons.css';
 import styles from "./sidebar.module.css";
+import { Divider } from 'primereact/divider';
 
 const Sidebar = () => {
     const [isExpanded, setIsExpanded] = useState(true);
@@ -102,6 +103,7 @@ const Sidebar = () => {
                     </div>
                 )}
             </div>
+            <Divider className='pt-0 mt-0' />
             <div className='mt-auto'>
                 {isExpanded ? (
                     <div className='mt-auto'>

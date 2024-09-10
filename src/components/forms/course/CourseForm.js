@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputSwitch } from 'primereact/inputswitch';
-import { Button } from 'primereact/button';
+import GenericButton from '@/components/buttons/GenericButton';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -213,14 +213,14 @@ const CourseForm = ({ draft = null }) => {
                     <div key={index} className="p-inputgroup flex-1 mt-4">
                         <InputText value={topic} onChange={(e) => handleTopicChange(index, e.target.value)} placeholder={`Topic #${index + 1}`} className="w-full" />
                         {index > 0 && (
-                            <Button icon="pi pi-times" className="p-button-danger mt-2" onClick={() => removeTopic(index)} />
+                            <GenericButton icon="pi pi-times" className="p-button-danger mt-2" onClick={() => removeTopic(index)} />
                         )}
                     </div>
                 ))}
-                <Button type="button" icon="pi pi-plus" onClick={addTopic} className="p-button-outlined mt-2" />
+                <GenericButton icon="pi pi-plus" onClick={addTopic} className="p-button-outlined mt-2" />
             </div>
             <div className="flex justify-center mt-8">
-                <Button type="submit" label={draft ? 'Update Course Draft' : 'Create Course Draft'} className="p-button-raised p-button-success" />
+                <GenericButton type="submit" severity="success" outlined label={draft ? 'Update Course Draft' : 'Create Course Draft'} />
             </div>
         </form>
     );

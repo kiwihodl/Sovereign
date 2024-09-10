@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from 'primereact/button';
 import { TabMenu } from 'primereact/tabmenu';
+import GenericButton from '@/components/buttons/GenericButton';
 import Image from 'next/image';
 import StackerNewsIcon from '../../../public/images/sn.svg';
 import NostrIcon from '../../../public/images/nostr.png';
@@ -35,12 +35,12 @@ const CommunityMenuTab = ({ selectedTopic, onTabChange }) => {
 
         return {
             label: (
-                <Button
+                <GenericButton
                     className={`${selectedTopic === item ? 'bg-primary text-white' : ''}`}
                     onClick={() => onTabChange(item)}
                     outlined={selectedTopic !== item}
                     rounded
-                    size='small'
+                    size="small"
                     label={item}
                     icon={icon}
                 />

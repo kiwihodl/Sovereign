@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { Button } from "primereact/button";
+import GenericButton from "@/components/buttons/GenericButton";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { useImageProxy } from "@/hooks/useImageProxy";
@@ -28,8 +28,13 @@ const UserSettings = () => {
         "wss://relay.nostr.band/",
         "wss://nostr.mutinywallet.com/",
         "wss://relay.mutinywallet.com/",
-        "wss://relay.primal.net/"
-    ];
+        "wss://relay.primal.net/",
+        "wss://nostr21.com/",
+        "wss://nostrue.com/",
+        "wss://nostr.band/",
+        "wss://nostr.land/",
+        "wss://purplerelay.com/",
+      ];
 
     const relayStatusBody = (url) => {
         // Placeholder for relay status, replace with actual logic later
@@ -42,8 +47,8 @@ const UserSettings = () => {
     const relayActionsBody = () => {
         return (
             <div>
-                <Button icon="pi pi-plus" className="p-button-rounded p-button-success p-button-text mr-2" />
-                <Button icon="pi pi-trash" className="p-button-rounded p-button-danger p-button-text" />
+                <GenericButton icon="pi pi-plus" className="p-button-rounded p-button-success p-button-text mr-2" />
+                <GenericButton icon="pi pi-trash" className="p-button-rounded p-button-danger p-button-text" />
             </div>
         );
     };
@@ -51,7 +56,7 @@ const UserSettings = () => {
     const header = (
         <div className="flex flex-row justify-between">
             <span className="text-xl text-900 font-bold text-[#f8f8ff]">Relays</span>
-            <Button icon="pi pi-plus" className="p-button-rounded p-button-success p-button-text mr-2" />
+            <GenericButton icon="pi pi-plus" className="p-button-rounded p-button-success p-button-text mr-2" />
         </div>
     );
 

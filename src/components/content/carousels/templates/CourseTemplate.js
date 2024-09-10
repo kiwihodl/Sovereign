@@ -25,7 +25,7 @@ const CourseTemplate = ({ course }) => {
 
   return (
     <div
-      className="flex flex-col items-center mx-auto px-4 mt-8 rounded-md"
+      className="flex flex-col items-center mx-auto px-4 mt-8 rounded-md max-tab:px-0"
     >
         {/* Wrap the image in a div with a relative class with a padding-bottom of 56.25% representing the aspect ratio of 16:9 */}
       <div

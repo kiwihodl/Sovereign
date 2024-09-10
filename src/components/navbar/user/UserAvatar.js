@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useImageProxy } from '@/hooks/useImageProxy';
-import { Button } from 'primereact/button';
+import GenericButton from '@/components/buttons/GenericButton';
 import { Menu } from 'primereact/menu';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import { useSession, signOut } from 'next-auth/react';
@@ -87,7 +87,7 @@ const UserAvatar = () => {
     } else {
         userAvatar = (
             <div className='flex flex-row items-center justify-between'>
-                <Button severity='help' rounded label="About" className='text-[#f8f8ff] mr-4' onClick={() => setVisible(true)} size={windowWidth < 768 ? 'small' : 'normal'} />
+                <GenericButton severity='help' rounded label="About" className='text-[#f8f8ff] mr-4' onClick={() => setVisible(true)} size={windowWidth < 768 ? 'small' : 'normal'} />
                 <Dialog header="About" visible={visible} onHide={() => { if (!visible) return; setVisible(false); }} className='w-[50vw] max-tab:w-[95vw]'>
                     <div className="space-y-6">
                         <p className="text-lg"><i className="pi pi-info-circle mr-2"></i>PlebDevs is a custom-built education platform designed to help aspiring developers, with a special focus on Bitcoin Lightning and Nostr technologies.</p>
@@ -136,7 +136,7 @@ const UserAvatar = () => {
                         <p className="italic text-lg"><i className="pi pi-flag mr-2"></i>PlebDevs aims to provide a comprehensive, decentralized learning experience for aspiring developers, with a strong emphasis on emerging technologies in the Bitcoin ecosystem.</p>
                     </div>
                 </Dialog>
-                <Button
+                <GenericButton
                     label="Login"
                     icon="pi pi-user"
                     className="text-[#f8f8ff]"

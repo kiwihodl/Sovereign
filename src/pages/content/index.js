@@ -7,7 +7,7 @@ import { useCourses } from '@/hooks/nostr/useCourses';
 import { TabMenu } from 'primereact/tabmenu';
 import 'primeicons/primeicons.css';
 import { InputText } from 'primereact/inputtext';
-import { Button } from 'primereact/button';
+import GenericButton from '@/components/buttons/GenericButton';
 import { useRouter } from 'next/router';
 
 const MenuTab = ({ items, selectedTopic, onTabChange }) => {
@@ -26,7 +26,7 @@ const MenuTab = ({ items, selectedTopic, onTabChange }) => {
 
         return {
             label: (
-                <Button
+                <GenericButton
                     className={`${isActive ? 'bg-primary text-white' : ''}`}
                     onClick={() => {
                         onTabChange(item);
