@@ -10,6 +10,7 @@ import { useCourseDraftsQuery } from "@/hooks/apiQueries/useCourseDraftsQuery";
 import { useContentIdsQuery } from "@/hooks/apiQueries/useContentIdsQuery";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/useToast";
+import { Divider } from "primereact/divider";
 import ContentList from "@/components/content/lists/ContentList";
 import { parseEvent } from "@/utils/nostr";
 import { useNDKContext } from "@/context/NDKContext";
@@ -113,11 +114,9 @@ const UserContent = () => {
     const isError = coursesError || resourcesError || workshopsError || draftsError || contentIdsError || courseDraftsError;
 
     return (
-        <div className="w-full min-bottom-bar:w-[86vw] mx-auto">
-            <div className="border-b-2 border-gray-300 mt-8">
-                <h2 className="text-center my-4">Your Content</h2>
-            </div>
-            <div className="flex flex-row w-full justify-between px-4">
+        <div className="p-4">
+            <h1 className="text-3xl font-bold mb-6">My Content</h1>
+            <div className="flex flex-row w-full justify-between px-8 max-tab:flex-col max-tab:px-0">
                 <MenuTab
                     items={contentItems}
                     activeIndex={activeIndex}
@@ -131,8 +130,9 @@ const UserContent = () => {
                     className="mt-2"
                 />
             </div>
+            <Divider />
             <div className="w-full mx-auto my-8">
-                <div className="w-full mx-auto my-8 px-8">
+                <div className="w-full mx-auto px-8 max-tab:px-0">
                     {isLoading ? (
                         <p>Loading...</p>
                     ) : isError ? (

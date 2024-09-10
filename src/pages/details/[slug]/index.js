@@ -253,7 +253,7 @@ export default function Details() {
                 </div>
             )}
             {typeof window !== 'undefined' && nAddress !== null && (
-                <div className='px-24'>
+                <div className='px-24 max-tab:px-4'>
                     <ZapThreadsWrapper
                         anchor={nAddress}
                         user={user?.pubkey || null}

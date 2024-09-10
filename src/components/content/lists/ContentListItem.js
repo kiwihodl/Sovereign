@@ -30,7 +30,7 @@ const ContentListItem = (content) => {
 
     return (
         <div className="p-4 border-bottom-1 surface-border" key={content.id}>
-            <div className="flex flex-column md:flex-row gap-4">
+            <div className="flex flex-column md:flex-row gap-4 max-tab:flex-col">
                 <Image
                     alt="content thumbnail"
                     src={returnImageProxy(content.image)}

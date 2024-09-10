@@ -87,8 +87,8 @@ const UserAvatar = () => {
     } else {
         userAvatar = (
             <div className='flex flex-row items-center justify-between'>
-                <Button severity='help' rounded label="About" className='text-[#f8f8ff] mr-4' onClick={() => setVisible(true)} />
-                <Dialog header="About" visible={visible} style={{ width: '50vw' }} onHide={() => { if (!visible) return; setVisible(false); }}>
+                <Button severity='help' rounded label="About" className='text-[#f8f8ff] mr-4' onClick={() => setVisible(true)} size={windowWidth < 768 ? 'small' : 'normal'} />
+                <Dialog header="About" visible={visible} onHide={() => { if (!visible) return; setVisible(false); }} className='w-[50vw] max-tab:w-[95vw]'>
                     <div className="space-y-6">
                         <p className="text-lg"><i className="pi pi-info-circle mr-2"></i>PlebDevs is a custom-built education platform designed to help aspiring developers, with a special focus on Bitcoin Lightning and Nostr technologies.</p>
                         

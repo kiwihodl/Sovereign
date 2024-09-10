@@ -28,8 +28,8 @@ const ResourceDetails = ({processedEvent, topics, title, summary, image, price, 
 
     return (
         <div className='w-full flex flex-row justify-between max-tab:flex-col max-mob:flex-col'>
-            <i className='pi pi-arrow-left pr-8 cursor-pointer hover:opacity-75' onClick={() => router.push('/')} />
-            <div className='w-[75vw] mx-auto flex flex-row items-start justify-between max-tab:flex-col max-mob:flex-col max-tab:w-[95vw] max-mob:w-[95vw]'>
+            <i className='pi pi-arrow-left pr-8 cursor-pointer hover:opacity-75 max-tab:pl-2 max-tab:my-4' onClick={() => router.push('/')} />
+            <div className='w-[75vw] mx-auto flex flex-row items-start justify-between max-tab:flex-col max-mob:flex-col max-tab:w-[100vw] max-mob:w-[100vw] max-tab:px-2 max-mob:px-2'>
                 <div className='flex flex-col items-start max-w-[45vw] max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
                     <div className='pt-2 flex flex-row justify-start w-full'>
                         {topics && topics.length > 0 && (
@@ -59,13 +59,13 @@ const ResourceDetails = ({processedEvent, topics, title, summary, image, price, 
                 </div>
                 <div className='flex flex-col max-tab:mt-12 max-mob:mt-12'>
                     {image && (
-                        <div className='flex flex-col items-center justify-between rounded-lg h-72 p-4 bg-gray-700 drop-shadow-md'>
+                        <div className='flex flex-col items-center justify-between rounded-lg h-72 p-4 bg-gray-700 drop-shadow-md max-tab:w-full max-tab:mx-auto max-tab:h-auto'>
                             <Image
                                 alt="resource thumbnail"
                                 src={returnImageProxy(image)}
                                 width={344}
                                 height={194}
-                                className="w-[344px] h-[194px] object-cover object-top rounded-lg"
+                                className="w-[344px] h-[194px] object-cover object-top rounded-lg max-tab:w-full max-tab:h-auto"
                             />
                             <div className='w-full flex flex-row justify-between'>
                                 {paidResource && !decryptedContent && <ResourcePaymentButton
