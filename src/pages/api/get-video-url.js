@@ -12,7 +12,7 @@ const s3Client = new S3Client({
   },
 })
 
-const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY
+const AUTHOR_PUBKEY = process.env.AUTHOR_PUBKEY
 
 export default async function handler(req, res) {
   try {

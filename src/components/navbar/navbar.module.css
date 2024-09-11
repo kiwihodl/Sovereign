@@ -9,10 +9,10 @@
 }
 
 .logo {
-    border-radius: 25px;
+    border-radius: 50%;
     margin-right: 8px;
-    max-height: 60px;
-    max-width: 60px;
+    height: 50px;
+    width: 50px;
 }
 
 .title {

@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { useRouter } from 'next/router';
 import { useSession, signOut } from 'next-auth/react';
-import { Button } from 'primereact/button';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
 import 'primeicons/primeicons.css';
 import styles from "./sidebar.module.css";
 import { Divider } from 'primereact/divider';
 
 const Sidebar = () => {
     const [isExpanded, setIsExpanded] = useState(true);
+    const { isAdmin } = useIsAdmin();
     const router = useRouter();
 
     // Helper function to determine if the path matches the current route
@@ -61,9 +62,11 @@ const Sidebar = () => {
                                 </div>
                             </AccordionTab>
                         </Accordion>
-                        <div onClick={() => router.push('/create')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/create') ? 'bg-gray-700' : ''}`}>
-                            <i className="pi pi-plus pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Create</p>
-                        </div>
+                        {isAdmin && (
+                            <div onClick={() => router.push('/create')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/create') ? 'bg-gray-700' : ''}`}>
+                                <i className="pi pi-plus pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Create</p>
+                            </div>
+                        )}
                         <div onClick={() => session ? router.push('/profile?tab=subscribe') : router.push('/auth/signin')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/profile?tab=subscribe') ? 'bg-gray-700' : ''}`}>
                             <i className="pi pi-star pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Subscribe</p>
                         </div>

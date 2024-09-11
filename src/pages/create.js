@@ -1,16 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MenuTab from "@/components/menutab/MenuTab";
 import ResourceForm from "@/components/forms/ResourceForm";
 import WorkshopForm from "@/components/forms/WorkshopForm";
 import CourseForm from "@/components/forms/course/CourseForm";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { useRouter } from "next/router";
+import { ProgressSpinner } from "primereact/progressspinner";
 
 const Create = () => {
     const [activeIndex, setActiveIndex] = useState(0); // State to track the active tab index
+    const { isAdmin, isLoading } = useIsAdmin();
+    const router = useRouter();
     const homeItems = [
         { label: 'Resource', icon: 'pi pi-book' },
         { label: 'Workshop', icon: 'pi pi-video' },
         { label: 'Course', icon: 'pi pi-desktop' }
     ];
+
+    useEffect(() => {
+        if (isLoading) return;
+
+        if (!isAdmin) {
+            router.push('/');
+        }
+    }, [isAdmin, router, isLoading]);
 
     // Function to render the correct form based on the active tab
     const renderForm = () => {
@@ -25,6 +38,10 @@ const Create = () => {
                 return null; // or a default component
         }
     };
+
+    if (!isAdmin) return null;
+
+    if (isLoading) return <ProgressSpinner />;
 
     return (
         <div className="w-full min-bottom-bar:w-[86vw] max-sidebar:w-[100vw] px-8 mx-auto my-8 flex flex-col justify-center">

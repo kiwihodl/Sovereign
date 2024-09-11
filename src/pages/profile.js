@@ -5,11 +5,16 @@ import UserSettings from "@/components/profile/UserSettings";
 import UserContent from "@/components/profile/UserContent";
 import UserSubscription from "@/components/profile/subscription/UserSubscription";
 import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { ProgressSpinner } from "primereact/progressspinner";
 
 const Profile = () => {
     const router = useRouter();
+    const { data: session, status } = useSession();
     const [activeTab, setActiveTab] = useState(0);
-
+    const {isAdmin, isLoading} = useIsAdmin();
+    
     const tabs = ["profile", "settings", "content", "subscribe"];
 
     useEffect(() => {
@@ -22,11 +27,30 @@ const Profile = () => {
         }
     }, [router.query]);
 
+    useEffect(() => {
+        if (status === 'unauthenticated') {
+            router.push('/auth/signin');
+        }
+    }, [status, router]);
+
     const onTabChange = (e) => {
         const newIndex = e.index;
         setActiveTab(newIndex);
         router.push(`/profile?tab=${tabs[newIndex]}`, undefined, { shallow: true });
     };
+
+    if (status === 'loading' || isLoading) {
+        return (
+            <ProgressSpinner />
+        );
+    }
+
+    if (status === 'unauthenticated') {
+        router.push('/auth/signin');
+        return null;
+    }
+
+    if (!session) return null;
 
     return (
         <div className="w-full min-h-full min-bottom-bar:w-[86vw] mx-auto">
@@ -56,13 +80,15 @@ const Profile = () => {
                 }}>
                     <UserSettings />
                 </TabPanel>
-                <TabPanel header="Content" pt={{
-                    headerAction: {
+                {isAdmin && (
+                    <TabPanel header="Content" pt={{
+                        headerAction: {
                         className: "bg-transparent"
                     },
                 }}>
-                    <UserContent />
-                </TabPanel>
+                        <UserContent />
+                    </TabPanel>
+                )}
                 <TabPanel header="Subscribe" pt={{
                     headerAction: {
                         className: "bg-transparent"

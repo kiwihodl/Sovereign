@@ -9,6 +9,7 @@ import { findKind0Fields } from "@/utils/nostr";
 import { generateSecretKey, getPublicKey } from 'nostr-tools/pure'
 import { bytesToHex } from '@noble/hashes/utils'
 import { updateUser } from "@/db/models/userModels";
+import { createRole } from "@/db/models/roleModels";
 
 const relayUrls = [
     "wss://nos.lol/",
@@ -21,6 +22,7 @@ const relayUrls = [
 ];
 
 const BASE_URL = process.env.BASE_URL;
+const AUTHOR_PUBKEY = process.env.AUTHOR_PUBKEY;
 
 const ndk = new NDK({
     explicitRelayUrls: relayUrls,
@@ -112,6 +114,27 @@ export const authOptions = {
                     console.error("Ephemeral key pair generation error:", error);
                     return null;
                 }
+            }
+
+            if (user && user?.pubkey === AUTHOR_PUBKEY && !user?.role) {
+                // create a new author role for this user
+                const role = await createRole({
+                    userId: user.id,
+                    admin: true,
+                    subscribed: false,
+                });
+
+                if (!role) {
+                    console.error("Failed to create role");
+                    return null;
+                }
+
+                const updatedUser = await updateUser(user.id, {role: role.id});
+                if (!updatedUser) {
+                    console.error("Failed to update user");
+                    return null;
+                }
+                token.user = updatedUser;
             }
 
             // Add combined user object to the token

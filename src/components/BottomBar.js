@@ -14,7 +14,7 @@ const BottomBar = () => {
             <div onClick={() => router.push('/')} className={`hover:bg-gray-700 cursor-pointer px-4 py-3 rounded-lg ${isActive('/') ? 'bg-gray-700' : ''}`}>
                 <i className="pi pi-home text-2xl" />
             </div>
-            <div onClick={() => router.push('/content')} className={`hover:bg-gray-700 cursor-pointer px-4 py-3 rounded-lg ${isActive('/content') ? 'bg-gray-700' : ''}`}>
+            <div onClick={() => router.push('/content?tag=all')} className={`hover:bg-gray-700 cursor-pointer px-4 py-3 rounded-lg ${isActive('/content') ? 'bg-gray-700' : ''}`}>
                 <i className="pi pi-video text-2xl" />
             </div>
             <div onClick={() => router.push('/feed?channel=global')} className={`hover:bg-gray-700 cursor-pointer px-4 py-3 rounded-lg ${isActive('/feed') ? 'bg-gray-700' : ''}`}>
