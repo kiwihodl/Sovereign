@@ -32,7 +32,7 @@ const Navbar = () => {
 
     return (
         <>
-            <div className='w-[100vw] h-fit'>
+            <div className='w-[100vw] h-fit z-20'>
                 <Menubar
                     start={start}
                     end={UserAvatar}

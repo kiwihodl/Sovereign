@@ -5,6 +5,7 @@ import { initializeBitcoinConnect } from './BitcoinConnect';
 import { LightningAddress } from '@getalby/lightning-tools';
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
+import { ProgressSpinner } from 'primereact/progressspinner';
 import axios from 'axios';
 import GenericButton from '@/components/buttons/GenericButton';
 
@@ -73,17 +74,26 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
 
   return (
     <>
-      <GenericButton 
-        label={`${amount} sats`}
-        icon="pi pi-wallet"
-        onClick={() => setDialogVisible(true)}
-        disabled={!invoice}
-        severity='primary'
-        rounded
-        className="text-[#f8f8ff] text-sm"
-      />
-      <Dialog 
-        visible={dialogVisible} 
+      {
+        invoice ? (
+          <GenericButton
+            label={`${amount} sats`}
+            icon="pi pi-wallet"
+            onClick={() => setDialogVisible(true)}
+            disabled={!invoice}
+            severity='primary'
+            rounded
+            className="text-[#f8f8ff] text-sm"
+          />
+        ) : (
+          <ProgressSpinner
+            style={{ width: '30px', height: '30px' }}
+            strokeWidth="8"
+            animationDuration=".5s"
+          />
+        )}
+      <Dialog
+        visible={dialogVisible}
         onHide={() => setDialogVisible(false)}
         header="Make Payment"
         style={{ width: '50vw' }}

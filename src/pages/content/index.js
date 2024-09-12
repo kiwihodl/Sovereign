@@ -80,6 +80,8 @@ const ContentPage = () => {
     const [selectedTopic, setSelectedTopic] = useState('All')
     const [filteredContent, setFilteredContent] = useState([]);
 
+    const memoizedFilteredContent = useMemo(() => filteredContent, [filteredContent]);
+
     useEffect(() => {
         const tag = router.query.tag;
         if (tag) {
@@ -150,8 +152,8 @@ const ContentPage = () => {
     const renderCarousels = () => {
         return (
             <GenericCarousel
-                key={selectedTopic} // Add this line
-                items={filteredContent}
+                key={`${selectedTopic}-${memoizedFilteredContent.length}`}
+                items={memoizedFilteredContent}
                 selectedTopic={selectedTopic}
                 title={`${selectedTopic} Content`}
                 type="all"

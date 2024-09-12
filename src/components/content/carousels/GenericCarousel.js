@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Carousel } from 'primereact/carousel';
-import ResourceTemplate from '@/components/content/carousels/templates/ResourceTemplate';
-import CourseTemplate from '@/components/content/carousels/templates/CourseTemplate';
-import WorkshopTemplate from '@/components/content/carousels/templates/WorkshopTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
+import { VideoTemplate } from '@/components/content/carousels/newTemplates/VideoTemplate';
+import { DocumentTemplate } from '@/components/content/carousels/newTemplates/DocumentTemplate';
+import { CourseTemplate } from '@/components/content/carousels/newTemplates/CourseTemplate';
+import debounce from 'lodash/debounce';
 
 const responsiveOptions = [
     {
@@ -23,32 +24,37 @@ const responsiveOptions = [
 export default function GenericCarousel({items, selectedTopic, title}) {
     const [carousels, setCarousels] = useState([]);
 
+    const memoizedItems = useMemo(() => items, [items]);
+
     useEffect(() => {
-        const handleResize = () => {
-            const width = window.innerWidth;
-            let itemsPerCarousel = 3;
+        console.log("carousel update", carousels);
+    }, [carousels]);
 
-            if (width <= 1462) {
-                itemsPerCarousel = 2;
-            }
-            if (width <= 575) {
-                itemsPerCarousel = 1;
-            }
+    const getItemsPerCarousel = useCallback(() => {
+        const width = window.innerWidth;
+        if (width <= 575) return 1;
+        if (width <= 1462) return 2;
+        return 3;
+    }, []);
 
-            const newCarousels = [];
-            for (let i = 0; i < items.length; i += itemsPerCarousel) {
-                newCarousels.push(items.slice(i, i + itemsPerCarousel));
-            }
-            setCarousels(newCarousels);
-        };
+    const updateCarousels = useCallback(() => {
+        const itemsPerCarousel = getItemsPerCarousel();
+        const newCarousels = [];
+        for (let i = 0; i < memoizedItems.length; i += itemsPerCarousel) {
+            newCarousels.push(memoizedItems.slice(i, i + itemsPerCarousel));
+        }
+        setCarousels(newCarousels);
+    }, [memoizedItems, getItemsPerCarousel]);
 
-        handleResize();
-        window.addEventListener('resize', handleResize);
+    useEffect(() => {
+        updateCarousels();
+        const debouncedHandleResize = debounce(updateCarousels, 250);
+        window.addEventListener('resize', debouncedHandleResize);
 
         return () => {
-            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('resize', debouncedHandleResize);
         };
-    }, [items]);
+    }, [updateCarousels, memoizedItems]);
 
     return (
         <>
@@ -59,9 +65,9 @@ export default function GenericCarousel({items, selectedTopic, title}) {
                     itemTemplate={(item) => {
                         if (carouselItems.length > 0) {
                             if (item.type === 'resource') {
-                                return <ResourceTemplate key={item.id} resource={item} />;
+                                return <DocumentTemplate key={item.id} document={item} />;
                             } else if (item.type === 'workshop') {
-                                return <WorkshopTemplate key={item.id} workshop={item} />;
+                                return <VideoTemplate key={item.id} video={item} />;
                             } else if (item.type === 'course') {
                                 return <CourseTemplate key={item.id} course={item} />;
                             }

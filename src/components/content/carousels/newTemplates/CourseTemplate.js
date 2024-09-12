@@ -7,7 +7,7 @@ import Image from "next/image"
 import { useZapsSubscription } from "@/hooks/nostrQueries/zaps/useZapsSubscription";
 import { getTotalFromZaps } from "@/utils/lightning";
 import { useImageProxy } from "@/hooks/useImageProxy";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
 import GenericButton from "@/components/buttons/GenericButton";
 
@@ -42,17 +42,17 @@ export function CourseTemplate({ course }) {
                     alt="Course background"
                     quality={100}
                     layout="fill"
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    className={`${router.pathname === "/content" ? "w-full h-full object-cover" : "w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"}`}
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary-foreground/50" />
                 <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/50 text-white px-2 py-1 rounded-full z-10">
                     <ZapDisplay zapAmount={zapAmount} event={course} zapsLoading={zapsLoading && zapAmount === 0} />
                 </div>
-                <CardHeader className="absolute bottom-[-8px] left-0 right-0 text-white bg-gray-800/70 w-fit rounded-lg rounded-bl-none rounded-tl-none rounded-br-none p-4 max-w-[50%] max-h-[50%]">
+                <CardHeader className="absolute bottom-[-8px] left-0 right-0 text-white bg-gray-800/70 w-fit rounded-lg rounded-bl-none rounded-tl-none rounded-br-none p-4 max-w-[70%] max-h-[60%]">
                     <div className="flex items-start gap-4">
                         <BookOpen className="w-10 h-10 mt-1 text-neutral-50 dark:text-neutral-900" />
                         <div>
-                            <CardTitle className="text-2xl sm:text-3xl font-bold mb-2">{course.name || course.title}</CardTitle>
+                            <CardTitle className="text-2xl sm:text-3xl mb-2">{course.name || course.title}</CardTitle>
                         </div>
                     </div>
                 </CardHeader>
@@ -82,7 +82,7 @@ export function CourseTemplate({ course }) {
                 ) : (
                     formatTimestampToHowLongAgo(course.created_at)
                 )}</p>
-                <GenericButton onClick={() => router.push(`/details/${course.id}`)} size="small" label="Start Learning" icon="pi pi-chevron-right" iconPos="right" outlined className="items-center py-2" />
+                <GenericButton onClick={() => router.push(`/course/${course.id}`)} size="small" label="Start Learning" icon="pi pi-chevron-right" iconPos="right" outlined className="items-center py-2" />
             </CardFooter>
         </Card>
     )

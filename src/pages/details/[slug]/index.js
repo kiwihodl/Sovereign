@@ -1,24 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useRouter } from 'next/router';
 import { parseEvent, findKind0Fields } from '@/utils/nostr';
-import GenericButton from '@/components/buttons/GenericButton';
 import { nip19, nip04 } from 'nostr-tools';
 import { useSession } from 'next-auth/react';
-import dynamic from 'next/dynamic';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import { useToast } from '@/hooks/useToast';
 import { useNDKContext } from '@/context/NDKContext';
-import ResourceDetails from '@/components/content/resources/ResourceDetails';
+import VideoDetails from '@/components/content/videos/VideoDetails';
+import DocumentDetails from '@/components/content/documents/DocumentDetails';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import 'primeicons/primeicons.css';
-
-const MDDisplay = dynamic(
-    () => import("@uiw/react-markdown-preview"),
-    {
-        ssr: false,
-    }
-);
 
 const privkey = process.env.NEXT_PUBLIC_APP_PRIV_KEY;
 const pubkey = process.env.NEXT_PUBLIC_APP_PUBLIC_KEY;
@@ -55,22 +46,21 @@ export default function Details() {
 
     useEffect(() => {
         const decryptContent = async () => {
-            if (user && paidResource) {
-                if (user?.purchased?.length > 0) {
-                    const purchasedResource = user?.purchased.find(purchase => purchase.resourceId === processedEvent.d);
-                    if (purchasedResource) {
-                        console.log("purchasedResource", purchasedResource)
-                        const decryptedContent = await nip04.decrypt(privkey, pubkey, processedEvent.content);
-                        setDecryptedContent(decryptedContent);
-                    }
-                } else if (user?.role && user?.role.subscribed) {
-                    // decrypt the content
+            if (paidResource && processedEvent.content) {
+                // Check if user is subscribed first
+                if (user?.role?.subscribed) {
+                    const decryptedContent = await nip04.decrypt(privkey, pubkey, processedEvent.content);
+                    setDecryptedContent(decryptedContent);
+                } 
+                // If not subscribed, check if they have purchased
+                else if (user?.purchased?.some(purchase => purchase.resourceId === processedEvent.d)) {
                     const decryptedContent = await nip04.decrypt(privkey, pubkey, processedEvent.content);
                     setDecryptedContent(decryptedContent);
                 }
+                // If neither subscribed nor purchased, decryptedContent remains null
             }
+        };
 
-        }
         decryptContent();
     }, [user, paidResource, processedEvent]);
 
@@ -156,6 +146,7 @@ export default function Details() {
     useEffect(() => {
         if (event) {
             const parsedEvent = parseEvent(event);
+            console.log("parsedEvent", parsedEvent);
             setProcessedEvent(parsedEvent);
         }
     }, [event]);
@@ -171,25 +162,6 @@ export default function Details() {
         }
     }, [processedEvent]);
 
-    const handleDelete = async () => {
-        try {
-            const response = await axios.delete(`/api/resources/${processedEvent.d}`);
-            if (response.status === 204) {
-                showToast('success', 'Success', 'Resource deleted successfully.');
-                router.push('/');
-            }
-        } catch (error) {
-            if (error.response && error.response.data && error.response.data.error.includes("Invalid `prisma.resource.delete()`")) {
-                showToast('error', 'Error', 'Resource cannot be deleted because it is part of a course, delete the course first.');
-            }
-            else if (error.response && error.response.data && error.response.data.error) {
-                showToast('error', 'Error', error.response.data.error);
-            } else {
-                showToast('error', 'Error', 'Failed to delete resource. Please try again.');
-            }
-        }
-    }
-
     const handlePaymentSuccess = async (response, newResource) => {
         if (response && response?.preimage) {
             console.log("newResource", newResource);
@@ -202,19 +174,6 @@ export default function Details() {
 
     const handlePaymentError = (error) => {
         showToast('error', 'Payment Error', `Failed to purchase resource. Please try again. Error: ${error}`);
-    }
-
-    const renderContent = () => {
-        if (decryptedContent) {
-            return <MDDisplay className='p-4 rounded-lg w-full' source={decryptedContent} />;
-        }
-        if (paidResource && !decryptedContent) {
-            return <p className="text-center text-xl text-red-500">This content is paid and needs to be purchased before viewing.</p>;
-        }
-        if (processedEvent?.content) {
-            return <MDDisplay className='p-4 rounded-lg w-full' source={processedEvent.content} />;
-        }
-        return null;
     }
 
     if (loading) {
@@ -230,9 +189,9 @@ export default function Details() {
     }
 
     return (
-        <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
-            {processedEvent && (
-                <ResourceDetails
+        <div>
+            {processedEvent && processedEvent.type !== "workshop" ? (
+                <DocumentDetails
                     processedEvent={processedEvent}
                     topics={processedEvent.topics}
                     title={processedEvent.title}
@@ -244,31 +203,34 @@ export default function Details() {
                     decryptedContent={decryptedContent}
                     handlePaymentSuccess={handlePaymentSuccess}
                     handlePaymentError={handlePaymentError}
+                    authorView={authorView}
+                />
+            ) : (
+                <VideoDetails
+                    processedEvent={processedEvent}
+                    topics={processedEvent.topics}
+                    title={processedEvent.title}
+                    summary={processedEvent.summary}
+                    image={processedEvent.image}
+                    price={processedEvent.price}
+                    author={author}
+                    paidResource={paidResource}
+                    decryptedContent={decryptedContent}
+                    handlePaymentSuccess={handlePaymentSuccess}
+                    handlePaymentError={handlePaymentError}
+                    authorView={authorView}
                 />
             )}
-            {authorView && (
-                <div className='w-[75vw] mx-auto flex flex-row justify-end mt-12'>
-                    <div className='w-fit flex flex-row justify-between'>
-                        <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined className="w-auto m-2" />
-                        <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined className="w-auto m-2 mr-0" />
-                    </div>
-                </div>
-            )}
             {typeof window !== 'undefined' && nAddress !== null && (
-                <div className='px-24 max-tab:px-4'>
+                <div className='max-tab:px-4'>
                     <ZapThreadsWrapper
                         anchor={nAddress}
                         user={user?.pubkey || null}
                         relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.mutinywallet.com/, wss://relay.primal.net/"
-                        disable=""
+                        disable="zaps"
                     />
                 </div>
             )}
-            <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:w-[100vw] max-mob:w-[100vw]'>
-                {
-                    processedEvent && processedEvent.content && renderContent()
-                }
-            </div>
         </div>
     );
 }

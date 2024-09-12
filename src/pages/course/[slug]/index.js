@@ -2,7 +2,10 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/router";
 import { parseCourseEvent, parseEvent, findKind0Fields } from "@/utils/nostr";
 import CourseDetails from "@/components/content/courses/CourseDetails";
-import CourseLesson from "@/components/content/courses/CourseLesson";
+import VideoLesson from "@/components/content/courses/VideoLesson";
+import DocumentLesson from "@/components/content/courses/DocumentLesson";
+import CourseDetailsNew from "@/components/content/courses/CourseDetailsNew";
+import { Divider } from "primereact/divider";
 import dynamic from 'next/dynamic';
 import { useNDKContext } from "@/context/NDKContext";
 import { useToast } from '@/hooks/useToast';
@@ -181,7 +184,7 @@ const Course = () => {
 
     return (
         <>
-            <CourseDetails 
+            <CourseDetailsNew 
                 processedEvent={course} 
                 paidCourse={paidCourse}
                 lessons={lessons}
@@ -190,7 +193,11 @@ const Course = () => {
                 handlePaymentError={handlePaymentError}
             />
             {lessons.length > 0 && lessons.map((lesson, index) => (
-                <CourseLesson key={index} lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} />
+                <div key={index} className="w-full p-4">
+                    <h1 className="text-2xl font-bold text-white">Lesson {index + 1}</h1>
+                    <Divider />
+                    {lesson.type === 'workshop' ? <VideoLesson key={index} lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} /> : <DocumentLesson key={index} lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} />}
+                </div>
             ))}
             <div className="mx-auto my-6">
                 {course?.content && <MDDisplay className='p-4 rounded-lg' source={course.content} />}
