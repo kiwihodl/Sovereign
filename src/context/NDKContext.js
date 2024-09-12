@@ -1,31 +1,45 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import NDK, { NDKNip07Signer } from "@nostr-dev-kit/ndk";
 import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 const NDKContext = createContext(null);
 
-const relayUrls = [
+export const defaultRelayUrls = [
   "wss://nos.lol/",
   "wss://relay.damus.io/",
   "wss://relay.snort.social/",
   "wss://relay.nostr.band/",
-  "wss://nostr.mutinywallet.com/",
   "wss://relay.mutinywallet.com/",
   "wss://relay.primal.net/",
   "wss://nostr21.com/",
   "wss://nostrue.com/",
-  "wss://nostr.band/",
-  "wss://nostr.land/",
   "wss://purplerelay.com/",
 ];
 
 export const NDKProvider = ({ children }) => {
   const [ndk, setNdk] = useState(null);
+  const [userRelays, setUserRelays] = useLocalStorage("userRelays", defaultRelayUrls);
+
+  const createNDKInstance = (relays) => {
+    const allRelays = [...new Set([...defaultRelayUrls, ...relays])];
+    console.log("Creating new NDK instance with relays:", allRelays);
+    return new NDK({
+      explicitRelayUrls: allRelays,
+      enableOutboxModel: true,
+      outboxRelayUrls: ["wss://nos.lol/"],
+      cacheAdapter: new NDKCacheAdapterDexie({ dbName: 'ndk-cache' })
+    });
+  };
 
   useEffect(() => {
-    const instance = new NDK({ explicitRelayUrls: relayUrls, enableOutboxModel: true, outboxRelayUrls: ["wss://nos.lol/"], cacheAdapter: new NDKCacheAdapterDexie({ dbName: 'ndk-cache' }) });
-    setNdk(instance);
-  }, []);
+    setNdk(createNDKInstance(userRelays));
+  }, [userRelays]);
+
+  const reInitializeNDK = () => {
+    const newInstance = createNDKInstance(userRelays);
+    setNdk(newInstance);
+  };
 
   const addSigner = async () => {
     if (ndk) {
@@ -36,7 +50,7 @@ export const NDKProvider = ({ children }) => {
   };
 
   return (
-    <NDKContext.Provider value={{ ndk, addSigner }}>
+    <NDKContext.Provider value={{ ndk, addSigner, reInitializeNDK, userRelays, setUserRelays }}>
       {children}
     </NDKContext.Provider>
   );

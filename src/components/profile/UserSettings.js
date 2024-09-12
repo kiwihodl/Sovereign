@@ -1,21 +1,29 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import GenericButton from "@/components/buttons/GenericButton";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from "primereact/progressspinner";
-import { useNDKContext } from "@/context/NDKContext";
+import { useNDKContext, defaultRelayUrls } from "@/context/NDKContext";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import Image from "next/image";
 import BitcoinConnectButton from "@/components/bitcoinConnect/BitcoinConnect";
+import { Panel } from "primereact/panel";
+import { InputText } from "primereact/inputtext";
+import { useToast } from "@/hooks/useToast";
 
 const UserSettings = () => {
     const [user, setUser] = useState(null);
+    const [collapsed, setCollapsed] = useState(true);
+    const { ndk, userRelays, setUserRelays, reInitializeNDK } = useNDKContext();
     const { data: session } = useSession();
     const { returnImageProxy } = useImageProxy();
-    const { ndk } = useNDKContext();
     const windowWidth = useWindowWidth();
+    const [newRelayUrl, setNewRelayUrl] = useState("");
+    const { showToast } = useToast();
+    const [relayStatuses, setRelayStatuses] = useState({});
+    const [updateTrigger, setUpdateTrigger] = useState(0);
 
     useEffect(() => {
         if (session?.user) {
@@ -23,44 +31,113 @@ const UserSettings = () => {
         }
     }, [session]);
 
-    const relayUrls = [
-        "wss://nos.lol/",
-        "wss://relay.damus.io/",
-        "wss://relay.snort.social/",
-        "wss://relay.nostr.band/",
-        "wss://nostr.mutinywallet.com/",
-        "wss://relay.mutinywallet.com/",
-        "wss://relay.primal.net/",
-        "wss://nostr21.com/",
-        "wss://nostrue.com/",
-        "wss://nostr.band/",
-        "wss://nostr.land/",
-        "wss://purplerelay.com/",
-      ];
+    useEffect(() => {
+        if (ndk) {
+            updateRelayStatuses();
+        }
+    }, [ndk]);
+
+
+    const updateRelayStatuses = useCallback(() => {
+        // export enum NDKRelayStatus {
+        //     DISCONNECTING, // 0
+        //     DISCONNECTED, // 1
+        //     RECONNECTING, // 2
+        //     FLAPPING, // 3
+        //     CONNECTING, // 4
+
+        //     // connected states
+        //     CONNECTED, // 5
+        //     AUTH_REQUESTED, // 6
+        //     AUTHENTICATING, // 7
+        //     AUTHENTICATED, // 8
+        // }
+        if (ndk) {
+            console.log("Updating relay statuses");
+            const statuses = {};
+            ndk.pool.relays.forEach((relay, url) => {
+                statuses[url] = relay.connectivity.status === 5;
+            });
+            setRelayStatuses(statuses);
+        }
+    }, [ndk]);
+
+    // Effect for periodic polling
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            setUpdateTrigger(prev => prev + 1);
+        }, 3000); // Poll every 3 seconds
+
+        return () => clearInterval(intervalId); // Cleanup on unmount
+    }, []);
+
+    // Effect to update on every render and when updateTrigger changes
+    useEffect(() => {
+        updateRelayStatuses();
+    }, [updateRelayStatuses, updateTrigger]);
 
     const relayStatusBody = (url) => {
-        // Placeholder for relay status, replace with actual logic later
-        const isConnected = Math.random() > 0.5;
+        const isConnected = relayStatuses[url];
         return (
             <i className={`pi ${isConnected ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-500'}`}></i>
         );
     };
 
-    const relayActionsBody = () => {
+    const addRelay = () => {
+        if (newRelayUrl && !userRelays.includes(newRelayUrl)) {
+            setUserRelays([...userRelays, newRelayUrl]);
+            setNewRelayUrl("");
+            reInitializeNDK();
+            setCollapsed(true);
+            showToast("success", "Relay added", "Relay successfully added to your list of relays.");
+        }
+    };
+
+    const removeRelay = (url) => {
+        if (!defaultRelayUrls.includes(url)) {
+            setUserRelays(userRelays.filter(relay => relay !== url));
+            reInitializeNDK();
+            setCollapsed(true);
+            showToast("success", "Relay removed", "Relay successfully removed from your list of relays.");
+        }
+    };
+
+    const relayActionsBody = (rowData) => {
         return (
             <div>
-                <GenericButton icon="pi pi-plus" className="p-button-rounded p-button-success p-button-text mr-2" />
-                <GenericButton icon="pi pi-trash" className="p-button-rounded p-button-danger p-button-text" />
+                {!defaultRelayUrls.includes(rowData) ? (
+                    <GenericButton
+                        icon="pi pi-trash"
+                        className="p-button-rounded p-button-danger p-button-text"
+                        onClick={() => removeRelay(rowData)}
+                    />
+                ) : (
+                    <>
+                        <GenericButton
+                            icon="pi pi-trash"
+                            className="p-button-rounded p-button-danger p-button-text opacity-50"
+                            onClick={() => removeRelay(rowData)}
+                            tooltip="Cannot remove default relays at this time (soon ™)"
+                            tooltipOptions={{ position: 'top' }}
+                            style={{
+                                pointerEvents: 'none',
+                                cursor: 'not-allowed'
+                            }}
+                        />
+                    </>
+                )}
             </div>
         );
     };
 
-    const header = (
-        <div className="flex flex-row justify-between">
-            <span className="text-xl text-900 font-bold text-[#f8f8ff]">Relays</span>
-            <GenericButton icon="pi pi-plus" className="p-button-rounded p-button-success p-button-text mr-2" />
-        </div>
-    );
+    const PanelHeader = (options) => {
+        return (
+            <div className="w-full flex flex-row justify-between p-4 bg-gray-800 rounded-t-lg">
+                <p className="text-[#f8f8ff] text-xl font-bold">Relays</p>
+                <GenericButton onClick={options.onTogglerClick} icon="pi pi-plus" className="p-button-rounded p-button-success p-button-text" />
+            </div>
+        );
+    };
 
     return (
         user && (
@@ -95,9 +172,29 @@ const UserSettings = () => {
                 {!session || !session?.user || !ndk ? (
                     <ProgressSpinner />
                 ) : (
-                        <DataTable value={relayUrls}
-                            style={{ maxWidth: "90%", margin: "0 auto", borderRadius: "10px" }}
-                            header={header}
+                    <>
+                        <Panel
+                            headerTemplate={PanelHeader}
+                            toggleable
+                            collapsed={collapsed}
+                            onToggle={(e) => setCollapsed(e.value)}
+                        >
+                            <div className="flex flex-row justify-between">
+                                <InputText
+                                    placeholder="Relay URL"
+                                    value={newRelayUrl}
+                                    onChange={(e) => setNewRelayUrl(e.target.value)}
+                                />
+                                <GenericButton
+                                    label="Add"
+                                    severity="success"
+                                    className='w-fit px-4'
+                                    outlined
+                                    onClick={addRelay}
+                                />
+                            </div>
+                        </Panel>
+                        <DataTable value={userRelays}
                             pt={{
                                 wrapper: {
                                     className: "rounded-lg rounded-t-none"
@@ -106,11 +203,13 @@ const UserSettings = () => {
                                     className: "rounded-t-lg"
                                 }
                             }}
+                            onValueChange={() => setUpdateTrigger(prev => prev + 1)} // Trigger update when table value changes
                         >
                             <Column field={(url) => url} header="Relay URL"></Column>
                             <Column body={relayStatusBody} header="Status"></Column>
                             <Column body={relayActionsBody} header="Actions"></Column>
                         </DataTable>
+                    </>
                 )}
             </div>
         )
