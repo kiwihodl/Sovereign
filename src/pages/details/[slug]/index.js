@@ -10,7 +10,7 @@ import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import { useToast } from '@/hooks/useToast';
 import { useNDKContext } from '@/context/NDKContext';
 import ResourceDetails from '@/components/content/resources/ResourceDetails';
-import {ProgressSpinner} from 'primereact/progressspinner';
+import { ProgressSpinner } from 'primereact/progressspinner';
 import 'primeicons/primeicons.css';
 
 const MDDisplay = dynamic(
@@ -34,7 +34,7 @@ export default function Details() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const {ndk, addSigner} = useNDKContext();
+    const { ndk, addSigner } = useNDKContext();
     const { data: session, update } = useSession();
     const [user, setUser] = useState(null);
     const { showToast } = useToast();
@@ -93,9 +93,11 @@ export default function Details() {
                     if (event) {
                         setEvent(event);
                         if (user && user.pubkey === event.pubkey) {
-                            const decryptedContent = await nip04.decrypt(privkey, pubkey, event.content);
-                            setDecryptedContent(decryptedContent);
                             setAuthorView(true);
+                            if (event.kind === 30402) {
+                                const decryptedContent = await nip04.decrypt(privkey, pubkey, event.content);
+                                setDecryptedContent(decryptedContent);
+                            }
                         }
                     } else {
                         if (retryCount < 1) {
@@ -136,7 +138,7 @@ export default function Details() {
                     authors: [pubkey]
                 }
 
-                const author = await ndk.fetchEvent(filter);                
+                const author = await ndk.fetchEvent(filter);
                 if (author) {
                     const fields = await findKind0Fields(JSON.parse(author.content));
                     console.log("fields", fields);
@@ -230,7 +232,7 @@ export default function Details() {
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
             {processedEvent && (
-                <ResourceDetails 
+                <ResourceDetails
                     processedEvent={processedEvent}
                     topics={processedEvent.topics}
                     title={processedEvent.title}
@@ -257,7 +259,7 @@ export default function Details() {
                     <ZapThreadsWrapper
                         anchor={nAddress}
                         user={user?.pubkey || null}
-                        relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://nostr.mutinywallet.com/, wss://relay.mutinywallet.com/, wss://relay.primal.net/"
+                        relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.mutinywallet.com/, wss://relay.primal.net/"
                         disable=""
                     />
                 </div>

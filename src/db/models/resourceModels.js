@@ -13,8 +13,14 @@ export const getResourceById = async (id) => {
     return await prisma.resource.findUnique({
         where: { id },
         include: {
-            course: true, // Include related course
-            purchases: true, // Include related purchases
+            user: true,
+            lessons: {
+                include: {
+                    course: true
+                }
+            },
+            purchases: true,
+            draftLessons: true
         },
     });
 };
@@ -60,6 +66,16 @@ export const updateResource = async (id, data) => {
     return await prisma.resource.update({
         where: { id },
         data,
+        include: {
+            user: true,
+            lessons: {
+                include: {
+                    course: true
+                }
+            },
+            purchases: true,
+            draftLessons: true
+        },
     });
 };
 

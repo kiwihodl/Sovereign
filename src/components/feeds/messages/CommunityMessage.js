@@ -84,7 +84,7 @@ const CommunityMessage = ({ message, searchQuery, windowWidth, platform }) => {
                             <ZapThreadsWrapper
                                 anchor={nip19.noteEncode(message.id)}
                                 user={npub}
-                                relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://nostr.mutinywallet.com/, wss://relay.mutinywallet.com/, wss://relay.primal.net/"
+                                relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.mutinywallet.com/, wss://relay.primal.net/"
                                 disable=""
                             />
                         </Panel>

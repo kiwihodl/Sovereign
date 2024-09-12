@@ -10,22 +10,13 @@ import { generateSecretKey, getPublicKey } from 'nostr-tools/pure'
 import { bytesToHex } from '@noble/hashes/utils'
 import { updateUser } from "@/db/models/userModels";
 import { createRole } from "@/db/models/roleModels";
-
-const relayUrls = [
-    "wss://nos.lol/",
-    "wss://relay.damus.io/",
-    "wss://relay.snort.social/",
-    "wss://relay.nostr.band/",
-    "wss://nostr.mutinywallet.com/",
-    "wss://relay.mutinywallet.com/",
-    "wss://relay.primal.net/"
-];
+import { defaultRelayUrls } from "@/context/NDKContext";
 
 const BASE_URL = process.env.BASE_URL;
 const AUTHOR_PUBKEY = process.env.AUTHOR_PUBKEY;
 
 const ndk = new NDK({
-    explicitRelayUrls: relayUrls,
+    explicitRelayUrls: defaultRelayUrls,
 });
 
 const authorize = async (pubkey) => {

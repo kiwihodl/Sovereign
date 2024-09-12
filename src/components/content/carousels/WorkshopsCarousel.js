@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Carousel } from 'primereact/carousel';
 import { parseEvent } from '@/utils/nostr';
-import WorkshopTemplate from '@/components/content/carousels/templates/WorkshopTemplate';
+// import WorkshopTemplate from '@/components/content/carousels/templates/WorkshopTemplate';
+import {VideoTemplate} from '@/components/content/carousels/newTemplates/VideoTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 import { useWorkshops } from '@/hooks/nostr/useWorkshops';
 
@@ -56,7 +57,7 @@ export default function WorkshopsCarousel() {
                 itemTemplate={(item) => 
                     !processedWorkshops.length ? 
                     <TemplateSkeleton key={Math.random()} /> : 
-                    <WorkshopTemplate key={item.id} workshop={item} />
+                    <VideoTemplate key={item.id} video={item} />
                 }
                 responsiveOptions={responsiveOptions}
             />

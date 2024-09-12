@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Carousel } from 'primereact/carousel';
 import { parseEvent } from '@/utils/nostr';
-import ResourceTemplate from '@/components/content/carousels/templates/ResourceTemplate';
+// import ResourceTemplate from '@/components/content/carousels/templates/ResourceTemplate';
+import { DocumentTemplate } from '@/components/content/carousels/newTemplates/DocumentTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 import { useResources } from '@/hooks/nostr/useResources';
 
@@ -54,7 +55,7 @@ export default function ResourcesCarousel() {
                 numVisible={2}
                 itemTemplate={(item) => 
                         processedResources.length > 0 ? 
-                        <ResourceTemplate key={item.id} resource={item} /> : 
+                        <DocumentTemplate key={item.id} document={item} /> : 
                         <TemplateSkeleton key={Math.random()} />
                 }
                 responsiveOptions={responsiveOptions} />

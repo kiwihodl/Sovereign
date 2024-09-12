@@ -23,7 +23,6 @@ export const NDKProvider = ({ children }) => {
 
   const createNDKInstance = (relays) => {
     const allRelays = [...new Set([...defaultRelayUrls, ...relays])];
-    console.log("Creating new NDK instance with relays:", allRelays);
     return new NDK({
       explicitRelayUrls: allRelays,
       enableOutboxModel: true,

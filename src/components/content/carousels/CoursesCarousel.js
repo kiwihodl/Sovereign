@@ -1,7 +1,8 @@
 import React, { useState, useEffect, use } from 'react';
 import { Carousel } from 'primereact/carousel';
 import { parseCourseEvent } from '@/utils/nostr';
-import CourseTemplate from '@/components/content/carousels/templates/CourseTemplate';
+// import CourseTemplate from '@/components/content/carousels/templates/CourseTemplate';
+import { CourseTemplate } from '@/components/content/carousels/newTemplates/CourseTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 import { useCourses } from '@/hooks/nostr/useCourses';
 
