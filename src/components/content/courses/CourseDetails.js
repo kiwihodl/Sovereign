@@ -4,8 +4,9 @@ import { useImageProxy } from '@/hooks/useImageProxy';
 import ZapDisplay from '@/components/zaps/ZapDisplay';
 import { getTotalFromZaps } from '@/utils/lightning';
 import { Tag } from 'primereact/tag';
-import { nip19, nip04 } from 'nostr-tools';
+import { nip19 } from 'nostr-tools';
 import { useSession } from 'next-auth/react';
+import GenericButton from '@/components/buttons/GenericButton';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
@@ -35,26 +36,6 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
     const {ndk, addSigner} = useNDKContext();
 
     const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
-
-    useEffect(() => {
-        console.log("processedEvent", processedEvent);
-    }, [processedEvent]);
-
-    useEffect(() => {
-        console.log("lessons", lessons);
-    }, [lessons]);
-
-    useEffect(() => {
-        console.log("zaps", zaps);
-    }, [zaps]);
-
-    useEffect(() => {
-        console.log("paidCourse", paidCourse);
-    }, [paidCourse]);
-
-    useEffect(() => {
-        console.log("decryptionPerformed", decryptionPerformed);
-    }, [decryptionPerformed]);
 
     useEffect(() => {
         if (session) {
@@ -95,6 +76,38 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
             setZapAmount(total);
         }
     }, [zaps, processedEvent]);
+
+    const renderPaymentMessage = () => {
+        if (paidCourse && !decryptionPerformed) {
+            return (
+                <CoursePaymentButton
+                    lnAddress={lnAddress}
+                    amount={processedEvent.price}
+                    onSuccess={handlePaymentSuccess}
+                    onError={handlePaymentError}
+                    courseId={processedEvent.d}
+                />
+            );
+        }
+
+        const coursePurchased = session?.user?.purchased?.some(purchase => 
+            purchase?.courseId === processedEvent.d
+        );
+        
+        if (paidCourse && decryptionPerformed && author && session?.user?.role?.subscribed && processedEvent?.pubkey !== session?.user?.pubkey) {
+            return <GenericButton tooltipOptions={{position: 'top'}} tooltip={`You are subscribed so you can access all paid content`} icon="pi pi-check" label="Subscribed" severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
+        }
+        
+        if (paidCourse && author && processedEvent?.pubkey === session?.user?.pubkey) {
+            return <GenericButton tooltipOptions={{position: 'top'}} tooltip={`You created this paid course, users must pay ${processedEvent.price} sats to access it`} icon="pi pi-check" label={`Price ${processedEvent.price} sats`} severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
+        }
+
+        if (paidCourse && decryptionPerformed && author && coursePurchased) {
+            return <GenericButton tooltipOptions={{position: 'top'}} tooltip={`You have purchased this course`} icon="pi pi-check" label="Purchased" severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
+        }
+        
+        return null;
+    };
 
     if (!processedEvent || !author) {
         return (
@@ -146,21 +159,7 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
                                     className="w-[344px] h-[194px] object-cover object-top rounded-lg"
                                 />
                                 <div className='w-full flex justify-between items-center'>
-                                    {paidCourse && !decryptionPerformed && (
-                                        <CoursePaymentButton
-                                            lnAddress={lnAddress}
-                                            amount={processedEvent.price}
-                                            onSuccess={handlePaymentSuccess}
-                                            onError={handlePaymentError}
-                                            resourceId={processedEvent.d}
-                                        />
-                                    )}
-                                    {paidCourse && decryptionPerformed && author && processedEvent?.pubkey !== session?.user?.pubkey && (
-                                        <p className='text-green-500'>Paid {processedEvent.price} sats</p>
-                                    )}
-                                    {paidCourse && author && processedEvent?.pubkey === session?.user?.pubkey && (
-                                        <p className='text-green-500'>Price {processedEvent.price} sats</p>
-                                    )}
+                                    {renderPaymentMessage()}
                                     <ZapDisplay 
                                         zapAmount={zapAmount} 
                                         event={processedEvent} 

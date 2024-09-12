@@ -14,18 +14,10 @@ const MDDisplay = dynamic(
     }
 );
 
-const CourseLesson = ({ lesson, course }) => {
+const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
     const [zapAmount, setZapAmount] = useState(0);
-    const [paidResource, setPaidResource] = useState(false);
-    const [decryptedContent, setDecryptedContent] = useState(false);
     const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: lesson, type: "lesson" });
     const { returnImageProxy } = useImageProxy();
-
-    useEffect(() => {
-        if (course.price) {
-            setPaidResource(true);
-        }
-    }, [course]);
 
     useEffect(() => {
         if (!zaps || zapsLoading || zapsError) return;
@@ -36,10 +28,10 @@ const CourseLesson = ({ lesson, course }) => {
     }, [zaps, zapsLoading, zapsError, lesson]);
 
     const renderContent = () => {
-        if (decryptedContent) {
-            return <MDDisplay className='p-4 rounded-lg w-full' source={decryptedContent} />;
+        if (isPaid && decryptionPerformed) {
+            return <MDDisplay className='p-4 rounded-lg w-full' source={lesson.content} />;
         }
-        if (paidResource && !decryptedContent) {
+        if (isPaid && !decryptionPerformed) {
             return <p className="text-center text-xl text-red-500">This content is paid and needs to be purchased before viewing.</p>;
         }
         if (lesson?.content) {

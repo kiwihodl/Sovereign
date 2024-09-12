@@ -58,6 +58,8 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
                 amountPaid: parseInt(amount, 10)
             };
 
+            console.log('purchaseData', purchaseData);
+
             const result = await axios.post('/api/purchase/course', purchaseData);
 
             if (result.status === 200) {

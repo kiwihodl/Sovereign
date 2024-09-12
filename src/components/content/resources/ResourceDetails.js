@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import ResourcePaymentButton from "@/components/bitcoinConnect/ResourcePaymentButton";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
+import GenericButton from "@/components/buttons/GenericButton";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useZapsSubscription } from "@/hooks/nostrQueries/zaps/useZapsSubscription";
 import { getTotalFromZaps } from "@/utils/lightning";
@@ -25,6 +26,22 @@ const ResourceDetails = ({processedEvent, topics, title, summary, image, price, 
             setZapAmount(total);
         }
     }, [zaps, processedEvent]);
+
+    const renderPaymentMessage = () => {
+        if (session?.user && session.user?.role?.subscribed && decryptedContent) {
+            return <GenericButton tooltipOptions={{position: 'top'}} tooltip={`You are subscribed so you can access all paid content`} icon="pi pi-check" label="Subscribed" severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
+        }
+        
+        if (paidResource && decryptedContent && author && processedEvent?.pubkey !== session?.user?.pubkey && !session?.user?.role?.subscribed) {
+            return <GenericButton tooltipOptions={{position: 'top'}} tooltip={`Pay ${processedEvent.price} sats to access this content or subscribe to get access to all content`} icon="pi pi-check" label={`Paid ${processedEvent.price} sats`} severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
+        }
+        
+        if (paidResource && author && processedEvent?.pubkey === session?.user?.pubkey) {
+            return <GenericButton tooltipOptions={{position: 'top'}} tooltip={`You created this paid content, users must pay ${processedEvent.price} sats to access it`} icon="pi pi-check" label={`Price ${processedEvent.price} sats`} severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
+        }
+        
+        return null;
+    };
 
     return (
         <div className='w-full flex flex-row justify-between max-tab:flex-col max-mob:flex-col'>
@@ -76,11 +93,7 @@ const ResourceDetails = ({processedEvent, topics, title, summary, image, price, 
                                     resourceId={processedEvent.d}
                                 />}
 
-                                {/* if the resource has been paid for show a green paid x sats text */}
-                                {paidResource && decryptedContent && author && !processedEvent?.pubkey === session?.user?.pubkey && <p className='text-green-500'>Paid {processedEvent.price} sats</p>}
-
-                                {/* if this is the author of the resource show a zap button */}
-                                {paidResource && author && processedEvent?.pubkey === session?.user?.pubkey && <p className='text-green-500'>Price {processedEvent.price} sats</p>}
+                                {renderPaymentMessage()}
 
                                 <ZapDisplay 
                                     zapAmount={zapAmount} 

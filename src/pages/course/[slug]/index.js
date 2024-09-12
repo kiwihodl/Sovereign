@@ -129,6 +129,8 @@ const Course = () => {
                     session.user?.role?.subscribed ||
                     session.user?.pubkey === course?.pubkey;
 
+                console.log('canAccess', canAccess);
+
                 if (canAccess && lessons.length > 0) {
                     try {
                         const decryptedLessons = await Promise.all(lessons.map(async (lesson) => {
@@ -154,11 +156,12 @@ const Course = () => {
         }
     }, [course, lessons, paidCourse, decryptionPerformed]);
 
-    const handlePaymentSuccess = async (response, newCourse) => {
+    const handlePaymentSuccess = async (response) => {
         if (response && response?.preimage) {
-            console.log("newCourse", newCourse);
             const updated = await update();
             console.log("session after update", updated);
+            showToast('success', 'Payment Success', 'You have successfully purchased this course');
+            router.reload();
         } else {
             showToast('error', 'Error', 'Failed to purchase course. Please try again.');
         }
@@ -187,7 +190,7 @@ const Course = () => {
                 handlePaymentError={handlePaymentError}
             />
             {lessons.length > 0 && lessons.map((lesson, index) => (
-                <CourseLesson key={index} lesson={lesson} course={course} />
+                <CourseLesson key={index} lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} />
             ))}
             <div className="mx-auto my-6">
                 {course?.content && <MDDisplay className='p-4 rounded-lg' source={course.content} />}
