@@ -2,7 +2,7 @@ import Image from "next/image"
 import { useState } from "react"
 import { useImageProxy } from "@/hooks/useImageProxy"
 import GenericButton from "@/components/buttons/GenericButton"
-
+import { useRouter } from "next/router"
 const promotions = [
   {
     id: 1,
@@ -57,6 +57,7 @@ const promotions = [
 export function InteractivePromotionalCarousel() {
   const [selectedPromotion, setSelectedPromotion] = useState(promotions[0])
   const { returnImageProxy } = useImageProxy();
+  const router = useRouter();
 
   return (
     <div className="flex flex-col lg:flex-row bg-gray-900 text-white m-4 mx-14 rounded-lg h-[620px]">
@@ -76,8 +77,42 @@ export function InteractivePromotionalCarousel() {
           </h2>
           <p className="text-lg text-white drop-shadow-md">{selectedPromotion.description}</p>
           <div className="flex flex-row gap-2 mt-4">
-            <GenericButton severity="success" icon={<i className="pi pi-question-circle pr-2 pb-[2px]" />} label="Learn More" className="py-2 font-semibold" size="small" outlined />
-            <GenericButton severity="warning" icon={<i className="pi pi-star pr-2 pb-1" />} label="Subscribe" className="py-2 font-semibold" size="small" outlined />
+            {
+              (() => {
+                switch (selectedPromotion.category) {
+                  case "PLEBDEVS":
+                    return (
+                      <>
+                        <GenericButton onClick={() => router.push('/about')} severity="success" icon={<i className="pi pi-question-circle pr-2 pb-[2px]" />} label="Learn More" className="py-2 font-semibold" size="small" outlined />
+                        <GenericButton onClick={() => router.push('/subscribe')} severity="warning" icon={<i className="pi pi-star pr-2 pb-1" />} label="Subscribe" className="py-2 font-semibold" size="small" outlined />
+                        <GenericButton onClick={() => router.push('/content?tag=all')} severity="help" icon={<i className="pi pi-eye pr-2" />} label="View all content" className="py-2 font-semibold" size="small" outlined />
+                      </>
+                    );
+                  case "COURSES":
+                    return (
+                      <GenericButton onClick={() => router.push('/content?tag=courses')} icon={<i className="pi pi-book pr-2 pb-1" />} label="View All Courses" className="py-2 font-semibold" size="small" outlined />
+                    );
+                  case "WORKSHOPS":
+                    return (
+                      <GenericButton onClick={() => router.push('/content?tag=workshops')} icon={<i className="pi pi-video pr-2" />} label="View All Workshops" className="py-2 font-semibold" size="small" outlined />
+                    );
+                  case "RESOURCES":
+                    return (
+                      <GenericButton onClick={() => router.push('/content?tag=resources')} icon={<i className="pi pi-file pr-2 pb-1" />} label="View All Resources" className="py-2 font-semibold" size="small" outlined />
+                    );
+                  case "COMMUNITY":
+                    return (
+                      <GenericButton onClick={() => router.push('/feed?channel=global')} icon={<i className="pi pi-users pr-2 pb-1" />} label="Open Community Feed" className="py-2 font-semibold" size="small" outlined />
+                    );
+                  case "LIGHTNING / NOSTR":
+                    return (
+                      <GenericButton onClick={() => router.push('/subscribe')} severity="warning" icon={<i className="pi pi-star pr-2 pb-1" />} label="Subscribe" className="py-2 font-semibold" size="small" outlined />
+                    );
+                  default:
+                    return null;
+                }
+              })()
+            }
           </div>
         </div>
       </div>

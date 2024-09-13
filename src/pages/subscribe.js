@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { useToast } from '@/hooks/useToast';
 import axios from 'axios';
 import { Card } from 'primereact/card';
+import { Message } from 'primereact/message';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import { Menu } from "primereact/menu";
 import GenericButton from '@/components/buttons/GenericButton';
@@ -20,6 +21,19 @@ const Subscribe = () => {
     const [subscribedUntil, setSubscribedUntil] = useState(null);
     const [subscriptionExpiredAt, setSubscriptionExpiredAt] = useState(null);
     const menu = useRef(null);
+
+    useEffect(() => {
+        if (session && session?.user) {
+            setSubscribed(session?.user.role.subscribed);
+            const subscribedAt = new Date(session?.user.role.lastPaymentAt);
+            const subscribedUntil = new Date(subscribedAt.getTime() + 31 * 24 * 60 * 60 * 1000);
+            setSubscribedUntil(subscribedUntil);
+            if (session?.user.role.subscriptionExpiredAt) {
+                const expiredAt = new Date(session?.user.role.subscriptionExpiredAt)
+                setSubscriptionExpiredAt(expiredAt);
+            }
+        }
+    }, [session, session?.user]);
 
     const handleSubscriptionSuccess = async (paymentResponse) => {
         setIsProcessing(true);
@@ -92,7 +106,7 @@ const Subscribe = () => {
         },
     ];
 
-    const subscriptionCardTitle = (
+    const subscriptionCardTitleAndButton = (
         <div className="w-full flex flex-row justify-between items-center">
             <span className="text-xl text-900 font-bold text-white">Plebdevs Subscription</span>
             <i
@@ -103,6 +117,12 @@ const Subscribe = () => {
         </div>
     );
 
+    const subscriptionCardTitle = (
+        <div className="w-full flex flex-row justify-between items-center">
+            <span className="text-xl text-900 font-bold text-white">Plebdevs Subscription</span>
+        </div>
+    );
+
     return (
         <div className="p-4">
             {
@@ -110,20 +130,42 @@ const Subscribe = () => {
                     <h1 className="text-3xl font-bold mb-6">Subscription Management</h1>
                 )
             }
-            <Card title={subscriptionCardTitle} className="mb-6">
-                <p className='mb-4 text-xl'>
-                    The plebdevs subscription is a monthly subscription that unlocks all of the paid content, grants you access to the plebdevs 1:1 calendar for tutoring, support, and mentorship, and gives you an exclusive invite to the pleblab bitcoin hackerspace community.
-                </p>
+            {session && session?.user ? (
+                <Card title={subscriptionCardTitleAndButton} className="mb-6">
+                    {subscribed && (
+                        <div className="flex flex-col">
+                            <Message className="w-fit" severity="success" text="Subscribed!" />
+                            <p className="mt-4">Thank you for your support 🎉</p>
+                            <p className="text-sm text-gray-400">Pay-as-you-go subscription will renew on {subscribedUntil.toLocaleDateString()}</p>
+                        </div>
+                    )}
+                    {(!subscribed && !subscriptionExpiredAt) && (
+                        <div className="flex flex-col">
+                            <Message className="w-fit" severity="info" text="You currently have no active subscription" />
+                        </div>
+                    )}
+                    {subscriptionExpiredAt && (
+                        <div className="flex flex-col">
+                            <Message className="w-fit" severity="warn" text={`Your subscription expired on ${subscriptionExpiredAt.toLocaleDateString()}`} />
+                        </div>
+                    )}
+                </Card>
+            ) : (
+                <Card title={subscriptionCardTitle} className="mb-6">
+                    <p className='mb-4 text-xl'>
+                        The plebdevs subscription is a monthly subscription that unlocks all of the paid content, grants you access to the plebdevs 1:1 calendar for tutoring, support, and mentorship, and gives you an exclusive invite to the pleblab bitcoin hackerspace community.
+                    </p>
 
-                <p className='text-xl'>
-                    The plebdevs subscription is Lightning only and you can subscribe a month at a time with the pay as you go option or easily setup an auto recurring monthly subscription using Nostr Wallet Connect.
-                </p>
+                    <p className='text-xl'>
+                        The plebdevs subscription is Lightning only and you can subscribe a month at a time with the pay as you go option or easily setup an auto recurring monthly subscription using Nostr Wallet Connect.
+                    </p>
 
-                <div className='flex flex-col w-fit mt-4 bg-gray-900 p-4 rounded-lg'>
-                    <p className='text-xl pb-8'>Login to start your subscription</p>
-                    <GenericButton label="Login" onClick={() => router.push('/auth/signin')} className='text-[#f8f8ff] w-fit' size="small" rounded icon="pi pi-user" />
-                </div>
-            </Card>
+                    <div className='flex flex-col w-fit mt-4 bg-gray-900 p-4 rounded-lg'>
+                        <p className='text-xl pb-8'>Login to start your subscription</p>
+                        <GenericButton label="Login" onClick={() => router.push('/auth/signin')} className='text-[#f8f8ff] w-fit' size="small" rounded icon="pi pi-user" />
+                    </div>
+                </Card>
+            )}
 
             <Card title="Subscribe to PlebDevs" className="mb-6">
                 {isProcessing ? (

@@ -41,8 +41,8 @@ export function DocumentTemplate({ document }) {
                     <ZapDisplay zapAmount={zapAmount} event={document} zapsLoading={zapsLoading && zapAmount === 0} />
                 </div>
                 <CardHeader className="absolute bottom-[-8px] left-0 right-0 text-white bg-gray-800/70 w-fit rounded-lg rounded-bl-none rounded-tl-none rounded-br-none p-4 max-w-[70%] max-h-[60%]">
-                    <div className="flex items-start gap-4">
-                        <FileText className="w-10 h-10 mt-1 text-neutral-50 dark:text-neutral-900" />
+                    <div className="flex items-center justify-center gap-4">
+                        <i className="pi pi-file text-2xl text-[#f8f8ff]"></i>
                         <div>
                             <CardTitle className="text-2xl sm:text-3xl mb-2">{document.title}</CardTitle>
                         </div>
