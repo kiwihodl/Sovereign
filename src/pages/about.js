@@ -1,6 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Image from 'next/image';
+import NostrIcon from '../../public/images/nostr.png';
+import { Tooltip } from 'primereact/tooltip';
+import { useToast } from "@/hooks/useToast"
 
 const AboutPage = () => {
+    const {showToast} = useToast()
+
+    const copyToClipboard = async (text) => {
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast("success", "Copied", "Copied Lightning Address to clipboard")
+          if (window && window?.webln && window?.webln?.lnurl) {
+            await window.webln.enable();
+            const result = await window.webln.lnurl("austin@bitcoinpleb.dev");
+            if (result && result?.preimage) {
+              showToast("success", "Copied", "Copied Lightning Address to clipboard")
+            }
+          }
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+      };
+
     return (
         <div className="max-w-4xl mx-auto py-8 px-4">
             <h1 className="text-3xl font-bold mb-6">About PlebDevs</h1>
@@ -10,14 +32,14 @@ const AboutPage = () => {
                     <i className="pi pi-info-circle text-blue-500 mr-3 text-2xl"></i>
                     PlebDevs is a custom-built education platform designed to help new and aspiring developers, with a special focus on Bitcoin Lightning and Nostr technologies.
                 </p>
-                <p className='text-lg font-semibold px-9 mt-4'>
-                    <span className='font-normal'>The pitch is simple:</span>
-                    <ul className='list-disc list-inside ml-6 space-y-2'>
+                {/* <p className='text-lg font-semibold px-9 mt-4'> */}
+                    <p className='font-normal text-lg px-9 mt-4 mb-2'>The pitch is simple:</p>
+                    <ul className='list-disc list-inside ml-16 space-y-2'>
                         <li>Learn how to code 💻</li>
                         <li>Build Bitcoin / Lightning / Nostr apps ⚡</li>
                         <li>Become a developer 🚀</li>
                     </ul>
-                </p>
+                {/* </p> */}
             </div>
 
             <div className="space-y-8">
@@ -51,6 +73,27 @@ const AboutPage = () => {
                     <i className="pi pi-flag text-blue-500 mr-3 text-2xl"></i>
                     PlebDevs aims to provide a comprehensive, decentralized learning experience for aspiring developers, with a strong emphasis on emerging technologies in the Bitcoin ecosystem.
                 </p>
+            </div>
+
+            <div className="mt-12 bg-gray-700 rounded-lg p-6">
+                <div className="flex items-center justify-center space-x-16">
+                    <Tooltip target=".pi-github" content="GitHub" position="bottom" />
+                    <a href="https://github.com/pleb-devs" target="_blank" rel="noopener noreferrer">
+                        <i className="pi pi-github text-white text-5xl"></i>
+                    </a>
+                    <Tooltip target=".pi-twitter" content="X.com" position="bottom" />
+                    <a href="https://x.com/pleb_devs" target="_blank" rel="noopener noreferrer">
+                        <i className="pi pi-twitter text-black text-5xl"></i>
+                    </a>
+                    <Tooltip target=".nostr-icon" content="Nostr" position="bottom" />
+                    <a href="https://nostr.com/plebdevs@plebdevs.com" target="_blank" rel="noopener noreferrer">
+                        <Image src={NostrIcon} alt="Nostr" width={44} height={44} className='nostr-icon' />
+                    </a>
+                    <Tooltip target=".pi-bolt" content="Donate" position="bottom" />
+                    <p onClick={() => copyToClipboard("austin@bitcoinpleb.dev")} className='cursor-pointer'>
+                        <i className="pi pi-bolt text-yellow-500 text-5xl"></i>
+                    </p>
+                </div>
             </div>
         </div>
     );

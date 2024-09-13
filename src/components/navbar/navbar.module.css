@@ -20,23 +20,3 @@
     font-size: 1.5rem;
     font-weight: 600;
 }
-
-.dropdown {
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-.dropdown:focus,
-.dropdown:active,
-.dropdown:hover {
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-/* Override any potential global styles */
-.dropdown * {
-    outline: none !important;
-    box-shadow: none !important;
-}
