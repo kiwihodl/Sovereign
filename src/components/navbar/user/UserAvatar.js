@@ -85,7 +85,6 @@ const UserAvatar = () => {
         userAvatar = (
             <>
                 <div className='flex flex-row items-center justify-between'>
-                    <div onClick={(event) => menu.current.toggle(event)} className={`flex flex-row items-center justify-between cursor-pointer hover:opacity-75`}>
                     <GenericButton
                         severity='help'
                         rounded
@@ -94,6 +93,7 @@ const UserAvatar = () => {
                         onClick={() => router.push('/about')}
                         size={windowWidth < 768 ? 'small' : 'normal'}
                     />
+                    <div onClick={(event) => menu.current.toggle(event)} className={`flex flex-row items-center justify-between cursor-pointer hover:opacity-75`}>
                         <Image
                             alt="logo"
                             src={returnImageProxy(user.avatar, user.pubkey)}
