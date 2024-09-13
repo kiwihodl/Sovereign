@@ -86,10 +86,10 @@ const UserAvatar = () => {
             <>
                 <div className='flex flex-row items-center justify-between'>
                     <GenericButton
-                        severity='help'
+                        outlined
                         rounded
                         label="About"
-                        className='text-[#f8f8ff] mr-4'
+                        className='mr-4'
                         onClick={() => router.push('/about')}
                         size={windowWidth < 768 ? 'small' : 'normal'}
                     />
@@ -114,10 +114,10 @@ const UserAvatar = () => {
         userAvatar = (
             <div className='flex flex-row items-center justify-between'>
                 <GenericButton
-                    severity='help'
+                    outlined
                     rounded
                     label="About"
-                    className='text-[#f8f8ff] mr-4'
+                    className='mr-4'
                     onClick={() => router.push('/about')}
                     size={windowWidth < 768 ? 'small' : 'normal'}
                 />

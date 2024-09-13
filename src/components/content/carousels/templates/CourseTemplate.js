@@ -68,7 +68,7 @@ const CourseTemplate = ({ course }) => {
         </div>
         {course?.topics && course?.topics.length > 0 && (
           <div className="flex flex-row justify-start items-center mt-2">
-            {course.topics.map((topic, index) => (
+            {course && course.topics && course.topics.map((topic, index) => (
               <Tag key={index} value={topic} className="mr-2 text-white" />
             ))}
           </div>

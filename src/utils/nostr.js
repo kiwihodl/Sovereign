@@ -5,6 +5,8 @@ export const findKind0Fields = async (kind0) => {
 
     const usernameProperties = ['name', 'displayName', 'display_name', 'username', 'handle', 'alias'];
 
+    const pubkeyProperties = ['pubkey', 'npub', '_pubkey'];
+
     const findTruthyPropertyValue = (object, properties) => {
         for (const property of properties) {
             if (object?.[property]) {
@@ -26,8 +28,27 @@ export const findKind0Fields = async (kind0) => {
         fields.avatar = avatar;
     }
 
+    const pubkey = findTruthyPropertyValue(kind0, pubkeyProperties);
+
+    if (pubkey) {
+        fields.pubkey = pubkey;
+    }
+
     return fields;
 }
+
+export const parseMessageEvent = (event) => {
+    const eventData = {
+        id: event.id,
+        pubkey: event.pubkey || '',
+        content: event.content || '',
+        kind: event.kind || '',
+        type: 'message',
+    };
+
+    return eventData;
+}
+
 
 export const parseEvent = (event) => {
     // Initialize an object to store the extracted data

@@ -50,7 +50,7 @@ const CommunityMessage = ({ message, searchQuery, windowWidth, platform }) => {
         <div className="flex flex-row w-full items-center justify-between p-4 bg-gray-800 rounded-t-lg">
             <div className="flex flex-row items-center">
                 <Avatar image={message.avatar} shape="circle" size="large" className="border-2 border-blue-400" />
-                <p className="pl-4 font-bold text-xl text-white">{message.author}</p>
+                <p className="pl-4 font-bold text-xl text-white">{message?.pubkey ? (message?.pubkey.slice(0, 12) + "...") : message.author}</p>
             </div>
             <div className="flex flex-col items-start justify-between">
                 <div className="flex flex-row w-full justify-between items-center my-1 max-sidebar:flex-col max-sidebar:items-start">
@@ -90,9 +90,11 @@ const CommunityMessage = ({ message, searchQuery, windowWidth, platform }) => {
                         </Panel>
                     ) : (
                         <div className="w-full flex flex-row justify-between items-end">
-                            <p className="rounded-lg text-sm text-gray-300">
+                            {platform !== "nostr" ? (
+                                <p className="rounded-lg text-sm text-gray-300">
                                 {new Date(message.timestamp).toLocaleString()}
                             </p>
+                            ) : <div></div>}
                             <GenericButton
                                 label={windowWidth > 768 ? `View in ${platform}` : null}
                                 icon="pi pi-external-link"

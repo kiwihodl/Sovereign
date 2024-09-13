@@ -6,10 +6,12 @@ import { useRouter } from 'next/router';
 import SearchBar from '../search/SearchBar';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
+import { useNDKContext } from '@/context/NDKContext';
 
 const Navbar = () => {
     const router = useRouter();
     const navbarHeight = '60px';
+    const {ndk} = useNDKContext();
 
     const start = (
         <div className='flex items-center'>
@@ -23,7 +25,7 @@ const Navbar = () => {
                 />
                 <h1 className="text-white text-xl font-semibold max-tab:text-2xl max-mob:text-2xl">PlebDevs</h1>
             </div>
-            <SearchBar />
+            {ndk && <SearchBar />}
         </div>
     );
 
