@@ -7,7 +7,6 @@ import GenericButton from '@/components/buttons/GenericButton';
 import { Menu } from 'primereact/menu';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import { useSession, signOut } from 'next-auth/react';
-import { Dialog } from 'primereact/dialog';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import 'primereact/resources/primereact.min.css';
@@ -85,18 +84,28 @@ const UserAvatar = () => {
         ];
         userAvatar = (
             <>
-                <div onClick={(event) => menu.current.toggle(event)} className={`flex flex-row items-center justify-between cursor-pointer hover:opacity-75`}>
-                    <Image
-                        alt="logo"
-                        src={returnImageProxy(user.avatar, user.pubkey)}
-                        width={50}
-                        height={50}
-                        className={styles.logo}
-                        style={{
-                            boxShadow: isProfile ? '0 0 10px 3px rgba(255, 255, 255, 0.7)' : 'none',
-                            transition: 'box-shadow 0.3s ease-in-out',
-                        }}
+                <div className='flex flex-row items-center justify-between'>
+                    <div onClick={(event) => menu.current.toggle(event)} className={`flex flex-row items-center justify-between cursor-pointer hover:opacity-75`}>
+                    <GenericButton
+                        severity='help'
+                        rounded
+                        label="About"
+                        className='text-[#f8f8ff] mr-4'
+                        onClick={() => router.push('/about')}
+                        size={windowWidth < 768 ? 'small' : 'normal'}
                     />
+                        <Image
+                            alt="logo"
+                            src={returnImageProxy(user.avatar, user.pubkey)}
+                            width={50}
+                            height={50}
+                            className={styles.logo}
+                            style={{
+                                boxShadow: isProfile ? '0 0 10px 3px rgba(255, 255, 255, 0.7)' : 'none',
+                                transition: 'box-shadow 0.3s ease-in-out',
+                            }}
+                        />
+                    </div>
                 </div>
                 <Menu model={items} popup ref={menu} className='w-[250px] break-words' />
             </>
@@ -104,55 +113,14 @@ const UserAvatar = () => {
     } else {
         userAvatar = (
             <div className='flex flex-row items-center justify-between'>
-                <GenericButton severity='help' rounded label="About" className='text-[#f8f8ff] mr-4' onClick={() => setVisible(true)} size={windowWidth < 768 ? 'small' : 'normal'} />
-                <Dialog header="About" visible={visible} onHide={() => { if (!visible) return; setVisible(false); }} className='w-[50vw] max-tab:w-[95vw]'>
-                    <div className="space-y-6">
-                        <p className="text-lg"><i className="pi pi-info-circle mr-2"></i>PlebDevs is a custom-built education platform designed to help aspiring developers, with a special focus on Bitcoin Lightning and Nostr technologies.</p>
-                        
-                        <div className="space-y-4">
-                            <h3 className="text-xl font-semibold"><i className="pi pi-star mr-2"></i>Key Features:</h3>
-                            <ul className="space-y-4">
-                                <li><i className="pi pi-cloud mr-2"></i><span className="font-semibold">Content Distribution:</span> All educational content is published to Nostr and actively pulled from Nostr relays, ensuring decentralized and up-to-date information.</li>
-                                
-                                <li>
-                                    <i className="pi pi-file-edit mr-2"></i><span className="font-semibold">Content Types:</span>
-                                    <ul className="list-disc list-inside ml-6 mt-2 space-y-1">
-                                        <li><span className="italic">Resources:</span> Markdown documents posted as NIP-23 long-form events on Nostr.</li>
-                                        <li><span className="italic">Workshops:</span> Enhanced markdown files with rich media support, including embedded videos, also saved as NIP-23 events.</li>
-                                        <li><span className="italic">Courses:</span> Nostr lists that combine multiple resources and workshops into a structured learning path.</li>
-                                    </ul>
-                                </li>
-                                
-                                <li>
-                                    <i className="pi pi-dollar mr-2"></i><span className="font-semibold">Monetization:</span>
-                                    <ul className="list-disc list-inside ml-6 mt-2 space-y-1">
-                                        <li>All content is zappable, allowing for micropayments.</li>
-                                        <li>Some content is &apos;paid&apos;, requiring either atomic payments or a subscription for access.</li>
-                                        <li>Subscription options include pay-as-you-go and recurring payments via Nostr Wallet Connect.</li>
-                                    </ul>
-                                </li>
-                                
-                                <li><i className="pi pi-users mr-2"></i><span className="font-semibold">Community Engagement:</span> A dedicated community section pulls in relevant PlebDevs channels. Users can read all PlebDevs content and interact with the community via Nostr.</li>
-                                
-                                <li>
-                                    <i className="pi pi-check-circle mr-2"></i><span className="font-semibold">Subscription Benefits:</span>
-                                    <ul className="list-disc list-inside ml-6 mt-2 space-y-1">
-                                        <li>Access to all content, including paid resources.</li>
-                                        <li>Exclusive 1:1 calendar for personalized support.</li>
-                                        <li>Access to exclusive channels.</li>
-                                        <li>Personal mentorship to ensure success in becoming a developer.</li>
-                                    </ul>
-                                </li>
-                                
-                                <li><i className="pi pi-cog mr-2"></i><span className="font-semibold">Technology Stack:</span> The platform leverages Nostr for content distribution and community interaction, and Bitcoin Lightning Network for micropayments and subscriptions.</li>
-                                
-                                <li><i className="pi pi-user mr-2"></i><span className="font-semibold">User Experience:</span> Seamless integration of learning resources, community engagement, and payment systems, with a focus on practical skills development in Bitcoin, Lightning, and Nostr technologies.</li>
-                            </ul>
-                        </div>
-                        
-                        <p className="italic text-lg"><i className="pi pi-flag mr-2"></i>PlebDevs aims to provide a comprehensive, decentralized learning experience for aspiring developers, with a strong emphasis on emerging technologies in the Bitcoin ecosystem.</p>
-                    </div>
-                </Dialog>
+                <GenericButton
+                    severity='help'
+                    rounded
+                    label="About"
+                    className='text-[#f8f8ff] mr-4'
+                    onClick={() => router.push('/about')}
+                    size={windowWidth < 768 ? 'small' : 'normal'}
+                />
                 <GenericButton
                     label="Login"
                     icon="pi pi-user"
