@@ -39,6 +39,10 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
         }
     }, [zaps, processedEvent]);
 
+    useEffect(() => {
+        console.log("authorView", authorView);
+    }, [authorView]);
+
     const handleDelete = async () => {
         try {
             const response = await axios.delete(`/api/resources/${processedEvent.d}`);
@@ -80,7 +84,9 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
         }
         if (paidResource && !decryptedContent) {
             return (
-                <div className="w-full p-8 rounded-lg flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-800">
+                <div className="w-full px-4">
+
+                <div className="w-full p-8 rounded-lg flex flex-col items-center justify-center bg-gray-800">
                     <div className="mx-auto py-auto">
                         <i className="pi pi-lock text-[60px] text-red-500"></i>
                     </div>
@@ -94,9 +100,10 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                             onSuccess={handlePaymentSuccess}
                             onError={handlePaymentError}
                             resourceId={processedEvent.d}
-                        />
+                            />
                     </div>
                 </div>
+                            </div>
             );
         }
         if (processedEvent?.content) {
@@ -151,30 +158,39 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                             zapsLoading={zapsLoading && zapAmount === 0}
                         />
                     </div>
-                    <div className="w-full flex flex-row justify-end">
-                        <GenericButton
-                            tooltip={`View Nostr Note`}
-                            tooltipOptions={{ position: 'left' }}
-                            icon="pi pi-external-link"
-                            outlined
-                            onClick={() => {
-                                window.open(`https://nostr.com/${nAddress}`, '_blank');
-                            }}
-                        />
+                    <div className='w-full mt-8 flex flex-wrap justify-between items-center'>
+                        {renderPaymentMessage()}
+                        {authorView ? (
+                            <div className='flex space-x-2 mt-4 sm:mt-0'>
+                                <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
+                                <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
+                                <GenericButton
+                                    tooltip={`View Nostr Note`}
+                                    tooltipOptions={{ position: 'left' }}
+                                    icon="pi pi-external-link"
+                                    outlined
+                                    onClick={() => {
+                                        window.open(`https://nostr.com/${nAddress}`, '_blank');
+                                    }}
+                                />
+                            </div>
+                        ) : (
+                            <div className="w-full flex flex-row justify-end">
+                                <GenericButton
+                                    tooltip={`View Nostr Note`}
+                                    tooltipOptions={{ position: 'left' }}
+                                    icon="pi pi-external-link"
+                                    outlined
+                                    onClick={() => {
+                                        window.open(`https://nostr.com/${nAddress}`, '_blank');
+                                    }}
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
             {renderContent()}
-
-            <div className='w-full mt-8 flex flex-wrap justify-between items-center'>
-                {renderPaymentMessage()}
-                {authorView && (
-                    <div className='flex space-x-2 mt-4 sm:mt-0'>
-                        <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
-                        <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
-                    </div>
-                )}
-            </div>
         </div>
     )
 }

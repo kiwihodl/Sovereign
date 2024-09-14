@@ -15,6 +15,7 @@ import { useSession } from 'next-auth/react';
 import useWindowWidth from "@/hooks/useWindowWidth";
 import { useNDKContext } from "@/context/NDKContext";
 import { findKind0Fields } from '@/utils/nostr';
+import { defaultRelayUrls } from "@/context/NDKContext";
 
 const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
 
@@ -46,6 +47,7 @@ export default function CourseDetailsNew({ processedEvent, paidCourse, lessons, 
                 pubkey: processedEvent.pubkey,
                 kind: processedEvent.kind,
                 identifier: processedEvent.d,
+                relayUrls: defaultRelayUrls
             });
             setNAddress(naddr);
         }
@@ -157,14 +159,16 @@ export default function CourseDetailsNew({ processedEvent, paidCourse, lessons, 
                     </div>
                     <div className='w-full mt-8 flex flex-wrap justify-between items-center'>
                         {renderPaymentMessage()}
-                        {processedEvent?.pubkey === session?.user?.pubkey && (
+                        {processedEvent?.pubkey === session?.user?.pubkey ? (
                             <div className='flex space-x-2 mt-4 sm:mt-0'>
                                 <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
                                 <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
+                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip="View Nostr Event" tooltipOptions={{ position: 'right' }} />
                             </div>
-                        )}
-                        {nAddress && (
-                            <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip="View Nostr Event" tooltipOptions={{ position: paidCourse ? 'left' : 'right' }} />
+                        ) : (
+                            <div className='flex space-x-2 mt-4 sm:mt-0'>
+                                <GenericButton className='my-2' outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip="View Nostr Event" tooltipOptions={{ position: paidCourse ? 'left' : 'right' }} />
+                            </div>
                         )}
                     </div>
                 </div>

@@ -51,7 +51,7 @@ const ZapThreadsWrapper = ({ anchor, relays, disable }) => {
   }, [anchor, relays, disable]);
 
   // Render a <div> element and attach the zapRef to it
-  return <div ref={zapRef} />;
+  return <div className="overflow-x-hidden" ref={zapRef} />;
 };
 
 export default ZapThreadsWrapper;

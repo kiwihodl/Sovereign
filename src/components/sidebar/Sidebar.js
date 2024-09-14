@@ -99,7 +99,6 @@ const Sidebar = ({ course = false }) => {
                             <i className="pi pi-arrow-left pl-5" /> <p className="pl-2 rounded-md font-bold text-lg">Home</p>
                         </div>
                         {lessons.map((lesson, index) => (
-                            console.log(lesson),
                             <div
                                 key={lesson}
                                 onClick={() => {

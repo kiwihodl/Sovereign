@@ -10,6 +10,7 @@ import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { nip19 } from "nostr-tools";
 import { Tag } from "primereact/tag";
 import GenericButton from "@/components/buttons/GenericButton";
+import { defaultRelayUrls } from "@/context/NDKContext";
 
 export function DocumentTemplate({ document }) {
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: document });
@@ -24,6 +25,7 @@ export function DocumentTemplate({ document }) {
                 pubkey: document.pubkey,
                 kind: document.kind,
                 identifier: document.id,
+                relayUrls: defaultRelayUrls
             });
             setNAddress(nAddress);
         }

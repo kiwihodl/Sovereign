@@ -15,6 +15,7 @@ import { findKind0Fields } from '@/utils/nostr';
 import { useToast } from '@/hooks/useToast';
 import { formatDateTime } from '@/utils/time';
 import { validateEvent } from '@/utils/nostr';
+import { defaultRelayUrls } from "@/context/NDKContext";
 import 'primeicons/primeicons.css';
 
 const MDDisplay = dynamic(
@@ -109,6 +110,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
             pubkey: resource.pubkey,
             kind: resource.kind,
             identifier: dTag,
+            relayUrls: defaultRelayUrls
         });
 
         const userResponse = await axios.get(`/api/users/${user.pubkey}`);

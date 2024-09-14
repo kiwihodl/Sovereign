@@ -81,7 +81,7 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
         if (paidResource && !decryptedContent) {
             return (
                 <div className="w-full aspect-video rounded-lg flex flex-col items-center justify-center relative overflow-hidden">
-                    <div 
+                    <div
                         className="absolute inset-0 opacity-50"
                         style={{
                             backgroundImage: `url(${image})`,
@@ -118,63 +118,56 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
         <div className="w-full">
             {renderContent()}
             <div className="bg-gray-800/90 rounded-lg p-4 m-4">
-            <div className="w-full flex flex-col items-start justify-start mt-2 px-2">
-                <div className="flex flex-row items-center gap-2 w-full">
-                    <h1 className='text-4xl'>{title}</h1>
-                    {topics && topics.length > 0 && (
-                        topics.map((topic, index) => (
-                            <Tag className='mt-2 text-white' key={index} value={topic}></Tag>
-                        ))
-                    )
-                }
-                </div>
-                <div className='flex flex-row items-center justify-between w-full'>
-                    <p className='text-xl mt-4'>{summary}</p>
-                    <ZapDisplay
-                        zapAmount={zapAmount}
-                        event={processedEvent}
-                        zapsLoading={zapsLoading && zapAmount === 0}
+                <div className="w-full flex flex-col items-start justify-start mt-2 px-2">
+                    <div className="flex flex-row items-center gap-2 w-full">
+                        <h1 className='text-4xl'>{title}</h1>
+                        {topics && topics.length > 0 && (
+                            topics.map((topic, index) => (
+                                <Tag className='mt-2 text-white' key={index} value={topic}></Tag>
+                            ))
+                        )
+                        }
+                    </div>
+                    <div className='flex flex-row items-center justify-between w-full'>
+                        <p className='text-xl mt-4'>{summary}</p>
+                        <ZapDisplay
+                            zapAmount={zapAmount}
+                            event={processedEvent}
+                            zapsLoading={zapsLoading && zapAmount === 0}
                         />
+                    </div>
                 </div>
-            </div>
-            <div className='w-full flex flex-col space-y-4 mt-4'>
-                <div className='flex flex-row justify-between items-center'>
-                    <div className='flex flex-row w-fit items-center'>
-                        <Image
-                            alt="avatar image"
-                            src={returnImageProxy(author?.avatar, author?.username)}
-                            width={50}
-                            height={50}
-                            className="rounded-full mr-4"
+                <div className='w-full flex flex-col space-y-4 mt-4'>
+                    <div className='flex flex-row justify-between items-center'>
+                        <div className='flex flex-row w-fit items-center'>
+                            <Image
+                                alt="avatar image"
+                                src={returnImageProxy(author?.avatar, author?.username)}
+                                width={50}
+                                height={50}
+                                className="rounded-full mr-4"
                             />
-                        <p className='text-lg'>
-                            Created by{' '}
-                            <a rel='noreferrer noopener' target='_blank' className='text-blue-500 hover:underline'>
-                                {author?.username}
-                            </a>
-                        </p>
-                    </div>
-                    <GenericButton
-                            tooltip={`View Nostr Note`}
-                            tooltipOptions={{ position: 'left' }}
-                            icon="pi pi-external-link"
-                            outlined
-                            onClick={() => {
-                                window.open(`https://nostr.com/${nAddress}`, '_blank');
-                            }}
-                        />
-                    {authorView && (
-                        <div className='flex flex-row justify-center items-center space-x-2'>
-                            <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
-                            <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
+                            <p className='text-lg'>
+                                Created by{' '}
+                                <a rel='noreferrer noopener' target='_blank' className='text-blue-500 hover:underline'>
+                                    {author?.username}
+                                </a>
+                            </p>
                         </div>
-                    )}
-                </div>
-                <div className='w-full flex flex-row justify-between'>
-                    {renderPaymentMessage()}
+                        {authorView ? (
+                            <div className='flex flex-row justify-center items-center space-x-2'>
+                                <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
+                                <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
+                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip="View Nostr Event" tooltipOptions={{ position: 'right' }} />
+                            </div>
+                        ) : (
+                            <div className='flex flex-row justify-center items-center space-x-2'>
+                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip="View Nostr Event" tooltipOptions={{ position: 'right' }} />
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
-                    </div>
         </div>
     )
 }

@@ -72,7 +72,7 @@ const CommunityMessage = ({ message, searchQuery, windowWidth, platform }) => {
             }
             <div className="w-full flex flex-row justify-between items-end">
                 {
-                    session?.user?.pubkey && platform === 'nostr' ? (
+                    platform === 'nostr' ? (
                         <Panel
                             headerTemplate={() => headerTemplate({ onTogglerClick: () => setCollapsed(!collapsed) }, windowWidth, platform, message.id)}
                             toggleable
@@ -80,20 +80,21 @@ const CommunityMessage = ({ message, searchQuery, windowWidth, platform }) => {
                             onToggle={(e) => setCollapsed(e.value)}
                             className="w-full"
                         >
-
-                            <ZapThreadsWrapper
-                                anchor={nip19.noteEncode(message.id)}
-                                user={npub}
-                                relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.mutinywallet.com/, wss://relay.primal.net/"
-                                disable=""
-                            />
+                            <div className="max-w-[100vw]">
+                                <ZapThreadsWrapper
+                                    anchor={nip19.noteEncode(message.id)}
+                                    user={npub || null}
+                                    relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.mutinywallet.com/, wss://relay.primal.net/"
+                                    disable=""
+                                />
+                            </div>
                         </Panel>
                     ) : (
                         <div className="w-full flex flex-row justify-between items-end">
                             {platform !== "nostr" ? (
                                 <p className="rounded-lg text-sm text-gray-300">
-                                {new Date(message.timestamp).toLocaleString()}
-                            </p>
+                                    {new Date(message.timestamp).toLocaleString()}
+                                </p>
                             ) : <div></div>}
                             <GenericButton
                                 label={windowWidth > 768 ? `View in ${platform}` : null}
