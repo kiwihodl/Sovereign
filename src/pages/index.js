@@ -2,12 +2,9 @@ import Head from 'next/head';
 import React from 'react';
 import CoursesCarousel from '@/components/content/carousels/CoursesCarousel';
 import WorkshopsCarousel from '@/components/content/carousels/WorkshopsCarousel';
-import HeroBanner from '@/components/banner/HeroBanner';
 import ResourcesCarousel from '@/components/content/carousels/ResourcesCarousel';
-import { InteractivePromotionalCarousel } from '@/components/interactive-news-carousel';
+import InteractivePromotionalCarousel from '@/components/content/carousels/InteractivePromotionalCarousel';
 
-// todo append link to plebdevs item in each published course or resource description
-// todo perhaps need to update slug on details on course pages to be d tag instead of db id
 export default function Home() {
   return (
     <>
@@ -18,7 +15,6 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        {/* <HeroBanner /> */}
         <InteractivePromotionalCarousel />
         <CoursesCarousel />
         <WorkshopsCarousel />

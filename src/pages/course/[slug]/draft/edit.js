@@ -4,12 +4,21 @@ import { useRouter } from "next/router";
 import CourseForm from "@/components/forms/course/CourseForm";
 import { useNDKContext } from "@/context/NDKContext";
 import { useToast } from "@/hooks/useToast";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 export default function Edit() {
     const [draft, setDraft] = useState(null);
     const { ndk } = useNDKContext();
     const router = useRouter();
     const { showToast } = useToast();
+    const { isAdmin, isLoading } = useIsAdmin();
+    useEffect(() => {
+        if (isLoading) return;
+
+        if (!isAdmin) {
+            router.push('/');
+        }
+    }, [isAdmin, router, isLoading]);
 
     useEffect(() => {
         if (router.isReady) {

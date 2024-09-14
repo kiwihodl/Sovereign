@@ -179,7 +179,7 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
                         anchor={nAddress}
                         user={user?.pubkey || null}
                         relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.mutinywallet.com/, wss://relay.primal.net/"
-                        disable=""
+                        disable="zaps"
                     />
                 </div>
             )}

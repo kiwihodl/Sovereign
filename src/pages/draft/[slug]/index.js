@@ -18,6 +18,7 @@ import 'primeicons/primeicons.css';
 import dynamic from 'next/dynamic';
 import { validateEvent } from '@/utils/nostr';
 import { defaultRelayUrls } from '@/context/NDKContext';
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -36,6 +37,15 @@ export default function Draft() {
     const router = useRouter();
     const { showToast } = useToast();
     const { ndk, addSigner } = useNDKContext();
+    const { isAdmin, isLoading } = useIsAdmin();
+
+    useEffect(() => {
+        if (isLoading) return;
+
+        if (!isAdmin) {
+            router.push('/');
+        }
+    }, [isAdmin, router, isLoading]);
 
     useEffect(() => {
         if (session) {

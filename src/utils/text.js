@@ -3,7 +3,7 @@ export const highlightText = (text, query) => {
     const parts = text.split(new RegExp(`(${query})`, 'gi'));
     return parts.map((part, index) => 
         part.toLowerCase() === query.toLowerCase() 
-            ? <span key={index} className="bg-yellow-300 text-black">{part}</span> 
+            ? <span key={index} className="text-yellow-300">{part}</span> 
             : part
     );
 };

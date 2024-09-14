@@ -76,7 +76,6 @@ const ContentPage = () => {
     const [processedCourses, setProcessedCourses] = useState([]);
     const [allContent, setAllContent] = useState([]);
     const [allTopics, setAllTopics] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
     const [selectedTopic, setSelectedTopic] = useState('All')
     const [filteredContent, setFilteredContent] = useState([]);
 
@@ -165,13 +164,6 @@ const ContentPage = () => {
         <div className="w-full px-4">
             <div className="w-fit mx-4 mt-8 flex flex-col items-start">
                 <h1 className="text-3xl font-bold mb-4 ml-1">All Content</h1>
-                <InputText
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search"
-                    icon="pi pi-search"
-                    className="w-full"
-                />
             </div>
             <MenuTab
                 items={['Courses', 'Workshops', 'Resources', ...allTopics.filter(topic => !['Courses', 'Workshops', 'Resources'].includes(topic))]}

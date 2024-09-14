@@ -9,12 +9,14 @@ import MessageDropdownItem from '@/components/content/dropdowns/MessageDropdownI
 import { useContentSearch } from '@/hooks/useContentSearch';
 import { useCommunitySearch } from '@/hooks/useCommunitySearch';
 import { useRouter } from 'next/router';
+import useWindowWidth from '@/hooks/useWindowWidth';
 import styles from './searchbar.module.css';
 
 const SearchBar = () => {
     const { searchContent, searchResults: contentResults } = useContentSearch();
     const { searchCommunity, searchResults: communityResults } = useCommunitySearch();
     const router = useRouter();
+    const windowWidth = useWindowWidth();
     const [selectedSearchOption, setSelectedSearchOption] = useState({ name: 'Content', code: 'content', icon: 'pi pi-video' });
     const searchOptions = [
         { name: 'Content', code: 'content', icon: 'pi pi-video' },
@@ -71,11 +73,11 @@ const SearchBar = () => {
     }
 
     return (
-        <div className='absolute left-[50%] transform -translate-x-[50%]'>
+        <div className={`absolute ${windowWidth < 700 ? "left-[40%]" : "left-[50%]"} transform -translate-x-[50%]`}>
             <IconField iconPosition="left">
                 <InputIcon className="pi pi-search"> </InputIcon>
                 <InputText 
-                    className='w-[300px]' 
+                    className={`${windowWidth > 845 ? 'w-[300px]' : 'w-[160px]'}`} 
                     value={searchTerm}
                     onChange={handleSearch}
                     placeholder={`Search ${selectedSearchOption.name.toLowerCase()}`} 

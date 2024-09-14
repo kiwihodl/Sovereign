@@ -4,10 +4,19 @@ import axios from "axios";
 import ResourceForm from "@/components/forms/ResourceForm";
 import WorkshopForm from "@/components/forms/WorkshopForm";
 import CourseForm from "@/components/forms/course/CourseForm";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const Edit = () => {
     const [draft, setDraft] = useState(null);
     const router = useRouter();
+    const { isAdmin, isLoading } = useIsAdmin();
+    useEffect(() => {
+        if (isLoading) return;
+
+        if (!isAdmin) {
+            router.push('/');
+        }
+    }, [isAdmin, router, isLoading]);
 
     useEffect(() => {
         if (router.isReady) {

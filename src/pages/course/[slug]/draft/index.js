@@ -6,16 +6,25 @@ import DraftCourseDetails from "@/components/content/courses/DraftCourseDetails"
 import DraftCourseLesson from "@/components/content/courses/DraftCourseLesson";
 import { useNDKContext } from "@/context/NDKContext";
 import { useSession } from "next-auth/react";
-
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 const DraftCourse = () => {
     const { data: session, status } = useSession();
     const [course, setCourse] = useState(null);
     const [lessons, setLessons] = useState([]);
     const [lessonsWithAuthors, setLessonsWithAuthors] = useState([]);
+    const { isAdmin, isLoading } = useIsAdmin();
 
     const router = useRouter();
     const {ndk, addSigner} = useNDKContext();
     const { slug } = router.query;
+
+    useEffect(() => {
+        if (isLoading) return;
+
+        if (!isAdmin) {
+            router.push('/');
+        }
+    }, [isAdmin, router, isLoading]);
 
     const fetchAuthor = useCallback(async (pubkey) => {
         if (!pubkey) return;
