@@ -10,7 +10,9 @@ import useWindowWidth from "@/hooks/useWindowWidth";
 import Image from "next/image";
 import BitcoinConnectButton from "@/components/bitcoinConnect/BitcoinConnect";
 import { Panel } from "primereact/panel";
+import { nip19 } from "nostr-tools";
 import { InputText } from "primereact/inputtext";
+import { Tooltip } from "primereact/tooltip";
 import { useToast } from "@/hooks/useToast";
 
 const UserSettings = () => {
@@ -162,7 +164,8 @@ const UserSettings = () => {
                         {user.username || user?.email || "Anon"}
                     </h1>
                     <h2 className="text-center text-xl my-2 truncate max-tab:px-4 max-mob:px-4">
-                        {user.pubkey}
+                    <Tooltip target=".pubkey-tooltip" content={"this is your nostr npub"} />
+                    {nip19.npubEncode(user.pubkey)} <i className="pi pi-question-circle text-xl pubkey-tooltip" />
                     </h2>
                     <div className="flex flex-col w-1/2 mx-auto my-8 mb-12 justify-between items-center">
                         <h2 className="text-xl my-2">Connect Your Lightning Wallet</h2>

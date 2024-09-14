@@ -8,9 +8,12 @@ import { ProgressSpinner } from "primereact/progressspinner";
 import PurchasedListItem from "@/components/profile/PurchasedListItem";
 import { useNDKContext } from "@/context/NDKContext";
 import { formatDateTime } from "@/utils/time";
+import { Tooltip } from "primereact/tooltip";
+import { nip19 } from "nostr-tools";
 import Image from "next/image";
 import SubscribeModal from "@/components/profile/subscription/SubscribeModal";
 import useWindowWidth from "@/hooks/useWindowWidth";
+import { useToast } from "@/hooks/useToast";
 
 const UserProfile = () => {
     const windowWidth = useWindowWidth();
@@ -18,6 +21,7 @@ const UserProfile = () => {
     const { data: session } = useSession();
     const { returnImageProxy } = useImageProxy();
     const { ndk, addSigner } = useNDKContext();
+    const { showToast } = useToast();
     const menu = useRef(null);
 
     useEffect(() => {
@@ -31,14 +35,14 @@ const UserProfile = () => {
             label: "Edit",
             icon: "pi pi-pencil",
             command: () => {
-                // Add your edit functionality here
+                showToast("warn", "Alert", "This feature is not yet implemented");
             },
         },
         {
             label: "Delete",
             icon: "pi pi-trash",
             command: () => {
-                // Add your delete functionality here
+                showToast("warn", "Alert", "This feature is not yet implemented");
             },
         },
     ];
@@ -77,7 +81,8 @@ const UserProfile = () => {
                         {user.username || user?.email || "Anon"}
                     </h1>
                     <h2 className="text-center text-xl my-2 truncate max-tab:px-4 max-mob:px-4">
-                        {user.pubkey}
+                        <Tooltip target=".pubkey-tooltip" content={"this is your nostr npub"} />
+                        {nip19.npubEncode(user.pubkey)} <i className="pi pi-question-circle text-xl pubkey-tooltip" />
                     </h2>
                     {user && (
                         <SubscribeModal user={user} />

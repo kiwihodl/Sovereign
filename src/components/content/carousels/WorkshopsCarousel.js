@@ -32,10 +32,13 @@ export default function WorkshopsCarousel() {
         const fetch = async () => {
             try {
                 if (workshops && workshops.length > 0) {
-                    console.log('workshops', workshops);
                     const processedWorkshops = workshops.map(workshop => parseEvent(workshop));
-                    console.log('processedWorkshops', processedWorkshops);
-                    setProcessedWorkshops(processedWorkshops);
+                    
+                    // Sort workshops by created_at in descending order (most recent first)
+                    const sortedWorkshops = processedWorkshops.sort((a, b) => b.created_at - a.created_at);
+
+                    console.log('Sorted workshops:', sortedWorkshops);
+                    setProcessedWorkshops(sortedWorkshops);
                 } else {
                     console.log('No workshops fetched or empty array returned');
                 }

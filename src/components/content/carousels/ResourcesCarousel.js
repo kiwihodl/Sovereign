@@ -33,8 +33,15 @@ export default function ResourcesCarousel() {
             try {
                 if (resources && resources.length > 0) {
                     const processedResources = resources.map(resource => parseEvent(resource));
+                    
+                    // Sort resources by created_at in descending order (most recent first)
+                    const sortedResources = processedResources.sort((a, b) => b.created_at - a.created_at);
 
-                    setProcessedResources(processedResources);
+                    console.log("Sorted resources:", sortedResources);
+
+                    setProcessedResources(sortedResources);
+                } else {
+                    console.log('No resources fetched or empty array returned');
                 }
             } catch (error) {
                 console.error('Error fetching resources:', error);

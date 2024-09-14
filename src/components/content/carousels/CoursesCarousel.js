@@ -33,8 +33,13 @@ export default function CoursesCarousel() {
             try {
                 if (courses && courses.length > 0) {
                     const processedCourses = courses.map(course => parseCourseEvent(course));
+                    
+                    // Sort courses by created_at in descending order (most recent first)
+                    const sortedCourses = processedCourses.sort((a, b) => b.created_at - a.created_at);
 
-                    setProcessedCourses(processedCourses);
+                    console.log("Sorted courses:", sortedCourses);
+
+                    setProcessedCourses(sortedCourses);
                 } else {
                     console.log('No courses fetched or empty array returned');
                 }
