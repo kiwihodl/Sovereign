@@ -2,19 +2,21 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tag } from "primereact/tag";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
-import { BookOpen } from "lucide-react"
+import { nip19 } from "nostr-tools";
 import Image from "next/image"
 import { useZapsSubscription } from "@/hooks/nostrQueries/zaps/useZapsSubscription";
 import { getTotalFromZaps } from "@/utils/lightning";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
+import { ProgressSpinner } from "primereact/progressspinner";
 import GenericButton from "@/components/buttons/GenericButton";
 
 export function CourseTemplate({ course }) {
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: course });
     const [zapAmount, setZapAmount] = useState(0);
     const [lessonCount, setLessonCount] = useState(0);
+    const [nAddress, setNAddress] = useState(null);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
 
@@ -31,6 +33,19 @@ export function CourseTemplate({ course }) {
             setLessonCount(lessons.length);
         }
     }, [course]);
+
+    useEffect(() => {
+        if (course && course?.id) {
+            const nAddress = nip19.naddrEncode({
+                pubkey: course.pubkey,
+                kind: course.kind,
+                identifier: course.id,
+            });
+            setNAddress(nAddress);
+        }
+    }, [course]);
+
+    if (!nAddress) return <ProgressSpinner />;
 
     if (zapsError) return <div>Error: {zapsError}</div>;
 
@@ -82,7 +97,7 @@ export function CourseTemplate({ course }) {
                 ) : (
                     formatTimestampToHowLongAgo(course.created_at)
                 )}</p>
-                <GenericButton onClick={() => router.push(`/course/${course.id}`)} size="small" label="Start Learning" icon="pi pi-chevron-right" iconPos="right" outlined className="items-center py-2" />
+                <GenericButton onClick={() => router.push(`/course/${nAddress}`)} size="small" label="Start Learning" icon="pi pi-chevron-right" iconPos="right" outlined className="items-center py-2" />
             </CardFooter>
         </Card>
     )

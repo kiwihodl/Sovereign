@@ -3,9 +3,12 @@ import { Tag } from "primereact/tag";
 import Image from "next/image";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
 import { useImageProxy } from "@/hooks/useImageProxy";
+import GenericButton from "@/components/buttons/GenericButton";
 import { useZapsQuery } from "@/hooks/nostrQueries/zaps/useZapsQuery";
+import { nip19 } from "nostr-tools";
 import { getTotalFromZaps } from "@/utils/lightning";
 import dynamic from "next/dynamic";
+import { Divider } from "primereact/divider";
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -16,6 +19,7 @@ const MDDisplay = dynamic(
 
 const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
     const [zapAmount, setZapAmount] = useState(0);
+    const [nAddress, setNAddress] = useState(null);
     const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: lesson, type: "lesson" });
     const { returnImageProxy } = useImageProxy();
 
@@ -24,6 +28,15 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
         const total = getTotalFromZaps(zaps, lesson);
         setZapAmount(total);
     }, [zaps, zapsLoading, zapsError, lesson]);
+
+    useEffect(() => {
+        const addr = nip19.naddrEncode({
+            pubkey: lesson.pubkey,
+            kind: lesson.kind,
+            identifier: lesson.d,
+        });
+        setNAddress(addr);
+    }, [lesson]);
 
     const renderContent = () => {
         if (isPaid && decryptionPerformed) {
@@ -70,6 +83,7 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
     return (
         <div className="w-full">
             {renderContent()}
+            <Divider />
             <div className="bg-gray-800/90 rounded-lg p-4 m-4">
                 <div className="w-full flex flex-col items-start justify-start mt-2 px-2">
                     <div className="flex flex-row items-center justify-between w-full">
@@ -106,6 +120,15 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
                                 </a>
                             </p>
                         </div>
+                        <GenericButton
+                            tooltip={`View Nostr Note`}
+                            tooltipOptions={{ position: 'left' }}
+                            icon="pi pi-external-link"
+                            outlined
+                            onClick={() => {
+                                window.open(`https://nostr.com/${nAddress}`, '_blank');
+                            }}
+                        />
                     </div>
                 </div>
                 {lesson?.additionalLinks && lesson.additionalLinks.length > 0 && (

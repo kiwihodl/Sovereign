@@ -4,6 +4,9 @@ import Image from "next/image";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useZapsQuery } from "@/hooks/nostrQueries/zaps/useZapsQuery";
+import GenericButton from "@/components/buttons/GenericButton";
+import { nip19 } from "nostr-tools";
+import { Divider } from "primereact/divider";
 import { getTotalFromZaps } from "@/utils/lightning";
 import dynamic from "next/dynamic";
 
@@ -16,6 +19,7 @@ const MDDisplay = dynamic(
 
 const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
     const [zapAmount, setZapAmount] = useState(0);
+    const [nAddress, setNAddress] = useState(null);
     const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: lesson, type: "lesson" });
     const { returnImageProxy } = useImageProxy();
 
@@ -24,6 +28,17 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
         const total = getTotalFromZaps(zaps, lesson);
         setZapAmount(total);
     }, [zaps, zapsLoading, zapsError, lesson]);
+
+    useEffect(() => {
+        if (lesson) {
+            const addr = nip19.naddrEncode({
+                pubkey: lesson.pubkey,
+                kind: lesson.kind,
+                identifier: lesson.d,
+            })
+            setNAddress(addr);
+        }
+    }, [lesson]);
 
     const renderContent = () => {
         if (isPaid && decryptionPerformed) {
@@ -93,7 +108,19 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
                             zapsLoading={zapsLoading}
                         />
                     </div>
+                    <div className="w-full flex flex-row justify-end">
+                        <GenericButton
+                            tooltip={`View Nostr Note`}
+                            tooltipOptions={{ position: 'left' }}
+                            icon="pi pi-external-link"
+                            outlined
+                            onClick={() => {
+                                window.open(`https://nostr.com/${nAddress}`, '_blank');
+                            }}
+                        />
+                    </div>
                 </div>
+            <Divider />
             </div>
             {renderContent()}
             {lesson?.additionalLinks && lesson.additionalLinks.length > 0 && (

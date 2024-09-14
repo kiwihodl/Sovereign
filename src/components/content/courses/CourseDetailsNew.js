@@ -7,12 +7,12 @@ import { useRouter } from 'next/router';
 import CoursePaymentButton from "@/components/bitcoinConnect/CoursePaymentButton";
 import ZapDisplay from '@/components/zaps/ZapDisplay';
 import GenericButton from '@/components/buttons/GenericButton';
+import { nip19 } from 'nostr-tools';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscription';
 import { getTotalFromZaps } from '@/utils/lightning';
 import { useSession } from 'next-auth/react';
 import useWindowWidth from "@/hooks/useWindowWidth";
-import dynamic from 'next/dynamic';
 import { useNDKContext } from "@/context/NDKContext";
 import { findKind0Fields } from '@/utils/nostr';
 
@@ -21,6 +21,7 @@ const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
 export default function CourseDetailsNew({ processedEvent, paidCourse, lessons, decryptionPerformed, handlePaymentSuccess, handlePaymentError }) {
     const [zapAmount, setZapAmount] = useState(0);
     const [author, setAuthor] = useState(null);
+    const [nAddress, setNAddress] = useState(null);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: processedEvent });
@@ -38,6 +39,17 @@ export default function CourseDetailsNew({ processedEvent, paidCourse, lessons, 
             setAuthor(fields);
         }
     }, [ndk]);
+
+    useEffect(() => {
+        if (processedEvent) {
+            const naddr = nip19.naddrEncode({
+                pubkey: processedEvent.pubkey,
+                kind: processedEvent.kind,
+                identifier: processedEvent.d,
+            });
+            setNAddress(naddr);
+        }
+    }, [processedEvent]);
 
     useEffect(() => {
         if (processedEvent) {
@@ -149,6 +161,11 @@ export default function CourseDetailsNew({ processedEvent, paidCourse, lessons, 
                             <div className='flex space-x-2 mt-4 sm:mt-0'>
                                 <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
                                 <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
+                            </div>
+                        )}
+                        {nAddress && (
+                            <div className='w-full flex flex-row justify-end'>
+                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip="View Nostr Event" tooltipOptions={{ position: 'left' }} />
                             </div>
                         )}
                     </div>
