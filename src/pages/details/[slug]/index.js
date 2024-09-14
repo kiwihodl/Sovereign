@@ -68,14 +68,27 @@ export default function Details() {
         if (router.isReady) {
             const { slug } = router.query;
 
-            const fetchEvent = async (slug, retryCount = 0) => {
+            if (!slug) {
+                return;
+            }
+
+            const { data } = nip19.decode(slug)
+
+            if (!data) {
+                showToast('error', 'Error', 'Resource not found');
+                return;
+            }
+
+            const id = data?.identifier;
+
+            const fetchEvent = async (id, retryCount = 0) => {
                 setLoading(true);
                 setError(null);
                 try {
                     await ndk.connect();
 
                     const filter = {
-                        ids: [slug]
+                        ids: [id]
                     }
 
                     const event = await ndk.fetchEvent(filter);
@@ -93,7 +106,7 @@ export default function Details() {
                         if (retryCount < 1) {
                             // Wait for 2 seconds before retrying
                             await new Promise(resolve => setTimeout(resolve, 3000));
-                            return fetchEvent(slug, retryCount + 1);
+                            return fetchEvent(id, retryCount + 1);
                         } else {
                             setError("Event not found");
                         }
@@ -103,7 +116,7 @@ export default function Details() {
                     if (retryCount < 1) {
                         // Wait for 2 seconds before retrying
                         await new Promise(resolve => setTimeout(resolve, 3000));
-                        return fetchEvent(slug, retryCount + 1);
+                        return fetchEvent(id, retryCount + 1);
                     } else {
                         setError("Failed to fetch event. Please try again.");
                     }
@@ -112,8 +125,8 @@ export default function Details() {
                 }
             };
 
-            if (ndk) {
-                fetchEvent(slug);
+            if (ndk && id) {
+                fetchEvent(id);
             }
         }
     }, [router.isReady, router.query, ndk, user]);
@@ -200,6 +213,7 @@ export default function Details() {
                     price={processedEvent.price}
                     author={author}
                     paidResource={paidResource}
+                    nAddress={nAddress}
                     decryptedContent={decryptedContent}
                     handlePaymentSuccess={handlePaymentSuccess}
                     handlePaymentError={handlePaymentError}
@@ -216,13 +230,14 @@ export default function Details() {
                     author={author}
                     paidResource={paidResource}
                     decryptedContent={decryptedContent}
+                    nAddress={nAddress}
                     handlePaymentSuccess={handlePaymentSuccess}
                     handlePaymentError={handlePaymentError}
                     authorView={authorView}
                 />
             )}
             {typeof window !== 'undefined' && nAddress !== null && (
-                <div className='max-tab:px-4'>
+                <div className='px-4'>
                     <ZapThreadsWrapper
                         anchor={nAddress}
                         user={user?.pubkey || null}

@@ -7,6 +7,7 @@ import { useZapsSubscription } from "@/hooks/nostrQueries/zaps/useZapsSubscripti
 import { getTotalFromZaps } from "@/utils/lightning";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useRouter } from "next/router";
+import { nip19 } from "nostr-tools";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { Tag } from "primereact/tag";
 import GenericButton from "@/components/buttons/GenericButton";
@@ -14,8 +15,18 @@ import GenericButton from "@/components/buttons/GenericButton";
 export function VideoTemplate({ video }) {
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: video });
     const [zapAmount, setZapAmount] = useState(0);
+    const [nAddress, setNAddress] = useState(null);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
+
+    useEffect(() => {
+        const addr = nip19.naddrEncode({
+            pubkey: video.pubkey,
+            kind: video.kind,
+            identifier: video.id
+        })
+        setNAddress(addr);
+    }, [video]);
 
     useEffect(() => {
         if (zaps.length > 0) {
@@ -73,7 +84,7 @@ export function VideoTemplate({ video }) {
                 ) : (
                     formatTimestampToHowLongAgo(video.created_at)
                 )}</p>
-                <GenericButton onClick={() => router.push(`/details/${video.id}`)} size="small" label="Watch" icon="pi pi-chevron-right" iconPos="right" outlined className="items-center py-2" />
+                <GenericButton onClick={() => router.push(`/details/${nAddress}`)} size="small" label="Watch" icon="pi pi-chevron-right" iconPos="right" outlined className="items-center py-2" />
             </CardFooter>
         </Card>
     )

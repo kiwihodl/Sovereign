@@ -23,7 +23,7 @@ const MDDisplay = dynamic(
 
 const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
 
-const VideoDetails = ({ processedEvent, topics, title, summary, image, price, author, paidResource, decryptedContent, handlePaymentSuccess, handlePaymentError, authorView }) => {
+const VideoDetails = ({ processedEvent, topics, title, summary, image, price, author, paidResource, decryptedContent, nAddress, handlePaymentSuccess, handlePaymentError, authorView }) => {
     const [zapAmount, setZapAmount] = useState(0);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
@@ -119,7 +119,7 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
             {renderContent()}
             <div className="bg-gray-800/90 rounded-lg p-4 m-4">
             <div className="w-full flex flex-col items-start justify-start mt-2 px-2">
-                <div className="flex flex-row items-center justify-between w-full">
+                <div className="flex flex-row items-center gap-2 w-full">
                     <h1 className='text-4xl'>{title}</h1>
                     {topics && topics.length > 0 && (
                         topics.map((topic, index) => (
@@ -154,6 +154,15 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                             </a>
                         </p>
                     </div>
+                    <GenericButton
+                            tooltip={`View Nostr Note`}
+                            tooltipOptions={{ position: 'left' }}
+                            icon="pi pi-external-link"
+                            outlined
+                            onClick={() => {
+                                window.open(`https://nostr.com/${nAddress}`, '_blank');
+                            }}
+                        />
                     {authorView && (
                         <div className='flex flex-row justify-center items-center space-x-2'>
                             <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />

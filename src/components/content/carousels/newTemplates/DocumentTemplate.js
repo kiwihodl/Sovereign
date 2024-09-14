@@ -1,21 +1,33 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import ZapDisplay from "@/components/zaps/ZapDisplay";
-import { FileText } from "lucide-react"
 import Image from "next/image"
 import { useZapsSubscription } from "@/hooks/nostrQueries/zaps/useZapsSubscription";
 import { getTotalFromZaps } from "@/utils/lightning";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
+import { nip19 } from "nostr-tools";
 import { Tag } from "primereact/tag";
 import GenericButton from "@/components/buttons/GenericButton";
 
 export function DocumentTemplate({ document }) {
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: document });
+    const [nAddress, setNAddress] = useState(null);
     const [zapAmount, setZapAmount] = useState(0);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
+
+    useEffect(() => {
+        if (document && document?.id) {
+            const nAddress = nip19.naddrEncode({
+                pubkey: document.pubkey,
+                kind: document.kind,
+                identifier: document.id,
+            });
+            setNAddress(nAddress);
+        }
+    }, [document]);
 
     useEffect(() => {
         if (zaps.length > 0) {
@@ -73,7 +85,7 @@ export function DocumentTemplate({ document }) {
                 ) : (
                     formatTimestampToHowLongAgo(document.created_at)
                 )}</p>
-                <GenericButton onClick={() => router.push(`/details/${document.id}`)} size="small" label="Read" icon="pi pi-chevron-right" iconPos="right" outlined className="items-center py-2" />
+                <GenericButton onClick={() => router.push(`/details/${nAddress}`)} size="small" label="Read" icon="pi pi-chevron-right" iconPos="right" outlined className="items-center py-2" />
             </CardFooter>
         </Card>
     )

@@ -23,7 +23,7 @@ const MDDisplay = dynamic(
 
 const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
 
-const DocumentDetails = ({ processedEvent, topics, title, summary, image, price, author, paidResource, decryptedContent, handlePaymentSuccess, handlePaymentError, authorView }) => {
+const DocumentDetails = ({ processedEvent, topics, title, summary, image, price, author, paidResource, decryptedContent, nAddress, handlePaymentSuccess, handlePaymentError, authorView }) => {
     const [zapAmount, setZapAmount] = useState(0);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
@@ -149,6 +149,17 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                             zapAmount={zapAmount}
                             event={processedEvent}
                             zapsLoading={zapsLoading && zapAmount === 0}
+                        />
+                    </div>
+                    <div className="w-full flex flex-row justify-end">
+                        <GenericButton
+                            tooltip={`View Nostr Note`}
+                            tooltipOptions={{ position: 'left' }}
+                            icon="pi pi-external-link"
+                            outlined
+                            onClick={() => {
+                                window.open(`https://nostr.com/${nAddress}`, '_blank');
+                            }}
                         />
                     </div>
                 </div>

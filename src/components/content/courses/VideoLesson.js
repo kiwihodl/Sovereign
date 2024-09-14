@@ -86,7 +86,7 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
             <Divider />
             <div className="bg-gray-800/90 rounded-lg p-4 m-4">
                 <div className="w-full flex flex-col items-start justify-start mt-2 px-2">
-                    <div className="flex flex-row items-center justify-between w-full">
+                    <div className="flex flex-row items-center gap-2 w-full">
                         <h1 className='text-3xl text-white'>{lesson.title}</h1>
                         {lesson.topics && lesson.topics.length > 0 && (
                             lesson.topics.map((topic, index) => (

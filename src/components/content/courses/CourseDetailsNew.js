@@ -164,9 +164,7 @@ export default function CourseDetailsNew({ processedEvent, paidCourse, lessons, 
                             </div>
                         )}
                         {nAddress && (
-                            <div className='w-full flex flex-row justify-end'>
-                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip="View Nostr Event" tooltipOptions={{ position: 'left' }} />
-                            </div>
+                            <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip="View Nostr Event" tooltipOptions={{ position: paidCourse ? 'left' : 'right' }} />
                         )}
                     </div>
                 </div>

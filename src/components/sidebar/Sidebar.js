@@ -40,7 +40,7 @@ const Sidebar = ({ course = false }) => {
         if (router.isReady) {
             const { slug } = router.query;
 
-            if (slug) {
+            if (slug && course) {
                 const { data } = nip19.decode(slug)
 
                 if (!data) {
