@@ -24,7 +24,8 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
     const [showRecurringOptions, setShowRecurringOptions] = useState(false);
     const [nwcInput, setNwcInput] = useState('');
     const { showToast } = useToast();
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
+    const router = useRouter();
 
     const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
     const amount = 25;
@@ -211,8 +212,13 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
                             label="Pay as you go"
                             icon="pi pi-bolt"
                             onClick={async () => {
-                                const invoice = await fetchInvoice();
-                                setInvoice(invoice);
+                                if (status === 'unauthenticated') {
+                                    console.log('unauthenticated');
+                                    router.push('/auth/signin');
+                                } else {
+                                    const invoice = await fetchInvoice();
+                                    setInvoice(invoice);
+                                }
                             }}
                             severity='primary'
                             className="w-fit mt-4 text-[#f8f8ff]"
@@ -232,7 +238,14 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
                             }
                             severity='help'
                             className="w-fit mt-4 text-[#f8f8ff] bg-purple-600"
-                            onClick={() => setShowRecurringOptions(!showRecurringOptions)}
+                            onClick={() => {
+                                if (status === 'unauthenticated') {
+                                    console.log('unauthenticated');
+                                    router.push('/auth/signin');
+                                } else {
+                                    setShowRecurringOptions(!showRecurringOptions);
+                                }
+                            }}
                         />
                     )}
                 </div>

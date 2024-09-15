@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import axios from 'axios';
 import GenericButton from '@/components/buttons/GenericButton';
+import { useRouter } from 'next/router';
 
 const Payment = dynamic(
   () => import('@getalby/bitcoin-connect-react').then((mod) => mod.Payment),
@@ -18,18 +19,19 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
   const [invoice, setInvoice] = useState(null);
   const [userId, setUserId] = useState(null);
   const { showToast } = useToast();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [dialogVisible, setDialogVisible] = useState(false);
-
-  useEffect(() => {
-    if (session?.user) {
-      setUserId(session.user.id);
-    }
-  }, [session]);
+  const router = useRouter();
 
   useEffect(() => {
     initializeBitcoinConnect();
   }, []);
+
+  useEffect(() => {
+    if (session && session.user) {
+      setUserId(session.user.id);
+    }
+  }, [status, session]);
 
   useEffect(() => {
     const fetchInvoice = async () => {
@@ -79,7 +81,14 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
           <GenericButton
             label={`${amount} sats`}
             icon="pi pi-wallet"
-            onClick={() => setDialogVisible(true)}
+            onClick={() => {
+              if (status === 'unauthenticated') {
+                console.log('unauthenticated');
+                router.push('/auth/signin');
+              } else {
+                setDialogVisible(true);
+              }
+            }}
             disabled={!invoice}
             severity='primary'
             rounded

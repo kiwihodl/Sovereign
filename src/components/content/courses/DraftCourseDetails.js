@@ -270,7 +270,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
                         ...draft.topics.map(topic => ['t', topic]),
                         ['published_at', Math.floor(Date.now() / 1000).toString()],
                         ...(draft?.price ? [['price', draft.price.toString()], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
-                        ...(draft?.additionalLinks ? draft.additionalLinks.map(link => ['r', link]) : []),
+                        ...(draft?.additionalLinks ? draft.additionalLinks.filter(link => link !== 'https://plebdevs.com').map(link => ['r', link]) : []),
                     ];
 
                     type = 'document';
@@ -293,7 +293,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
                         ...draft.topics.map(topic => ['t', topic]),
                         ['published_at', Math.floor(Date.now() / 1000).toString()],
                         ...(draft?.price ? [['price', draft.price.toString()], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
-                        ...(draft?.additionalLinks ? draft.additionalLinks.map(link => ['r', link]) : []),
+                        ...(draft?.additionalLinks ? draft.additionalLinks.filter(link => link !== 'https://plebdevs.com').map(link => ['r', link]) : []),
                     ];
 
                     type = 'video';

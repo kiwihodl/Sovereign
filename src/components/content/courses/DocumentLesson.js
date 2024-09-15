@@ -9,6 +9,7 @@ import { nip19 } from "nostr-tools";
 import { Divider } from "primereact/divider";
 import { getTotalFromZaps } from "@/utils/lightning";
 import dynamic from "next/dynamic";
+import useWindowWidth from "@/hooks/useWindowWidth";
 import { defaultRelayUrls } from "@/context/NDKContext";
 
 const MDDisplay = dynamic(
@@ -23,6 +24,8 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
     const [nAddress, setNAddress] = useState(null);
     const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: lesson, type: "lesson" });
     const { returnImageProxy } = useImageProxy();
+    const windowWidth = useWindowWidth();
+    const isMobileView = windowWidth <= 768;
 
     useEffect(() => {
         if (!zaps || zapsLoading || zapsError) return;
@@ -119,7 +122,7 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
                     </div>
                     <div className="w-full flex flex-row justify-end">
                         <GenericButton
-                            tooltip={`View Nostr Note`}
+                            tooltip={isMobileView ? null : "View Nostr Note"}
                             tooltipOptions={{ position: 'left' }}
                             icon="pi pi-external-link"
                             outlined

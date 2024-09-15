@@ -31,6 +31,7 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
     const { data: session, status } = useSession();
     const { showToast } = useToast();
     const windowWidth = useWindowWidth();
+    const isMobileView = windowWidth <= 768;
 
     useEffect(() => {
         if (zaps.length > 0) {
@@ -172,7 +173,7 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                                 <GenericButton onClick={() => router.push(`/details/${nAddress}/edit`)} label="Edit" severity='warning' outlined />
                                 <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
                                 <GenericButton
-                                    tooltip={`View Nostr Note`}
+                                    tooltip={isMobileView ? null : "View Nostr Note"}
                                     tooltipOptions={{ position: 'left' }}
                                     icon="pi pi-external-link"
                                     outlined
@@ -184,7 +185,7 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                         ) : (
                             <div className="w-full flex flex-row justify-end">
                                 <GenericButton
-                                    tooltip={`View Nostr Note`}
+                                    tooltip={isMobileView ? null : "View Nostr Note"}
                                     tooltipOptions={{ position: 'left' }}
                                     icon="pi pi-external-link"
                                     outlined

@@ -3,9 +3,12 @@ import Image from 'next/image';
 import NostrIcon from '../../public/images/nostr.png';
 import { Tooltip } from 'primereact/tooltip';
 import { useToast } from "@/hooks/useToast"
+import useWindowWidth from "@/hooks/useWindowWidth";
 
 const AboutPage = () => {
     const {showToast} = useToast()
+    const windowWidth = useWindowWidth();
+    const isMobileView = windowWidth <= 768;
 
     const copyToClipboard = async (text) => {
         try {
@@ -77,19 +80,19 @@ const AboutPage = () => {
 
             <div className="mt-12 bg-gray-700 rounded-lg p-6">
                 <div className="flex items-center justify-center space-x-16">
-                    <Tooltip target=".pi-github" content="GitHub" position="bottom" />
+                    <Tooltip target=".pi-github" content={isMobileView ? null : "GitHub"} position="bottom" />
                     <a href="https://github.com/pleb-devs" target="_blank" rel="noopener noreferrer">
                         <i className="pi pi-github text-white text-5xl"></i>
                     </a>
-                    <Tooltip target=".pi-twitter" content="X.com" position="bottom" />
+                    <Tooltip target=".pi-twitter" content={isMobileView ? null : "X.com"} position="bottom" />
                     <a href="https://x.com/pleb_devs" target="_blank" rel="noopener noreferrer">
                         <i className="pi pi-twitter text-black text-5xl"></i>
                     </a>
-                    <Tooltip target=".nostr-icon" content="Nostr" position="bottom" />
+                    <Tooltip target=".nostr-icon" content={isMobileView ? null : "Nostr"} position="bottom" />
                     <a href="https://nostr.com/plebdevs@plebdevs.com" target="_blank" rel="noopener noreferrer">
                         <Image src={NostrIcon} alt="Nostr" width={44} height={44} className='nostr-icon' />
                     </a>
-                    <Tooltip target=".pi-bolt" content="Donate" position="bottom" />
+                    <Tooltip target=".pi-bolt" content={isMobileView ? null : "Donate"} position="bottom" />
                     <p onClick={() => copyToClipboard("austin@bitcoinpleb.dev")} className='cursor-pointer'>
                         <i className="pi pi-bolt text-yellow-500 text-5xl"></i>
                     </p>

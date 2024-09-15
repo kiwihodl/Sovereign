@@ -17,6 +17,7 @@ import 'primeicons/primeicons.css';
 import CoursePaymentButton from "@/components/bitcoinConnect/CoursePaymentButton";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { defaultRelayUrls } from "@/context/NDKContext";
+import useWindowWidth from '@/hooks/useWindowWidth';
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -35,6 +36,8 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
     const { data: session, status } = useSession();
     const router = useRouter();
     const {ndk, addSigner} = useNDKContext();
+    const windowWidth = useWindowWidth();
+    const isMobileView = windowWidth <= 768;
 
     const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
 

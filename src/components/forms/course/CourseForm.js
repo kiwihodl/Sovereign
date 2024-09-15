@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { InputText } from 'primereact/inputtext';
+import { InputTextarea } from 'primereact/inputtextarea';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputSwitch } from 'primereact/inputswitch';
 import GenericButton from '@/components/buttons/GenericButton';
@@ -173,7 +174,7 @@ const CourseForm = ({ draft = null }) => {
                 <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
             </div>
             <div className="p-inputgroup flex-1 mt-4">
-                <InputText value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" />
+                <InputTextarea value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" rows={5} cols={30} />
             </div>
             <div className="p-inputgroup flex-1 mt-4">
                 <InputText value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="Cover Image URL" />

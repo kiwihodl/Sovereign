@@ -6,6 +6,7 @@ import { initializeBitcoinConnect } from './BitcoinConnect';
 import { LightningAddress } from '@getalby/lightning-tools';
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import GenericButton from '@/components/buttons/GenericButton';
 import axios from 'axios'; // Import axios for API calls
 
@@ -20,18 +21,19 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
     const [invoice, setInvoice] = useState(null);
     const [userId, setUserId] = useState(null);
     const { showToast } = useToast();
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const [dialogVisible, setDialogVisible] = useState(false); // New state for dialog visibility
-
-    useEffect(() => {
-        if (session?.user) {
-            setUserId(session.user.id);
-        }
-    }, [session]);
+    const router = useRouter();
 
     useEffect(() => {
         initializeBitcoinConnect();
     }, []);
+
+    useEffect(() => {
+        if (session && session.user) {
+            setUserId(session.user.id);
+        }
+    }, [status, session]);
 
     useEffect(() => {
         const fetchInvoice = async () => {
@@ -78,17 +80,24 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
 
     return (
         <>
-            <GenericButton 
-                label={`${amount} sats`} 
-                onClick={() => setDialogVisible(true)} 
+            <GenericButton
+                label={`${amount} sats`}
+                onClick={() => {
+                    if (status === 'unauthenticated') {
+                        console.log('unauthenticated');
+                        router.push('/auth/signin');
+                    } else {
+                        setDialogVisible(true);
+                    }
+                }}
                 disabled={!invoice}
                 severity='primary'
                 rounded
                 icon='pi pi-wallet'
                 className='text-[#f8f8ff] text-sm'
             />
-            <Dialog 
-                visible={dialogVisible} 
+            <Dialog
+                visible={dialogVisible}
                 onHide={() => setDialogVisible(false)}
                 header="Make Payment"
                 style={{ width: '50vw' }}

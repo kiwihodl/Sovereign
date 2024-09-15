@@ -10,6 +10,7 @@ import NostrIcon from '../../../../public/images/nostr.png';
 import Image from 'next/image';
 import { nip19 } from 'nostr-tools';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
+import useWindowWidth from '@/hooks/useWindowWidth';
 
 const StackerNewsIconComponent = () => (
     <svg width="16" height="16" className='mr-2' viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -21,7 +22,7 @@ const StackerNewsIconComponent = () => (
 const headerTemplate = (options, windowWidth, platform, id) => {
     return (
         <div className="flex flex-row justify-between items-end mb-2">
-            <GenericButton outlined severity="primary" size="small" className="py-0" onClick={options.onTogglerClick} icon={options.collapsed ? 'pi pi-chevron-down' : 'pi pi-chevron-up'} tooltip={'comments'} tooltipOptions={{ position: 'right' }} />
+            <GenericButton outlined severity="primary" size="small" className="py-0" onClick={options.onTogglerClick} icon={options.collapsed ? 'pi pi-chevron-down' : 'pi pi-chevron-up'} tooltip={windowWidth <= 768 ? null : 'comments'} tooltipOptions={{ position: 'right' }} />
             <GenericButton
                 label={windowWidth > 768 ? `View in ${platform}` : null}
                 icon="pi pi-external-link"
@@ -39,6 +40,7 @@ const CommunityMessage = ({ message, searchQuery, windowWidth, platform }) => {
     const [npub, setNpub] = useState(null);
     const [collapsed, setCollapsed] = useState(true);
     const { data: session } = useSession();
+    const isMobileView = windowWidth <= 768;
 
     useEffect(() => {
         if (session?.user?.pubkey) {

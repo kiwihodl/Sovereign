@@ -10,6 +10,7 @@ import { getTotalFromZaps } from "@/utils/lightning";
 import dynamic from "next/dynamic";
 import { Divider } from "primereact/divider";
 import { defaultRelayUrls } from "@/context/NDKContext";
+import useWindowWidth from "@/hooks/useWindowWidth";
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -23,6 +24,8 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
     const [nAddress, setNAddress] = useState(null);
     const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: lesson, type: "lesson" });
     const { returnImageProxy } = useImageProxy();
+    const windowWidth = useWindowWidth();
+    const isMobileView = windowWidth <= 768;
 
     useEffect(() => {
         if (!zaps || zapsLoading || zapsError) return;
@@ -130,7 +133,7 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
                             </p>
                         </div>
                         <GenericButton
-                            tooltip={`View Nostr Note`}
+                            tooltip={isMobileView ? null : "View Nostr Note"}
                             tooltipOptions={{ position: 'left' }}
                             icon="pi pi-external-link"
                             outlined

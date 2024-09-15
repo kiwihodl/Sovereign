@@ -31,6 +31,7 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
     const { data: session, status } = useSession();
     const { showToast } = useToast();
     const windowWidth = useWindowWidth();
+    const isMobileView = windowWidth <= 768;
 
     useEffect(() => {
         if (zaps.length > 0) {
@@ -165,11 +166,11 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                             <div className='flex flex-row justify-center items-center space-x-2'>
                                 <GenericButton onClick={() => router.push(`/details/${nAddress}/edit`)} label="Edit" severity='warning' outlined />
                                 <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
-                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip="View Nostr Event" tooltipOptions={{ position: 'right' }} />
+                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={ isMobileView ? null : "View Nostr Event" } tooltipOptions={{ position: 'right' }} />
                             </div>
                         ) : (
                             <div className='flex flex-row justify-center items-center space-x-2'>
-                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip="View Nostr Event" tooltipOptions={{ position: paidResource ? 'left' : 'right' }} />
+                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={ isMobileView ? null : "View Nostr Event" } tooltipOptions={{ position: paidResource ? 'left' : 'right' }} />
                             </div>
                         )}
                     </div>
