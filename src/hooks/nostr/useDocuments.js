@@ -4,12 +4,12 @@ import { useContentIdsQuery } from '@/hooks/apiQueries/useContentIdsQuery';
 
 const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY;
 
-export function useResources() {
+export function useDocuments() {
     const [isClient, setIsClient] = useState(false);
-    const [resources, setResources] = useState();
+    const [documents, setDocuments] = useState();
     // Add new state variables for loading and error
-    const [resourcesLoading, setResourcesLoading] = useState(false);
-    const [resourcesError, setResourcesError] = useState(null);
+    const [documentsLoading, setDocumentsLoading] = useState(false);
+    const [documentsError, setDocumentsError] = useState(null);
 
     const { contentIds } = useContentIdsQuery()
     const {ndk, addSigner} = useNDKContext();
@@ -19,18 +19,18 @@ export function useResources() {
     }, []);
 
     const hasRequiredProperties = (event, contentIds) => {
-        const hasResource = event.tags.some(([tag, value]) => tag === "t" && value === "resource");
+        const hasDocument = event.tags.some(([tag, value]) => tag === "t" && value === "document");
         const hasId = event.tags.some(([tag, value]) => tag === "d" && contentIds.includes(value));
-        return hasResource && hasId;
+        return hasDocument && hasId;
     };
 
-    const fetchResourcesFromNDK = async () => {
-        setResourcesLoading(true);
-        setResourcesError(null);
+    const fetchDocumentsFromNDK = async () => {
+        setDocumentsLoading(true);
+        setDocumentsError(null);
         try {
             if (!contentIds || contentIds.length === 0) {
                 console.log('No content IDs found');
-                setResourcesLoading(false);
+                setDocumentsLoading(false);
                 return []; // Return early if no content IDs are found
             }
 
@@ -41,29 +41,29 @@ export function useResources() {
 
             if (events && events.size > 0) {
                 const eventsArray = Array.from(events);
-                const resources = eventsArray.filter(event => hasRequiredProperties(event, contentIds));
-                setResourcesLoading(false);
-                return resources;
+                const documents = eventsArray.filter(event => hasRequiredProperties(event, contentIds));
+                setDocumentsLoading(false);
+                return documents;
             }
-            setResourcesLoading(false);
+            setDocumentsLoading(false);
             return [];
         } catch (error) {
-            console.error('Error fetching resources from NDK:', error);
-            setResourcesError(error);
-            setResourcesLoading(false);
+            console.error('Error fetching documents from NDK:', error);
+            setDocumentsError(error);
+            setDocumentsLoading(false);
             return [];
         }
     };
 
     useEffect(() => {
         if (isClient && contentIds) {
-            fetchResourcesFromNDK().then(fetchedResources => {
-                if (fetchedResources && fetchedResources.length > 0) {
-                    setResources(fetchedResources);
+            fetchDocumentsFromNDK().then(fetchedDocuments => {
+                if (fetchedDocuments && fetchedDocuments.length > 0) {
+                    setDocuments(fetchedDocuments);
                 }
             });
         }
     }, [isClient, contentIds]);
 
-    return { resources, resourcesLoading, resourcesError };
+    return { documents, documentsLoading, documentsError };
 }

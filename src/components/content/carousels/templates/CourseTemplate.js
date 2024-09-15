@@ -94,14 +94,14 @@ export function CourseTemplate({ course }) {
         {course.description || course.summary && (
           <>
             {course.description && (
-              <div className="text-xl mt-4">
+              <div>
                 {course.description.split('\n').map((line, index) => (
                   <p key={index}>{line}</p>
                 ))}
               </div>
             )}
             {course.summary && (
-              <div className="text-xl mt-4">
+              <div>
                 {course.summary.split('\n').map((line, index) => (
                   <p key={index}>{line}</p>
                 ))}

@@ -110,7 +110,7 @@ const DraftCourseLesson = ({ lesson, course }) => {
                         {lesson && (
                             <div className='flex flex-col items-center justify-between rounded-lg h-72 p-4 bg-gray-700 drop-shadow-md'>
                                 <Image
-                                    alt="resource thumbnail"
+                                    alt="course thumbnail"
                                     src={returnImageProxy(lesson.image)}
                                     width={344}
                                     height={194}

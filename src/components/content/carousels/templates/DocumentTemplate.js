@@ -82,14 +82,14 @@ export function DocumentTemplate({ document }) {
                 {document.description || document.summary && (
                     <>
                     {document.description && (
-                        <div className="text-xl mt-4">
+                        <div>
                             {document.description.split('\n').map((line, index) => (
                                 <p key={index}>{line}</p>
                             ))}
                         </div>
                     )}
                     {document.summary && (
-                        <div className="text-xl mt-4">
+                        <div>
                             {document.summary.split('\n').map((line, index) => (
                                 <p key={index}>{line}</p>
                             ))}

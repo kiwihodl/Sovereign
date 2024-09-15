@@ -63,7 +63,7 @@ export const parseEvent = (event) => {
         image: '',
         published_at: '',
         topics: [], // Added to hold all topics
-        type: 'resource', // Default type
+        type: 'document', // Default type
     };
 
     // Iterate over the tags array to extract data

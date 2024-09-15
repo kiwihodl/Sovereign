@@ -83,14 +83,14 @@ export function VideoTemplate({ video }) {
                 {video.description || video.summary && (
                     <>
                     {video.description && (
-                        <div className="text-xl mt-4">
+                        <div>
                             {video.description.split('\n').map((line, index) => (
                                 <p key={index}>{line}</p>
                             ))}
                         </div>
                     )}
                     {video.summary && (
-                        <div className="text-xl mt-4">
+                        <div>
                             {video.summary.split('\n').map((line, index) => (
                                 <p key={index}>{line}</p>
                             ))}

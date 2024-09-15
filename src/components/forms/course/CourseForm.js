@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import { useToast } from '@/hooks/useToast';
 import { parseEvent } from '@/utils/nostr';
 import { useDraftsQuery } from '@/hooks/apiQueries/useDraftsQuery';
-import { useResources } from '@/hooks/nostr/useResources';
+import { useDocuments } from '@/hooks/nostr/useDocuments';
 import { useVideos } from '@/hooks/nostr/useVideos';
 import axios from 'axios';
 import LessonSelector from './LessonSelector';
@@ -27,16 +27,17 @@ const CourseForm = ({ draft = null }) => {
     const { data: session } = useSession();
     const router = useRouter();
     const { showToast } = useToast();
-    const { resources, resourcesLoading, resourcesError } = useResources();
+    const { documents, documentsLoading, documentsError } = useDocuments();
     const { videos, videosLoading, videosError } = useVideos();
     const { drafts, draftsLoading, draftsError } = useDraftsQuery();
 
     useEffect(() => {
-        if (draft && resources && videos && drafts) {
+        if (draft && documents && videos && drafts) {
             const populatedLessons = draft.draftLessons.map((lesson, index) => {
                 if (lesson?.resource) {
-                    const matchingResource = resources.find((resource) => resource.d === lesson.resource.d);
-                    return { ...parseEvent(matchingResource), index };
+                    const matchingResource = documents.find((resource) => resource.d === lesson.resource.d);
+                    const matchingParsedResource = parseEvent(matchingResource);
+                    return { ...matchingParsedResource, index };
                 } else if (lesson?.draft) {
                     const matchingDraft = drafts.find((draft) => draft.id === lesson.draft.id);
                     return { ...matchingDraft, index };
@@ -46,24 +47,15 @@ const CourseForm = ({ draft = null }) => {
 
             setLessons(populatedLessons);
         }
-    }, [draft, resources, videos, drafts]);
+    }, [draft, documents, videos, drafts]);
 
     useEffect(() => {
-        console.log('allContent', allContent);
-    }, [allContent]);
-
-    useEffect(() => {
-        console.log('fasfsa', videos)
-    }, [videos])
-
-    useEffect(() => {
-        if (!resourcesLoading && !videosLoading && !draftsLoading) {
+        if (!documentsLoading && !videosLoading && !draftsLoading) {
             let combinedContent = [];
-            if (resources) {
-                combinedContent = [...combinedContent, ...resources];
+            if (documents) {
+                combinedContent = [...combinedContent, ...documents];
             }
             if (videos) {
-                console.log('workssdfsdfdsf', videos)
                 combinedContent = [...combinedContent, ...videos];
             }
             if (drafts) {
@@ -71,7 +63,7 @@ const CourseForm = ({ draft = null }) => {
             }
             setAllContent(combinedContent);
         }
-    }, [resources, videos, drafts, resourcesLoading, videosLoading, draftsLoading]);
+    }, [documents, videos, drafts, documentsLoading, videosLoading, draftsLoading]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -171,7 +163,7 @@ const CourseForm = ({ draft = null }) => {
         }
     };
 
-    if (resourcesLoading || videosLoading || draftsLoading) {
+    if (documentsLoading || videosLoading || draftsLoading) {
         return <ProgressSpinner />;
     }
 

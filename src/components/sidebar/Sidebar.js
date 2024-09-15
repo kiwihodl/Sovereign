@@ -40,38 +40,42 @@ const Sidebar = ({ course = false }) => {
         if (router.isReady) {
             const { slug } = router.query;
 
-            if (slug && course) {
-                const { data } = nip19.decode(slug)
+            try {
+                if (slug && course) {
+                    const { data } = nip19.decode(slug)
 
-                if (!data) {
-                    showToast('error', 'Error', 'Course not found');
-                    return;
-                }
-
-                const id = data?.identifier;
-                const fetchCourse = async (id) => {
-                    try {
-                        await ndk.connect();
-
-                        const filter = {
-                            ids: [id]
-                        }
-
-                        const event = await ndk.fetchEvent(filter);
-
-                        if (event) {
-                            // all a tags are lessons
-                            const lessons = event.tags.filter(tag => tag[0] === 'a');
-                            const uniqueLessons = [...new Set(lessons.map(lesson => lesson[1]))];
-                            setLessons(uniqueLessons);
-                        }
-                    } catch (error) {
-                        console.error('Error fetching event:', error);
+                    if (!data) {
+                        showToast('error', 'Error', 'Course not found');
+                        return;
                     }
-                };
-                if (ndk && id) {
-                    fetchCourse(id);
+
+                    const id = data?.identifier;
+                    const fetchCourse = async (id) => {
+                        try {
+                            await ndk.connect();
+
+                            const filter = {
+                                ids: [id]
+                            }
+
+                            const event = await ndk.fetchEvent(filter);
+
+                            if (event) {
+                                // all a tags are lessons
+                                const lessons = event.tags.filter(tag => tag[0] === 'a');
+                                const uniqueLessons = [...new Set(lessons.map(lesson => lesson[1]))];
+                                setLessons(uniqueLessons);
+                            }
+                        } catch (error) {
+                            console.error('Error fetching event:', error);
+                        }
+                    };
+                    if (ndk && id) {
+                        fetchCourse(id);
+                    }
                 }
+            } catch (err) {
+                console.error(err);
             }
         }
     }, [router.isReady, router.query, ndk, course]);
@@ -136,8 +140,8 @@ const Sidebar = ({ course = false }) => {
                                 <div onClick={() => router.push('/content?tag=videos')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content?tag=videos') ? 'bg-gray-700' : ''}`}>
                                     <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-video text-sm pr-1"></i> Videos</p>
                                 </div>
-                                <div onClick={() => router.push('/content?tag=resources')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content?tag=resources') ? 'bg-gray-700' : ''}`}>
-                                    <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-file text-sm pr-1"></i> Resources</p>
+                                <div onClick={() => router.push('/content?tag=documents')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content?tag=documents') ? 'bg-gray-700' : ''}`}>
+                                    <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-file text-sm pr-1"></i> Documents</p>
                                 </div>
                             </AccordionTab>
                         </Accordion>

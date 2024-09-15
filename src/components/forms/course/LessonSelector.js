@@ -3,14 +3,14 @@ import { Dropdown } from 'primereact/dropdown';
 import GenericButton from '@/components/buttons/GenericButton';
 import { Dialog } from 'primereact/dialog';
 import { Accordion, AccordionTab } from 'primereact/accordion';
-import EmbeddedResourceForm from '@/components/forms/course/embedded/EmbeddedResourceForm';
+import EmbeddedDocumentForm from '@/components/forms/course/embedded/EmbeddedDocumentForm';
 import EmbeddedVideoForm from '@/components/forms/course/embedded/EmbeddedVideoForm';
 import ContentDropdownItem from '@/components/content/dropdowns/ContentDropdownItem';
 import SelectedContentItem from '@/components/content/SelectedContentItem';
 import { parseEvent } from '@/utils/nostr';
 
 const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewResourceCreate, onNewVideoCreate }) => {
-    const [showResourceForm, setShowResourceForm] = useState(false);
+    const [showDocumentForm, setShowDocumentForm] = useState(false);
     const [showVideoForm, setShowVideoForm] = useState(false);
     const [contentOptions, setContentOptions] = useState([]);
     const [openTabs, setOpenTabs] = useState([]);
@@ -47,7 +47,7 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
 
         console.log('filtered content', filteredContent)
 
-        const draftResourceOptions = filteredContent.filter(content => content?.topics.includes('resource') && !content.kind).map(content => ({
+        const draftDocumentOptions = filteredContent.filter(content => content?.topics.includes('document') && !content.kind).map(content => ({
             label: content.title,
             value: content
         }));
@@ -57,7 +57,7 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
             value: content
         }));
 
-        const resourceOptions = filteredContent.filter(content => content?.topics.includes('resource') && content.kind).map(content => ({
+        const documentOptions = filteredContent.filter(content => content?.topics.includes('document') && content.kind).map(content => ({
             label: content.title,
             value: content
         }));
@@ -69,16 +69,16 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
 
         setContentOptions([
             {
-                label: 'Draft Resources',
-                items: draftResourceOptions
+                label: 'Draft Documents',
+                items: draftDocumentOptions
             },
             {
                 label: 'Draft Videos',
                 items: draftVideoOptions
             },
             {
-                label: 'Published Resources',
-                items: resourceOptions
+                label: 'Published Documents',
+                items: documentOptions
             },
             {
                 label: 'Published Videos',
@@ -116,16 +116,15 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
         setLessons([...lessons, { index: lessons.length }]);
     };
 
-    const handleNewResourceSave = async (newResource) => {
-        const createdResource = await onNewResourceCreate(newResource);
-        if (createdResource) {
-            handleContentSelect(createdResource, lessons.length);
-            setShowResourceForm(false);
+    const handleNewDocumentSave = async (newDocument) => {
+        const createdDocument = await onNewDocumentCreate(newDocument);
+        if (createdDocument) {
+            handleContentSelect(createdDocument, lessons.length);
+            setShowDocumentForm(false);
         }
     };
 
     const handleNewVideoSave = async (newVideo) => {
-        console.log('newVideo', newVideo);
         const createdVideo = await onNewVideoCreate(newVideo);
         if (createdVideo) {
             handleContentSelect(createdVideo, lessons.length);
@@ -167,7 +166,7 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
                         <div className="flex mt-4">
                             {lesson.id ? null : (
                                 <>
-                                    <GenericButton label="New Resource" onClick={(e) => {e.preventDefault(); setShowResourceForm(true)}} className="mr-2" />
+                                    <GenericButton label="New Document" onClick={(e) => {e.preventDefault(); setShowDocumentForm(true)}} className="mr-2" />
                                     <GenericButton label="New Video" onClick={(e) => {e.preventDefault(); setShowVideoForm(true)}} className="mr-2" />
                                 </>
                             )}
@@ -187,11 +186,11 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
                 label="Add New Lesson" 
                 onClick={addNewLesson} 
                 className="mt-4" 
-                type="button" // Explicitly set type to "button"
+                type="button"
             />
 
-            <Dialog className='w-full max-w-screen-md' visible={showResourceForm} onHide={() => setShowResourceForm(false)} header="Create New Resource">
-                <EmbeddedResourceForm onSave={handleNewResourceSave} isPaid={isPaidCourse} />
+            <Dialog className='w-full max-w-screen-md' visible={showDocumentForm} onHide={() => setShowDocumentForm(false)} header="Create New Document">
+                <EmbeddedDocumentForm onSave={handleNewDocumentSave} isPaid={isPaidCourse} />
             </Dialog>
 
             <Dialog className='w-full max-w-screen-md' visible={showVideoForm} onHide={() => setShowVideoForm(false)} header="Create New Video">

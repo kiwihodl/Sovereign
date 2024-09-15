@@ -212,7 +212,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
 
             // Step 6: Show success message and redirect
             showToast('success', 'Success', 'Course created successfully');
-            router.push(`/course/${courseEvent.id}`);
+            router.push("/");
 
         } catch (error) {
             console.error('Error creating course:', error);
@@ -252,7 +252,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
             console.log('Draft:', draft);
 
             switch (draft?.type) {
-                case 'resource':
+                case 'document':
                     if (draft?.price) {
                         // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
                         encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
@@ -273,7 +273,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
                         ...(draft?.additionalLinks ? draft.additionalLinks.map(link => ['r', link]) : []),
                     ];
 
-                    type = 'resource';
+                    type = 'document';
                     break;
                 case 'video':
                     if (draft?.price) {

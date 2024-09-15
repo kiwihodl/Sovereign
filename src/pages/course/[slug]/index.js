@@ -53,16 +53,19 @@ const useCourseData = (ndk, fetchAuthor, router) => {
     return { course, lessonIds };
 };
 
-const useLessons = (ndk, fetchAuthor, lessonIds) => {
+const useLessons = (ndk, fetchAuthor, lessonIds, pubkey) => {
     const [lessons, setLessons] = useState([]);
     const [uniqueLessons, setUniqueLessons] = useState([]);
+
+    console.log('lessonIds', lessonIds);
 
     useEffect(() => {
         if (lessonIds.length > 0) {
             const fetchLesson = async (lessonId) => {
+                console.log('lessonId', lessonId);
                 try {
                     await ndk.connect();
-                    const filter = { "#d": [lessonId] };
+                    const filter = { "#d": [lessonId], kinds:[30023, 30402], authors: [pubkey] };
                     const event = await ndk.fetchEvent(filter);
                     if (event) {
                         const author = await fetchAuthor(event.pubkey);
@@ -82,6 +85,10 @@ const useLessons = (ndk, fetchAuthor, lessonIds) => {
         const newUniqueLessons = Array.from(uniqueLessonSet).map(JSON.parse);
         setUniqueLessons(newUniqueLessons);
     }, [lessons]);
+
+    useEffect(() => {
+        console.log('uniqueLessons', uniqueLessons);
+    }, [uniqueLessons]);
 
     return { lessons, uniqueLessons, setLessons };
 };
@@ -139,7 +146,7 @@ const Course = () => {
     }, [ndk]);
 
     const { course, lessonIds } = useCourseData(ndk, fetchAuthor, router);
-    const { lessons, uniqueLessons, setLessons } = useLessons(ndk, fetchAuthor, lessonIds);
+    const { lessons, uniqueLessons, setLessons } = useLessons(ndk, fetchAuthor, lessonIds, course?.pubkey);
     const { decryptionPerformed, loading } = useDecryption(session, paidCourse, course, lessons, setLessons);
 
     useEffect(() => {

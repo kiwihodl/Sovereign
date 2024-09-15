@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY;
 
-export function useResourcesQuery() {
+export function useDocumentsQuery() {
     const [isClient, setIsClient] = useState(false);
     const {ndk, addSigner} = useNDKContext();
 
@@ -14,12 +14,12 @@ export function useResourcesQuery() {
     }, []);
 
     const hasRequiredProperties = (event, contentIds) => {
-        const hasResource = event.tags.some(([tag, value]) => tag === "t" && value === "resource");
+        const hasDocument = event.tags.some(([tag, value]) => tag === "t" && value === "document");
         const hasId = event.tags.some(([tag, value]) => tag === "d" && contentIds.includes(value));
-        return hasResource && hasId;
+        return hasDocument && hasId;
     };
 
-    const fetchResourcesFromNDK = async () => {
+    const fetchDocumentsFromNDK = async () => {
         try {
             const response = await axios.get(`/api/content/all`);
             const contentIds = response.data;
@@ -36,23 +36,23 @@ export function useResourcesQuery() {
 
             if (events && events.size > 0) {
                 const eventsArray = Array.from(events);
-                const resources = eventsArray.filter(event => hasRequiredProperties(event, contentIds));
-                return resources;
+                const documents = eventsArray.filter(event => hasRequiredProperties(event, contentIds));
+                return documents;
             }
             return [];
         } catch (error) {
-            console.error('Error fetching resources from NDK:', error);
+            console.error('Error fetching documents from NDK:', error);
             return [];
         }
     };
 
-    const { data: resources, isLoading: resourcesLoading, error: resourcesError, refetch: refetchResources } = useQuery({
-        queryKey: ['resources', isClient],
-        queryFn: fetchResourcesFromNDK,
+    const { data: documents, isLoading: documentsLoading, error: documentsError, refetch: refetchDocuments } = useQuery({
+        queryKey: ['documents', isClient],
+        queryFn: fetchDocumentsFromNDK,
         // staleTime: 1000 * 60 * 30, // 30 minutes
         // refetchInterval: 1000 * 60 * 30, // 30 minutes
         enabled: isClient,
     });
 
-    return { resources, resourcesLoading, resourcesError, refetchResources };
+    return { documents, documentsLoading, documentsError, refetchDocuments };
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { parseEvent } from "@/utils/nostr";
-import ResourceForm from "@/components/forms/ResourceForm";
+import DocumentForm from "@/components/forms/DocumentForm";
 import VideoForm from "@/components/forms/VideoForm";
 import CourseForm from "@/components/forms/course/CourseForm";
 import { useNDKContext } from "@/context/NDKContext";
@@ -41,7 +41,7 @@ export default function Edit() {
             <h2 className="text-center mb-8">Edit Published Event</h2>
             {event?.topics.includes('course') && <CourseForm draft={event} isPublished />}
             {!event?.topics.includes('video') && <VideoForm draft={event} isPublished />}
-            {event?.topics.includes('resource') && <ResourceForm draft={event} isPublished />}
+            {event?.topics.includes('document') && <DocumentForm draft={event} isPublished />}
         </div>
     );
 }

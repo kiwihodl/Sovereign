@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
-import ResourceForm from "@/components/forms/ResourceForm";
+import DocumentForm from "@/components/forms/DocumentForm";
 import VideoForm from "@/components/forms/VideoForm";
 import CourseForm from "@/components/forms/course/CourseForm";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
@@ -38,7 +38,7 @@ const Edit = () => {
             <h2 className="text-center mb-8">Edit Draft</h2>
             {draft?.type === 'course' && <CourseForm draft={draft} />}
             {draft?.type === 'video' && <VideoForm draft={draft} />}
-            {draft?.type === 'resource' && <ResourceForm draft={draft} />}
+            {draft?.type === 'document' && <DocumentForm draft={draft} />}
         </div>
     );
 };

@@ -44,7 +44,6 @@ const DraftCourse = () => {
             axios.get(`/api/courses/drafts/${slug}`)
                 .then(res => {
                     setCourse(res.data);
-                    console.log('coursesssss:', res.data);
                     setLessons(res.data.draftLessons);
                 })
                 .catch(err => {

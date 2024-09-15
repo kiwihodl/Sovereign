@@ -33,9 +33,9 @@ const promotions = [
   },
   {
     id: 4,
-    category: "RESOURCES",
+    category: "DOCUMENTS",
     title: "In-depth Resources and Documentation",
-    description: "Access our extensive library of resources, including guides, documentation, and best practices for Bitcoin development.",
+    description: "Access our extensive library of documents, including guides, resources, and best practices for Bitcoin development.",
     icon: "pi pi-file",
     image: "https://img.freepik.com/free-photo/programming-background-with-person-working-with-codes-computer_23-2150010125.jpg",
   },
@@ -101,9 +101,9 @@ const InteractivePromotionalCarousel = () => {
                       return (
                         <GenericButton onClick={() => router.push('/content?tag=videos')} icon={<i className="pi pi-video pr-2" />} label="View All Videos" className="w-fit py-2 font-semibold" size="small" outlined />
                       );
-                    case "RESOURCES":
+                    case "DOCUMENTS":
                       return (
-                        <GenericButton onClick={() => router.push('/content?tag=resources')} icon={<i className="pi pi-file pr-2 pb-1" />} label="View All Resources" className="w-fit py-2 font-semibold" size="small" outlined />
+                        <GenericButton onClick={() => router.push('/content?tag=documents')} icon={<i className="pi pi-file pr-2 pb-1" />} label="View All Documents" className="w-fit py-2 font-semibold" size="small" outlined />
                       );
                     case "COMMUNITY":
                       return (
@@ -149,9 +149,9 @@ const InteractivePromotionalCarousel = () => {
                         return (
                           <GenericButton onClick={() => router.push('/content?tag=videos')} icon={<i className="pi pi-video pr-2" />} label="View All Videos" className="py-2 font-semibold" size="small" outlined />
                         );
-                      case "RESOURCES":
+                      case "DOCUMENTS":
                         return (
-                          <GenericButton onClick={() => router.push('/content?tag=resources')} icon={<i className="pi pi-file pr-2 pb-1" />} label="View All Resources" className="py-2 font-semibold" size="small" outlined />
+                          <GenericButton onClick={() => router.push('/content?tag=documents')} icon={<i className="pi pi-file pr-2 pb-1" />} label="View All Documents" className="py-2 font-semibold" size="small" outlined />
                         );
                       case "COMMUNITY":
                         return (

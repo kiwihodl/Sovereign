@@ -64,7 +64,7 @@ export default function GenericCarousel({items, selectedTopic, title}) {
                     value={carouselItems}
                     itemTemplate={(item) => {
                         if (carouselItems.length > 0) {
-                            if (item.type === 'resource') {
+                            if (item.type === 'document') {
                                 return <DocumentTemplate key={item.id} document={item} />;
                             } else if (item.type === 'video') {
                                 return <VideoTemplate key={item.id} video={item} />;

@@ -129,9 +129,7 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
                         />
                     </div>
                 </div>
-            <Divider />
-            </div>
-            {renderContent()}
+                <Divider />
             {lesson?.additionalLinks && lesson.additionalLinks.length > 0 && (
                 <div className='mt-6 bg-gray-800/90 rounded-lg p-4'>
                     <h3 className='text-lg font-semibold mb-2 text-white'>External links:</h3>
@@ -146,6 +144,8 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
                     </ul>
                 </div>
             )}
+            </div>
+            {renderContent()}
         </div>
     )
 }

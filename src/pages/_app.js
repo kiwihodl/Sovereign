@@ -29,7 +29,7 @@ export default function MyApp({
     const router = useRouter();
 
     useEffect(() => {
-        setIsCourseView(router.pathname.includes('course'));
+        setIsCourseView(router.pathname.includes('course') && !router.pathname.includes('draft'));
     }, [router.pathname]);
 
     // const [sidebarExpanded, setSidebarExpanded] = useState(true);

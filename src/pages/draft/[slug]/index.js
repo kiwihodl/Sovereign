@@ -32,6 +32,7 @@ export default function Draft() {
     const { returnImageProxy } = useImageProxy();
     const { data: session, status } = useSession();
     const [user, setUser] = useState(null);
+    const [nAddress, setNAddress] = useState(null);
     const [videoId, setVideoId] = useState(null);
     const { width, height } = useResponsiveImageDimensions();
     const router = useRouter();
@@ -187,7 +188,7 @@ export default function Draft() {
         console.log('NewDTag:', NewDTag);
 
         switch (draft?.type) {
-            case 'resource':
+            case 'document':
                 if (draft?.price) {
                     // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
                     encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
@@ -208,7 +209,7 @@ export default function Draft() {
                     ...(draft?.additionalLinks ? draft.additionalLinks.map(link => ['r', link]) : []),
                 ];
 
-                type = 'resource';
+                type = 'document';
                 break;
             case 'video':
                 if (draft?.price) {
@@ -315,7 +316,7 @@ export default function Draft() {
                     </div>
                     <div className='flex flex-col max-tab:mt-12 max-mob:mt-12'>
                         {draft && (
-                            <div style={{ width: width < 768 ? "auto" : width }} onClick={() => router.push(`/details/${draft.id}`)} className="flex flex-col items-center mx-auto cursor-pointer rounded-md shadow-lg">
+                            <div style={{ width: width < 768 ? "auto" : width }} onClick={() => router.push(`/details/${nAddress}`)} className="flex flex-col items-center mx-auto cursor-pointer rounded-md shadow-lg">
                                 <div style={{ maxWidth: width, minWidth: width }} className="max-tab:h-auto max-mob:h-auto">
                                     <Image
                                         alt="resource thumbnail"

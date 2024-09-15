@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import MenuTab from "@/components/menutab/MenuTab";
-import ResourceForm from "@/components/forms/ResourceForm";
+import DocumentForm from "@/components/forms/DocumentForm";
 import VideoForm from "@/components/forms/VideoForm";
 import CourseForm from "@/components/forms/course/CourseForm";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
@@ -12,7 +12,7 @@ const Create = () => {
     const { isAdmin, isLoading } = useIsAdmin();
     const router = useRouter();
     const homeItems = [
-        { label: 'Resource', icon: 'pi pi-book' },
+        { label: 'Document', icon: 'pi pi-file' },
         { label: 'Video', icon: 'pi pi-video' },
         { label: 'Course', icon: 'pi pi-desktop' }
     ];
@@ -32,8 +32,8 @@ const Create = () => {
                 return <CourseForm />;
             case 'Video':
                 return <VideoForm />;
-            case 'Resource':
-                return <ResourceForm />;
+            case 'Document':
+                return <DocumentForm />;
             default:
                 return null; // or a default component
         }

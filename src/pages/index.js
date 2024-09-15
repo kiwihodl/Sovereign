@@ -2,7 +2,7 @@ import Head from 'next/head';
 import React from 'react';
 import CoursesCarousel from '@/components/content/carousels/CoursesCarousel';
 import VideosCarousel from '@/components/content/carousels/VideosCarousel';
-import ResourcesCarousel from '@/components/content/carousels/ResourcesCarousel';
+import DocumentsCarousel from '@/components/content/carousels/DocumentsCarousel';
 import InteractivePromotionalCarousel from '@/components/content/carousels/InteractivePromotionalCarousel';
 
 export default function Home() {
@@ -18,7 +18,7 @@ export default function Home() {
         <InteractivePromotionalCarousel />
         <CoursesCarousel />
         <VideosCarousel />
-        <ResourcesCarousel />
+        <DocumentsCarousel />
       </main>
     </>
   );

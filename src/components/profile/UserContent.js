@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import GenericButton from "@/components/buttons/GenericButton";
 import MenuTab from "@/components/menutab/MenuTab";
 import { useCourses } from "@/hooks/nostr/useCourses";
-import { useResources } from "@/hooks/nostr/useResources";
+import { useDocuments } from "@/hooks/nostr/useDocuments";
 import { useVideos } from "@/hooks/nostr/useVideos";
 import { useDraftsQuery } from "@/hooks/apiQueries/useDraftsQuery";
 import { useCourseDraftsQuery } from "@/hooks/apiQueries/useCourseDraftsQuery";
@@ -31,7 +31,7 @@ const UserContent = () => {
     const { showToast } = useToast();
     const {ndk, addSigner} = useNDKContext();
     const { courses, coursesLoading, coursesError } = useCourses();
-    const { resources, resourcesLoading, resourcesError } = useResources();
+    const { documents, documentsLoading, documentsError } = useDocuments();
     const { videos, videosLoading, videosError } = useVideos();
     const { courseDrafts, courseDraftsLoading, courseDraftsError } = useCourseDraftsQuery();
     const { drafts, draftsLoading, draftsError } = useDraftsQuery();
@@ -51,7 +51,7 @@ const UserContent = () => {
         { label: "Published", icon: "pi pi-verified" },
         { label: "Drafts", icon: "pi pi-file-edit" },
         { label: "Draft Courses", icon: "pi pi-book" },
-        { label: "Resources", icon: "pi pi-file" },
+        { label: "Documents", icon: "pi pi-file" },
         { label: "Videos", icon: "pi pi-video" },
         { label: "Courses", icon: "pi pi-desktop" },
     ];
@@ -98,8 +98,8 @@ const UserContent = () => {
                     case 2:
                         return courseDrafts || [];
                     case 3:
-                        return resources?.map(parseEvent) || [];
-                    case 3:
+                        return documents?.map(parseEvent) || [];
+                    case 4:
                         return videos?.map(parseEvent) || [];
                     case 4:
                         return courses?.map(parseEvent) || [];
@@ -110,10 +110,10 @@ const UserContent = () => {
 
             setContent(getContentByIndex(activeIndex));
         }
-    }, [activeIndex, isClient, drafts, resources, videos, courses, publishedContent, courseDrafts])
+    }, [activeIndex, isClient, drafts, documents, videos, courses, publishedContent, courseDrafts])
 
-    const isLoading = coursesLoading || resourcesLoading || videosLoading || draftsLoading || contentIdsLoading || courseDraftsLoading;
-    const isError = coursesError || resourcesError || videosError || draftsError || contentIdsError || courseDraftsError;
+    const isLoading = coursesLoading || documentsLoading || videosLoading || draftsLoading || contentIdsLoading || courseDraftsLoading;
+    const isError = coursesError || documentsError || videosError || draftsError || contentIdsError || courseDraftsError;
 
     return (
         <div className="p-4">

@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { InputText } from "primereact/inputtext";
+import { InputTextarea } from "primereact/inputtextarea";
 import { InputNumber } from "primereact/inputnumber";
 import { InputSwitch } from "primereact/inputswitch";
 import GenericButton from "@/components/buttons/GenericButton";
+import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/useToast";
 import { useNDKContext } from "@/context/NDKContext";
@@ -19,10 +21,11 @@ import 'primeicons/primeicons.css';
 import { Tooltip } from 'primereact/tooltip';
 import 'primereact/resources/primereact.min.css';
 
-const EmbeddedResourceForm = ({ draft = null, isPublished = false, onSave, isPaid }) => {
+// todo make the summarry save in a formatted way so we can keep this spaces and line breaks
+const DocumentForm = ({ draft = null, isPublished = false }) => {
     const [title, setTitle] = useState(draft?.title || '');
     const [summary, setSummary] = useState(draft?.summary || '');
-    const [isPaidResource, setIsPaidResource] = useState(isPaid);
+    const [isPaidResource, setIsPaidResource] = useState(draft?.price ? true : false);
     const [price, setPrice] = useState(draft?.price || 0);
     const [coverImage, setCoverImage] = useState(draft?.image || '');
     const [topics, setTopics] = useState(draft?.topics || ['']);
@@ -32,6 +35,7 @@ const EmbeddedResourceForm = ({ draft = null, isPublished = false, onSave, isPai
 
     const { data: session, status } = useSession();
     const { showToast } = useToast();
+    const router = useRouter();
     const { ndk, addSigner } = useNDKContext();
 
     useEffect(() => {
@@ -41,7 +45,6 @@ const EmbeddedResourceForm = ({ draft = null, isPublished = false, onSave, isPai
 
     useEffect(() => {
         if (session) {
-            console.log('session', session.user);
             setUser(session.user);
         }
     }, [session]);
@@ -90,29 +93,95 @@ const EmbeddedResourceForm = ({ draft = null, isPublished = false, onSave, isPai
         return event;
     };
 
+    const handlePublishedResource = async (e) => {
+        e.preventDefault();
+
+        // create new object with state fields
+        const updatedDraft = {
+            title,
+            summary,
+            price,
+            content,
+            d: draft.d,
+            image: coverImage,
+            topics: [...new Set([...topics.map(topic => topic.trim().toLowerCase()), 'document'])],
+            additionalLinks: additionalLinks.filter(link => link.trim() !== '')
+        }
+
+        console.log('handlePublishedResource', updatedDraft);
+
+        const event = await buildEvent(updatedDraft);
+
+        console.log('event', event);
+
+        try {
+            if (!ndk.signer) {
+                await addSigner();
+            }
+
+            await ndk.connect();
+
+            const published = await ndk.publish(event);
+
+            if (published) {
+                // update the resource with new noteId
+                const response = await axios.put(`/api/resources/${draft.d}`, { noteId: event.id });
+                console.log('response', response);
+                showToast('success', 'Success', 'Document published successfully.');
+                router.push(`/details/${event.id}`);
+            } else {
+                showToast('error', 'Error', 'Failed to publish document. Please try again.');
+            }
+        } catch (error) {
+            console.error(error);
+            showToast('error', 'Error', 'Failed to publish document. Please try again.');
+        }
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const userResponse = await axios.get(`/api/users/${user.pubkey}`);
+
+        if (!userResponse.data) {
+            showToast('error', 'Error', 'User not found', 'Please try again.');
+            return;
+        }
 
         const payload = {
             title,
             summary,
-            type: 'resource',
+            type: 'document',
             price: isPaidResource ? price : null,
             content,
             image: coverImage,
-            topics: [...new Set([...topics.map(topic => topic.trim().toLowerCase()), 'resource'])],
-            additionalLinks: additionalLinks.filter(link => link.trim() !== ''),
-            user: user?.id || user?.pubkey
+            topics: [...new Set([...topics.map(topic => topic.trim().toLowerCase()), 'document'])],
+            additionalLinks: additionalLinks.filter(link => link.trim() !== '')
         };
 
-        if (onSave) {
-            try {
-                await onSave(payload);
-                showToast('success', 'Success', draft ? 'Resource updated successfully.' : 'Resource created successfully.');
-            } catch (error) {
-                console.error(error);
-                showToast('error', 'Error', 'Failed to save resource. Please try again.');
-            }
+        if (!draft) {
+            // Only include user when creating a new draft
+            payload.user = userResponse.data.id;
+        }
+
+        if (payload) {
+            const url = draft ? `/api/drafts/${draft.id}` : '/api/drafts';
+            const method = draft ? 'put' : 'post';
+
+            axios[method](url, payload)
+                .then(response => {
+                    if (response.status === 200 || response.status === 201) {
+                        showToast('success', 'Success', draft ? 'Document updated successfully.' : 'Document saved as draft.');
+
+                        if (response.data?.id) {
+                            router.push(`/draft/${response.data.id}`);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    showToast('error', 'Error', 'Failed to save document. Please try again.');
+                });
         }
     };
 
@@ -149,20 +218,20 @@ const EmbeddedResourceForm = ({ draft = null, isPublished = false, onSave, isPai
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={isPublished && draft ? handlePublishedResource : handleSubmit}>
             <div className="p-inputgroup flex-1">
                 <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
             </div>
             <div className="p-inputgroup flex-1 mt-4">
-                <InputText value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" />
+                <InputTextarea value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" />
             </div>
             <div className="p-inputgroup flex-1 mt-4">
                 <InputText value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="Cover Image URL" />
             </div>
 
             <div className="p-inputgroup flex-1 mt-8 flex-col">
-                <p className="py-2">Paid Resource</p>
-                <InputSwitch checked={isPaidResource} onChange={(e) => setIsPaidResource(e.value)} />
+                <p className="py-2">Paid Document</p>
+                <InputSwitch autoResize checked={isPaidResource} onChange={(e) => setIsPaidResource(e.value)} />
                 {isPaidResource && (
                     <div className="p-inputgroup flex-1 py-4">
                         <InputNumber value={price} onValueChange={(e) => setPrice(e.value)} placeholder="Price (sats)" />
@@ -217,10 +286,10 @@ const EmbeddedResourceForm = ({ draft = null, isPublished = false, onSave, isPai
                 </div>
             </div>
             <div className="flex justify-center mt-8">
-                <GenericButton type="submit" severity="success" outlined label={draft ? "Update" : "Submit"} />
+                <GenericButton type="submit" severity="success" outlined label={draft ? "Update Draft" : "Save Draft"} />
             </div>
         </form>
     );
 }
 
-export default EmbeddedResourceForm;
+export default DocumentForm;
