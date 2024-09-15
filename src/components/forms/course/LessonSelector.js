@@ -4,14 +4,14 @@ import GenericButton from '@/components/buttons/GenericButton';
 import { Dialog } from 'primereact/dialog';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import EmbeddedResourceForm from '@/components/forms/course/embedded/EmbeddedResourceForm';
-import EmbeddedWorkshopForm from '@/components/forms/course/embedded/EmbeddedWorkshopForm';
+import EmbeddedVideoForm from '@/components/forms/course/embedded/EmbeddedVideoForm';
 import ContentDropdownItem from '@/components/content/dropdowns/ContentDropdownItem';
 import SelectedContentItem from '@/components/content/SelectedContentItem';
 import { parseEvent } from '@/utils/nostr';
 
-const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewResourceCreate, onNewWorkshopCreate }) => {
+const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewResourceCreate, onNewVideoCreate }) => {
     const [showResourceForm, setShowResourceForm] = useState(false);
-    const [showWorkshopForm, setShowWorkshopForm] = useState(false);
+    const [showVideoForm, setShowVideoForm] = useState(false);
     const [contentOptions, setContentOptions] = useState([]);
     const [openTabs, setOpenTabs] = useState([]);
 
@@ -52,7 +52,7 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
             value: content
         }));
 
-        const draftWorkshopOptions = filteredContent.filter(content => content?.topics.includes('workshop') && !content.kind).map(content => ({
+        const draftVideoOptions = filteredContent.filter(content => content?.topics.includes('video') && !content.kind).map(content => ({
             label: content.title,
             value: content
         }));
@@ -62,7 +62,7 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
             value: content
         }));
 
-        const workshopOptions = filteredContent.filter(content => content?.type === "workshop" && content.kind).map(content => ({
+        const videoOptions = filteredContent.filter(content => content?.type === "video" && content.kind).map(content => ({
             label: content.title,
             value: content
         }));
@@ -73,16 +73,16 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
                 items: draftResourceOptions
             },
             {
-                label: 'Draft Workshops',
-                items: draftWorkshopOptions
+                label: 'Draft Videos',
+                items: draftVideoOptions
             },
             {
                 label: 'Published Resources',
                 items: resourceOptions
             },
             {
-                label: 'Published Workshops',
-                items: workshopOptions
+                label: 'Published Videos',
+                items: videoOptions
             }
         ]);
     };
@@ -124,12 +124,12 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
         }
     };
 
-    const handleNewWorkshopSave = async (newWorkshop) => {
-        console.log('newWorkshop', newWorkshop);
-        const createdWorkshop = await onNewWorkshopCreate(newWorkshop);
-        if (createdWorkshop) {
-            handleContentSelect(createdWorkshop, lessons.length);
-            setShowWorkshopForm(false);
+    const handleNewVideoSave = async (newVideo) => {
+        console.log('newVideo', newVideo);
+        const createdVideo = await onNewVideoCreate(newVideo);
+        if (createdVideo) {
+            handleContentSelect(createdVideo, lessons.length);
+            setShowVideoForm(false);
         }
     };
 
@@ -168,7 +168,7 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
                             {lesson.id ? null : (
                                 <>
                                     <GenericButton label="New Resource" onClick={(e) => {e.preventDefault(); setShowResourceForm(true)}} className="mr-2" />
-                                    <GenericButton label="New Workshop" onClick={(e) => {e.preventDefault(); setShowWorkshopForm(true)}} className="mr-2" />
+                                    <GenericButton label="New Video" onClick={(e) => {e.preventDefault(); setShowVideoForm(true)}} className="mr-2" />
                                 </>
                             )}
                         </div>
@@ -194,8 +194,8 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
                 <EmbeddedResourceForm onSave={handleNewResourceSave} isPaid={isPaidCourse} />
             </Dialog>
 
-            <Dialog className='w-full max-w-screen-md' visible={showWorkshopForm} onHide={() => setShowWorkshopForm(false)} header="Create New Workshop">
-                <EmbeddedWorkshopForm onSave={handleNewWorkshopSave} isPaid={isPaidCourse} />
+            <Dialog className='w-full max-w-screen-md' visible={showVideoForm} onHide={() => setShowVideoForm(false)} header="Create New Video">
+                <EmbeddedVideoForm onSave={handleNewVideoSave} isPaid={isPaidCourse} />
             </Dialog>
         </div>
     );

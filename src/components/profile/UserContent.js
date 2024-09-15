@@ -4,7 +4,7 @@ import GenericButton from "@/components/buttons/GenericButton";
 import MenuTab from "@/components/menutab/MenuTab";
 import { useCourses } from "@/hooks/nostr/useCourses";
 import { useResources } from "@/hooks/nostr/useResources";
-import { useWorkshops } from "@/hooks/nostr/useWorkshops";
+import { useVideos } from "@/hooks/nostr/useVideos";
 import { useDraftsQuery } from "@/hooks/apiQueries/useDraftsQuery";
 import { useCourseDraftsQuery } from "@/hooks/apiQueries/useCourseDraftsQuery";
 import { useContentIdsQuery } from "@/hooks/apiQueries/useContentIdsQuery";
@@ -32,7 +32,7 @@ const UserContent = () => {
     const {ndk, addSigner} = useNDKContext();
     const { courses, coursesLoading, coursesError } = useCourses();
     const { resources, resourcesLoading, resourcesError } = useResources();
-    const { workshops, workshopsLoading, workshopsError } = useWorkshops();
+    const { videos, videosLoading, videosError } = useVideos();
     const { courseDrafts, courseDraftsLoading, courseDraftsError } = useCourseDraftsQuery();
     const { drafts, draftsLoading, draftsError } = useDraftsQuery();
     const { contentIds, contentIdsLoading, contentIdsError, refetchContentIds } = useContentIdsQuery();
@@ -52,7 +52,7 @@ const UserContent = () => {
         { label: "Drafts", icon: "pi pi-file-edit" },
         { label: "Draft Courses", icon: "pi pi-book" },
         { label: "Resources", icon: "pi pi-file" },
-        { label: "Workshops", icon: "pi pi-video" },
+        { label: "Videos", icon: "pi pi-video" },
         { label: "Courses", icon: "pi pi-desktop" },
     ];
 
@@ -73,7 +73,7 @@ const UserContent = () => {
                 console.log('uniqueEvents', uniqueEvents)
                 return Array.from(uniqueEvents);
             } catch (error) {
-                console.error('Error fetching workshops from NDK:', error);
+                console.error('Error fetching videos from NDK:', error);
                 return [];
             }
         };
@@ -100,7 +100,7 @@ const UserContent = () => {
                     case 3:
                         return resources?.map(parseEvent) || [];
                     case 3:
-                        return workshops?.map(parseEvent) || [];
+                        return videos?.map(parseEvent) || [];
                     case 4:
                         return courses?.map(parseEvent) || [];
                     default:
@@ -110,10 +110,10 @@ const UserContent = () => {
 
             setContent(getContentByIndex(activeIndex));
         }
-    }, [activeIndex, isClient, drafts, resources, workshops, courses, publishedContent, courseDrafts])
+    }, [activeIndex, isClient, drafts, resources, videos, courses, publishedContent, courseDrafts])
 
-    const isLoading = coursesLoading || resourcesLoading || workshopsLoading || draftsLoading || contentIdsLoading || courseDraftsLoading;
-    const isError = coursesError || resourcesError || workshopsError || draftsError || contentIdsError || courseDraftsError;
+    const isLoading = coursesLoading || resourcesLoading || videosLoading || draftsLoading || contentIdsLoading || courseDraftsLoading;
+    const isError = coursesError || resourcesError || videosError || draftsError || contentIdsError || courseDraftsError;
 
     return (
         <div className="p-4">

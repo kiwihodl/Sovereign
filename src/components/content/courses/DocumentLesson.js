@@ -87,7 +87,14 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
                             )}
                         </div>
                     </div>
-                    <p className='text-xl text-gray-200 mb-4 mt-4'>{lesson.summary}</p>
+                    <p className='text-xl text-gray-200 mb-4 mt-4'>{lesson.summary && (
+                        <div className="text-xl mt-4">
+                            {lesson.summary.split('\n').map((line, index) => (
+                                <p key={index}>{line}</p>
+                            ))}
+                        </div>
+                    )}
+                    </p>
                     <div className='flex items-center justify-between'>
                         <div className='flex items-center'>
                             <Image

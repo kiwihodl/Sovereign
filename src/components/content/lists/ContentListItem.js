@@ -3,7 +3,9 @@ import Image from "next/image";
 import GenericButton from "@/components/buttons/GenericButton";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useRouter } from "next/router";
+import { nip19 } from "nostr-tools";
 import { Divider } from 'primereact/divider';
+import { defaultRelayUrls } from "@/context/NDKContext";
         
 
 const ContentListItem = (content) => {
@@ -11,17 +13,30 @@ const ContentListItem = (content) => {
     const router = useRouter();
     const isPublishedCourse = content?.kind === 30004;
     const isDraftCourse = !content?.kind && content?.draftLessons;
-    const isResource = content?.kind && content?.kind === 30023;
+    const isResource = content?.kind && content?.kind === 30023 || content?.kind === 30402;
     const isDraft = !content?.kind && !content?.draftLessons;
 
     const handleClick = () => {
-        console.log(content);
+        console.log(content, "isDraftCourse", isDraftCourse, "isDraft", isDraft, "isResource", isResource, "isPublishedCourse", isPublishedCourse);
+        let nAddress;
         if (isPublishedCourse) {
-            router.push(`/course/${content.id}`);
+            nAddress = nip19.naddrEncode({
+                identifier: content.id,
+                kind: content.kind,
+                pubkey: content.pubkey,
+                relayUrls: defaultRelayUrls
+            });
+            router.push(`/course/${nAddress}`);
         } else if (isDraftCourse) {
             router.push(`/course/${content.id}/draft`);
         } else if (isResource) {
-            router.push(`/details/${content.id}`);
+            nAddress = nip19.naddrEncode({
+                identifier: content.id,
+                kind: content.kind,
+                pubkey: content.pubkey,
+                relayUrls: defaultRelayUrls
+            });
+            router.push(`/details/${nAddress}`);
         } else if (isDraft) {
             router.push(`/draft/${content.id}`);
         }

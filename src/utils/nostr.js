@@ -104,8 +104,8 @@ export const parseEvent = (event) => {
                 eventData.d = tag[1];
                 break;
             case 't':
-                if (tag[1] === 'workshop') {
-                    eventData.type = 'workshop';
+                if (tag[1] === 'video') {
+                    eventData.type = 'video';
                 } else if (tag[1] !== "plebdevs") {
                     eventData.topics.push(tag[1]);
                 }

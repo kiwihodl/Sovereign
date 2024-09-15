@@ -275,7 +275,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
 
                     type = 'resource';
                     break;
-                case 'workshop':
+                case 'video':
                     if (draft?.price) {
                         // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
                         encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
@@ -296,7 +296,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
                         ...(draft?.additionalLinks ? draft.additionalLinks.map(link => ['r', link]) : []),
                     ];
 
-                    type = 'workshop';
+                    type = 'video';
                     break;
                 default:
                     return null;

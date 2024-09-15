@@ -205,7 +205,7 @@ export default function Details() {
 
     return (
         <div>
-            {processedEvent && processedEvent.type !== "workshop" ? (
+            {processedEvent && processedEvent.type !== "video" ? (
                 <DocumentDetails
                     processedEvent={processedEvent}
                     topics={processedEvent.topics}

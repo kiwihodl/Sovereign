@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import GenericCarousel from '@/components/content/carousels/GenericCarousel';
 import { parseEvent, parseCourseEvent } from '@/utils/nostr';
 import { useResources } from '@/hooks/nostr/useResources';
-import { useWorkshops } from '@/hooks/nostr/useWorkshops';
+import { useVideos } from '@/hooks/nostr/useVideos';
 import { useCourses } from '@/hooks/nostr/useCourses';
 import { TabMenu } from 'primereact/tabmenu';
 import 'primeicons/primeicons.css';
@@ -18,7 +18,7 @@ const MenuTab = ({ items, selectedTopic, onTabChange }) => {
         let icon = 'pi pi-tag';
         if (item === 'All') icon = 'pi pi-eye';
         else if (item === 'Resources') icon = 'pi pi-file';
-        else if (item === 'Workshops') icon = 'pi pi-video';
+        else if (item === 'Videos') icon = 'pi pi-video';
         else if (item === 'Courses') icon = 'pi pi-desktop';
 
         const queryParam = item === 'all' ? '' : `?tag=${item.toLowerCase()}`;
@@ -68,11 +68,11 @@ const MenuTab = ({ items, selectedTopic, onTabChange }) => {
 const ContentPage = () => {
     const router = useRouter();
     const { resources, resourcesLoading } = useResources();
-    const { workshops, workshopsLoading } = useWorkshops();
+    const { videos, videosLoading } = useVideos();
     const { courses, coursesLoading } = useCourses();
 
     const [processedResources, setProcessedResources] = useState([]);
-    const [processedWorkshops, setProcessedWorkshops] = useState([]);
+    const [processedVideos, setProcessedVideos] = useState([]);
     const [processedCourses, setProcessedCourses] = useState([]);
     const [allContent, setAllContent] = useState([]);
     const [allTopics, setAllTopics] = useState([]);
@@ -99,11 +99,11 @@ const ContentPage = () => {
     }, [resources, resourcesLoading]);
 
     useEffect(() => {
-        if (workshops && !workshopsLoading) {
-            const processedWorkshops = workshops.map(workshop => ({...parseEvent(workshop), type: 'workshop'}));
-            setProcessedWorkshops(processedWorkshops);
+        if (videos && !videosLoading) {
+            const processedVideos = videos.map(video => ({...parseEvent(video), type: 'video'}));
+            setProcessedVideos(processedVideos);
         }
-    }, [workshops, workshopsLoading]);
+    }, [videos, videosLoading]);
 
     useEffect(() => {
         if (courses && !coursesLoading) {
@@ -113,11 +113,11 @@ const ContentPage = () => {
     }, [courses, coursesLoading]);
 
     useEffect(() => {
-        const allContent = [...processedResources, ...processedWorkshops, ...processedCourses];
+        const allContent = [...processedResources, ...processedVideos, ...processedCourses];
         setAllContent(allContent);
 
         const uniqueTopics = new Set(allContent.map(item => item.topics).flat());
-        const priorityItems = ['All', 'Courses', 'Workshops', 'Resources'];
+        const priorityItems = ['All', 'Courses', 'Videos', 'Resources'];
         const otherTopics = Array.from(uniqueTopics).filter(topic => !priorityItems.includes(topic));
         const combinedTopics = [...priorityItems.slice(1), ...otherTopics];
         setAllTopics(combinedTopics);
@@ -125,13 +125,13 @@ const ContentPage = () => {
         if (selectedTopic) {
             filterContent(selectedTopic, allContent);
         }
-    }, [processedResources, processedWorkshops, processedCourses]);
+    }, [processedResources, processedVideos, processedCourses]);
 
     const filterContent = (topic, content) => {
         let filtered = content;
         if (topic !== 'All') {
             const topicLower = topic.toLowerCase();
-            if (['courses', 'workshops', 'resources'].includes(topicLower)) {
+            if (['courses', 'videos', 'resources'].includes(topicLower)) {
                 filtered = content.filter(item => item.type === topicLower.slice(0, -1));
             } else {
                 filtered = content.filter(item => item.topics && item.topics.includes(topic.toLowerCase()));
@@ -166,7 +166,7 @@ const ContentPage = () => {
                 <h1 className="text-3xl font-bold mb-4 ml-1">All Content</h1>
             </div>
             <MenuTab
-                items={['Courses', 'Workshops', 'Resources', ...allTopics.filter(topic => !['Courses', 'Workshops', 'Resources'].includes(topic))]}
+                items={['Courses', 'Videos', 'Resources', ...allTopics.filter(topic => !['Courses', 'Videos', 'Resources'].includes(topic))]}
                 selectedTopic={selectedTopic}
                 onTabChange={handleTopicChange}
                 className="max-w-[90%] mx-auto"

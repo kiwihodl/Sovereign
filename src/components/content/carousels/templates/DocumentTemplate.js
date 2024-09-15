@@ -79,7 +79,24 @@ export function DocumentTemplate({ document }) {
                 WebkitBoxOrient: "vertical",
                 WebkitLineClamp: "2"
             }}>
-                {document.description || document.summary}
+                {document.description || document.summary && (
+                    <>
+                    {document.description && (
+                        <div className="text-xl mt-4">
+                            {document.description.split('\n').map((line, index) => (
+                                <p key={index}>{line}</p>
+                            ))}
+                        </div>
+                    )}
+                    {document.summary && (
+                        <div className="text-xl mt-4">
+                            {document.summary.split('\n').map((line, index) => (
+                                <p key={index}>{line}</p>
+                            ))}
+                        </div>
+                    )}
+                    </>
+                )}
             </CardDescription>
             <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4">
                 <p className="text-sm text-gray-300">{document?.published_at && document.published_at !== "" ? (

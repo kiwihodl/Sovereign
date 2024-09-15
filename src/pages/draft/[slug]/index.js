@@ -210,7 +210,7 @@ export default function Draft() {
 
                 type = 'resource';
                 break;
-            case 'workshop':
+            case 'video':
                 if (draft?.price) {
                     // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
                     encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
@@ -245,7 +245,7 @@ export default function Draft() {
                     ...(draft?.additionalLinks ? draft.additionalLinks.map(link => ['r', link]) : []),
                 ];
 
-                type = 'workshop';
+                type = 'video';
                 break;
             default:
                 return null;
@@ -269,7 +269,14 @@ export default function Draft() {
                             })}
                         </div>
                         <h1 className='text-4xl mt-4'>{draft?.title}</h1>
-                        <p className='text-xl mt-4'>{draft?.summary}</p>
+                        <p className='text-xl mt-4'>{draft?.summary && (
+                        <div className="text-xl mt-4">
+                            {draft.summary.split('\n').map((line, index) => (
+                                <p key={index}>{line}</p>
+                            ))}
+                        </div>
+                    )}
+                    </p>
                         {draft?.price && (
                             <p className='text-lg mt-4'>Price: {draft.price}</p>
                         )}

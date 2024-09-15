@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Carousel } from 'primereact/carousel';
 import { parseEvent } from '@/utils/nostr';
 // import ResourceTemplate from '@/components/content/carousels/templates/ResourceTemplate';
-import { DocumentTemplate } from '@/components/content/carousels/newTemplates/DocumentTemplate';
+import { DocumentTemplate } from '@/components/content/carousels/templates/DocumentTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 import { useResources } from '@/hooks/nostr/useResources';
 

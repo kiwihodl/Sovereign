@@ -97,7 +97,14 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
                         )}
                     </div>
                     <div className='flex flex-row items-center justify-between w-full'>
-                        <p className='text-xl mt-4 text-gray-200'>{lesson.summary}</p>
+                        <p className='text-xl mt-4 text-gray-200'>{lesson.summary && (
+                        <div className="text-xl mt-4">
+                            {lesson.summary.split('\n').map((line, index) => (
+                                <p key={index}>{line}</p>
+                            ))}
+                        </div>
+                    )}
+                    </p>
                         <ZapDisplay
                             zapAmount={zapAmount}
                             event={lesson}

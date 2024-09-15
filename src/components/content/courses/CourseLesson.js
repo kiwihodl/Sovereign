@@ -53,7 +53,14 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
                             )}
                         </div>
                         <h1 className='text-4xl mt-6'>{lesson?.title}</h1>
-                        <p className='text-xl mt-6'>{lesson?.summary}</p>
+                        <p className='text-xl mt-6'>{lesson?.summary && (
+                        <div className="text-xl mt-4">
+                            {lesson.summary.split('\n').map((line, index) => (
+                                <p key={index}>{line}</p>
+                            ))}
+                        </div>
+                    )}
+                    </p>
                         {lesson?.additionalLinks && lesson.additionalLinks.length > 0 && (
                             <div className='mt-6'>
                                 <h3 className='text-lg font-semibold mb-2'>External links:</h3>

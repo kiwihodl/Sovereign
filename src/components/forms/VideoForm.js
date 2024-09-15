@@ -1,31 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import GenericButton from '@/components/buttons/GenericButton';
+import axios from 'axios';
+import { useRouter } from 'next/router';
 import { InputText } from 'primereact/inputtext';
+import { InputTextarea } from 'primereact/inputtextarea';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputSwitch } from 'primereact/inputswitch';
+import GenericButton from '@/components/buttons/GenericButton';
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
 import 'primeicons/primeicons.css';
 import { Tooltip } from 'primereact/tooltip';
 import 'primereact/resources/primereact.min.css';
 
-const EmbeddedWorkshopForm = ({ draft = null, onSave, isPaid }) => {
+const VideoForm = ({ draft = null }) => {
     const [title, setTitle] = useState(draft?.title || '');
     const [summary, setSummary] = useState(draft?.summary || '');
     const [price, setPrice] = useState(draft?.price || 0);
-    const [isPaidResource, setIsPaidResource] = useState(isPaid);
+    const [isPaidResource, setIsPaidResource] = useState(draft?.price ? true : false);
     const [videoUrl, setVideoUrl] = useState(draft?.content || '');
     const [coverImage, setCoverImage] = useState(draft?.image || '');
     const [topics, setTopics] = useState(draft?.topics || ['']);
-    const [user, setUser] = useState();
     const [additionalLinks, setAdditionalLinks] = useState(draft?.additionalLinks || ['']);
 
-    const { showToast } = useToast();
+    const router = useRouter();
     const { data: session, status } = useSession();
+    const [user, setUser] = useState(null);
+    const { showToast } = useToast();
 
     useEffect(() => {
         if (session) {
-            console.log('session', session.user);
             setUser(session.user);
         }
     }, [session]);
@@ -57,28 +60,50 @@ const EmbeddedWorkshopForm = ({ draft = null, onSave, isPaid }) => {
             const videoId = videoUrl.split('/').pop();
             embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://player.vimeo.com/video/${videoId}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
         }
+        else if (videoUrl.includes('.mp4') || videoUrl.includes('.mov') || videoUrl.includes('.avi') || videoUrl.includes('.wmv') || videoUrl.includes('.flv') || videoUrl.includes('.webm')) {
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+            const videoEmbed = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><video src="${baseUrl}/api/get-video-url?videoKey=${encodeURIComponent(videoUrl)}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" controls></video></div>`;
+            embedCode = videoEmbed;
+        }
         // Add more conditions here for other video services
 
+        const userResponse = await axios.get(`/api/users/${user.pubkey}`);
+
+        if (!userResponse.data) {
+            showToast('error', 'Error', 'User not found', 'Please try again.');
+            return;
+        }
+    
         const payload = {
             title,
             summary,
-            type: 'workshop',
+            type: 'video',
             price: isPaidResource ? price : null,
             content: embedCode,
             image: coverImage,
-            topics: [...new Set([...topics.map(topic => topic.trim().toLowerCase()), 'workshop'])],
+            user: userResponse.data.id,
+            topics: [...new Set([...topics.map(topic => topic.trim().toLowerCase()), 'video'])],
             additionalLinks: additionalLinks.filter(link => link.trim() !== ''),
-            user: user?.id || user?.pubkey
         };
 
-        if (onSave) {
-            try {
-                await onSave(payload);
-                showToast('success', 'Success', draft ? 'Workshop updated successfully.' : 'Workshop created successfully.');
-            } catch (error) {
-                console.error(error);
-                showToast('error', 'Error', 'Failed to save workshop. Please try again.');
-            }
+        if (payload && payload.user) {
+            const url = draft ? `/api/drafts/${draft.id}` : '/api/drafts';
+            const method = draft ? 'put' : 'post';
+
+            axios[method](url, payload)
+                .then(response => {
+                    if (response.status === 200 || response.status === 201) {
+                        showToast('success', 'Success', draft ? 'Video updated successfully.' : 'Video saved as draft.');
+
+                        if (response.data?.id) {
+                            router.push(`/draft/${response.data.id}`);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    showToast('error', 'Error', 'Failed to save video. Please try again.');
+                });
         }
     };
 
@@ -121,11 +146,11 @@ const EmbeddedWorkshopForm = ({ draft = null, onSave, isPaid }) => {
                 <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
             </div>
             <div className="p-inputgroup flex-1 mt-4">
-                <InputText value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" />
+                <InputTextarea value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" rows={5} cols={30} />
             </div>
 
             <div className="p-inputgroup flex-1 mt-4 flex-col">
-                <p className="py-2">Paid Workshop</p>
+                <p className="py-2">Paid Video</p>
                 <InputSwitch checked={isPaidResource} onChange={(e) => setIsPaidResource(e.value)} />
                 {isPaidResource && (
                     <div className="p-inputgroup flex-1 py-4">
@@ -184,4 +209,4 @@ const EmbeddedWorkshopForm = ({ draft = null, onSave, isPaid }) => {
     );
 }
 
-export default EmbeddedWorkshopForm;
+export default VideoForm;

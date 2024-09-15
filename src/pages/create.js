@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MenuTab from "@/components/menutab/MenuTab";
 import ResourceForm from "@/components/forms/ResourceForm";
-import WorkshopForm from "@/components/forms/WorkshopForm";
+import VideoForm from "@/components/forms/VideoForm";
 import CourseForm from "@/components/forms/course/CourseForm";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useRouter } from "next/router";
@@ -13,7 +13,7 @@ const Create = () => {
     const router = useRouter();
     const homeItems = [
         { label: 'Resource', icon: 'pi pi-book' },
-        { label: 'Workshop', icon: 'pi pi-video' },
+        { label: 'Video', icon: 'pi pi-video' },
         { label: 'Course', icon: 'pi pi-desktop' }
     ];
 
@@ -30,8 +30,8 @@ const Create = () => {
         switch (homeItems[activeIndex].label) {
             case 'Course':
                 return <CourseForm />;
-            case 'Workshop':
-                return <WorkshopForm />;
+            case 'Video':
+                return <VideoForm />;
             case 'Resource':
                 return <ResourceForm />;
             default:

@@ -225,7 +225,7 @@ const Course = () => {
                         }
                     >
                         <div className="w-full py-4 rounded-b-lg">
-                            {lesson.type === 'workshop' ? 
+                            {lesson.type === 'video' ? 
                                 <VideoLesson lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} /> : 
                                 <DocumentLesson lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} />
                             }

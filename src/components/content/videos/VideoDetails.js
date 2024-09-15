@@ -129,7 +129,14 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                         }
                     </div>
                     <div className='flex flex-row items-center justify-between w-full'>
-                        <p className='text-xl mt-4'>{summary}</p>
+                        <p className='text-xl mt-4'>{summary && (
+                        <div className="text-xl mt-4">
+                            {summary.split('\n').map((line, index) => (
+                                <p key={index}>{line}</p>
+                            ))}
+                        </div>
+                    )}
+                    </p>
                         <ZapDisplay
                             zapAmount={zapAmount}
                             event={processedEvent}
@@ -156,16 +163,19 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                         </div>
                         {authorView ? (
                             <div className='flex flex-row justify-center items-center space-x-2'>
-                                <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
+                                <GenericButton onClick={() => router.push(`/details/${nAddress}/edit`)} label="Edit" severity='warning' outlined />
                                 <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
                                 <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip="View Nostr Event" tooltipOptions={{ position: 'right' }} />
                             </div>
                         ) : (
                             <div className='flex flex-row justify-center items-center space-x-2'>
-                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip="View Nostr Event" tooltipOptions={{ position: 'right' }} />
+                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip="View Nostr Event" tooltipOptions={{ position: paidResource ? 'left' : 'right' }} />
                             </div>
                         )}
                     </div>
+                </div>
+                <div className="w-full flex flex-row justify-end mt-4">
+                    {renderPaymentMessage()}
                 </div>
             </div>
         </div>

@@ -4,12 +4,12 @@ import { useContentIdsQuery } from '@/hooks/apiQueries/useContentIdsQuery';
 
 const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY;
 
-export function useWorkshops() {
+export function useVideos() {
     const [isClient, setIsClient] = useState(false);
-    const [workshops, setWorkshops] = useState();
+    const [videos, setVideos] = useState();
     // Add new state variables for loading and error
-    const [workshopsLoading, setWorkshopsLoading] = useState(false);
-    const [workshopsError, setWorkshopsError] = useState(null);
+    const [videosLoading, setVideosLoading] = useState(false);
+    const [videosError, setVideosError] = useState(null);
 
     const { contentIds } = useContentIdsQuery()
     const {ndk, addSigner} = useNDKContext();
@@ -19,18 +19,18 @@ export function useWorkshops() {
     }, []);
 
     const hasRequiredProperties = (event, contentIds) => {
-        const hasWorkshop = event.tags.some(([tag, value]) => tag === "t" && value === "workshop");
+        const hasVideo = event.tags.some(([tag, value]) => tag === "t" && value === "video");
         const hasId = event.tags.some(([tag, value]) => tag === "d" && contentIds.includes(value));
-        return hasWorkshop && hasId;
+        return hasVideo && hasId;
     };
 
-    const fetchWorkshopsFromNDK = async () => {
-        setWorkshopsLoading(true);
-        setWorkshopsError(null);
+    const fetchVideosFromNDK = async () => {
+        setVideosLoading(true);
+        setVideosError(null);
         try {
             if (!contentIds || contentIds.length === 0) {
                 console.log('No content IDs found');
-                setWorkshopsLoading(false);
+                setVideosLoading(false);
                 return []; // Return early if no content IDs are found
             }
 
@@ -41,30 +41,30 @@ export function useWorkshops() {
 
             if (events && events.size > 0) {
                 const eventsArray = Array.from(events);
-                const workshops = eventsArray.filter(event => hasRequiredProperties(event, contentIds));
-                setWorkshopsLoading(false);
-                return workshops;
+                const videos = eventsArray.filter(event => hasRequiredProperties(event, contentIds));
+                setVideosLoading(false);
+                return videos;
             }
-            setWorkshopsLoading(false);
+            setVideosLoading(false);
             return [];
         } catch (error) {
-            console.error('Error fetching workshops from NDK:', error);
-            setWorkshopsError(error);
-            setWorkshopsLoading(false);
+            console.error('Error fetching videos from NDK:', error);
+            setVideosError(error);
+            setVideosLoading(false);
             return [];
         }
     };
 
     useEffect(() => {
         if (isClient && contentIds) {
-            fetchWorkshopsFromNDK().then(fetchedWorkshops => {
-                if (fetchedWorkshops && fetchedWorkshops.length > 0) {
-                    console.log('fetchedworkshops', fetchedWorkshops)
-                    setWorkshops(fetchedWorkshops);
+            fetchVideosFromNDK().then(fetchedVideos => {
+                if (fetchedVideos && fetchedVideos.length > 0) {
+                    console.log('fetchedvideos', fetchedVideos)
+                    setVideos(fetchedVideos);
                 }
             });
         }
     }, [isClient, contentIds]);
 
-    return { workshops, workshopsLoading, workshopsError };
+    return { videos, videosLoading, videosError };
 }

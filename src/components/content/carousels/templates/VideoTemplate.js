@@ -21,13 +21,15 @@ export function VideoTemplate({ video }) {
     const { returnImageProxy } = useImageProxy();
 
     useEffect(() => {
+        if (video && video?.pubkey && video?.kind && video?.id) {
         const addr = nip19.naddrEncode({
             pubkey: video.pubkey,
             kind: video.kind,
             identifier: video.id,
             relayUrls: defaultRelayUrls
         })
-        setNAddress(addr);
+            setNAddress(addr);
+        }
     }, [video]);
 
     useEffect(() => {
@@ -78,7 +80,24 @@ export function VideoTemplate({ video }) {
                     WebkitBoxOrient: "vertical",
                     WebkitLineClamp: "2"
                 }}>
-                {video.description || video.summary}
+                {video.description || video.summary && (
+                    <>
+                    {video.description && (
+                        <div className="text-xl mt-4">
+                            {video.description.split('\n').map((line, index) => (
+                                <p key={index}>{line}</p>
+                            ))}
+                        </div>
+                    )}
+                    {video.summary && (
+                        <div className="text-xl mt-4">
+                            {video.summary.split('\n').map((line, index) => (
+                                <p key={index}>{line}</p>
+                            ))}
+                        </div>
+                    )}
+                    </>
+                )}
             </CardDescription>
             <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4">
                 <p className="text-sm text-gray-300">{video?.published_at && video.published_at !== "" ? (

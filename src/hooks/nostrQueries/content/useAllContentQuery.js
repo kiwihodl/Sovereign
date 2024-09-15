@@ -24,7 +24,7 @@ const fetchAllContentFromNDK = async (ids) => {
       }
       return [];
   } catch (error) {
-      console.error('Error fetching workshops from NDK:', error);
+      console.error('Error fetching videos from NDK:', error);
       return [];
   }
 };

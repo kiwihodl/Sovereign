@@ -61,8 +61,8 @@ const AboutPage = () => {
                     description={
                         <ul className="list-disc list-inside ml-6 space-y-2">
                             <li><span className="font-bold">Resources:</span> Markdown documents posted as NIP-23 long-form events on Nostr.</li>
-                            <li><span className="font-bold">Workshops:</span> Enhanced markdown files with rich media support, including embedded videos, also saved as NIP-23 events.</li>
-                            <li><span className="font-bold">Courses:</span> Nostr lists that combine multiple resources and workshops into a structured learning path.</li>
+                            <li><span className="font-bold">Videos:</span> Enhanced markdown files with rich media support, including embedded videos, also saved as NIP-23 events.</li>
+                            <li><span className="font-bold">Courses:</span> Nostr lists that combine multiple resources and videos into a structured learning path.</li>
                         </ul>
                     }
                 />

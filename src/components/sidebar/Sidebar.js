@@ -133,8 +133,8 @@ const Sidebar = ({ course = false }) => {
                                 <div onClick={() => router.push('/content?tag=courses')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content?tag=courses') ? 'bg-gray-700' : ''}`}>
                                     <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-desktop text-sm pr-1"></i> Courses</p>
                                 </div>
-                                <div onClick={() => router.push('/content?tag=workshops')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content?tag=workshops') ? 'bg-gray-700' : ''}`}>
-                                    <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-video text-sm pr-1"></i> Workshops</p>
+                                <div onClick={() => router.push('/content?tag=videos')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content?tag=videos') ? 'bg-gray-700' : ''}`}>
+                                    <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-video text-sm pr-1"></i> Videos</p>
                                 </div>
                                 <div onClick={() => router.push('/content?tag=resources')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content?tag=resources') ? 'bg-gray-700' : ''}`}>
                                     <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-file text-sm pr-1"></i> Resources</p>

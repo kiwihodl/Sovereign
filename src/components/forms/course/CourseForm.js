@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/useToast';
 import { parseEvent } from '@/utils/nostr';
 import { useDraftsQuery } from '@/hooks/apiQueries/useDraftsQuery';
 import { useResources } from '@/hooks/nostr/useResources';
-import { useWorkshops } from '@/hooks/nostr/useWorkshops';
+import { useVideos } from '@/hooks/nostr/useVideos';
 import axios from 'axios';
 import LessonSelector from './LessonSelector';
 
@@ -28,11 +28,11 @@ const CourseForm = ({ draft = null }) => {
     const router = useRouter();
     const { showToast } = useToast();
     const { resources, resourcesLoading, resourcesError } = useResources();
-    const { workshops, workshopsLoading, workshopsError } = useWorkshops();
+    const { videos, videosLoading, videosError } = useVideos();
     const { drafts, draftsLoading, draftsError } = useDraftsQuery();
 
     useEffect(() => {
-        if (draft && resources && workshops && drafts) {
+        if (draft && resources && videos && drafts) {
             const populatedLessons = draft.draftLessons.map((lesson, index) => {
                 if (lesson?.resource) {
                     const matchingResource = resources.find((resource) => resource.d === lesson.resource.d);
@@ -46,32 +46,32 @@ const CourseForm = ({ draft = null }) => {
 
             setLessons(populatedLessons);
         }
-    }, [draft, resources, workshops, drafts]);
+    }, [draft, resources, videos, drafts]);
 
     useEffect(() => {
         console.log('allContent', allContent);
     }, [allContent]);
 
     useEffect(() => {
-        console.log('fasfsa', workshops)
-    }, [workshops])
+        console.log('fasfsa', videos)
+    }, [videos])
 
     useEffect(() => {
-        if (!resourcesLoading && !workshopsLoading && !draftsLoading) {
+        if (!resourcesLoading && !videosLoading && !draftsLoading) {
             let combinedContent = [];
             if (resources) {
                 combinedContent = [...combinedContent, ...resources];
             }
-            if (workshops) {
-                console.log('workssdfsdfdsf', workshops)
-                combinedContent = [...combinedContent, ...workshops];
+            if (videos) {
+                console.log('workssdfsdfdsf', videos)
+                combinedContent = [...combinedContent, ...videos];
             }
             if (drafts) {
                 combinedContent = [...combinedContent, ...drafts];
             }
             setAllContent(combinedContent);
         }
-    }, [resources, workshops, drafts, resourcesLoading, workshopsLoading, draftsLoading]);
+    }, [resources, videos, drafts, resourcesLoading, videosLoading, draftsLoading]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -156,22 +156,22 @@ const CourseForm = ({ draft = null }) => {
         }
     };
 
-    const handleNewWorkshopCreate = async (newWorkshop) => {
+    const handleNewVideoCreate = async (newVideo) => {
         try {
-            console.log('newWorkshop', newWorkshop);
-            const response = await axios.post('/api/drafts', newWorkshop);
+            console.log('newVideo', newVideo);
+            const response = await axios.post('/api/drafts', newVideo);
             console.log('response', response);
-            const createdWorkshop = response.data;
-            setAllContent(prevContent => [...prevContent, createdWorkshop]);
-            return createdWorkshop;
+            const createdVideo = response.data;
+            setAllContent(prevContent => [...prevContent, createdVideo]);
+            return createdVideo;
         } catch (error) {
-            console.error('Error creating workshop draft:', error);
-            showToast('error', 'Error', 'Failed to create workshop draft');
+            console.error('Error creating video draft:', error);
+            showToast('error', 'Error', 'Failed to create video draft');
             return null;
         }
     };
 
-    if (resourcesLoading || workshopsLoading || draftsLoading) {
+    if (resourcesLoading || videosLoading || draftsLoading) {
         return <ProgressSpinner />;
     }
 
@@ -206,7 +206,7 @@ const CourseForm = ({ draft = null }) => {
                     setLessons={setLessons}
                     allContent={allContent}
                     onNewResourceCreate={handleNewResourceCreate}
-                    onNewWorkshopCreate={handleNewWorkshopCreate}
+                    onNewVideoCreate={handleNewVideoCreate}
                 />
             <div className="mt-4 flex-col w-full">
                 {topics.map((topic, index) => (

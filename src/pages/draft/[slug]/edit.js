@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import ResourceForm from "@/components/forms/ResourceForm";
-import WorkshopForm from "@/components/forms/WorkshopForm";
+import VideoForm from "@/components/forms/VideoForm";
 import CourseForm from "@/components/forms/course/CourseForm";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 
@@ -37,7 +37,7 @@ const Edit = () => {
         <div className="w-full min-bottom-bar:w-[86vw] max-sidebar:w-[100vw] px-8 mx-auto my-8 flex flex-col justify-center">
             <h2 className="text-center mb-8">Edit Draft</h2>
             {draft?.type === 'course' && <CourseForm draft={draft} />}
-            {draft?.type === 'workshop' && <WorkshopForm draft={draft} />}
+            {draft?.type === 'video' && <VideoForm draft={draft} />}
             {draft?.type === 'resource' && <ResourceForm draft={draft} />}
         </div>
     );

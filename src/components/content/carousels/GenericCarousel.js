@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Carousel } from 'primereact/carousel';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
-import { VideoTemplate } from '@/components/content/carousels/newTemplates/VideoTemplate';
-import { DocumentTemplate } from '@/components/content/carousels/newTemplates/DocumentTemplate';
-import { CourseTemplate } from '@/components/content/carousels/newTemplates/CourseTemplate';
+import { VideoTemplate } from '@/components/content/carousels/templates/VideoTemplate';
+import { DocumentTemplate } from '@/components/content/carousels/templates/DocumentTemplate';
+import { CourseTemplate } from '@/components/content/carousels/templates/CourseTemplate';
 import debounce from 'lodash/debounce';
 
 const responsiveOptions = [
@@ -66,7 +66,7 @@ export default function GenericCarousel({items, selectedTopic, title}) {
                         if (carouselItems.length > 0) {
                             if (item.type === 'resource') {
                                 return <DocumentTemplate key={item.id} document={item} />;
-                            } else if (item.type === 'workshop') {
+                            } else if (item.type === 'video') {
                                 return <VideoTemplate key={item.id} video={item} />;
                             } else if (item.type === 'course') {
                                 return <CourseTemplate key={item.id} course={item} />;

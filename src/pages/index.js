@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import React from 'react';
 import CoursesCarousel from '@/components/content/carousels/CoursesCarousel';
-import WorkshopsCarousel from '@/components/content/carousels/WorkshopsCarousel';
+import VideosCarousel from '@/components/content/carousels/VideosCarousel';
 import ResourcesCarousel from '@/components/content/carousels/ResourcesCarousel';
 import InteractivePromotionalCarousel from '@/components/content/carousels/InteractivePromotionalCarousel';
 
@@ -17,7 +17,7 @@ export default function Home() {
       <main>
         <InteractivePromotionalCarousel />
         <CoursesCarousel />
-        <WorkshopsCarousel />
+        <VideosCarousel />
         <ResourcesCarousel />
       </main>
     </>

@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY;
 
-export function useWorkshopsQuery() {
+export function useVideosQuery() {
     const [isClient, setIsClient] = useState(false);
     const {ndk, addSigner} = useNDKContext();
 
@@ -14,12 +14,12 @@ export function useWorkshopsQuery() {
     }, []);
 
     const hasRequiredProperties = (event, contentIds) => {
-        const hasWorkshop = event.tags.some(([tag, value]) => tag === "t" && value === "workshop");
+        const hasVideo = event.tags.some(([tag, value]) => tag === "t" && value === "video");
         const hasId = event.tags.some(([tag, value]) => tag === "d" && contentIds.includes(value));
-        return hasWorkshop && hasId;
+        return hasVideo && hasId;
     };
 
-    const fetchWorkshopsFromNDK = async () => {
+    const fetchVideosFromNDK = async () => {
         try {
             const response = await axios.get(`/api/content/all`);
             const contentIds = response.data;
@@ -36,23 +36,23 @@ export function useWorkshopsQuery() {
 
             if (events && events.size > 0) {
                 const eventsArray = Array.from(events);
-                const workshops = eventsArray.filter(event => hasRequiredProperties(event, contentIds));
-                return workshops;
+                const videos = eventsArray.filter(event => hasRequiredProperties(event, contentIds));
+                return videos;
             }
             return [];
         } catch (error) {
-            console.error('Error fetching workshops from NDK:', error);
+            console.error('Error fetching videos from NDK:', error);
             return [];
         }
     };
 
-    const { data: workshops, isLoading: workshopsLoading, error: workshopsError, refetch: refetchWorkshops } = useQuery({
-        queryKey: ['workshops', isClient],
-        queryFn: fetchWorkshopsFromNDK,
+    const { data: videos, isLoading: videosLoading, error: videosError, refetch: refetchVideos } = useQuery({
+        queryKey: ['videos', isClient],
+        queryFn: fetchVideosFromNDK,
         // staleTime: 1000 * 60 * 30, // 30 minutes
         // refetchInterval: 1000 * 60 * 30, // 30 minutes
         enabled: isClient,
     });
 
-    return { workshops, workshopsLoading, workshopsError, refetchWorkshops };
+    return { videos, videosLoading, videosError, refetchVideos };
 }

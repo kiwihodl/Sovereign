@@ -135,7 +135,14 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                             )}
                         </div>
                     </div>
-                    <p className='text-xl text-gray-200 mb-4 mt-4'>{summary}</p>
+                    <p className='text-xl text-gray-200 mb-4 mt-4'>{summary && (
+                        <div className="text-xl mt-4">
+                            {summary.split('\n').map((line, index) => (
+                                <p key={index}>{line}</p>
+                            ))}
+                        </div>
+                    )}
+                    </p>
                     <div className='flex items-center justify-between'>
                         <div className='flex items-center'>
                             <Image
@@ -162,7 +169,7 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                         {renderPaymentMessage()}
                         {authorView ? (
                             <div className='flex space-x-2 mt-4 sm:mt-0'>
-                                <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
+                                <GenericButton onClick={() => router.push(`/details/${nAddress}/edit`)} label="Edit" severity='warning' outlined />
                                 <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
                                 <GenericButton
                                     tooltip={`View Nostr Note`}

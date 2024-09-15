@@ -20,7 +20,14 @@ const ContentDropdownItem = ({ content, onSelect }) => {
                 />
                 <div className="flex-1 max-w-[80vw]">
                     <div className="text-lg text-900 font-bold">{content.title || content.name}</div>
-                    <div className="w-full text-sm text-600 text-wrap line-clamp-2">{content.summary || content.description}</div>
+                    <div className="w-full text-sm text-600 text-wrap line-clamp-2">{content.summary || content.description && (
+                        <div className="text-xl mt-4">
+                            {content.summary.split('\n').map((line, index) => (
+                                <p key={index}>{line}</p>
+                            ))}
+                        </div>
+                    )}
+                    </div>
                     {content.price && <div className="text-sm pt-6 text-gray-500">Price: {content.price}</div>}
                     {content?.topics?.length > 0 && (
                         <div className="text-sm pt-6 text-gray-500">
