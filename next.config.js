@@ -14,6 +14,10 @@ module.exports = removeImports({
         source: '/api/cron',
         destination: '/api/cron',
       },
+      {
+        source: "/.well-known/nostr.json",
+        destination: "/api/nip05",
+      }
     ];
   },
 });
