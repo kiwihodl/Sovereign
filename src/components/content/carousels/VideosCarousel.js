@@ -4,6 +4,8 @@ import { parseEvent } from '@/utils/nostr';
 import {VideoTemplate} from '@/components/content/carousels/templates/VideoTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 import { useVideos } from '@/hooks/nostr/useVideos';
+import useWindowWidth from '@/hooks/useWindowWidth';
+import { Divider } from 'primereact/divider';
 
 const responsiveOptions = [
     {
@@ -26,6 +28,8 @@ const responsiveOptions = [
 export default function VideosCarousel() {
     const [processedVideos, setProcessedVideos] = useState([]);
     const { videos, videosLoading, videosError } = useVideos();
+    const windowWidth = useWindowWidth();
+    const isMobileView = windowWidth <= 450;
 
     useEffect(() => {
         const fetch = async () => {
@@ -51,10 +55,19 @@ export default function VideosCarousel() {
 
     return (
         <>
-            <h3 className="ml-[6%] mt-4">Videos</h3>
+            <h3 className={`ml-[6%] mt-4 max-mob:text-3xl max-mob:ml-10`}>Videos</h3>
+            <Divider className={`${isMobileView ? '' : 'hidden'}`} />
             <Carousel 
                 value={videosLoading || !processedVideos.length ? [{}, {}, {}] : [...processedVideos]}
                 numVisible={2}
+                pt={{
+                    previousButton: {
+                        className: isMobileView ? 'm-0' : ''
+                    },
+                    nextButton: {
+                        className: isMobileView ? 'm-0' : ''
+                    }
+                }}
                 itemTemplate={(item) => 
                     !processedVideos.length ? 
                     <TemplateSkeleton key={Math.random()} /> : 

@@ -15,6 +15,7 @@ export const defaultRelayUrls = [
   "wss://nostr21.com/",
   "wss://nostrue.com/",
   "wss://purplerelay.com/",
+  // "wss://relay.devs.tools/"
 ];
 
 export const NDKProvider = ({ children }) => {

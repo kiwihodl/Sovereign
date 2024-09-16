@@ -50,10 +50,6 @@ const Feed = () => {
         }
     };
 
-    const handleMessageSent = () => {
-        setIsMessageInputCollapsed(true);
-    };
-
     return (
         <div className="bg-gray-900 h-[100vh] w-[100vw] min-bottom-bar:w-[86vw]">
             <div className="w-[100vw] min-bottom-bar:w-[86vw] px-4 pt-4 flex flex-col items-start">
@@ -84,7 +80,7 @@ const Feed = () => {
                 <Divider />
                 <MessageInput 
                     collapsed={false} 
-                    onMessageSent={handleMessageSent}
+                    // onMessageSent={handleMessageSent}
                 />
             </div>
             <div className="min-bottom-bar:hidden">

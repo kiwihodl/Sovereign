@@ -168,7 +168,7 @@ const UserSettings = () => {
                     {nip19.npubEncode(user.pubkey)} <i className="pi pi-question-circle text-xl pubkey-tooltip" />
                     </h2>
                     <div className="flex flex-col w-1/2 mx-auto my-8 mb-12 justify-between items-center">
-                        <h2 className="text-xl my-2">Connect Your Lightning Wallet</h2>
+                        <h2 className="text-xl my-2 max-mob:text-base max-tab:text-base">Connect Your Lightning Wallet</h2>
                         <BitcoinConnectButton />
                     </div>
                 </div>

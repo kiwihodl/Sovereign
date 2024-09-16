@@ -213,7 +213,7 @@ const Course = () => {
             <Accordion 
                 activeIndex={expandedIndex} 
                 onTabChange={handleAccordionChange}
-                className="mt-4 px-4"
+                className="mt-4 px-4 max-mob:px-0 max-tab:px-0"
             >
                 {uniqueLessons.length > 0 && uniqueLessons.map((lesson, index) => (
                     <AccordionTab 
@@ -222,7 +222,7 @@ const Course = () => {
                             root: { className: 'border-none' },
                             header: { className: 'border-none' },
                             headerAction: { className: 'border-none' },
-                            content: { className: 'border-none' },
+                            content: { className: 'border-none max-mob:px-0 max-tab:px-0' },
                             accordiontab: { className: 'border-none' },
                         }}
                         header={

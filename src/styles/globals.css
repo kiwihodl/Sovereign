@@ -11,6 +11,7 @@
 
 body {
   @apply font-blinker;
+  background-color: #201c24;
 }
 
 h1 {

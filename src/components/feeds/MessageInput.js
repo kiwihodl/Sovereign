@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/useToast';
 
 const MessageInput = ({ onMessageSent }) => {
     const [message, setMessage] = useState('');
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, setCollapsed] = useState(true);
     const { ndk, addSigner } = useNDKContext();
     const { showToast } = useToast();
 

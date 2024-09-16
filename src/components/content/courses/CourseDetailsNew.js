@@ -122,9 +122,9 @@ export default function CourseDetailsNew({ processedEvent, paidCourse, lessons, 
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-20"></div>
             </div>
-            <div className="w-full mx-auto px-4 py-8 -mt-32 relative z-10">
+            <div className="w-full mx-auto px-4 py-8 -mt-32 relative z-10 max-mob:px-0 max-tab:px-0">
                 <i className={`pi pi-arrow-left cursor-pointer hover:opacity-75 absolute top-0 left-4`} onClick={() => router.push('/')} />
-                <div className="mb-8 bg-gray-800/90 rounded-lg p-4">
+                <div className="mb-8 bg-gray-800/70 rounded-lg p-4 max-mob:rounded-t-none max-tab:rounded-t-none">
                     <div className="flex flex-row items-center justify-between w-full">
                         <h1 className='text-4xl font-bold text-white'>{processedEvent.name}</h1>
                         <div className="flex flex-wrap gap-2">
@@ -135,7 +135,7 @@ export default function CourseDetailsNew({ processedEvent, paidCourse, lessons, 
                             )}
                         </div>
                     </div>
-                    <p className='text-xl text-gray-200 mb-4 mt-4'>{processedEvent.description && (
+                    <p className='text-xl text-gray-200 mb-4 mt-4 max-mob:text-base'>{processedEvent.description && (
                         <div className='mt-4'>
                             {processedEvent.description.split('\n').map((line, index) => (
                                 <p key={index}>{line}</p>

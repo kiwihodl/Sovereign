@@ -1,11 +1,11 @@
 import React, { useState, useEffect, use } from 'react';
 import { Carousel } from 'primereact/carousel';
 import { parseCourseEvent } from '@/utils/nostr';
-// import CourseTemplate from '@/components/content/carousels/templates/CourseTemplate';
 import { CourseTemplate } from '@/components/content/carousels/templates/CourseTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 import { useCourses } from '@/hooks/nostr/useCourses';
-
+import useWindowWidth from '@/hooks/useWindowWidth';
+import { Divider } from 'primereact/divider';
 const responsiveOptions = [
     {
         breakpoint: '3000px',
@@ -27,6 +27,8 @@ const responsiveOptions = [
 export default function CoursesCarousel() {
     const [processedCourses, setProcessedCourses] = useState([]);
     const { courses, coursesLoading, coursesError } = useCourses()
+    const windowWidth = useWindowWidth();
+    const isMobileView = windowWidth <= 450;
 
     useEffect(() => {
         const fetch = async () => {
@@ -56,11 +58,20 @@ export default function CoursesCarousel() {
 
     return (
         <>
-            <h3 className="ml-[6%] mt-4">Courses</h3>
+            <h3 className={`ml-[6%] mt-4 max-mob:text-3xl max-mob:ml-10`}>Courses</h3>
+            <Divider className={`${isMobileView ? '' : 'hidden'}`} />
             <div className={"min-h-[384px]"}>
                 <Carousel
                     value={coursesLoading || !processedCourses.length ? [{}, {}, {}] : [...processedCourses]}
                     numVisible={2}
+                    pt={{
+                        previousButton: {
+                            className: isMobileView ? 'm-0' : ''
+                        },
+                        nextButton: {
+                            className: isMobileView ? 'm-0' : ''
+                        }
+                    }}
                     itemTemplate={(item) => 
                         !processedCourses.length ? 
                         <TemplateSkeleton key={Math.random()} /> : 

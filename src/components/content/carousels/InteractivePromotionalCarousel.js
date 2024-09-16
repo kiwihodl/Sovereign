@@ -87,11 +87,10 @@ const InteractivePromotionalCarousel = () => {
                   switch (selectedPromotion.category) {
                     case "PLEBDEVS":
                       return (
-                        <>
-                          <GenericButton onClick={() => router.push('/about')} severity="success" icon={<i className="pi pi-question-circle pr-2 pb-[2px]" />} label="Learn More" className="w-fit py-2 font-semibold" size="small" outlined />
+                        <div className="flex flex-row gap-2">
                           <GenericButton onClick={() => router.push('/subscribe')} severity="warning" icon={<i className="pi pi-star pr-2 pb-1" />} label="Subscribe" className="w-fit py-2 font-semibold" size="small" outlined />
                           <GenericButton onClick={() => router.push('/content?tag=all')} severity="primary" icon={<i className="pi pi-eye pr-2" />} label="View all content" className="w-fit py-2 font-semibold" size="small" outlined />
-                        </>
+                        </div>
                       );
                     case "COURSES":
                       return (

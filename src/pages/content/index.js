@@ -53,7 +53,7 @@ const MenuTab = ({ items, selectedTopic, onTabChange }) => {
                 activeIndex={allItems.indexOf(selectedTopic)}
                 onTabChange={(e) => onTabChange(allItems[e.index])}
                 pt={{
-                    menu: { className: 'bg-transparent border-none ml-2 my-4' },
+                    menu: { className: 'bg-transparent border-none ml-2 my-4 py-1' },
                     action: ({ context, parent }) => ({
                         className: 'cursor-pointer select-none flex items-center relative no-underline overflow-hidden border-b-2 p-2 font-bold rounded-t-lg',
                         style: { top: '2px' }

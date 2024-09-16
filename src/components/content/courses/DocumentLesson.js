@@ -79,7 +79,7 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
                 <div className="absolute inset-0 bg-black bg-opacity-20"></div>
             </div>
             <div className="w-full mx-auto px-4 py-8 -mt-32 relative z-10">
-                <div className="mb-8 bg-gray-800/90 rounded-lg p-4">
+                <div className="mb-8 bg-gray-800/70 rounded-lg p-4">
                     <div className="flex flex-row items-center justify-between w-full">
                         <h1 className='text-3xl font-bold text-white'>{lesson.title}</h1>
                         <div className="flex flex-wrap gap-2">

@@ -4,7 +4,8 @@ import { parseEvent } from '@/utils/nostr';
 import { DocumentTemplate } from '@/components/content/carousels/templates/DocumentTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 import { useDocuments } from '@/hooks/nostr/useDocuments';
-
+import useWindowWidth from '@/hooks/useWindowWidth';
+import { Divider } from 'primereact/divider';
 const responsiveOptions = [
     {
         breakpoint: '3000px',
@@ -26,6 +27,8 @@ const responsiveOptions = [
 export default function DocumentsCarousel() {
     const [processedDocuments, setProcessedDocuments] = useState([]);
     const { documents, documentsLoading, documentsError } = useDocuments()
+    const windowWidth = useWindowWidth();
+    const isMobileView = windowWidth <= 450;
 
     useEffect(() => {
         const fetch = async () => {
@@ -53,10 +56,19 @@ export default function DocumentsCarousel() {
 
     return (
         <>
-            <h3 className="ml-[6%] mt-4">Documents</h3>
+            <h3 className={`ml-[6%] mt-4 max-mob:text-3xl max-mob:ml-10`}>Documents</h3>
+            <Divider className={`${isMobileView ? '' : 'hidden'}`} />
             <Carousel 
                 value={documentsLoading || !processedDocuments.length ? [{}, {}, {}] : [...processedDocuments]}
                 numVisible={2}
+                pt={{
+                    previousButton: {
+                        className: isMobileView ? 'm-0' : ''
+                    },
+                    nextButton: {
+                        className: isMobileView ? 'm-0' : ''
+                    }
+                }}
                 itemTemplate={(item) => 
                         processedDocuments.length > 0 ? 
                         <DocumentTemplate key={item.id} document={item} /> : 
