@@ -9,6 +9,8 @@ import { useToast } from "@/hooks/useToast";
 import { useNDKContext } from "@/context/NDKContext";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import dynamic from 'next/dynamic';
+import { useEncryptContent } from '@/hooks/encryption/useEncryptContent';
+
 const MDEditor = dynamic(
     () => import("@uiw/react-md-editor"),
     {
@@ -29,7 +31,7 @@ const EmbeddedDocumentForm = ({ draft = null, isPublished = false, onSave, isPai
     const [content, setContent] = useState(draft?.content || '');
     const [user, setUser] = useState(null);
     const [additionalLinks, setAdditionalLinks] = useState(draft?.additionalLinks || ['']);
-
+    const { encryptContent, isLoading: encryptLoading, error: encryptError } = useEncryptContent();
     const { data: session, status } = useSession();
     const { showToast } = useToast();
     const { ndk, addSigner } = useNDKContext();
@@ -69,8 +71,7 @@ const EmbeddedDocumentForm = ({ draft = null, isPublished = false, onSave, isPai
         let encryptedContent;
 
         if (draft?.price) {
-            // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
-            encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
+            encryptedContent = await encryptContent(draft.content);
         }
 
         event.kind = draft?.price ? 30402 : 30023; // Determine kind based on if price is present

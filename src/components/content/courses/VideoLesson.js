@@ -47,18 +47,10 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
         if (isPaid && decryptionPerformed) {
             return (
                 <>
-                    <div className="w-full aspect-video rounded-lg mb-4">
-                        {/* Add your video player component here */}
-                        <video controls className="w-full h-full">
-                            <source src={lesson.videoUrl} type="video/mp4" />
-                            Your browser does not support the video tag.
-                        </video>
-                    </div>
                     <MDDisplay className='p-4 rounded-lg w-full' source={lesson.content} />
                 </>
             );
-        }
-        if (isPaid && !decryptionPerformed) {
+        } else if (isPaid && !decryptionPerformed) {
             return (
                 <div className="w-full aspect-video rounded-lg flex flex-col items-center justify-center relative overflow-hidden">
                     <div 
@@ -78,8 +70,7 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
                     </p>
                 </div>
             );
-        }
-        if (lesson?.content) {
+        } else if (lesson?.content) {
             return <MDDisplay className='p-4 rounded-lg w-full' source={lesson.content} />;
         }
         return null;

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { hexToNpub } from '@/utils/nostr';
-import { nip19, nip04 } from 'nostr-tools';
+import { nip19 } from 'nostr-tools';
 import { v4 as uuidv4 } from 'uuid';
 import { useSession } from 'next-auth/react';
 import { useImageProxy } from '@/hooks/useImageProxy';
@@ -19,6 +19,7 @@ import dynamic from 'next/dynamic';
 import { validateEvent } from '@/utils/nostr';
 import appConfig from "@/config/appConfig";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { useEncryptContent } from '@/hooks/encryption/useEncryptContent';
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -33,12 +34,12 @@ export default function Draft() {
     const { data: session, status } = useSession();
     const [user, setUser] = useState(null);
     const [nAddress, setNAddress] = useState(null);
-    const [videoId, setVideoId] = useState(null);
     const { width, height } = useResponsiveImageDimensions();
     const router = useRouter();
     const { showToast } = useToast();
     const { ndk, addSigner } = useNDKContext();
     const { isAdmin, isLoading } = useIsAdmin();
+    const { encryptContent } = useEncryptContent();
 
     useEffect(() => {
         if (isLoading) return;
@@ -190,8 +191,7 @@ export default function Draft() {
         switch (draft?.type) {
             case 'document':
                 if (draft?.price) {
-                    // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
-                    encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
+                    encryptedContent = await encryptContent(draft.content);
                 }
 
                 event.kind = draft?.price ? 30402 : 30023; // Determine kind based on if price is present
@@ -213,8 +213,7 @@ export default function Draft() {
                 break;
             case 'video':
                 if (draft?.price) {
-                    // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
-                    encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
+                    encryptedContent = await encryptContent(draft.content);
                 }
 
                 if (draft?.content.includes('.mp4') || draft?.content.includes('.mov') || draft?.content.includes('.avi') || draft?.content.includes('.wmv') || draft?.content.includes('.flv') || draft?.content.includes('.webm')) {
@@ -224,7 +223,7 @@ export default function Draft() {
                     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
                     const videoEmbed = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><video src="${baseUrl}/api/get-video-url?videoKey=${encodeURIComponent(extractedVideoId)}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" controls></video></div>`;
                     if (draft?.price) {
-                        const encryptedVideoUrl = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, videoEmbed);
+                        const encryptedVideoUrl = await encryptContent(videoEmbed);
                         draft.content = encryptedVideoUrl;
                     } else {
                         draft.content = videoEmbed;

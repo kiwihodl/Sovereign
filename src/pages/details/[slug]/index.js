@@ -10,10 +10,9 @@ import VideoDetails from '@/components/content/videos/VideoDetails';
 import DocumentDetails from '@/components/content/documents/DocumentDetails';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import appConfig from "@/config/appConfig";
+import { useDecryptContent } from '@/hooks/encryption/useDecryptContent';
+import { useEncryptContent } from '@/hooks/encryption/useEncryptContent';
 import 'primeicons/primeicons.css';
-
-const privkey = process.env.NEXT_PUBLIC_APP_PRIV_KEY;
-const pubkey = process.env.NEXT_PUBLIC_APP_PUBLIC_KEY;
 
 export default function Details() {
     const [event, setEvent] = useState(null);
@@ -29,6 +28,8 @@ export default function Details() {
     const { ndk, addSigner } = useNDKContext();
     const { data: session, update } = useSession();
     const [user, setUser] = useState(null);
+    const { decryptContent } = useDecryptContent();
+    const { encryptContent } = useEncryptContent();
     const { showToast } = useToast();
 
     const router = useRouter();
@@ -46,23 +47,23 @@ export default function Details() {
     }, [processedEvent]);
 
     useEffect(() => {
-        const decryptContent = async () => {
+        const decrypt = async () => {
             if (paidResource && processedEvent.content) {
                 // Check if user is subscribed first
                 if (user?.role?.subscribed) {
-                    const decryptedContent = await nip04.decrypt(privkey, pubkey, processedEvent.content);
+                    const decryptedContent = await decryptContent(processedEvent.content);
                     setDecryptedContent(decryptedContent);
                 } 
                 // If not subscribed, check if they have purchased
                 else if (user?.purchased?.some(purchase => purchase.resourceId === processedEvent.d)) {
-                    const decryptedContent = await nip04.decrypt(privkey, pubkey, processedEvent.content);
+                    const decryptedContent = await decryptContent(processedEvent.content);
                     setDecryptedContent(decryptedContent);
                 }
                 // If neither subscribed nor purchased, decryptedContent remains null
             }
         };
 
-        decryptContent();
+        decrypt();
     }, [user, paidResource, processedEvent]);
 
     useEffect(() => {
@@ -99,7 +100,7 @@ export default function Details() {
                         if (user && user.pubkey === event.pubkey) {
                             setAuthorView(true);
                             if (event.kind === 30402) {
-                                const decryptedContent = await nip04.decrypt(privkey, pubkey, event.content);
+                                const decryptedContent = await decryptContent(event.content);
                                 setDecryptedContent(decryptedContent);
                             }
                         }

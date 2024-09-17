@@ -10,6 +10,7 @@ import { useSession } from 'next-auth/react';
 import { nip04, nip19 } from 'nostr-tools';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Accordion, AccordionTab } from 'primereact/accordion';
+import { useDecryptContent } from "@/hooks/encryption/useDecryptContent";
 import dynamic from 'next/dynamic';
 
 const MDDisplay = dynamic(() => import("@uiw/react-markdown-preview"), { ssr: false });
@@ -70,7 +71,14 @@ const useLessons = (ndk, fetchAuthor, lessonIds, pubkey) => {
                     if (event) {
                         const author = await fetchAuthor(event.pubkey);
                         const parsedLesson = { ...parseEvent(event), author };
-                        setLessons(prev => [...prev, parsedLesson]);
+                        setLessons(prev => {
+                            // Check if the lesson already exists in the array
+                            const exists = prev.some(lesson => lesson.id === parsedLesson.id);
+                            if (!exists) {
+                                return [...prev, parsedLesson];
+                            }
+                            return prev;
+                        });
                     }
                 } catch (error) {
                     console.error('Error fetching event:', error);
@@ -78,11 +86,10 @@ const useLessons = (ndk, fetchAuthor, lessonIds, pubkey) => {
             };
             lessonIds.forEach(lessonId => fetchLesson(lessonId));
         }
-    }, [lessonIds, ndk, fetchAuthor]);
+    }, [lessonIds, ndk, fetchAuthor, pubkey]);
 
     useEffect(() => {
-        const uniqueLessonSet = new Set(lessons.map(JSON.stringify));
-        const newUniqueLessons = Array.from(uniqueLessonSet).map(JSON.parse);
+        const newUniqueLessons = Array.from(new Map(lessons.map(lesson => [lesson.id, lesson])).values());
         setUniqueLessons(newUniqueLessons);
     }, [lessons]);
 
@@ -96,11 +103,10 @@ const useLessons = (ndk, fetchAuthor, lessonIds, pubkey) => {
 const useDecryption = (session, paidCourse, course, lessons, setLessons) => {
     const [decryptionPerformed, setDecryptionPerformed] = useState(false);
     const [loading, setLoading] = useState(true);
-    const privkey = process.env.NEXT_PUBLIC_APP_PRIV_KEY;
-    const pubkey = process.env.NEXT_PUBLIC_APP_PUBLIC_KEY;
+    const { decryptContent } = useDecryptContent();
 
     useEffect(() => {
-        const decryptContent = async () => {
+        const decrypt = async () => {
             if (session?.user && paidCourse && !decryptionPerformed) {
                 setLoading(true);
                 const canAccess = 
@@ -111,7 +117,7 @@ const useDecryption = (session, paidCourse, course, lessons, setLessons) => {
                 if (canAccess && lessons.length > 0) {
                     try {
                         const decryptedLessons = await Promise.all(lessons.map(async (lesson) => {
-                            const decryptedContent = await nip04.decrypt(privkey, pubkey, lesson.content);
+                            const decryptedContent = await decryptContent(lesson.content);
                             return { ...lesson, content: decryptedContent };
                         }));
                         setLessons(decryptedLessons);
@@ -124,8 +130,8 @@ const useDecryption = (session, paidCourse, course, lessons, setLessons) => {
             }
             setLoading(false);
         }
-        decryptContent();
-    }, [session, paidCourse, course, lessons, privkey, pubkey, decryptionPerformed, setLessons]);
+        decrypt();
+    }, [session, paidCourse, course, lessons, decryptionPerformed, setLessons]);
 
     return { decryptionPerformed, loading };
 };

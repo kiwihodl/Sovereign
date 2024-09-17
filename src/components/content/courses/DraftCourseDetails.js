@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/useToast';
 import { formatDateTime } from '@/utils/time';
 import { validateEvent } from '@/utils/nostr';
 import appConfig from "@/config/appConfig";
+import { useEncryptContent } from '@/hooks/encryption/useEncryptContent';
 import 'primeicons/primeicons.css';
 
 const MDDisplay = dynamic(
@@ -30,6 +31,8 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
     const [user, setUser] = useState(null);
     const [processedLessons, setProcessedLessons] = useState([]);
     const hasRunEffect = useRef(false);
+    const { encryptContent, isLoading: encryptLoading, error: encryptError } = useEncryptContent();
+
 
     const { showToast } = useToast();
     const { returnImageProxy } = useImageProxy();
@@ -254,8 +257,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
             switch (draft?.type) {
                 case 'document':
                     if (draft?.price) {
-                        // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
-                        encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
+                        encryptedContent = await encryptContent(draft.content);
                     }
 
                     event.kind = draft?.price ? 30402 : 30023; // Determine kind based on if price is present
@@ -277,8 +279,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
                     break;
                 case 'video':
                     if (draft?.price) {
-                        // encrypt the content with NEXT_PUBLIC_APP_PRIV_KEY to NEXT_PUBLIC_APP_PUBLIC_KEY
-                        encryptedContent = await nip04.encrypt(process.env.NEXT_PUBLIC_APP_PRIV_KEY, process.env.NEXT_PUBLIC_APP_PUBLIC_KEY, draft.content);
+                        encryptedContent = await encryptContent(draft.content);
                     }
 
                     event.kind = draft?.price ? 30402 : 30023;
