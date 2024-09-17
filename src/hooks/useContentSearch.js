@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { useContentIdsQuery } from '@/hooks/apiQueries/useContentIdsQuery';
 import { useNDKContext } from '@/context/NDKContext';
 import { parseEvent, parseCourseEvent } from '@/utils/nostr';
-
-const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY;
+import appConfig from "@/config/appConfig";
 
 export const useContentSearch = () => {
     const [allContent, setAllContent] = useState([]);
@@ -15,7 +14,7 @@ export const useContentSearch = () => {
         try {
             await ndk.connect();
             const filter = {
-                authors: [AUTHOR_PUBKEY],
+                authors: appConfig.authorPubkeys,
                 kinds: [30004, 30023, 30402],
                 "#d": ids
             }

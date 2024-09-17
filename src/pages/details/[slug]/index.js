@@ -9,7 +9,7 @@ import { useNDKContext } from '@/context/NDKContext';
 import VideoDetails from '@/components/content/videos/VideoDetails';
 import DocumentDetails from '@/components/content/documents/DocumentDetails';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { defaultRelayUrls } from '@/context/NDKContext';
+import appConfig from "@/config/appConfig";
 import 'primeicons/primeicons.css';
 
 const privkey = process.env.NEXT_PUBLIC_APP_PRIV_KEY;
@@ -171,7 +171,7 @@ export default function Details() {
                 pubkey: processedEvent.pubkey,
                 kind: processedEvent.kind,
                 identifier: processedEvent.d,
-                relayUrls: defaultRelayUrls
+                relayUrls: appConfig.defaultRelayUrls
             });
             setNAddress(naddr);
         }

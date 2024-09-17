@@ -10,7 +10,7 @@ import { Divider } from "primereact/divider";
 import { getTotalFromZaps } from "@/utils/lightning";
 import dynamic from "next/dynamic";
 import useWindowWidth from "@/hooks/useWindowWidth";
-import { defaultRelayUrls } from "@/context/NDKContext";
+import appConfig from "@/config/appConfig";
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -39,7 +39,7 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
                 pubkey: lesson.pubkey,
                 kind: lesson.kind,
                 identifier: lesson.d,
-                relayUrls: defaultRelayUrls
+                relayUrls: appConfig.defaultRelayUrls
             })
             setNAddress(addr);
         }

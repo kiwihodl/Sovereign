@@ -16,8 +16,7 @@ import ContentList from "@/components/content/lists/ContentList";
 import { parseEvent } from "@/utils/nostr";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { useNDKContext } from "@/context/NDKContext";
-
-const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY;
+import appConfig from "@/config/appConfig";
 
 const UserContent = () => {
     const [activeIndex, setActiveIndex] = useState(0);
@@ -60,7 +59,7 @@ const UserContent = () => {
         const fetchAllContentFromNDK = async (ids) => {
             try {
                 await ndk.connect();
-                const filter = { "#d": ids, authors: [AUTHOR_PUBKEY] };
+                const filter = { "#d": ids, authors: appConfig.authorPubkeys };
 
                 const uniqueEvents = new Set();
 

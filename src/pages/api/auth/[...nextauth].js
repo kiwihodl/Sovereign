@@ -10,13 +10,12 @@ import { generateSecretKey, getPublicKey } from 'nostr-tools/pure'
 import { bytesToHex } from '@noble/hashes/utils'
 import { updateUser } from "@/db/models/userModels";
 import { createRole } from "@/db/models/roleModels";
-import { defaultRelayUrls } from "@/context/NDKContext";
+import appConfig from "@/config/appConfig";
 
 const BASE_URL = process.env.BASE_URL;
-const AUTHOR_PUBKEY = process.env.AUTHOR_PUBKEY;
 
 const ndk = new NDK({
-    explicitRelayUrls: defaultRelayUrls,
+    explicitRelayUrls: appConfig.defaultRelayUrls,
 });
 
 const authorize = async (pubkey) => {
@@ -107,7 +106,7 @@ export const authOptions = {
                 }
             }
 
-            if (user && user?.pubkey === AUTHOR_PUBKEY && !user?.role) {
+            if (user && appConfig.authorPubkeys.includes(user?.pubkey) && !user?.role) {
                 // create a new author role for this user
                 const role = await createRole({
                     userId: user.id,

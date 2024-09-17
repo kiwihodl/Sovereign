@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNDKContext } from '@/context/NDKContext';
 import { useContentIdsQuery } from '@/hooks/apiQueries/useContentIdsQuery';
-
-const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY;
+import appConfig from "@/config/appConfig";
 
 export function useCourses() {
     const [isClient, setIsClient] = useState(false);
@@ -35,7 +34,7 @@ export function useCourses() {
 
             await ndk.connect();
 
-            const filter = { kinds: [30004], authors: [AUTHOR_PUBKEY] };
+            const filter = { kinds: [30004], authors: appConfig.authorPubkeys };
             const events = await ndk.fetchEvents(filter);
 
             if (events && events.size > 0) {

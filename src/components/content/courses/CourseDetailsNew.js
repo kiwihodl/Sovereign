@@ -15,7 +15,7 @@ import { useSession } from 'next-auth/react';
 import useWindowWidth from "@/hooks/useWindowWidth";
 import { useNDKContext } from "@/context/NDKContext";
 import { findKind0Fields } from '@/utils/nostr';
-import { defaultRelayUrls } from "@/context/NDKContext";
+import appConfig from "@/config/appConfig";
 import { ProgressSpinner } from 'primereact/progressspinner';
 
 const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
@@ -49,7 +49,7 @@ export default function CourseDetailsNew({ processedEvent, paidCourse, lessons, 
                 pubkey: processedEvent.pubkey,
                 kind: processedEvent.kind,
                 identifier: processedEvent.d,
-                relayUrls: defaultRelayUrls
+                relayUrls: appConfig.defaultRelayUrls
             });
             setNAddress(naddr);
         }

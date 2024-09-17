@@ -5,7 +5,7 @@ import { Column } from "primereact/column";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from "primereact/progressspinner";
-import { useNDKContext, defaultRelayUrls } from "@/context/NDKContext";
+import { useNDKContext } from "@/context/NDKContext";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import Image from "next/image";
 import BitcoinConnectButton from "@/components/bitcoinConnect/BitcoinConnect";
@@ -14,6 +14,7 @@ import { nip19 } from "nostr-tools";
 import { InputText } from "primereact/inputtext";
 import { Tooltip } from "primereact/tooltip";
 import { useToast } from "@/hooks/useToast";
+import appConfig from "@/config/appConfig";
 
 const UserSettings = () => {
     const [user, setUser] = useState(null);
@@ -96,7 +97,7 @@ const UserSettings = () => {
     };
 
     const removeRelay = (url) => {
-        if (!defaultRelayUrls.includes(url)) {
+        if (!appConfig.defaultRelayUrls.includes(url)) {
             setUserRelays(userRelays.filter(relay => relay !== url));
             reInitializeNDK();
             setCollapsed(true);
@@ -107,7 +108,7 @@ const UserSettings = () => {
     const relayActionsBody = (rowData) => {
         return (
             <div>
-                {!defaultRelayUrls.includes(rowData) ? (
+                {!appConfig.defaultRelayUrls.includes(rowData) ? (
                     <GenericButton
                         icon="pi pi-trash"
                         className="p-button-rounded p-button-danger p-button-text"

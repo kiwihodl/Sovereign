@@ -5,7 +5,7 @@ import { useImageProxy } from "@/hooks/useImageProxy";
 import { useRouter } from "next/router";
 import { nip19 } from "nostr-tools";
 import { Divider } from 'primereact/divider';
-import { defaultRelayUrls } from "@/context/NDKContext";
+import appConfig from "@/config/appConfig";
         
 
 const ContentListItem = (content) => {
@@ -24,7 +24,7 @@ const ContentListItem = (content) => {
                 identifier: content.id,
                 kind: content.kind,
                 pubkey: content.pubkey,
-                relayUrls: defaultRelayUrls
+                relayUrls: appConfig.defaultRelayUrls
             });
             router.push(`/course/${nAddress}`);
         } else if (isDraftCourse) {
@@ -34,7 +34,7 @@ const ContentListItem = (content) => {
                 identifier: content.id,
                 kind: content.kind,
                 pubkey: content.pubkey,
-                relayUrls: defaultRelayUrls
+                relayUrls: appConfig.defaultRelayUrls
             });
             router.push(`/details/${nAddress}`);
         } else if (isDraft) {

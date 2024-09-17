@@ -11,7 +11,7 @@ import { nip19 } from "nostr-tools";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { Tag } from "primereact/tag";
 import GenericButton from "@/components/buttons/GenericButton";
-import { defaultRelayUrls } from "@/context/NDKContext";
+import appConfig from "@/config/appConfig";
 
 export function VideoTemplate({ video }) {
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: video });
@@ -26,7 +26,7 @@ export function VideoTemplate({ video }) {
             pubkey: video.pubkey,
             kind: video.kind,
             identifier: video.id,
-            relayUrls: defaultRelayUrls
+            relayUrls: appConfig.defaultRelayUrls
         })
             setNAddress(addr);
         }

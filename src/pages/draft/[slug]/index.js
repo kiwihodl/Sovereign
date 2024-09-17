@@ -17,7 +17,7 @@ import useResponsiveImageDimensions from '@/hooks/useResponsiveImageDimensions';
 import 'primeicons/primeicons.css';
 import dynamic from 'next/dynamic';
 import { validateEvent } from '@/utils/nostr';
-import { defaultRelayUrls } from '@/context/NDKContext';
+import appConfig from "@/config/appConfig";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const MDDisplay = dynamic(
@@ -132,7 +132,7 @@ export default function Draft() {
             pubkey: resource.pubkey,
             kind: resource.kind,
             identifier: dTag,
-            relayUrls: defaultRelayUrls
+            relayUrls: appConfig.defaultRelayUrls
         });
 
         const userResponse = await axios.get(`/api/users/${user.pubkey}`);

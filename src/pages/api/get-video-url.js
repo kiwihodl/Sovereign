@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "./auth/[...nextauth]"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3"
+import appConfig from "@/config/appConfig";
 
 const s3Client = new S3Client({
   endpoint: "https://nyc3.digitaloceanspaces.com", // DigitalOcean Spaces endpoint
@@ -11,8 +12,6 @@ const s3Client = new S3Client({
     secretAccessKey: process.env.DO_SPACES_SECRET,
   },
 })
-
-const AUTHOR_PUBKEY = process.env.AUTHOR_PUBKEY
 
 export default async function handler(req, res) {
   try {
@@ -34,7 +33,7 @@ export default async function handler(req, res) {
     }
 
     // Check if the user is authorized to access the video
-    if (!session.user.role?.subscribed && session.user.pubkey !== AUTHOR_PUBKEY) {
+    if (!session.user.role?.subscribed && !appConfig.authorPubkeys.includes(session.user.pubkey)) {
       const purchasedVideo = session.user.purchased?.find(purchase => purchase?.resource?.videoId === videoKey)
       console.log("purchasedVideo", purchasedVideo)
       if (!purchasedVideo) {

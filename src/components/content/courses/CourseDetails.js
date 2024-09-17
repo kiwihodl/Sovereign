@@ -16,7 +16,7 @@ import { findKind0Fields } from '@/utils/nostr';
 import 'primeicons/primeicons.css';
 import CoursePaymentButton from "@/components/bitcoinConnect/CoursePaymentButton";
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { defaultRelayUrls } from "@/context/NDKContext";
+import appConfig from "@/config/appConfig";
 import useWindowWidth from '@/hooks/useWindowWidth';
 
 const MDDisplay = dynamic(
@@ -69,7 +69,7 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
                 pubkey: processedEvent.pubkey,
                 kind: processedEvent.kind,
                 identifier: processedEvent.d,
-                relayUrls: defaultRelayUrls
+                relayUrls: appConfig.defaultRelayUrls
             });
             setNAddress(naddr);
         }

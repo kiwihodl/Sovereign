@@ -11,7 +11,7 @@ import { useRouter } from "next/router";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { ProgressSpinner } from "primereact/progressspinner";
 import GenericButton from "@/components/buttons/GenericButton";
-import { defaultRelayUrls } from "@/context/NDKContext";
+import appConfig from "@/config/appConfig";
 
 export function CourseTemplate({ course }) {
   const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: course });
@@ -41,7 +41,7 @@ export function CourseTemplate({ course }) {
         pubkey: course.pubkey,
         kind: course.kind,
         identifier: course.id,
-        relayUrls: defaultRelayUrls
+        relayUrls: appConfig.defaultRelayUrls
       });
       setNAddress(nAddress);
     }

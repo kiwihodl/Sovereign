@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNDKContext } from '@/context/NDKContext';
 import axios from 'axios';
-
-const AUTHOR_PUBKEY = process.env.NEXT_PUBLIC_AUTHOR_PUBKEY;
+import appConfig from '@/config/appConfig';
 
 export function useDocumentsQuery() {
     const [isClient, setIsClient] = useState(false);
@@ -31,7 +30,7 @@ export function useDocumentsQuery() {
 
             await ndk.connect();
 
-            const filter = { kinds: [30023, 30402], authors: [AUTHOR_PUBKEY] };
+            const filter = { kinds: [30023, 30402], authors: appConfig.authorPubkeys };
             const events = await ndk.fetchEvents(filter);
 
             if (events && events.size > 0) {

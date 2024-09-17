@@ -2,28 +2,16 @@ import React, { createContext, useContext, useEffect, useState, useMemo } from '
 import NDK, { NDKNip07Signer } from "@nostr-dev-kit/ndk";
 import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import appConfig from "@/config/appConfig";
 
 const NDKContext = createContext(null);
 
-export const defaultRelayUrls = [
-  "wss://nos.lol/",
-  "wss://relay.damus.io/",
-  "wss://relay.snort.social/",
-  "wss://relay.nostr.band/",
-  "wss://relay.mutinywallet.com/",
-  "wss://relay.primal.net/",
-  "wss://nostr21.com/",
-  "wss://nostrue.com/",
-  "wss://purplerelay.com/",
-  // "wss://relay.devs.tools/"
-];
-
 export const NDKProvider = ({ children }) => {
   const [ndk, setNdk] = useState(null);
-  const [userRelays, setUserRelays] = useLocalStorage("userRelays", defaultRelayUrls);
+  const [userRelays, setUserRelays] = useLocalStorage("userRelays", appConfig.defaultRelayUrls);
 
   const createNDKInstance = (relays) => {
-    const allRelays = [...new Set([...defaultRelayUrls, ...relays])];
+    const allRelays = [...new Set([...appConfig.defaultRelayUrls, ...relays])];
     return new NDK({
       explicitRelayUrls: allRelays,
       enableOutboxModel: true,

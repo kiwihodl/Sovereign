@@ -9,7 +9,7 @@ import { nip19 } from "nostr-tools";
 import { getTotalFromZaps } from "@/utils/lightning";
 import dynamic from "next/dynamic";
 import { Divider } from "primereact/divider";
-import { defaultRelayUrls } from "@/context/NDKContext";
+import appConfig from "@/config/appConfig";
 import useWindowWidth from "@/hooks/useWindowWidth";
 
 const MDDisplay = dynamic(
@@ -38,7 +38,7 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
             pubkey: lesson.pubkey,
             kind: lesson.kind,
             identifier: lesson.d,
-            relayUrls: defaultRelayUrls
+            relayUrls: appConfig.defaultRelayUrls
         });
         setNAddress(addr);
     }, [lesson]);
