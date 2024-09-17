@@ -93,10 +93,17 @@ export const createUser = async (data) => {
 };
 
 export const updateUser = async (id, data) => {
-  console.log("Updating user", id, data)
+  const updateData = { ...data };
+  
+  if (data.role) {
+    updateData.role = {
+      connect: { id: data.role }
+    };
+  }
+  
   return await prisma.user.update({
     where: { id },
-    data,
+    data: updateData,
   });
 };
 

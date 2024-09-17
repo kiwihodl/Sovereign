@@ -114,6 +114,8 @@ export const authOptions = {
                     subscribed: false,
                 });
 
+                console.log("role", role);
+
                 if (!role) {
                     console.error("Failed to create role");
                     return null;

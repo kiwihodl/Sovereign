@@ -80,24 +80,9 @@ export function VideoTemplate({ video }) {
                     WebkitBoxOrient: "vertical",
                     WebkitLineClamp: "2"
                 }}>
-                {video.description || video.summary && (
-                    <>
-                    {video.description && (
-                        <div>
-                            {video.description.split('\n').map((line, index) => (
-                                <p key={index}>{line}</p>
-                            ))}
-                        </div>
-                    )}
-                    {video.summary && (
-                        <div>
-                            {video.summary.split('\n').map((line, index) => (
-                                <p key={index}>{line}</p>
-                            ))}
-                        </div>
-                    )}
-                    </>
-                )}
+                {(video.summary || video.description)?.split('\n').map((line, index) => (
+                    <span key={index}>{line}</span>
+                ))}
             </CardDescription>
             <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4">
                 <p className="text-sm text-gray-300">{video?.published_at && video.published_at !== "" ? (

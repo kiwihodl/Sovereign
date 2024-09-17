@@ -77,7 +77,7 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
 
     const renderContent = () => {
         if (decryptedContent) {
-            return <MDDisplay className='p-4 rounded-lg w-full' source={decryptedContent} />;
+            return <MDDisplay className='p-0 rounded-lg w-full' source={decryptedContent} />;
         }
         if (paidResource && !decryptedContent) {
             return (
@@ -130,14 +130,11 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                         }
                     </div>
                     <div className='flex flex-row items-center justify-between w-full'>
-                        <p className='text-xl mt-4'>{summary && (
-                        <div className="text-xl mt-4 max-mob:text-base max-tab:text-base">
-                            {summary.split('\n').map((line, index) => (
+                        <div className="mt-4 max-mob:text-base max-tab:text-base">
+                            {(summary)?.split('\n').map((line, index) => (
                                 <p key={index}>{line}</p>
                             ))}
                         </div>
-                    )}
-                    </p>
                         <ZapDisplay
                             zapAmount={zapAmount}
                             event={processedEvent}

@@ -91,24 +91,9 @@ export function CourseTemplate({ course }) {
           WebkitBoxOrient: "vertical",
           WebkitLineClamp: "2"
         }}>
-        {course.description || course.summary && (
-          <>
-            {course.description && (
-              <div>
-                {course.description.split('\n').map((line, index) => (
-                  <p key={index}>{line}</p>
-                ))}
-              </div>
-            )}
-            {course.summary && (
-              <div>
-                {course.summary.split('\n').map((line, index) => (
-                  <p key={index}>{line}</p>
-                ))}
-              </div>
-            )}
-          </>
-        )}
+        {(course.summary || course.description)?.split('\n').map((line, index) => (
+          <span key={index}>{line}</span>
+        ))}
       </CardDescription>
       <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4">
         <p className="text-sm text-gray-300">{course?.published_at && course.published_at !== "" ? (

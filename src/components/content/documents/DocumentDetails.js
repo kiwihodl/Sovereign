@@ -81,34 +81,34 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
 
     const renderContent = () => {
         if (decryptedContent) {
-            return <MDDisplay className='p-4 rounded-lg w-full' source={decryptedContent} />;
+            return <MDDisplay className='p-2 rounded-lg w-full' source={decryptedContent} />;
         }
         if (paidResource && !decryptedContent) {
             return (
                 <div className="w-full px-4">
 
-                <div className="w-full p-8 rounded-lg flex flex-col items-center justify-center bg-gray-800">
-                    <div className="mx-auto py-auto">
-                        <i className="pi pi-lock text-[60px] text-red-500"></i>
-                    </div>
-                    <p className="text-center text-xl text-red-500 mt-4">
-                        This content is paid and needs to be purchased before viewing.
-                    </p>
-                    <div className="flex flex-row items-center justify-center w-full mt-4">
-                        <ResourcePaymentButton
-                            lnAddress={lnAddress}
-                            amount={price}
-                            onSuccess={handlePaymentSuccess}
-                            onError={handlePaymentError}
-                            resourceId={processedEvent.d}
+                    <div className="w-full p-8 rounded-lg flex flex-col items-center justify-center bg-gray-800">
+                        <div className="mx-auto py-auto">
+                            <i className="pi pi-lock text-[60px] text-red-500"></i>
+                        </div>
+                        <p className="text-center text-xl text-red-500 mt-4">
+                            This content is paid and needs to be purchased before viewing.
+                        </p>
+                        <div className="flex flex-row items-center justify-center w-full mt-4">
+                            <ResourcePaymentButton
+                                lnAddress={lnAddress}
+                                amount={price}
+                                onSuccess={handlePaymentSuccess}
+                                onError={handlePaymentError}
+                                resourceId={processedEvent.d}
                             />
+                        </div>
                     </div>
                 </div>
-                            </div>
             );
         }
         if (processedEvent?.content) {
-            return <MDDisplay className='p-4 rounded-lg w-full' source={processedEvent.content} />;
+            return <MDDisplay className='p-2 rounded-lg w-full' source={processedEvent.content} />;
         }
         return null;
     }
@@ -136,14 +136,9 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                             )}
                         </div>
                     </div>
-                    <p className='text-xl text-gray-200 mb-4 mt-4'>{summary && (
-                        <div className="text-xl mt-4">
-                            {summary.split('\n').map((line, index) => (
-                                <p key={index}>{line}</p>
-                            ))}
-                        </div>
-                    )}
-                    </p>
+                    {(summary)?.split('\n').map((line, index) => (
+                        <p key={index}>{line}</p>
+                    ))}
                     <div className='flex items-center justify-between'>
                         <div className='flex items-center'>
                             <Image

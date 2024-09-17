@@ -47,7 +47,7 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
 
     const renderContent = () => {
         if (isPaid && decryptionPerformed) {
-            return <MDDisplay className='p-4 rounded-lg w-full' source={lesson.content} />;
+            return <MDDisplay className='p-2 rounded-lg w-full' source={lesson.content} />;
         }
         if (isPaid && !decryptionPerformed) {
             return (
@@ -62,7 +62,7 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
             );
         }
         if (lesson?.content) {
-            return <MDDisplay className='p-4 rounded-lg w-full' source={lesson.content} />;
+            return <MDDisplay className='p-2 rounded-lg w-full' source={lesson.content} />;
         }
         return null;
     }
