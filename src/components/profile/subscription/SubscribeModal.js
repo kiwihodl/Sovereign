@@ -157,7 +157,7 @@ const SubscribeModal = ({ user }) => {
             >
                 {isProcessing ? (
                     <div className="w-full flex flex-col mx-auto justify-center items-center mt-4">
-                        <ProgressSpinner />
+                        <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
                         <span className="ml-2">Processing subscription...</span>
                     </div>
                 ) : (

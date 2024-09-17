@@ -47,7 +47,7 @@ export function CourseTemplate({ course }) {
     }
   }, [course]);
 
-  if (!nAddress) return <ProgressSpinner />;
+  if (!nAddress) return <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
 
   if (zapsError) return <div>Error: {zapsError}</div>;
 

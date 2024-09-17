@@ -7,6 +7,8 @@ import DraftCourseLesson from "@/components/content/courses/DraftCourseLesson";
 import { useNDKContext } from "@/context/NDKContext";
 import { useSession } from "next-auth/react";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { ProgressSpinner } from 'primereact/progressspinner';
+
 const DraftCourse = () => {
     const { data: session, status } = useSession();
     const [course, setCourse] = useState(null);
@@ -94,7 +96,7 @@ const DraftCourse = () => {
     }, [lessons, ndk, fetchAuthor, session, status]);
 
     if (status === "loading") {
-        return <div>Loading...</div>;
+        return <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>;
     }
 
     return (

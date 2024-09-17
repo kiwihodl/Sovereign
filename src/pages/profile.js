@@ -41,7 +41,7 @@ const Profile = () => {
 
     if (status === 'loading' || isLoading) {
         return (
-            <ProgressSpinner />
+            <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
         );
     }
 

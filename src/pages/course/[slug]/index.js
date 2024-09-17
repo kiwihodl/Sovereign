@@ -194,9 +194,7 @@ const Course = () => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-screen">
-                <ProgressSpinner />
-            </div>
+            <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
         );
     }
 

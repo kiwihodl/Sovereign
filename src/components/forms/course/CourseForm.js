@@ -165,7 +165,7 @@ const CourseForm = ({ draft = null }) => {
     };
 
     if (documentsLoading || videosLoading || draftsLoading) {
-        return <ProgressSpinner />;
+        return <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
     }
 
     return (

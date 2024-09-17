@@ -89,7 +89,7 @@ const UserProfile = () => {
                     )}
                 </div>
                 {!session || !session?.user || !ndk ? (
-                    <ProgressSpinner />
+                    <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
                 ) : (
                     <DataTable
                         emptyMessage="No purchases"

@@ -192,9 +192,7 @@ export default function Details() {
     }
 
     if (loading) {
-        return <div className="mx-auto">
-            <ProgressSpinner />
-        </div>;
+        return <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
     }
 
     if (error) {

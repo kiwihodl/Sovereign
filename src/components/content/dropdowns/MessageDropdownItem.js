@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import CommunityMessage from "@/components/feeds/messages/CommunityMessage";
 import { parseMessageEvent, findKind0Fields } from "@/utils/nostr";
+import { ProgressSpinner } from 'primereact/progressspinner';
 import { useNDKContext } from "@/context/NDKContext";
 
 const MessageDropdownItem = ({ message, onSelect }) => {
@@ -79,7 +80,7 @@ const MessageDropdownItem = ({ message, onSelect }) => {
     return (
         <div className="w-full border-t-2 border-gray-700 py-4">
             {loading ? (
-                <div>Loading...</div>
+                <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
             ) : (
                 <CommunityMessage message={messageWithAuthor ? messageWithAuthor : message} platform={platform} />
             )}

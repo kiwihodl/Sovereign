@@ -1,66 +1,77 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Button } from 'primereact/button';
-import { Dialog } from 'primereact/dialog'; // Import Dialog component
-import { initializeBitcoinConnect } from './BitcoinConnect';
+import { Dialog } from 'primereact/dialog';
 import { LightningAddress } from '@getalby/lightning-tools';
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/router';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import axios from 'axios';
 import GenericButton from '@/components/buttons/GenericButton';
-import axios from 'axios'; // Import axios for API calls
+import { useRouter } from 'next/router';
 
 const Payment = dynamic(
     () => import('@getalby/bitcoin-connect-react').then((mod) => mod.Payment),
-    {
-        ssr: false,
-    }
+    { ssr: false }
 );
 
 const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }) => {
     const [invoice, setInvoice] = useState(null);
-    const [userId, setUserId] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     const { showToast } = useToast();
     const { data: session, status } = useSession();
-    const [dialogVisible, setDialogVisible] = useState(false); // New state for dialog visibility
+    const [dialogVisible, setDialogVisible] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
-        initializeBitcoinConnect();
-    }, []);
-
-    useEffect(() => {
-        if (session && session.user) {
-            setUserId(session.user.id);
+        let intervalId;
+        if (invoice) {
+            intervalId = setInterval(async () => {
+                const paid = await invoice.verifyPayment();
+    
+                if (paid && invoice.preimage) {
+                    clearInterval(intervalId);
+                    // handle success
+                    handlePaymentSuccess({ paid, preimage: invoice.preimage });
+                }
+            }, 2000);
+        } else {
+            console.log('no invoice');
         }
-    }, [status, session]);
-
-    useEffect(() => {
-        const fetchInvoice = async () => {
-            try {
-                const ln = new LightningAddress(lnAddress);
-                await ln.fetch();
-                const invoice = await ln.requestInvoice({ satoshi: amount });
-                setInvoice(invoice);
-            } catch (error) {
-                console.error('Error fetching invoice:', error);
-                showToast('error', 'Invoice Error', 'Failed to fetch the invoice.');
-                if (onError) onError(error);
+    
+        return () => {
+            if (intervalId) {
+                clearInterval(intervalId);
             }
         };
+    }, [invoice]);
 
-        fetchInvoice();
-    }, [lnAddress, amount, onError, showToast]);
+    const fetchInvoice = async () => {
+        setIsLoading(true);
+        try {
+            const ln = new LightningAddress(lnAddress);
+            await ln.fetch();
+            const invoice = await ln.requestInvoice({ satoshi: amount });
+            setInvoice(invoice);
+            setDialogVisible(true);
+        } catch (error) {
+            console.error('Error fetching invoice:', error);
+            showToast('error', 'Invoice Error', 'Failed to fetch the invoice.');
+            if (onError) onError(error);
+        }
+        setIsLoading(false);
+    };
+
+    useEffect(() => {
+        console.log('invoice', invoice);
+    }, [invoice]);
 
     const handlePaymentSuccess = async (response) => {
         try {
             const purchaseData = {
-                userId: userId,
+                userId: session.user.id,
                 courseId: courseId,
                 amountPaid: parseInt(amount, 10)
             };
-
-            console.log('purchaseData', purchaseData);
 
             const result = await axios.post('/api/purchase/course', purchaseData);
 
@@ -75,27 +86,36 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
             showToast('error', 'Purchase Update Failed', 'Payment was successful, but failed to update user purchases.');
             if (onError) onError(error);
         }
-        setDialogVisible(false); // Close the dialog on successful payment
+        setDialogVisible(false);
     };
 
     return (
         <>
             <GenericButton
                 label={`${amount} sats`}
+                icon="pi pi-wallet"
                 onClick={() => {
                     if (status === 'unauthenticated') {
                         console.log('unauthenticated');
                         router.push('/auth/signin');
                     } else {
-                        setDialogVisible(true);
+                        fetchInvoice();
                     }
                 }}
-                disabled={!invoice}
+                disabled={isLoading}
                 severity='primary'
                 rounded
-                icon='pi pi-wallet'
-                className='text-[#f8f8ff] text-sm'
+                className={`text-[#f8f8ff] text-sm ${isLoading ? 'hidden' : ''}`}
             />
+            {isLoading && (
+                <div className='w-full h-full flex items-center justify-center'>
+                    <ProgressSpinner
+                        style={{ width: '30px', height: '30px' }}
+                        strokeWidth="8"
+                        animationDuration=".5s"
+                    />
+                </div>
+            )}
             <Dialog
                 visible={dialogVisible}
                 onHide={() => setDialogVisible(false)}

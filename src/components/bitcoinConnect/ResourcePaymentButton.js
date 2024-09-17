@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Dialog } from 'primereact/dialog';
-import { initializeBitcoinConnect } from './BitcoinConnect';
 import { LightningAddress } from '@getalby/lightning-tools';
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
@@ -17,43 +16,56 @@ const Payment = dynamic(
 
 const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resourceId }) => {
   const [invoice, setInvoice] = useState(null);
-  const [userId, setUserId] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const { showToast } = useToast();
   const { data: session, status } = useSession();
   const [dialogVisible, setDialogVisible] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    initializeBitcoinConnect();
-  }, []);
+    let intervalId;
+    if (invoice) {
+        intervalId = setInterval(async () => {
+            const paid = await invoice.verifyPayment();
 
-  useEffect(() => {
-    if (session && session.user) {
-      setUserId(session.user.id);
+            if (paid && invoice.preimage) {
+                clearInterval(intervalId);
+                // handle success
+                handlePaymentSuccess({ paid, preimage: invoice.preimage });
+            }
+        }, 2000);
+    } else {
+        console.log('no invoice');
     }
-  }, [status, session]);
 
-  useEffect(() => {
-    const fetchInvoice = async () => {
-      try {
-        const ln = new LightningAddress(lnAddress);
-        await ln.fetch();
-        const invoice = await ln.requestInvoice({ satoshi: amount });
-        setInvoice(invoice);
-      } catch (error) {
-        console.error('Error fetching invoice:', error);
-        showToast('error', 'Invoice Error', 'Failed to fetch the invoice.');
-        if (onError) onError(error);
-      }
+    return () => {
+        if (intervalId) {
+            clearInterval(intervalId);
+        }
     };
+}, [invoice]);
 
-    fetchInvoice();
-  }, [lnAddress, amount, onError, showToast]);
+  const fetchInvoice = async () => {
+    setIsLoading(true);
+    try {
+      const ln = new LightningAddress(lnAddress);
+      await ln.fetch();
+      const invoice = await ln.requestInvoice({ satoshi: amount });
+      setInvoice(invoice);
+      setDialogVisible(true);
+    } catch (error) {
+      console.error('Error fetching invoice:', error);
+      showToast('error', 'Invoice Error', 'Failed to fetch the invoice.');
+      if (onError) onError(error);
+    }
+    setIsLoading(false);
+  };
 
   const handlePaymentSuccess = async (response) => {
+    console.log('handlePaymentSuccess', response);
     try {
       const purchaseData = {
-        userId: userId,
+        userId: session.user.id,
         resourceId: resourceId,
         amountPaid: parseInt(amount, 10)
       };
@@ -76,31 +88,31 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
 
   return (
     <>
-      {
-        invoice ? (
-          <GenericButton
-            label={`${amount} sats`}
-            icon="pi pi-wallet"
-            onClick={() => {
-              if (status === 'unauthenticated') {
-                console.log('unauthenticated');
-                router.push('/auth/signin');
-              } else {
-                setDialogVisible(true);
-              }
-            }}
-            disabled={!invoice}
-            severity='primary'
-            rounded
-            className="text-[#f8f8ff] text-sm"
-          />
-        ) : (
+      <GenericButton
+        label={`${amount} sats`}
+        icon="pi pi-wallet"
+        onClick={() => {
+          if (status === 'unauthenticated') {
+            console.log('unauthenticated');
+            router.push('/auth/signin');
+          } else {
+            fetchInvoice();
+          }
+        }}
+        disabled={isLoading}
+        severity='primary'
+        rounded
+        className={`text-[#f8f8ff] text-sm ${isLoading ? 'hidden' : ''}`}
+      />
+      {isLoading && (
+        <div className='w-full h-full flex items-center justify-center'>
           <ProgressSpinner
             style={{ width: '30px', height: '30px' }}
             strokeWidth="8"
             animationDuration=".5s"
           />
-        )}
+        </div>
+      )}
       <Dialog
         visible={dialogVisible}
         onHide={() => setDialogVisible(false)}

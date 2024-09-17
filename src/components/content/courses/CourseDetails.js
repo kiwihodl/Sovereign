@@ -116,9 +116,7 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
 
     if (!processedEvent || !author) {
         return (
-            <div className="flex justify-center items-center h-screen">
-                <ProgressSpinner />
-            </div>
+            <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
         );
     }
 

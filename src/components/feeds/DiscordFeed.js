@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useDiscordQuery } from '@/hooks/communityQueries/useDiscordQuery';
 import { useRouter } from 'next/router';
-import { highlightText } from '@/utils/text';
 import CommunityMessage from '@/components/feeds/messages/CommunityMessage';
 import useWindowWidth from '@/hooks/useWindowWidth';
 
@@ -10,6 +9,14 @@ const DiscordFeed = ({ searchQuery }) => {
     const router = useRouter();
     const { data, error, isLoading } = useDiscordQuery({page: router.query.page});
     const windowWidth = useWindowWidth();
+
+    // Memoize the filtered data
+    const filteredData = useMemo(() => {
+        if (!data) return [];
+        return data.filter(message =>
+            message.content.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }, [data, searchQuery]);
 
     if (isLoading) {
         return (
@@ -23,14 +30,10 @@ const DiscordFeed = ({ searchQuery }) => {
         return <div className="text-red-500 text-center p-4">Failed to load messages. Please try again later.</div>;
     }
 
-    const filteredData = data.filter(message =>
-        message.content.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
     return (
         <div className="bg-gray-900 h-full w-full min-bottom-bar:w-[86vw]">
             <div className="mx-4">
-            {filteredData && filteredData.length > 0 ? (
+            {filteredData.length > 0 ? (
                 filteredData.map(message => (
                     <CommunityMessage
                         key={message.id}

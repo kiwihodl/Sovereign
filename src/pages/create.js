@@ -41,7 +41,7 @@ const Create = () => {
 
     if (!isAdmin) return null;
 
-    if (isLoading) return <ProgressSpinner />;
+    if (isLoading) return <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>;
 
     return (
         <div className="w-full min-bottom-bar:w-[86vw] max-sidebar:w-[100vw] px-8 mx-auto my-8 flex flex-col justify-center">

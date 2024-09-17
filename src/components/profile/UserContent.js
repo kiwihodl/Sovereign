@@ -142,7 +142,7 @@ const UserContent = () => {
             <div className="w-full mx-auto my-8">
                 <div className="w-full mx-auto px-8 max-tab:px-0">
                     {isLoading ? (
-                        <ProgressSpinner className="w-full mx-auto" />
+                        <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
                     ) : isError ? (
                         <p>Error loading content.</p>
                     ) : content.length > 0 ? (

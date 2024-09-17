@@ -16,6 +16,7 @@ import useWindowWidth from "@/hooks/useWindowWidth";
 import { useNDKContext } from "@/context/NDKContext";
 import { findKind0Fields } from '@/utils/nostr';
 import { defaultRelayUrls } from "@/context/NDKContext";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
 
@@ -108,7 +109,7 @@ export default function CourseDetailsNew({ processedEvent, paidCourse, lessons, 
     };
 
     if (!processedEvent || !author) {
-        return <div>Loading...</div>;
+        return <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>;
     }
 
     return (
