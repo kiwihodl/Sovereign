@@ -17,6 +17,10 @@ module.exports = removeImports({
       {
         source: "/.well-known/nostr.json",
         destination: "/api/nip05",
+      },
+      {
+        source: '/.well-known/lnurlp/:slug',
+        destination: '/api/lightning-address/lnurlp/:slug',
       }
     ];
   },

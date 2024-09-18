@@ -57,6 +57,7 @@ const promotions = [
   },
 ]
 
+// todo bigger ore simple CTA to get users into the content
 const InteractivePromotionalCarousel = () => {
   const [selectedPromotion, setSelectedPromotion] = useState(promotions[0])
   const { returnImageProxy } = useImageProxy();

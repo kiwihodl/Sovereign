@@ -1,11 +1,11 @@
-import { runMiddleware, corsMiddleware } from "../../../utils/middleware"
+import appConfig from "@/config/appConfig"
+import { runMiddleware, corsMiddleware } from "@/utils/corsMiddleware";
 
 const BACKEND_URL = process.env.BACKEND_URL
-const RELAY_PUBKEY = process.env.RELAY_PUBKEY
+const ZAP_PUBKEY = process.env.ZAP_PUBKEY
 
 export default async function handler(req, res) {
     await runMiddleware(req, res, corsMiddleware);
-
     const { slug } = req.query
 
     if (!slug || slug === 'undefined') {
@@ -13,20 +13,24 @@ export default async function handler(req, res) {
         return
     }
 
-    if (slug === 'austin') {
+    const customAddress = appConfig.customLightningAddresses.find(addr => addr.name === slug)
+
+    if (customAddress) {
         const metadata = [
-            ["text/plain", "PlebDevs LNURL endpoint, CHEERS!"]
+            ["text/plain", `${customAddress.description}`]
         ];
 
         res.status(200).json({
-            callback: `${BACKEND_URL}/api/callback/austin`,
-            maxSendable: 10000000000,
-            minSendable: 1000,
+            callback: `${BACKEND_URL}/api/lightning-address/callback/${customAddress.name}`,
+            maxSendable: customAddress.maxSendable || 10000000000,
+            minSendable: customAddress.minSendable || 1000,
             metadata: JSON.stringify(metadata),
             tag: 'payRequest',
             allowsNostr: true,
-            nostrPubkey: RELAY_PUBKEY
+            nostrPubkey: ZAP_PUBKEY
         })
         return
     }
+
+    res.status(404).json({ error: 'Lightning address not found' })
 }

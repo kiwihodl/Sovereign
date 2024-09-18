@@ -1,23 +1,27 @@
 import axios from "axios";
 import crypto from "crypto";
-import { runMiddleware, corsMiddleware } from "../../../utils/middleware";
 import { verifyEvent } from 'nostr-tools/pure';
+import appConfig from "@/config/appConfig";
+import { runMiddleware, corsMiddleware } from "@/utils/corsMiddleware";
 
 const BACKEND_URL = process.env.BACKEND_URL;
-const RELAY_PUBKEY = process.env.RELAY_PUBKEY;
 
 export default async function handler(req, res) {
     await runMiddleware(req, res, corsMiddleware);
     const { slug, ...queryParams } = req.query;
 
-    if (slug === 'austin') {
+    const customAddress = appConfig.customLightningAddresses.find(addr => addr.name === slug);
+
+    if (customAddress) {
         if (queryParams.amount) {
             const amount = parseInt(queryParams.amount);
             let metadata, metadataString, hash, descriptionHash;
 
-            if (queryParams.nostr) {
+            if (queryParams?.nostr) {
                 // This is a zap request
                 const zapRequest = JSON.parse(decodeURIComponent(queryParams.nostr));
+
+                console.log("ZAP REQUEST", zapRequest)
 
                 // Verify the zap request
                 if (!verifyEvent(zapRequest)) {
@@ -37,7 +41,7 @@ export default async function handler(req, res) {
             } else {
                 // This is a regular lnurl-pay request
                 metadata = [
-                    ["text/plain", "PlebDevs LNURL endpoint, CHEERS!"]
+                    ["text/plain", `${customAddress.name}'s LNURL endpoint, CHEERS!`]
                 ];
                 metadataString = JSON.stringify(metadata);
                 hash = crypto.createHash('sha256').update(metadataString).digest('hex');
@@ -45,13 +49,15 @@ export default async function handler(req, res) {
             }
 
             // Convert amount from millisatoshis to satoshis
-            const value = amount / 1000;
-            if (value < 1) {
+            if (amount < (customAddress.minSendable)) {
                 res.status(400).json({ error: 'Amount too low' });
+                return;
+            } else if (amount > (customAddress.maxSendable || Number.MAX_SAFE_INTEGER)) {
+                res.status(400).json({ error: 'Amount too high' });
                 return;
             } else {
                 try {
-                    const response = await axios.post(`${BACKEND_URL}/api/lnd`, { amount: value, description_hash: descriptionHash });
+                    const response = await axios.post(`${BACKEND_URL}/api/lightning-address/lnd`, { amount: amount, description_hash: descriptionHash, name: slug, zap_request: queryParams?.nostr ? queryParams.nostr : null });
                     res.status(200).json({ pr: response.data });
                 } catch (error) {
                     console.error(error);
@@ -61,5 +67,7 @@ export default async function handler(req, res) {
         } else {
             res.status(400).json({ error: 'Amount not specified' });
         }
+    } else {
+        res.status(404).json({ error: 'Lightning address not found' });
     }
 }

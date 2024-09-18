@@ -27,6 +27,7 @@
     "bech32": "^2.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "cors": "^2.8.5",
     "discord.js": "^14.15.3",
     "light-bolt11-decoder": "^3.1.1",
     "lucide-react": "^0.441.0",
