@@ -38,17 +38,53 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
         videoPlayed
     });
 
+    useEffect(() => {
+        const handleYouTubeMessage = (event) => {
+            if (event.origin !== "https://www.youtube.com") return;
+            
+            try {
+                const data = JSON.parse(event.data);
+                console.log('youtube data', data);
+                if (data.event === "onReady") {
+                    event.source.postMessage('{"event":"listening"}', "https://www.youtube.com");
+                } else if (data.event === "infoDelivery" && data?.info && data?.info?.currentTime) {
+                    setVideoPlayed(true);
+                    setVideoDuration(data.info?.progressState?.duration);
+                    event.source.postMessage('{"event":"command","func":"getDuration","args":""}', "https://www.youtube.com");
+                }
+            } catch (error) {
+                console.error("Error parsing YouTube message:", error);
+            }
+        };
+
+        window.addEventListener("message", handleYouTubeMessage);
+
+        return () => {
+            window.removeEventListener("message", handleYouTubeMessage);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (videoDuration && videoPlayed) {
+            console.log('videoDuration and videoPlayed', videoDuration, videoPlayed);
+        }
+    }, [videoDuration, videoPlayed]);
+
+    useEffect(() => {
+        if (videoPlayed) {
+            console.log('videoPlayed', videoPlayed);
+        }
+    }, [videoPlayed]);
+
     const checkDuration = useCallback(() => {
         const videoElement = mdDisplayRef.current?.querySelector('video');
+        const youtubeIframe = mdDisplayRef.current?.querySelector('iframe[src*="youtube.com"]');
+        
         if (videoElement && videoElement.readyState >= 1) {
             setVideoDuration(Math.round(videoElement.duration));
-            
-            // Add event listener for play event
-            videoElement.addEventListener('play', () => {
-                setVideoPlayed(true);
-            });
-        } else if (videoElement) {
-            setTimeout(checkDuration, 100);
+            setVideoPlayed(true);
+        } else if (youtubeIframe) {
+            youtubeIframe.contentWindow.postMessage('{"event":"listening"}', '*');
         }
     }, []);
 
@@ -77,6 +113,10 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
     useEffect(() => {
         if (decryptionPerformed && isPaid) {
             const timer = setTimeout(checkDuration, 500);
+            return () => clearTimeout(timer);
+        } else {
+            // For non-paid content, start checking after 3 seconds
+            const timer = setTimeout(checkDuration, 3000);
             return () => clearTimeout(timer);
         }
     }, [decryptionPerformed, isPaid, checkDuration]);
@@ -109,7 +149,11 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
                 </div>
             );
         } else if (lesson?.content) {
-            return <MDDisplay className='p-0 rounded-lg w-full' source={lesson.content} />;
+            return (
+                <div ref={mdDisplayRef}>
+                    <MDDisplay className='p-0 rounded-lg w-full' source={lesson.content} />
+                </div>
+            );
         }
         return null;
     }
@@ -129,14 +173,14 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
                         )}
                     </div>
                     <div className='flex flex-row items-center justify-between w-full'>
-                        <p className='text-xl mt-4 text-gray-200'>{lesson.summary && (
+                        <div className='text-xl mt-4 text-gray-200'>{lesson.summary && (
                         <div className="text-xl mt-4">
                             {lesson.summary.split('\n').map((line, index) => (
                                 <p key={index}>{line}</p>
                             ))}
                         </div>
                     )}
-                    </p>
+                    </div>
                         <ZapDisplay
                             zapAmount={zapAmount}
                             event={lesson}

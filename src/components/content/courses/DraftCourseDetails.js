@@ -292,11 +292,11 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
                         ['summary', draft.summary],
                         ['image', draft.image],
                         // todo populate this tag from the config
-                        ['i', 'youtube:plebdevs', 'V_fvmyJ91m0'],
                         ...draft.topics.map(topic => ['t', topic]),
                         ['published_at', Math.floor(Date.now() / 1000).toString()],
                         ...(draft?.price ? [['price', draft.price.toString()], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
                         ...(draft?.additionalLinks ? draft.additionalLinks.filter(link => link !== 'https://plebdevs.com').map(link => ['r', link]) : []),
+                        draft?.price ? null : ['i', 'youtube:plebdevs', 'V_fvmyJ91m0']
                     ];
 
                     type = 'video';

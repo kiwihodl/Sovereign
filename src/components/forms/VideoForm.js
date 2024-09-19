@@ -12,6 +12,7 @@ import 'primeicons/primeicons.css';
 import { Tooltip } from 'primereact/tooltip';
 import 'primereact/resources/primereact.min.css';
 
+// todo need to handle case where published video is being edited and not just draft
 const VideoForm = ({ draft = null }) => {
     const [title, setTitle] = useState(draft?.title || '');
     const [summary, setSummary] = useState(draft?.summary || '');
@@ -53,7 +54,7 @@ const VideoForm = ({ draft = null }) => {
         // Check if it's a YouTube video
         if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
             const videoId = videoUrl.split('v=')[1] || videoUrl.split('/').pop();
-            embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://www.youtube.com/embed/${videoId}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
+            embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://www.youtube.com/embed/${videoId}?enablejsapi=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
         }
         // Check if it's a Vimeo video
         else if (videoUrl.includes('vimeo.com')) {

@@ -11,6 +11,7 @@ import { getTotalFromZaps } from "@/utils/lightning";
 import dynamic from "next/dynamic";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import appConfig from "@/config/appConfig";
+import useTrackDocumentLesson from "@/hooks/tracking/useTrackDocumentLesson";
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -22,10 +23,19 @@ const MDDisplay = dynamic(
 const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
     const [zapAmount, setZapAmount] = useState(0);
     const [nAddress, setNAddress] = useState(null);
+    const [completed, setCompleted] = useState(false);
     const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: lesson, type: "lesson" });
     const { returnImageProxy } = useImageProxy();
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 768;
+    // todo implement real read time needs to be on form
+    const readTime = 30;
+
+    const { isCompleted, isTracking } = useTrackDocumentLesson({
+        lessonId: lesson?.d,
+        courseId: course?.d,
+        readTime: readTime,
+    });
 
     useEffect(() => {
         if (!zaps || zapsLoading || zapsError) return;
@@ -44,6 +54,12 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
             setNAddress(addr);
         }
     }, [lesson]);
+
+    useEffect(() => {
+        if (isCompleted) {
+            setCompleted(lesson.id);
+        }
+    }, [isCompleted, lesson.id, setCompleted]);
 
     const renderContent = () => {
         if (isPaid && decryptionPerformed) {
@@ -90,14 +106,14 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
                             )}
                         </div>
                     </div>
-                    <p className='text-xl text-gray-200 mb-4 mt-4'>{lesson.summary && (
+                    <div className='text-xl text-gray-200 mb-4 mt-4'>{lesson.summary && (
                         <div className="text-xl mt-4">
                             {lesson.summary.split('\n').map((line, index) => (
                                 <p key={index}>{line}</p>
                             ))}
                         </div>
                     )}
-                    </p>
+                    </div>
                     <div className='flex items-center justify-between'>
                         <div className='flex items-center'>
                             <Image
