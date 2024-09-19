@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Tag } from "primereact/tag";
 import Image from "next/image";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 import { Divider } from "primereact/divider";
 import appConfig from "@/config/appConfig";
 import useWindowWidth from "@/hooks/useWindowWidth";
+import useTrackVideoLesson from '@/hooks/tracking/useTrackVideoLesson';
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -19,13 +20,43 @@ const MDDisplay = dynamic(
     }
 );
 
-const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
+const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted }) => {
     const [zapAmount, setZapAmount] = useState(0);
     const [nAddress, setNAddress] = useState(null);
     const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: lesson, type: "lesson" });
     const { returnImageProxy } = useImageProxy();
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 768;
+    const [videoDuration, setVideoDuration] = useState(null);
+    const [videoPlayed, setVideoPlayed] = useState(false);
+    const mdDisplayRef = useRef(null);
+
+    const { isCompleted, isTracking } = useTrackVideoLesson({
+        lessonId: lesson?.d,
+        videoDuration,
+        courseId: course?.d,
+        videoPlayed
+    });
+
+    const checkDuration = useCallback(() => {
+        const videoElement = mdDisplayRef.current?.querySelector('video');
+        if (videoElement && videoElement.readyState >= 1) {
+            setVideoDuration(Math.round(videoElement.duration));
+            
+            // Add event listener for play event
+            videoElement.addEventListener('play', () => {
+                setVideoPlayed(true);
+            });
+        } else if (videoElement) {
+            setTimeout(checkDuration, 100);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (isCompleted) {
+            setCompleted(lesson.id);
+        }
+    }, [isCompleted, lesson.id]);  // Remove setCompleted from dependencies
 
     useEffect(() => {
         if (!zaps || zapsLoading || zapsError) return;
@@ -43,12 +74,19 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
         setNAddress(addr);
     }, [lesson]);
 
+    useEffect(() => {
+        if (decryptionPerformed && isPaid) {
+            const timer = setTimeout(checkDuration, 500);
+            return () => clearTimeout(timer);
+        }
+    }, [decryptionPerformed, isPaid, checkDuration]);
+
     const renderContent = () => {
         if (isPaid && decryptionPerformed) {
             return (
-                <>
+                <div ref={mdDisplayRef}>
                     <MDDisplay className='p-0 rounded-lg w-full' source={lesson.content} />
-                </>
+                </div>
             );
         } else if (isPaid && !decryptionPerformed) {
             return (

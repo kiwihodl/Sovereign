@@ -27,6 +27,7 @@ model User {
     sessions      Session[]
     createdAt     DateTime  @default(now())
     updatedAt     DateTime  @updatedAt
+    userLessons UserLesson[]
 }
 
 model Session {
@@ -78,57 +79,6 @@ model Role {
     nwc                String?
 }
 
-model Purchase {
-    id         String    @id @default(uuid())
-    user       User      @relation(fields: [userId], references: [id])
-    userId     String
-    course     Course?   @relation(fields: [courseId], references: [id])
-    courseId   String?
-    resource   Resource? @relation(fields: [resourceId], references: [id])
-    resourceId String?
-    amountPaid Int
-    createdAt  DateTime  @default(now())
-    updatedAt  DateTime  @updatedAt
-}
-
-model Lesson {
-    id         String   @id @default(uuid())
-    courseId   String?
-    course     Course?  @relation(fields: [courseId], references: [id])
-    resourceId String?
-    resource   Resource? @relation(fields: [resourceId], references: [id])
-    draftId    String?
-    draft      Draft?   @relation(fields: [draftId], references: [id])
-    index      Int
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
-}
-
-model DraftLesson {
-    id            String      @id @default(uuid())
-    courseDraftId String
-    courseDraft   CourseDraft @relation(fields: [courseDraftId], references: [id])
-    resourceId    String?
-    resource      Resource?   @relation(fields: [resourceId], references: [id])
-    draftId       String?
-    draft         Draft?      @relation(fields: [draftId], references: [id])
-    index         Int
-    createdAt     DateTime    @default(now())
-    updatedAt     DateTime    @updatedAt
-}
-
-model Course {
-    id        String     @id
-    userId    String
-    user      User       @relation(fields: [userId], references: [id])
-    price     Int        @default(0)
-    lessons   Lesson[]
-    purchases Purchase[]
-    noteId    String?    @unique
-    createdAt DateTime   @default(now())
-    updatedAt DateTime   @updatedAt
-}
-
 model Resource {
     id        String     @id // Client generates UUID
     userId    String
@@ -162,6 +112,18 @@ model Draft {
     lessons         Lesson[]
 }
 
+model Course {
+    id        String     @id
+    userId    String
+    user      User       @relation(fields: [userId], references: [id])
+    price     Int        @default(0)
+    lessons   Lesson[]
+    purchases Purchase[]
+    noteId    String?    @unique
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
+}
+
 model CourseDraft {
     id           String        @id @default(uuid())
     userId       String
@@ -174,4 +136,60 @@ model CourseDraft {
     topics       String[]
     createdAt    DateTime      @default(now())
     updatedAt    DateTime      @updatedAt
+}
+
+model Lesson {
+    id         String   @id @default(uuid())
+    courseId   String?
+    course     Course?  @relation(fields: [courseId], references: [id])
+    resourceId String?
+    resource   Resource? @relation(fields: [resourceId], references: [id])
+    draftId    String?
+    draft      Draft?   @relation(fields: [draftId], references: [id])
+    index      Int
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+    userLessons UserLesson[]
+}
+
+model DraftLesson {
+    id            String      @id @default(uuid())
+    courseDraftId String
+    courseDraft   CourseDraft @relation(fields: [courseDraftId], references: [id])
+    resourceId    String?
+    resource      Resource?   @relation(fields: [resourceId], references: [id])
+    draftId       String?
+    draft         Draft?      @relation(fields: [draftId], references: [id])
+    index         Int
+    createdAt     DateTime    @default(now())
+    updatedAt     DateTime    @updatedAt
+}
+
+model UserLesson {
+    id         String   @id @default(uuid())
+    userId     String
+    user       User     @relation(fields: [userId], references: [id])
+    lessonId   String
+    lesson     Lesson   @relation(fields: [lessonId], references: [id])
+    opened     Boolean  @default(false)
+    completed  Boolean  @default(false)
+    openedAt   DateTime?
+    completedAt DateTime?
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+
+    @@unique([userId, lessonId])
+}
+
+model Purchase {
+    id         String    @id @default(uuid())
+    user       User      @relation(fields: [userId], references: [id])
+    userId     String
+    course     Course?   @relation(fields: [courseId], references: [id])
+    courseId   String?
+    resource   Resource? @relation(fields: [resourceId], references: [id])
+    resourceId String?
+    amountPaid Int
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
 }

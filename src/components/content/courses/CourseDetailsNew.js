@@ -136,14 +136,12 @@ export default function CourseDetailsNew({ processedEvent, paidCourse, lessons, 
                             )}
                         </div>
                     </div>
-                    <p className='text-xl text-gray-200 mb-4 mt-4 max-mob:text-base'>{processedEvent.description && (
-                        <div className='mt-4'>
-                            {processedEvent.description.split('\n').map((line, index) => (
-                                <p key={index}>{line}</p>
-                            ))}
-                        </div>
+                    <div className='text-xl text-gray-200 mb-4 mt-4 max-mob:text-base'>{processedEvent.description && (
+                        processedEvent.description.split('\n').map((line, index) => (
+                            <p key={index}>{line}</p>
+                        ))
                     )}
-                    </p>
+                    </div>
                     <div className='flex items-center justify-between'>
                         <div className='flex items-center'>
                             <Image
@@ -172,11 +170,11 @@ export default function CourseDetailsNew({ processedEvent, paidCourse, lessons, 
                             <div className='flex space-x-2 mt-4 sm:mt-0'>
                                 <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
                                 <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
-                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={ isMobileView ? null : "View Nostr Event" } tooltipOptions={{ position: paidCourse ? 'left' : 'right' }} />
+                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={isMobileView ? null : "View Nostr Event"} tooltipOptions={{ position: paidCourse ? 'left' : 'right' }} />
                             </div>
                         ) : (
                             <div className='flex space-x-2 mt-4 sm:mt-0'>
-                                <GenericButton className='my-2' outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={ isMobileView ? null : "View Nostr Event" } tooltipOptions={{ position: paidCourse ? 'left' : 'right' }} />
+                                <GenericButton className='my-2' outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={isMobileView ? null : "View Nostr Event"} tooltipOptions={{ position: paidCourse ? 'left' : 'right' }} />
                             </div>
                         )}
                     </div>

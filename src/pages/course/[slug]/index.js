@@ -10,6 +10,7 @@ import { useSession } from 'next-auth/react';
 import { nip04, nip19 } from 'nostr-tools';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Accordion, AccordionTab } from 'primereact/accordion';
+import { Tag } from 'primereact/tag';
 import { useDecryptContent } from "@/hooks/encryption/useDecryptContent";
 import dynamic from 'next/dynamic';
 
@@ -58,12 +59,9 @@ const useLessons = (ndk, fetchAuthor, lessonIds, pubkey) => {
     const [lessons, setLessons] = useState([]);
     const [uniqueLessons, setUniqueLessons] = useState([]);
 
-    console.log('lessonIds', lessonIds);
-
     useEffect(() => {
         if (lessonIds.length > 0) {
             const fetchLesson = async (lessonId) => {
-                console.log('lessonId', lessonId);
                 try {
                     await ndk.connect();
                     const filter = { "#d": [lessonId], kinds:[30023, 30402], authors: [pubkey] };
@@ -143,6 +141,12 @@ const Course = () => {
     const { showToast } = useToast();
     const [paidCourse, setPaidCourse] = useState(false);
     const [expandedIndex, setExpandedIndex] = useState(null);
+    const [completedLessons, setCompletedLessons] = useState([]);
+
+    const setCompleted = (lessonId) => {
+        console.log('setting completed', lessonId);
+        setCompletedLessons(prev => [...prev, lessonId]);
+    }
 
     const fetchAuthor = useCallback(async (pubkey) => {
         const author = await ndk.getUser({ pubkey });
@@ -154,6 +158,10 @@ const Course = () => {
     const { course, lessonIds } = useCourseData(ndk, fetchAuthor, router);
     const { lessons, uniqueLessons, setLessons } = useLessons(ndk, fetchAuthor, lessonIds, course?.pubkey);
     const { decryptionPerformed, loading } = useDecryption(session, paidCourse, course, lessons, setLessons);
+
+    useEffect(() => {
+        console.log('lessonIds', lessonIds);
+    }, [lessonIds]);
 
     useEffect(() => {
         if (course?.price && course?.price > 0) {
@@ -230,14 +238,15 @@ const Course = () => {
                             accordiontab: { className: 'border-none' },
                         }}
                         header={
-                            <div className="flex align-items-center justify-content-between w-full">
+                            <div className="flex align-items-center justify-between w-full">
                                 <span id={`lesson-${index}`} className="font-bold text-xl">{`Lesson ${index + 1}: ${lesson.title}`}</span>
+                                {completedLessons.includes(lesson.id) ? <Tag severity="success" value="Completed" /> : null}
                             </div>
                         }
                     >
                         <div className="w-full py-4 rounded-b-lg">
                             {lesson.type === 'video' ? 
-                                <VideoLesson lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} /> : 
+                                <VideoLesson lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} setCompleted={setCompleted} /> : 
                                 <DocumentLesson lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} />
                             }
                         </div>
