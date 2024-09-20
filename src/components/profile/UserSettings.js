@@ -14,6 +14,7 @@ import { nip19 } from "nostr-tools";
 import { InputText } from "primereact/inputtext";
 import { Tooltip } from "primereact/tooltip";
 import { useToast } from "@/hooks/useToast";
+import SubscribeModal from "@/components/profile/subscription/SubscribeModal";
 import appConfig from "@/config/appConfig";
 
 const UserSettings = () => {
@@ -172,6 +173,9 @@ const UserSettings = () => {
                         <h2 className="text-xl my-2 max-mob:text-base max-tab:text-base">Connect Your Lightning Wallet</h2>
                         <BitcoinConnectButton />
                     </div>
+                    {user && (
+                        <SubscribeModal user={user} />
+                    )}
                 </div>
                 {!session || !session?.user || !ndk ? (
                     <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>

@@ -14,6 +14,7 @@ import Image from "next/image";
 import SubscribeModal from "@/components/profile/subscription/SubscribeModal";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import { useToast } from "@/hooks/useToast";
+import UserProgress from "@/components/profile/progress/UserProgress";
 
 const UserProfile = () => {
     const windowWidth = useWindowWidth();
@@ -84,9 +85,7 @@ const UserProfile = () => {
                         <Tooltip target=".pubkey-tooltip" content={"this is your nostr npub"} />
                         {nip19.npubEncode(user.pubkey)} <i className="pi pi-question-circle text-xl pubkey-tooltip" />
                     </h2>
-                    {user && (
-                        <SubscribeModal user={user} />
-                    )}
+                    <UserProgress />
                 </div>
                 {!session || !session?.user || !ndk ? (
                     <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
