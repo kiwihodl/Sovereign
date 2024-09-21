@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getContributions } from '../../lib/github';
+import { getAllCommits } from '@/lib/github';
 
 const GithubContributionChart = ({ username }) => {
     const [contributionData, setContributionData] = useState({});
     const [loading, setLoading] = useState(true);
+    const [timeTaken, setTimeTaken] = useState(null);
+    const [totalCommits, setTotalCommits] = useState(0);
 
     const getColor = useCallback((count) => {
         if (count === 0) return 'bg-gray-100';
@@ -30,15 +32,27 @@ const GithubContributionChart = ({ username }) => {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-            try {
-                await getContributions(username, (data) => {
-                    setContributionData(data);
-                    setLoading(false);
+            const startTime = Date.now();
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+            
+            let commitCount = 0;
+            
+            for await (const commit of getAllCommits(username, sixMonthsAgo)) {
+                const date = commit.commit.author.date.split('T')[0];
+                setContributionData(prev => {
+                    const newData = { ...prev };
+                    newData[date] = (newData[date] || 0) + 1;
+                    return newData;
                 });
-            } catch (error) {
-                console.error("Error fetching contribution data:", error);
-                setLoading(false);
+                commitCount++;
+                setTotalCommits(commitCount);
             }
+
+            const endTime = Date.now();
+            setTimeTaken(((endTime - startTime) / 1000).toFixed(2));
+            setLoading(false);
+            console.log(`Total commits fetched: ${commitCount}`);
         };
 
         fetchData();
@@ -49,7 +63,9 @@ const GithubContributionChart = ({ username }) => {
     return (
         <div className="p-4">
             <h2 className="text-xl font-bold mb-4">Github Contributions for {username}</h2>
-            {loading && <p>Loading contribution data...</p>}
+            {loading && <p>Loading contribution data... ({totalCommits} commits fetched)</p>}
+            {timeTaken && <p className="mb-2">Time taken to fetch data: {timeTaken} seconds</p>}
+            {!loading && <p className="mb-2">Total commits: {totalCommits}</p>}
             <div className="flex flex-wrap gap-1">
                 {calendar.map((day, index) => (
                     <div

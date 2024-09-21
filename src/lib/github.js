@@ -1,11 +1,10 @@
-const { Octokit } = require("@octokit/rest");
-const { throttling } = require("@octokit/plugin-throttling");
+import { Octokit } from "@octokit/rest";
+import { throttling } from "@octokit/plugin-throttling";
+
 const ThrottledOctokit = Octokit.plugin(throttling);
 
-const ACCESS_TOKEN = process.env.NEXT_PUBLIC_GITHUB_ACCESS_KEY;
-
 const octokit = new ThrottledOctokit({
-  auth: ACCESS_TOKEN,
+  auth: process.env.NEXT_PUBLIC_GITHUB_ACCESS_KEY,
   throttle: {
     onRateLimit: (retryAfter, options, octokit, retryCount) => {
       octokit.log.warn(`Request quota exhausted for request ${options.method} ${options.url}`);
@@ -21,55 +20,45 @@ const octokit = new ThrottledOctokit({
   },
 });
 
-async function getContributions(username, updateCallback) {
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-  const sinceDate = sixMonthsAgo.toISOString();
+export async function* getAllCommits(username, since) {
+    let page = 1;
 
-  const contributionData = {};
+    while (true) {
+        try {
+            const { data: repos } = await octokit.repos.listForUser({
+                username,
+                per_page: 100,
+                page,
+            });
 
-  try {
-    const repos = await octokit.paginate(octokit.repos.listForUser, {
-      username,
-      per_page: 100,
-    });
+            if (repos.length === 0) break;
 
-    console.log(`Fetched ${repos.length} repositories for ${username}`);
+            const repoPromises = repos.map(repo => 
+                octokit.repos.listCommits({
+                    owner: username,
+                    repo: repo.name,
+                    since: since.toISOString(),
+                    per_page: 100,
+                })
+            );
 
-    // Call updateCallback immediately after fetching repos
-    updateCallback({});
+            const repoResults = await Promise.allSettled(repoPromises);
 
-    for (const repo of repos) {
-      console.log(`Fetching commits for ${repo.name}`);
-      try {
-        const commits = await octokit.paginate(octokit.repos.listCommits, {
-          owner: repo.owner.login,
-          repo: repo.name,
-          author: username,
-          since: sinceDate,
-          per_page: 100,
-        });
+            for (const result of repoResults) {
+                if (result.status === 'fulfilled') {
+                    for (const commit of result.value.data) {
+                        yield commit;
+                    }
+                } else {
+                    console.warn(`Error fetching commits: ${result.reason}`);
+                }
+            }
 
-        console.log(`Fetched ${commits.length} commits for ${repo.name}`);
-
-        commits.forEach(commit => {
-          const date = commit.commit.author.date.split('T')[0];
-          contributionData[date] = (contributionData[date] || 0) + 1;
-          // Call the update callback after processing each commit
-          updateCallback({...contributionData});
-        });
-      } catch (repoError) {
-        console.error(`Error fetching commits for ${repo.name}:`, repoError.message);
-      }
+            page++;
+        } catch (error) {
+            console.error("Error fetching repositories:", error.message);
+            break;
+        }
     }
-
-    console.log('Final contribution data:', contributionData);
-    return contributionData;
-  } catch (error) {
-    console.error("Error fetching contribution data:", error);
-    throw error;
-  }
 }
-
-export { getContributions };
 
