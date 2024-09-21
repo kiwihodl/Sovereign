@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getAllCommits } from '@/lib/github';
-
+import { useFetchGithubCommits } from '@/hooks/githubQueries/useFetchGithubCommits';
+import { Tooltip } from 'primereact/tooltip';
 const GithubContributionChart = ({ username }) => {
     const [contributionData, setContributionData] = useState({});
-    const [loading, setLoading] = useState(true);
-    const [timeTaken, setTimeTaken] = useState(null);
     const [totalCommits, setTotalCommits] = useState(0);
+
+    const { data: commits, isLoading, isFetching } = useFetchGithubCommits(username);
 
     const getColor = useCallback((count) => {
         if (count === 0) return 'bg-gray-100';
@@ -30,42 +30,35 @@ const GithubContributionChart = ({ username }) => {
     }, [contributionData]);
 
     useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            const startTime = Date.now();
-            const sixMonthsAgo = new Date();
-            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-            
+        if (commits) {
             let commitCount = 0;
             
-            for await (const commit of getAllCommits(username, sixMonthsAgo)) {
+            const newContributionData = {};
+            commits.forEach(commit => {
                 const date = commit.commit.author.date.split('T')[0];
-                setContributionData(prev => {
-                    const newData = { ...prev };
-                    newData[date] = (newData[date] || 0) + 1;
-                    return newData;
-                });
+                newContributionData[date] = (newContributionData[date] || 0) + 1;
                 commitCount++;
-                setTotalCommits(commitCount);
-            }
+            });
 
-            const endTime = Date.now();
-            setTimeTaken(((endTime - startTime) / 1000).toFixed(2));
-            setLoading(false);
+            setContributionData(newContributionData);
+            setTotalCommits(commitCount);
+
             console.log(`Total commits fetched: ${commitCount}`);
-        };
-
-        fetchData();
-    }, [username]);
+        }
+    }, [commits]);
 
     const calendar = generateCalendar();
 
     return (
-        <div className="p-4">
-            <h2 className="text-xl font-bold mb-4">Github Contributions for {username}</h2>
-            {loading && <p>Loading contribution data... ({totalCommits} commits fetched)</p>}
-            {timeTaken && <p className="mb-2">Time taken to fetch data: {timeTaken} seconds</p>}
-            {!loading && <p className="mb-2">Total commits: {totalCommits}</p>}
+        <div className="mx-auto py-2 px-4 max-w-[900px] bg-gray-900 rounded-lg">
+            {(isLoading || isFetching) && <p>Loading contribution data... ({totalCommits} commits fetched)</p>}
+            {!isLoading && !isFetching && 
+            <div className="flex justify-between items-center pr-1">
+                <p className="mb-2">Total commits: {totalCommits}</p>
+                <i className="pi pi-question-circle cursor-pointer" data-pr-tooltip="Total number of commits made to GitHub repositories over the last 6 months. (may not be 100% accurate)" />
+                <Tooltip target=".pi-question-circle" position="top"/>
+            </div>
+            }
             <div className="flex flex-wrap gap-1">
                 {calendar.map((day, index) => (
                     <div

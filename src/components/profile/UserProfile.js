@@ -11,7 +11,7 @@ import { formatDateTime } from "@/utils/time";
 import { Tooltip } from "primereact/tooltip";
 import { nip19 } from "nostr-tools";
 import Image from "next/image";
-import SubscribeModal from "@/components/profile/subscription/SubscribeModal";
+import GithubContributionChart from "@/components/charts/GithubContributionChart";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import { useToast } from "@/hooks/useToast";
 import UserProgress from "@/components/profile/progress/UserProgress";
@@ -85,6 +85,7 @@ const UserProfile = () => {
                         <Tooltip target=".pubkey-tooltip" content={"this is your nostr npub"} />
                         {nip19.npubEncode(user.pubkey)} <i className="pi pi-question-circle text-xl pubkey-tooltip" />
                     </h2>
+                    <GithubContributionChart username={"austinkelsay"} />
                     <UserProgress />
                 </div>
                 {!session || !session?.user || !ndk ? (
