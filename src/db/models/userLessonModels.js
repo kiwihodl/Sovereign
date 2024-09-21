@@ -20,7 +20,6 @@ export const getUserLesson = async (userId, lessonId) => {
 };
 
 export const createOrUpdateUserLesson = async (userId, lessonId, data) => {
-  console.log(`Creating or updating user lesson for user ${userId} and lesson ${lessonId} with data:`, data);
   return await prisma.userLesson.upsert({
     where: {
       userId_lessonId: {

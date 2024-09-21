@@ -28,6 +28,7 @@ model User {
     createdAt     DateTime  @default(now())
     updatedAt     DateTime  @updatedAt
     userLessons UserLesson[]
+    userCourses UserCourse[]
 }
 
 model Session {
@@ -122,6 +123,7 @@ model Course {
     noteId    String?    @unique
     createdAt DateTime   @default(now())
     updatedAt DateTime   @updatedAt
+    userCourses UserCourse[]
 }
 
 model CourseDraft {
@@ -192,4 +194,20 @@ model Purchase {
     amountPaid Int
     createdAt  DateTime  @default(now())
     updatedAt  DateTime  @updatedAt
+}
+
+model UserCourse {
+    id         String   @id @default(uuid())
+    userId     String
+    user       User     @relation(fields: [userId], references: [id])
+    courseId   String
+    course     Course   @relation(fields: [courseId], references: [id])
+    started    Boolean  @default(false)
+    completed  Boolean  @default(false)
+    startedAt  DateTime?
+    completedAt DateTime?
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+
+    @@unique([userId, courseId])
 }

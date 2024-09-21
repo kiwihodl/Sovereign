@@ -18,26 +18,20 @@ const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed}) =
     }
   }, [session]);
 
-  // Check if the lesson is already completed or create a new UserLesson record
   const checkOrCreateUserLesson = useCallback(async () => {
     if (!session?.user) return false;
     try {
       const response = await axios.get(`/api/users/${session.user.id}/lessons/${lessonId}?courseId=${courseId}`);
       if (response.status === 200 && response?.data) {
-        // Case 1: UserLesson record exists
         if (response?.data?.completed) {
-          // Lesson is already completed
           setIsCompleted(true);
           completedRef.current = true;
           return true;
         } else {
-          // Lesson exists but is not completed
           return false;
         }
       } else if (response.status === 204) {
-        // Case 2: UserLesson record doesn't exist, create a new one
         await axios.post(`/api/users/${session.user.id}/lessons?courseId=${courseId}`, {
-          // currently the only id we get is the resource id which associates to the lesson
           resourceId: lessonId,
           opened: true,
           openedAt: new Date().toISOString(),
@@ -51,7 +45,7 @@ const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed}) =
       console.error('Error checking or creating UserLesson:', error);
       return false;
     }
-  }, [session, lessonId]);
+  }, [session, lessonId, courseId]);
 
   const markLessonAsCompleted = useCallback(async () => {
     if (!session?.user || completedRef.current) return;
@@ -72,15 +66,13 @@ const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed}) =
     } catch (error) {
       console.error('Error marking lesson as completed:', error);
     }
-  }, [lessonId, session]);
+  }, [lessonId, courseId, session]);
 
   useEffect(() => {
     const initializeTracking = async () => {
-      console.log('initializeTracking', videoDuration, !completedRef.current, videoPlayed);
-      if (isAdmin) return; // Skip tracking for admin users
+      if (isAdmin) return;
 
       const alreadyCompleted = await checkOrCreateUserLesson();
-      // Case 3: Start tracking if the lesson is not completed, video duration is available, and video has been played
       if (!alreadyCompleted && videoDuration && !completedRef.current && videoPlayed) {
         console.log(`Tracking started for lesson ${lessonId}, video duration: ${videoDuration} seconds, video played: ${videoPlayed}`);
         setIsTracking(true);
@@ -92,7 +84,6 @@ const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed}) =
 
     initializeTracking();
 
-    // Cleanup function to clear the interval when the component unmounts
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
@@ -101,9 +92,8 @@ const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed}) =
   }, [lessonId, videoDuration, checkOrCreateUserLesson, videoPlayed, isAdmin]);
 
   useEffect(() => {
-    if (isAdmin) return; // Skip tracking for admin users
+    if (isAdmin) return;
 
-    // Case 4: Mark lesson as completed when 90% of the video is watched
     if (videoDuration && timeSpent >= Math.round(videoDuration * 0.9) && !completedRef.current) {
       markLessonAsCompleted();
     }

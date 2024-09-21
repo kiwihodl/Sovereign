@@ -89,10 +89,10 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
     }, []);
 
     useEffect(() => {
-        if (isCompleted) {
+        if (isCompleted && !isTracking) {
             setCompleted(lesson.id);
         }
-    }, [isCompleted, lesson.id]);  // Remove setCompleted from dependencies
+    }, [isCompleted, lesson.id, setCompleted, isTracking]);
 
     useEffect(() => {
         if (!zaps || zapsLoading || zapsError) return;
@@ -115,7 +115,6 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
             const timer = setTimeout(checkDuration, 500);
             return () => clearTimeout(timer);
         } else {
-            // For non-paid content, start checking after 3 seconds
             const timer = setTimeout(checkDuration, 3000);
             return () => clearTimeout(timer);
         }

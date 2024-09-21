@@ -20,10 +20,9 @@ const MDDisplay = dynamic(
     }
 );
 
-const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
+const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted }) => {
     const [zapAmount, setZapAmount] = useState(0);
     const [nAddress, setNAddress] = useState(null);
-    const [completed, setCompleted] = useState(false);
     const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: lesson, type: "lesson" });
     const { returnImageProxy } = useImageProxy();
     const windowWidth = useWindowWidth();
@@ -56,10 +55,10 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
     }, [lesson]);
 
     useEffect(() => {
-        if (isCompleted) {
+        if (isCompleted && !isTracking) {
             setCompleted(lesson.id);
         }
-    }, [isCompleted, lesson.id, setCompleted]);
+    }, [isCompleted, lesson.id, setCompleted, isTracking]);
 
     const renderContent = () => {
         if (isPaid && decryptionPerformed) {

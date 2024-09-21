@@ -143,10 +143,10 @@ const Course = () => {
     const [expandedIndex, setExpandedIndex] = useState(null);
     const [completedLessons, setCompletedLessons] = useState([]);
 
-    const setCompleted = (lessonId) => {
+    const setCompleted = useCallback((lessonId) => {
         console.log('setting completed', lessonId);
         setCompletedLessons(prev => [...prev, lessonId]);
-    }
+    }, []);
 
     const fetchAuthor = useCallback(async (pubkey) => {
         const author = await ndk.getUser({ pubkey });
@@ -247,7 +247,7 @@ const Course = () => {
                         <div className="w-full py-4 rounded-b-lg">
                             {lesson.type === 'video' ? 
                                 <VideoLesson lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} setCompleted={setCompleted} /> : 
-                                <DocumentLesson lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} />
+                                <DocumentLesson lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} setCompleted={setCompleted} />
                             }
                         </div>
                     </AccordionTab>

@@ -16,6 +16,7 @@ import useWindowWidth from "@/hooks/useWindowWidth";
 import { useNDKContext } from "@/context/NDKContext";
 import { findKind0Fields } from '@/utils/nostr';
 import appConfig from "@/config/appConfig";
+import useTrackCourse from '@/hooks/tracking/useTrackCourse';
 import { ProgressSpinner } from 'primereact/progressspinner';
 
 const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
@@ -32,6 +33,8 @@ export default function CourseDetailsNew({ processedEvent, paidCourse, lessons, 
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 768;
     const { ndk } = useNDKContext();
+
+    const { isCompleted } = useTrackCourse({courseId: processedEvent?.d});
 
     const fetchAuthor = useCallback(async (pubkey) => {
         if (!pubkey) return;
@@ -126,6 +129,7 @@ export default function CourseDetailsNew({ processedEvent, paidCourse, lessons, 
             <div className="w-full mx-auto px-4 py-8 -mt-32 relative z-10 max-mob:px-0 max-tab:px-0">
                 <i className={`pi pi-arrow-left cursor-pointer hover:opacity-75 absolute top-0 left-4`} onClick={() => router.push('/')} />
                 <div className="mb-8 bg-gray-800/70 rounded-lg p-4 max-mob:rounded-t-none max-tab:rounded-t-none">
+                    {isCompleted && <Tag severity="success" value="Completed" />}
                     <div className="flex flex-row items-center justify-between w-full">
                         <h1 className='text-4xl font-bold text-white'>{processedEvent.name}</h1>
                         <div className="flex flex-wrap gap-2">
