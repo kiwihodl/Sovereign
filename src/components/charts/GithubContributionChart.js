@@ -56,7 +56,7 @@ const GithubContributionChart = ({ username }) => {
             <div className="flex justify-between items-center pr-1">
                 <p className="mb-2">Total commits: {totalCommits}</p>
                 <i className="pi pi-question-circle cursor-pointer" data-pr-tooltip="Total number of commits made to GitHub repositories over the last 6 months. (may not be 100% accurate)" />
-                <Tooltip target=".pi-question-circle" position="top"/>
+                <Tooltip target=".pi-question-circle" position="top" />
             </div>
             }
             <div className="flex flex-wrap gap-1">
