@@ -50,7 +50,7 @@ const UserProfile = () => {
 
     const header = (
         <div className="flex flex-wrap align-items-center justify-content-between gap-2">
-            <span className="text-xl text-900 font-bold text-[#f8f8ff]">Purchases</span>
+            <span className="text-xl text-900 font-bold text-[#f8f8ff]">Progress</span>
         </div>
     );
 
@@ -92,7 +92,7 @@ const UserProfile = () => {
                     <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
                 ) : (
                     <DataTable
-                        emptyMessage="No purchases"
+                        emptyMessage="No Courses or Milestones completed"
                         value={session.user?.purchased}
                         header={header}
                         style={{ maxWidth: windowWidth < 768 ? "100%" : "90%", margin: "0 auto", borderRadius: "10px" }}

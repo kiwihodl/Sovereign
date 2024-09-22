@@ -8,6 +8,8 @@ import { ProgressSpinner } from "primereact/progressspinner";
 import { useNDKContext } from "@/context/NDKContext";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import Image from "next/image";
+import PurchasedListItem from "@/components/profile/PurchasedListItem";
+import { formatDateTime } from "@/utils/time";
 import BitcoinConnectButton from "@/components/bitcoinConnect/BitcoinConnect";
 import { Panel } from "primereact/panel";
 import { nip19 } from "nostr-tools";
@@ -136,12 +138,22 @@ const UserSettings = () => {
 
     const PanelHeader = (options) => {
         return (
-            <div className="w-full flex flex-row justify-between p-4 bg-gray-800 rounded-t-lg">
-                <p className="text-[#f8f8ff] text-xl font-bold">Relays</p>
-                <GenericButton onClick={options.onTogglerClick} icon="pi pi-plus" className="p-button-rounded p-button-success p-button-text" />
+            <div className="flex flex-row justify-between px-4 py-[6px] bg-gray-800 rounded-t-lg border-b border-gray-700">
+                <p className="text-[#f8f8ff] text-900 text-xl mt-2 h-fit font-bold">Relays</p>
+                <GenericButton 
+                    onClick={options.onTogglerClick} 
+                    icon={options.collapsed ? "pi pi-plus" : "pi pi-minus"} 
+                    className="p-button-rounded p-button-success p-button-text" 
+                />
             </div>
         );
     };
+
+    const header = (
+        <div className="flex flex-wrap align-items-center justify-content-between gap-2">
+            <span className="text-xl text-900 font-bold text-[#f8f8ff]">Purchases</span>
+        </div>
+    );
 
     return (
         user && (
@@ -169,7 +181,7 @@ const UserSettings = () => {
                     <Tooltip target=".pubkey-tooltip" content={"this is your nostr npub"} />
                     {nip19.npubEncode(user.pubkey)} <i className="pi pi-question-circle text-xl pubkey-tooltip" />
                     </h2>
-                    <div className="flex flex-col w-1/2 mx-auto my-8 mb-12 justify-between items-center">
+                    <div className="flex flex-col w-1/2 mx-auto justify-between items-center">
                         <h2 className="text-xl my-2 max-mob:text-base max-tab:text-base">Connect Your Lightning Wallet</h2>
                         <BitcoinConnectButton />
                     </div>
@@ -180,7 +192,8 @@ const UserSettings = () => {
                 {!session || !session?.user || !ndk ? (
                     <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
                 ) : (
-                    <>
+                    <div className="flex justify-between" style={{ flexDirection: windowWidth < 768 ? "column" : "row", gap: "1rem" }}>
+                        <div className="flex flex-col" style={{ width: windowWidth < 768 ? "100%" : "49%" }}>
                         <Panel
                             headerTemplate={PanelHeader}
                             toggleable
@@ -215,9 +228,35 @@ const UserSettings = () => {
                         >
                             <Column field={(url) => url} header="Relay URL"></Column>
                             <Column body={relayStatusBody} header="Status"></Column>
-                            <Column body={relayActionsBody} header="Actions"></Column>
-                        </DataTable>
-                    </>
+                                <Column body={relayActionsBody} header="Actions"></Column>
+                            </DataTable>
+                        </div>
+                    <DataTable
+                        emptyMessage="No purchases"
+                        value={session.user?.purchased}
+                        header={header}
+                        style={{ width: windowWidth < 768 ? "100%" : "49%", borderRadius: "10px" }}
+                        pt={{
+                            wrapper: {
+                                className: "rounded-lg rounded-t-none"
+                            },
+                            header: {
+                                className: "rounded-t-lg"
+                            }
+                        }}
+                    >
+                        <Column field="amountPaid" header="Cost"></Column>
+                        <Column
+                            body={(rowData) => {
+                                console.log("rowData", rowData);
+                                return <PurchasedListItem eventId={rowData?.resource?.noteId || rowData?.course?.noteId} category={rowData?.course ? "courses" : "resources"} />
+                            }}
+                            header="Name"
+                        ></Column>
+                        <Column body={session.user?.purchased?.some((item) => item.courseId) ? "course" : "resource"} header="Category"></Column>
+                        <Column body={rowData => formatDateTime(rowData?.createdAt)} header="Date"></Column>
+                    </DataTable>
+                    </div>
                 )}
             </div>
         )

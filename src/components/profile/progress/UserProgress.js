@@ -44,7 +44,7 @@ const UserProgress = () => {
     ];
 
     return (
-        <div className="bg-gray-900 rounded-3xl p-6 w-[500px] mx-auto my-8">
+        <div className="bg-gray-800 rounded-3xl p-6 w-[500px] mx-auto my-8">
             <h1 className="text-3xl font-bold text-white mb-2">Your Dev Journey</h1>
             <p className="text-gray-400 mb-4">Track your progress from Pleb to Plebdev</p>
 
@@ -78,7 +78,7 @@ const UserProgress = () => {
                                         headerIcon: { className: 'hidden' },
                                     }}
                                     header={
-                                        <div className="bg-gray-900 flex items-center justify-between w-full font-normal">
+                                        <div className="bg-gray-800 flex items-center justify-between w-full font-normal">
                                             <div className="flex items-center">
                                                 <div className="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center mr-3">
                                                     <span className="text-white text-sm">{index + 1}</span>

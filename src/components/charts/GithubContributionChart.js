@@ -50,7 +50,7 @@ const GithubContributionChart = ({ username }) => {
     const calendar = generateCalendar();
 
     return (
-        <div className="mx-auto py-2 px-4 max-w-[900px] bg-gray-900 rounded-lg">
+        <div className="mx-auto py-2 px-4 max-w-[900px] bg-gray-800 rounded-lg">
             {(isLoading || isFetching) && <p>Loading contribution data... ({totalCommits} commits fetched)</p>}
             {!isLoading && !isFetching && 
             <div className="flex justify-between items-center pr-1">
@@ -68,7 +68,7 @@ const GithubContributionChart = ({ username }) => {
                     ></div>
                 ))}
             </div>
-            <div className="mt-2 text-sm text-gray-500 flex items-center">
+            <div className="mt-2 text-sm text-gray-400 flex items-center">
                 <span className="mr-2">Less</span>
                 <div className="flex gap-1">
                     <div className="w-3 h-3 bg-gray-100 rounded-sm"></div>
