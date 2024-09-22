@@ -7,11 +7,21 @@ const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
 export const getAllUsers = async () => {
   return await prisma.user.findMany({
     include: {
-      role: true, // Include related role
+      role: true,
       purchased: {
         include: {
-          course: true, // Include course details in purchases
-          resource: true, // Include resource details in purchases
+          course: true,
+          resource: true,
+        },
+      },
+      userCourses: {
+        include: {
+          course: true,
+        },
+      },
+      userLessons: {
+        include: {
+          lesson: true,
         },
       },
     },
@@ -22,11 +32,21 @@ export const getUserById = async (id) => {
   return await prisma.user.findUnique({
     where: { id },
     include: {
-      role: true, // Include related role
+      role: true,
       purchased: {
         include: {
-          course: true, // Include course details in purchases
-          resource: true, // Include resource details in purchases
+          course: true,
+          resource: true,
+        },
+      },
+      userCourses: {
+        include: {
+          course: true,
+        },
+      },
+      userLessons: {
+        include: {
+          lesson: true,
         },
       },
     },
@@ -37,11 +57,21 @@ export const getUserByPubkey = async (pubkey) => {
   return await prisma.user.findUnique({
     where: { pubkey },
     include: {
-      role: true, // Include related role
+      role: true,
       purchased: {
         include: {
-          course: true, // Include course details in purchases
-          resource: true, // Include resource details in purchases
+          course: true,
+          resource: true,
+        },
+      },
+      userCourses: {
+        include: {
+          course: true,
+        },
+      },
+      userLessons: {
+        include: {
+          lesson: true,
         },
       },
     },

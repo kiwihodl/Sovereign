@@ -34,6 +34,8 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
         lessonId: lesson?.d,
         courseId: course?.d,
         readTime: readTime,
+        paidCourse: isPaid,
+        decryptionPerformed: decryptionPerformed,
     });
 
     useEffect(() => {

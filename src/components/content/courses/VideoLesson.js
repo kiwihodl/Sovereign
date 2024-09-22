@@ -35,7 +35,9 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
         lessonId: lesson?.d,
         videoDuration,
         courseId: course?.d,
-        videoPlayed
+        videoPlayed,
+        paidCourse: isPaid,
+        decryptionPerformed
     });
 
     useEffect(() => {

@@ -12,8 +12,9 @@ export default async function handler(req, res) {
       // If slug is a pubkey
       user = await getUserByPubkey(slug);
     } else if (isEmail) {
+      // todo
       // If slug is an email
-      user = await getUserByEmail(slug);
+      // user = await getUserByEmail(slug);
     } else {
       // Assume slug is an ID
       const id = parseInt(slug);

@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "./auth/[...nextauth]"
+import { getLessonsByCourseId } from "@/db/models/lessonModels"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3"
 import appConfig from "@/config/appConfig";
@@ -35,9 +36,18 @@ export default async function handler(req, res) {
     // Check if the user is authorized to access the video
     if (!session.user.role?.subscribed && !appConfig.authorPubkeys.includes(session.user.pubkey)) {
       const purchasedVideo = session.user.purchased?.find(purchase => purchase?.resource?.videoId === videoKey)
-      console.log("purchasedVideo", purchasedVideo)
+      // first check if it is individual video
       if (!purchasedVideo) {
-        return res.status(403).json({ error: "Forbidden: You don't have access to this video" })
+        // next we have to check if it is in a course the user has purchased
+        const allPurchasedCourses = session?.user?.purchased?.filter(purchase => purchase?.courseId) || []
+        
+        const allPurchasedLessons = await Promise.all(
+          allPurchasedCourses.map(course => getLessonsByCourseId(course.courseId))
+        ).then(lessonsArrays => lessonsArrays.flat())
+
+        if (!allPurchasedLessons.some(lesson => lesson?.resource?.videoId === videoKey)) {
+          return res.status(403).json({ error: "Forbidden: You don't have access to this video" })
+        }
       }
     }
 

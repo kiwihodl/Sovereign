@@ -139,7 +139,7 @@ const Course = () => {
     const { ndk, addSigner } = useNDKContext();
     const { data: session, update } = useSession();
     const { showToast } = useToast();
-    const [paidCourse, setPaidCourse] = useState(false);
+    const [paidCourse, setPaidCourse] = useState(null);
     const [expandedIndex, setExpandedIndex] = useState(null);
     const [completedLessons, setCompletedLessons] = useState([]);
 

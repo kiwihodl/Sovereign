@@ -2,13 +2,13 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import axios from 'axios';
 
-const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed}) => {
+const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed, paidCourse, decryptionPerformed}) => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [timeSpent, setTimeSpent] = useState(0);
   const [isTracking, setIsTracking] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const timerRef = useRef(null);
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const completedRef = useRef(false);
 
   useEffect(() => {
@@ -31,11 +31,16 @@ const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed}) =
           return false;
         }
       } else if (response.status === 204) {
-        await axios.post(`/api/users/${session.user.id}/lessons?courseId=${courseId}`, {
-          resourceId: lessonId,
-          opened: true,
-          openedAt: new Date().toISOString(),
-        });
+        // Only create a new UserLesson entry if it's a free course or if decryption has been performed for a paid course
+        if (paidCourse === false || (paidCourse && decryptionPerformed)) {
+          await axios.post(`/api/users/${session.user.id}/lessons?courseId=${courseId}`, {
+            resourceId: lessonId,
+            opened: true,
+            openedAt: new Date().toISOString(),
+          });
+          // Call session update after creating a new UserLesson entry
+          await update();
+        }
         return false;
       } else {
         console.error('Error checking or creating UserLesson:', response.statusText);
@@ -45,7 +50,7 @@ const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed}) =
       console.error('Error checking or creating UserLesson:', error);
       return false;
     }
-  }, [session, lessonId, courseId]);
+  }, [session, lessonId, courseId, update, paidCourse, decryptionPerformed]);
 
   const markLessonAsCompleted = useCallback(async () => {
     if (!session?.user || completedRef.current) return;
@@ -60,20 +65,22 @@ const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed}) =
       if (response.status === 200) {
         setIsCompleted(true);
         setIsTracking(false);
+        // Call session update after marking the lesson as completed
+        await update();
       } else {
         console.error('Failed to mark lesson as completed:', response.statusText);
       }
     } catch (error) {
       console.error('Error marking lesson as completed:', error);
     }
-  }, [lessonId, courseId, session]);
+  }, [lessonId, courseId, session, update]);
 
   useEffect(() => {
     const initializeTracking = async () => {
       if (isAdmin) return;
 
       const alreadyCompleted = await checkOrCreateUserLesson();
-      if (!alreadyCompleted && videoDuration && !completedRef.current && videoPlayed) {
+      if (!alreadyCompleted && videoDuration && !completedRef.current && videoPlayed && (paidCourse === false || (paidCourse && decryptionPerformed))) {
         console.log(`Tracking started for lesson ${lessonId}, video duration: ${videoDuration} seconds, video played: ${videoPlayed}`);
         setIsTracking(true);
         timerRef.current = setInterval(() => {
@@ -89,7 +96,7 @@ const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed}) =
         clearInterval(timerRef.current);
       }
     };
-  }, [lessonId, videoDuration, checkOrCreateUserLesson, videoPlayed, isAdmin]);
+  }, [lessonId, videoDuration, checkOrCreateUserLesson, videoPlayed, isAdmin, paidCourse, decryptionPerformed]);
 
   useEffect(() => {
     if (isAdmin) return;

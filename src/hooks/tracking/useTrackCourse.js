@@ -2,24 +2,30 @@ import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {useSession} from 'next-auth/react';
 import axios from 'axios';
 
-const useTrackCourse = ({courseId}) => {
+const useTrackCourse = ({courseId, paidCourse, decryptionPerformed}) => {
   const [isCompleted, setIsCompleted] = useState(false);
-  const {data: session} = useSession();
+  const {data: session, update} = useSession();
   const completedRef = useRef(false);
 
   const checkOrCreateUserCourse = useCallback(async () => {
-    if (!session?.user) return false;
+    if (!session?.user || !courseId) return false;
     try {
       const response = await axios.get(`/api/users/${session.user.id}/courses/${courseId}`);
       if (response.status === 200 && response?.data) {
         setIsCompleted(true);
         completedRef.current = true;
       } else if (response.status === 204) {
-        await axios.post(`/api/users/${session.user.id}/courses?courseSlug=${courseId}`, {
-          completed: false,
-          started: true,
-          startedAt: new Date().toISOString(),
-        });
+        // Only create a new UserCourse entry if it's a free course or if decryption has been performed for a paid course
+        if (paidCourse === false || (paidCourse && decryptionPerformed)) {
+          console.log("creating new UserCourse entry");
+          await axios.post(`/api/users/${session.user.id}/courses?courseSlug=${courseId}`, {
+            completed: false,
+            started: true,
+            startedAt: new Date().toISOString(),
+          });
+          // Call session update after creating a new UserCourse entry
+          await update();
+        }
 
         setIsCompleted(false);
         return false;
@@ -31,13 +37,13 @@ const useTrackCourse = ({courseId}) => {
       console.error('Error checking or creating UserCourse:', error);
       return false;
     }
-  }, [session, courseId]);
+  }, [courseId, paidCourse, decryptionPerformed]);
 
   useEffect(() => {
-    if (!completedRef.current && courseId) {
+    if (!completedRef.current && courseId && session?.user) {
       checkOrCreateUserCourse();
     }
-  }, [checkOrCreateUserCourse, courseId]);
+  }, [courseId]);
 
   return {isCompleted};
 };

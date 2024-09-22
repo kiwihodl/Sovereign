@@ -34,7 +34,11 @@ export default function CourseDetailsNew({ processedEvent, paidCourse, lessons, 
     const isMobileView = windowWidth <= 768;
     const { ndk } = useNDKContext();
 
-    const { isCompleted } = useTrackCourse({courseId: processedEvent?.d});
+    const { isCompleted } = useTrackCourse({
+        courseId: processedEvent?.d,
+        paidCourse,
+        decryptionPerformed
+    });
 
     const fetchAuthor = useCallback(async (pubkey) => {
         if (!pubkey) return;
