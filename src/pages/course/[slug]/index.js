@@ -19,6 +19,8 @@ const MDDisplay = dynamic(() => import("@uiw/react-markdown-preview"), { ssr: fa
 const useCourseData = (ndk, fetchAuthor, router) => {
     const [course, setCourse] = useState(null);
     const [lessonIds, setLessonIds] = useState([]);
+    const [paidCourse, setPaidCourse] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (router.isReady) {
@@ -26,6 +28,7 @@ const useCourseData = (ndk, fetchAuthor, router) => {
             const { data } = nip19.decode(slug);
             if (!data) {
                 showToast('error', 'Error', 'Course not found');
+                setLoading(false);
                 return;
             }
             const id = data?.identifier;
@@ -41,9 +44,12 @@ const useCourseData = (ndk, fetchAuthor, router) => {
                         setLessonIds(lessonIds);
                         const parsedCourse = { ...parseCourseEvent(event), author };
                         setCourse(parsedCourse);
+                        setPaidCourse(parsedCourse.price && parsedCourse.price > 0);
                     }
+                    setLoading(false);
                 } catch (error) {
                     console.error('Error fetching event:', error);
+                    setLoading(false);
                 }
             };
             if (ndk && id) {
@@ -52,7 +58,7 @@ const useCourseData = (ndk, fetchAuthor, router) => {
         }
     }, [router.isReady, router.query, ndk, fetchAuthor]);
 
-    return { course, lessonIds };
+    return { course, lessonIds, paidCourse, loading };
 };
 
 const useLessons = (ndk, fetchAuthor, lessonIds, pubkey) => {
@@ -64,7 +70,7 @@ const useLessons = (ndk, fetchAuthor, lessonIds, pubkey) => {
             const fetchLesson = async (lessonId) => {
                 try {
                     await ndk.connect();
-                    const filter = { "#d": [lessonId], kinds:[30023, 30402], authors: [pubkey] };
+                    const filter = { "#d": [lessonId], kinds: [30023, 30402], authors: [pubkey] };
                     const event = await ndk.fetchEvent(filter);
                     if (event) {
                         const author = await fetchAuthor(event.pubkey);
@@ -107,7 +113,7 @@ const useDecryption = (session, paidCourse, course, lessons, setLessons) => {
         const decrypt = async () => {
             if (session?.user && paidCourse && !decryptionPerformed) {
                 setLoading(true);
-                const canAccess = 
+                const canAccess =
                     session.user.purchased?.some(purchase => purchase.courseId === course?.d) ||
                     session.user?.role?.subscribed ||
                     session.user?.pubkey === course?.pubkey;
@@ -139,7 +145,6 @@ const Course = () => {
     const { ndk, addSigner } = useNDKContext();
     const { data: session, update } = useSession();
     const { showToast } = useToast();
-    const [paidCourse, setPaidCourse] = useState(null);
     const [expandedIndex, setExpandedIndex] = useState(null);
     const [completedLessons, setCompletedLessons] = useState([]);
 
@@ -155,19 +160,13 @@ const Course = () => {
         return fields;
     }, [ndk]);
 
-    const { course, lessonIds } = useCourseData(ndk, fetchAuthor, router);
+    const { course, lessonIds, paidCourse, loading: courseLoading } = useCourseData(ndk, fetchAuthor, router);
     const { lessons, uniqueLessons, setLessons } = useLessons(ndk, fetchAuthor, lessonIds, course?.pubkey);
-    const { decryptionPerformed, loading } = useDecryption(session, paidCourse, course, lessons, setLessons);
+    const { decryptionPerformed, loading: decryptionLoading } = useDecryption(session, paidCourse, course, lessons, setLessons);
 
     useEffect(() => {
         console.log('lessonIds', lessonIds);
     }, [lessonIds]);
-
-    useEffect(() => {
-        if (course?.price && course?.price > 0) {
-            setPaidCourse(true);
-        }
-    }, [course]);
 
     useEffect(() => {
         if (router.isReady) {
@@ -183,7 +182,7 @@ const Course = () => {
     const handleAccordionChange = (e) => {
         const newIndex = e.index === expandedIndex ? null : e.index;
         setExpandedIndex(newIndex);
-        
+
         if (newIndex !== null) {
             router.push(`/course/${router.query.slug}?active=${newIndex}`, undefined, { shallow: true });
         } else {
@@ -206,7 +205,7 @@ const Course = () => {
         showToast('error', 'Payment Error', `Failed to purchase course. Please try again. Error: ${error}`);
     }
 
-    if (loading) {
+    if (courseLoading || decryptionLoading) {
         return (
             <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
         );
@@ -214,21 +213,23 @@ const Course = () => {
 
     return (
         <>
-            <CourseDetailsNew 
-                processedEvent={course} 
-                paidCourse={paidCourse}
-                lessons={uniqueLessons}
-                decryptionPerformed={decryptionPerformed}
-                handlePaymentSuccess={handlePaymentSuccess}
-                handlePaymentError={handlePaymentError}
-            />
-            <Accordion 
-                activeIndex={expandedIndex} 
+            {course && paidCourse !== null && (
+                <CourseDetailsNew
+                    processedEvent={course}
+                    paidCourse={paidCourse}
+                    lessons={uniqueLessons}
+                    decryptionPerformed={decryptionPerformed}
+                    handlePaymentSuccess={handlePaymentSuccess}
+                    handlePaymentError={handlePaymentError}
+                />
+            )}
+            <Accordion
+                activeIndex={expandedIndex}
                 onTabChange={handleAccordionChange}
                 className="mt-4 px-4 max-mob:px-0 max-tab:px-0"
             >
                 {uniqueLessons.length > 0 && uniqueLessons.map((lesson, index) => (
-                    <AccordionTab 
+                    <AccordionTab
                         key={index}
                         pt={{
                             root: { className: 'border-none' },
@@ -245,8 +246,8 @@ const Course = () => {
                         }
                     >
                         <div className="w-full py-4 rounded-b-lg">
-                            {lesson.type === 'video' ? 
-                                <VideoLesson lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} setCompleted={setCompleted} /> : 
+                            {lesson.type === 'video' ?
+                                <VideoLesson lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} setCompleted={setCompleted} /> :
                                 <DocumentLesson lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} setCompleted={setCompleted} />
                             }
                         </div>

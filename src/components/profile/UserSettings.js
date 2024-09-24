@@ -8,7 +8,7 @@ import { ProgressSpinner } from "primereact/progressspinner";
 import { useNDKContext } from "@/context/NDKContext";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import Image from "next/image";
-import PurchasedListItem from "@/components/profile/PurchasedListItem";
+import PurchasedListItem from "@/components/content/lists/PurchasedListItem";
 import { formatDateTime } from "@/utils/time";
 import BitcoinConnectButton from "@/components/bitcoinConnect/BitcoinConnect";
 import { Panel } from "primereact/panel";

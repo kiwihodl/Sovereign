@@ -5,7 +5,7 @@ import { Column } from "primereact/column";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from "primereact/progressspinner";
-import PurchasedListItem from "@/components/profile/PurchasedListItem";
+import ProgressListItem from "@/components/content/lists/ProgressListItem";
 import { useNDKContext } from "@/context/NDKContext";
 import { formatDateTime } from "@/utils/time";
 import { Tooltip } from "primereact/tooltip";
@@ -15,6 +15,7 @@ import GithubContributionChart from "@/components/charts/GithubContributionChart
 import useWindowWidth from "@/hooks/useWindowWidth";
 import { useToast } from "@/hooks/useToast";
 import UserProgress from "@/components/profile/progress/UserProgress";
+import { classNames } from "primereact/utils";
 
 const UserProfile = () => {
     const windowWidth = useWindowWidth();
@@ -93,7 +94,7 @@ const UserProfile = () => {
                 ) : (
                     <DataTable
                         emptyMessage="No Courses or Milestones completed"
-                        value={session.user?.purchased}
+                        value={session.user?.userCourses}
                         header={header}
                         style={{ maxWidth: windowWidth < 768 ? "100%" : "90%", margin: "0 auto", borderRadius: "10px" }}
                         pt={{
@@ -105,15 +106,22 @@ const UserProfile = () => {
                             }
                         }}
                     >
-                        <Column field="amountPaid" header="Cost"></Column>
+                        <Column 
+                            field="completed" 
+                            header="Completed" 
+                            body={(rowData) => (
+                                <i className={classNames('pi', {'pi-check-circle text-green-500': rowData.completed, 'pi-times-circle text-red-500': !rowData.completed})}></i>
+                            )}
+                        ></Column>
                         <Column
                             body={(rowData) => {
-                                console.log("rowData", rowData);
-                                return <PurchasedListItem eventId={rowData?.resource?.noteId || rowData?.course?.noteId} category={rowData?.course ? "courses" : "resources"} />
+                                return <ProgressListItem dTag={rowData.courseId} category="name" />
                             }}
                             header="Name"
                         ></Column>
-                        <Column body={session.user?.purchased?.some((item) => item.courseId) ? "course" : "resource"} header="Category"></Column>
+                        <Column body={(rowData) => {
+                            return <ProgressListItem dTag={rowData.courseId} category="lessons" />
+                        }} header="Lessons"></Column>
                         <Column body={rowData => formatDateTime(rowData?.createdAt)} header="Date"></Column>
                     </DataTable>
                 )}

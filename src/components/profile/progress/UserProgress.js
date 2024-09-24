@@ -1,11 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { ProgressBar } from 'primereact/progressbar';
 import { Accordion, AccordionTab } from 'primereact/accordion';
+import { useSession } from 'next-auth/react';
 
 const UserProgress = () => {
     const [progress, setProgress] = useState(0);
     const [currentTier, setCurrentTier] = useState('Pleb');
     const [expanded, setExpanded] = useState(null);
+    const [completedCourses, setCompletedCourses] = useState([]);
+    const [tasks, setTasks] = useState([]);
+
+    const { data: session } = useSession();
+
+    useEffect(() => {
+        if (session?.user) {
+            const user = session.user;
+            const ids = user?.userCourses.map(course => course?.completed ? course.courseId : null).filter(id => id !== null);
+            setCompletedCourses(ids);
+            generateTasks(ids);
+        }
+    }, [session]);
+
+    const generateTasks = (completedCourseIds) => {
+        const allTasks = [
+            { status: 'Create Account', completed: true, tier: 'Pleb', courseId: null },
+            {
+                status: 'Complete PlebDevs Starter',
+                completed: false,
+                tier: 'New Dev',
+                courseId: null,
+                subTasks: [
+                    { status: 'Connect GitHub', completed: false },
+                    { status: 'Create First GitHub Repo', completed: false },
+                    { status: 'Push Commit', completed: false }
+                ]
+            },
+            { status: 'Complete PlebDevs Course 1', completed: false, tier: 'Junior Dev', courseId: 'd20e2e9b-5123-4a91-b27f-d75ea1d5811e' },
+            { status: 'Complete PlebDevs Course 2', completed: false, tier: 'Plebdev', courseId: 'aa3b1641-ad2b-4ef4-9f0f-38951ae307b7' },
+        ];
+
+        const updatedTasks = allTasks.map(task => ({
+            ...task,
+            completed: task.courseId === null || completedCourseIds.includes(task.courseId),
+            subTasks: task.subTasks ? task.subTasks.map(subTask => ({
+                ...subTask,
+                completed: completedCourseIds.includes(task.courseId)
+            })) : undefined
+        }));
+
+        setTasks(updatedTasks);
+    };
 
     const getProgress = async () => {
         return 10;
@@ -15,8 +59,6 @@ const UserProgress = () => {
         return 'Pleb';
     };
     useEffect(() => {
-        // Fetch progress and current tier from backend
-        // For now, let's assume we have a function to get these values
         const fetchProgress = async () => {
             const progress = await getProgress();
             const currentTier = await getCurrentTier();
@@ -26,22 +68,6 @@ const UserProgress = () => {
 
         fetchProgress();
     }, []);
-
-    const tasks = [
-        { status: 'Create Account', completed: true, tier: 'Pleb' },
-        {
-            status: 'Complete PlebDevs Starter',
-            completed: false,
-            tier: 'New Dev',
-            subTasks: [
-                { status: 'Connect GitHub', completed: false },
-                { status: 'Create First GitHub Repo', completed: false },
-                { status: 'Push Commit', completed: false }
-            ]
-        },
-        { status: 'Complete PlebDevs Course 1', completed: false, tier: 'Junior Dev' },
-        { status: 'Complete PlebDevs Course 2', completed: false, tier: 'Plebdev' },
-    ];
 
     return (
         <div className="bg-gray-800 rounded-3xl p-6 w-[500px] mx-auto my-8">
