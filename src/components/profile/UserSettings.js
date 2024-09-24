@@ -248,7 +248,6 @@ const UserSettings = () => {
                         <Column field="amountPaid" header="Cost"></Column>
                         <Column
                             body={(rowData) => {
-                                console.log("rowData", rowData);
                                 return <PurchasedListItem eventId={rowData?.resource?.noteId || rowData?.course?.noteId} category={rowData?.course ? "courses" : "resources"} />
                             }}
                             header="Name"

@@ -227,6 +227,9 @@ CREATE UNIQUE INDEX "Course_noteId_key" ON "Course"("noteId");
 CREATE UNIQUE INDEX "UserLesson_userId_lessonId_key" ON "UserLesson"("userId", "lessonId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Purchase_userId_courseId_key" ON "Purchase"("userId", "courseId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "UserCourse_userId_courseId_key" ON "UserCourse"("userId", "courseId");
 
 -- AddForeignKey

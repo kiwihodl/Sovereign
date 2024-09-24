@@ -104,9 +104,27 @@ export const addCoursePurchaseToUser = async (userId, purchaseData) => {
     where: { id: userId },
     data: {
       purchased: {
-        create: {
-          courseId: purchaseData.courseId,
-          amountPaid: purchaseData.amountPaid,
+        upsert: {
+          where: {
+            userId_courseId: {
+              userId: userId,
+              courseId: purchaseData.courseId,
+            },
+          },
+          create: {
+            courseId: purchaseData.courseId,
+            amountPaid: purchaseData.amountPaid,
+          },
+          update: {
+            amountPaid: purchaseData.amountPaid,
+          },
+        },
+      },
+    },
+    include: {
+      purchased: {
+        include: {
+          course: true,
         },
       },
     },
