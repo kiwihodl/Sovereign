@@ -11,6 +11,11 @@ import { Badge } from 'primereact/badge';
 import GenericButton from '@/components/buttons/GenericButton';
 import { Menu } from "primereact/menu";
 import { Message } from "primereact/message";
+import CancelSubscription from '@/components/profile/subscription/CancelSubscription';
+import CalendlyEmbed from '@/components/profile/subscription/CalendlyEmbed';
+import NostrIcon from '../../../../public/images/nostr.png';
+import Image from 'next/image';
+import RenewSubscription from '@/components/profile/subscription/RenewSubscription';
 
 const SubscribeModal = ({ user }) => {
     const { data: session, update } = useSession();
@@ -21,7 +26,10 @@ const SubscribeModal = ({ user }) => {
     const [subscribed, setSubscribed] = useState(false);
     const [subscribedUntil, setSubscribedUntil] = useState(null);
     const [subscriptionExpiredAt, setSubscriptionExpiredAt] = useState(null);
+    const [calendlyVisible, setCalendlyVisible] = useState(false);
     const menu = useRef(null);
+    const [cancelSubscriptionVisible, setCancelSubscriptionVisible] = useState(false);
+    const [renewSubscriptionVisible, setRenewSubscriptionVisible] = useState(false);
 
     useEffect(() => {
         if (user && user.role) {
@@ -88,21 +96,21 @@ const SubscribeModal = ({ user }) => {
             label: "Renew Subscription",
             icon: "pi pi-bolt",
             command: () => {
-                // Add your renew functionality here
+                setRenewSubscriptionVisible(true);
             },
         },
         {
             label: "Schedule 1:1",
             icon: "pi pi-calendar",
             command: () => {
-                // Add your schedule functionality here
+                setCalendlyVisible(true);
             },
         },
         {
             label: "Cancel Subscription",
             icon: "pi pi-trash",
             command: () => {
-                // Add your cancel functionality here
+                setCancelSubscriptionVisible(true);
             },
         },
     ];
@@ -110,21 +118,23 @@ const SubscribeModal = ({ user }) => {
     const subscriptionCardTitle = (
         <div className="w-full flex flex-row justify-between items-center">
             <span className="text-xl text-900 font-bold text-white">Plebdevs Subscription</span>
-            <i
-                className="pi pi-ellipsis-h text-2xl cursor-pointer hover:opacity-75"
+            {subscribed && (
+                <i
+                    className="pi pi-ellipsis-h text-2xl cursor-pointer hover:opacity-75"
                 onClick={(e) => menu.current.toggle(e)}
-            ></i>
+                ></i>
+            )}
             <Menu model={menuItems} popup ref={menu} />
         </div>
     );
 
     return (
         <>
-            <Card title={subscriptionCardTitle} className="w-fit m-8 mx-auto">
+            <Card title={subscriptionCardTitle} className="w-fit m-4 mx-auto">
                 {subscribed && (
                     <div className="flex flex-col">
                         <Message className="w-fit" severity="success" text="Subscribed!" />
-                        <p className="mt-8">Thank you for your support 🎉</p>
+                        <p className="mt-4">Thank you for your support 🎉</p>
                         <p className="text-sm text-gray-400">Pay-as-you-go subscription will renew on {subscribedUntil.toLocaleDateString()}</p>
                     </div>
                 )}
@@ -133,7 +143,7 @@ const SubscribeModal = ({ user }) => {
                         <Message className="w-fit" severity="info" text="You currently have no active subscription" />
                         <GenericButton
                             label="Subscribe"
-                            className="w-auto mt-8 text-[#f8f8ff]"
+                            className="w-auto mt-4 text-[#f8f8ff]"
                             onClick={() => setVisible(true)}
                         />
                     </div>
@@ -143,7 +153,7 @@ const SubscribeModal = ({ user }) => {
                         <Message className="w-fit" severity="warn" text={`Your subscription expired on ${subscriptionExpiredAt.toLocaleDateString()}`} />
                         <GenericButton
                             label="Subscribe"
-                            className="w-auto mt-8 text-[#f8f8ff]"
+                            className="w-auto mt-4 text-[#f8f8ff]"
                             onClick={() => setVisible(true)}
                         />
                     </div>
@@ -166,26 +176,26 @@ const SubscribeModal = ({ user }) => {
                             <h2 className="text-2xl font-bold text-primary">Unlock Premium Benefits</h2>
                             <p className="text-gray-400">Subscribe now and elevate your development journey!</p>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div className="flex flex-col gap-4 mb-4 w-[60%] mx-auto">
                             <div className="flex items-center">
-                                <i className="pi pi-book text-2xl text-primary mr-2"></i>
-                                <span>Access ALL current and future content</span>
+                                <i className="pi pi-book text-2xl text-primary mr-2 text-blue-400"></i>
+                                <span>Access ALL current and future PlebDevs content</span>
                             </div>
                             <div className="flex items-center">
-                                <i className="pi pi-users text-2xl text-primary mr-2"></i>
-                                <span>Join PlebLab Bitcoin Hackerspace Slack</span>
+                                <i className="pi pi-calendar text-2xl text-primary mr-2 text-red-400"></i>
+                                <span>Personal mentorship & guidance and access to exclusive 1:1 booking calendar</span>
                             </div>
                             <div className="flex items-center">
-                                <i className="pi pi-calendar text-2xl text-primary mr-2"></i>
-                                <span>Exclusive 1:1 booking calendar</span>
+                                <i className="pi pi-bolt text-2xl text-primary mr-2 text-yellow-500"></i>
+                                <span>Claim your own personal plebdevs.com Lightning Address</span>
                             </div>
                             <div className="flex items-center">
-                                <i className="pi pi-star text-2xl text-primary mr-2"></i>
-                                <span>Personal mentorship & guidance</span>
+                                <Image src={NostrIcon} alt="Nostr" width={26 } height={26} className='mr-2' />
+                                <span>Claim your own personal plebdevs.com Nostr NIP-05 identity</span>
                             </div>
                         </div>
                         <div className="text-center mb-4 flex flex-row justify-center">
-                            <Badge value="BONUS" severity="success" className="mr-2"></Badge>
+                            <Badge value="BONUS" severity="success" className="mr-2 text-[#f8f8ff] font-bold"></Badge>
                             <span className="text-center font-bold">I WILL MAKE SURE YOU WIN HARD AND LEVEL UP AS A DEV!</span>
                         </div>
                         <SubscriptionPaymentButtons
@@ -197,6 +207,21 @@ const SubscribeModal = ({ user }) => {
                     </Card>
                 )}
             </Dialog>
+            {calendlyVisible && (
+                <CalendlyEmbed 
+                    visible={calendlyVisible} 
+                    onHide={() => setCalendlyVisible(false)} 
+                />
+            )}
+            <CancelSubscription
+                visible={cancelSubscriptionVisible}
+                onHide={() => setCancelSubscriptionVisible(false)}
+            />
+            <RenewSubscription
+                visible={renewSubscriptionVisible}
+                onHide={() => setRenewSubscriptionVisible(false)}
+                subscribedUntil={subscribedUntil}
+            />
         </>
     );
 };
