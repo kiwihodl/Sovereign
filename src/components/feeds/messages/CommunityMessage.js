@@ -51,7 +51,7 @@ const CommunityMessage = ({ message, searchQuery, windowWidth, platform }) => {
     const header = (
         <div className="flex flex-row w-full items-center justify-between p-4 bg-gray-800 rounded-t-lg">
             <div className="flex flex-row items-center">
-                <Avatar image={message.avatar} shape="circle" size="large" className="border-2 border-blue-400" />
+                <Avatar image={message.avatar ? message.avatar : null} icon={message.avatar ? null : "pi pi-user"} shape="circle" size="large" className="border-2 border-blue-400" />
                 <p className="pl-4 font-bold text-xl text-white">{message?.pubkey ? (message?.pubkey.slice(0, 12) + "...") : message.author}</p>
             </div>
             <div className="flex flex-col items-start justify-between">

@@ -79,9 +79,11 @@ const NostrFeed = ({ searchQuery }) => {
         return <div className="text-red-500 text-center p-4">Failed to load messages. Please try again later.</div>;
     }
 
-    const filteredNotes = communityNotes.filter(message =>
-        message.content.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredNotes = communityNotes
+        .filter(message =>
+            message.content.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .sort((a, b) => b.created_at - a.created_at);
 
     return (
         <div className="bg-gray-900 h-full w-full min-bottom-bar:w-[86vw]">

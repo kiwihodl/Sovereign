@@ -13,9 +13,11 @@ const DiscordFeed = ({ searchQuery }) => {
     // Memoize the filtered data
     const filteredData = useMemo(() => {
         if (!data) return [];
-        return data.filter(message =>
-            message.content.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        return data
+            .filter(message =>
+                message.content.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+            .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     }, [data, searchQuery]);
 
     if (isLoading) {

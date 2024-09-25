@@ -7,8 +7,7 @@ export default async function handler(req, res) {
         query RecentDevItemsWithComments {
           items(
             sub: "devs",
-            sort: "NEW",
-            limit: 10
+            sort: "recent"
           ) {
             items {
               id

@@ -120,13 +120,13 @@ const GlobalFeed = ({searchQuery}) => {
                                     item.type === 'stackernews' ? item.user.name :
                                     authorData[item.pubkey]?.username || item.pubkey.substring(0, 12) + '...',
                             avatar: item.type === 'discord' ? item.avatar :
-                                    item.type === 'stackernews' ? item.user.image :
+                                    item.type === 'stackernews' ? "https://pbs.twimg.com/profile_images/1403162883941359619/oca7LMQ2_400x400.png" :
                                     authorData[item.pubkey]?.avatar,
                             content: item.type === 'stackernews' ? item.title : item.content,
                             timestamp: item.type === 'nostr' ? item.created_at * 1000 : new Date(item.timestamp || item.createdAt),
                             channel: item.type === 'discord' ? item.channel :
                                      item.type === 'stackernews' ? "~devs" :
-                                     "plebdevs"
+                                     "#plebdevs"
                         }}
                         searchQuery={searchQuery}
                         windowWidth={windowWidth}

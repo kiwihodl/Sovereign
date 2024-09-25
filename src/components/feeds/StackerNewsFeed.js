@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -21,6 +21,10 @@ const StackerNewsFeed = ({ searchQuery }) => {
     const { data: items, isLoading, error } = useQuery({queryKey: ['stackerNews'], queryFn: fetchStackerNews});
     const windowWidth = useWindowWidth();
 
+    useEffect(() => {
+        console.log("ot", items);
+    }, [items]);
+
     if (isLoading) {
         return (
             <div className="h-[100vh] min-bottom-bar:w-[86vw] max-sidebar:w-[100vw]">
@@ -34,9 +38,11 @@ const StackerNewsFeed = ({ searchQuery }) => {
         return <div className="text-red-500 text-center p-4">Error loading data. Please try again later.</div>;
     }
 
-    const filteredItems = items.filter(item =>
-        item.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredItems = items
+        .filter(item =>
+            item.title.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     return (
         <div className="bg-gray-900 h-full w-full min-bottom-bar:w-[86vw]">
@@ -48,7 +54,7 @@ const StackerNewsFeed = ({ searchQuery }) => {
                             message={{
                                 id: item.id,
                                 author: item.user.name,
-                                avatar: item.user.image,
+                                avatar: "https://pbs.twimg.com/profile_images/1403162883941359619/oca7LMQ2_400x400.png",
                                 content: item.title,
                                 timestamp: item.createdAt,
                                 channel: "~devs",
