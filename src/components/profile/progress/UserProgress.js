@@ -25,7 +25,7 @@ const UserProgress = () => {
         const allTasks = [
             { status: 'Create Account', completed: true, tier: 'Pleb', courseId: null },
             {
-                status: 'Complete PlebDevs Starter',
+                status: 'PlebDevs Starter (Coming Soon)',
                 completed: false,
                 tier: 'New Dev',
                 courseId: null,
@@ -35,8 +35,8 @@ const UserProgress = () => {
                     { status: 'Push Commit', completed: false }
                 ]
             },
-            { status: 'Complete PlebDevs Course 1', completed: false, tier: 'Junior Dev', courseId: 'd20e2e9b-5123-4a91-b27f-d75ea1d5811e' },
-            { status: 'Complete PlebDevs Course 2', completed: false, tier: 'Plebdev', courseId: 'aa3b1641-ad2b-4ef4-9f0f-38951ae307b7' },
+            { status: 'PlebDevs Course 1', completed: false, tier: 'Junior Dev', courseId: 'd20e2e9b-5123-4a91-b27f-d75ea1d5811e' },
+            { status: 'PlebDevs Course 2', completed: false, tier: 'Plebdev', courseId: 'aa3b1641-ad2b-4ef4-9f0f-38951ae307b7' },
         ];
 
         const updatedTasks = allTasks.map(task => ({
@@ -71,7 +71,7 @@ const UserProgress = () => {
 
     return (
         <div className="bg-gray-800 rounded-3xl p-6 w-[500px] mx-auto my-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Your Dev Journey</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">Dev Journey (Coming Soon)</h1>
             <p className="text-gray-400 mb-4">Track your progress from Pleb to Plebdev</p>
 
             <div className="flex justify-between items-center mb-2">
@@ -107,7 +107,7 @@ const UserProgress = () => {
                                         <div className="bg-gray-800 flex items-center justify-between w-full font-normal">
                                             <div className="flex items-center">
                                                 <div className="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center mr-3">
-                                                    <span className="text-white text-sm">{index + 1}</span>
+                                                    <i className="pi pi-info-circle text-white text-lg"></i>
                                                 </div>
                                                 <span className="text-lg text-gray-400">{task.status}</span>
                                                 <i className={`pi pi-chevron-down text-gray-400 ml-2 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`} />
@@ -123,11 +123,11 @@ const UserProgress = () => {
                                             <li key={subIndex} className="flex items-center">
                                                 {subTask.completed ? (
                                                     <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-3">
-                                                        <i className="pi pi-check text-white text-xs"></i>
+                                                        <i className="pi pi-check text-white text-lg"></i>
                                                     </div>
                                                 ) : (
                                                     <div className="w-4 h-4 bg-gray-700 rounded-full flex items-center justify-center mr-3">
-                                                        <span className="text-white text-xs">{subIndex + 1}</span>
+                                                        <span className="text-white text-sm">{subIndex + 1}</span>
                                                     </div>
                                                 )}
                                                 <span className={`text-base ${subTask.completed ? 'text-white' : 'text-gray-400'}`}>
@@ -143,11 +143,11 @@ const UserProgress = () => {
                                 <div className="flex items-center">
                                     {task.completed ? (
                                         <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mr-3">
-                                            <i className="pi pi-check text-white text-sm"></i>
+                                            <i className="pi pi-check text-white text-lg"></i>
                                         </div>
                                     ) : (
                                         <div className="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center mr-3">
-                                            <span className="text-white text-sm">{index + 1}</span>
+                                            <i className="pi pi-info-circle text-white text-lg"></i>
                                         </div>
                                     )}
                                     <span className={`text-lg ${task.completed ? 'text-white' : 'text-gray-400'}`}>{task.status}</span>
@@ -162,7 +162,7 @@ const UserProgress = () => {
             </ul>
 
             <button className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full font-semibold">
-                View Badges
+                View Badges (Coming Soon)
             </button>
         </div>
     );

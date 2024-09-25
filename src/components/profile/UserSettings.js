@@ -140,10 +140,10 @@ const UserSettings = () => {
         return (
             <div className="flex flex-row justify-between px-4 py-[6px] bg-gray-800 rounded-t-lg border-b border-gray-700">
                 <p className="text-[#f8f8ff] text-900 text-xl mt-2 h-fit font-bold">Relays</p>
-                <GenericButton 
-                    onClick={options.onTogglerClick} 
-                    icon={options.collapsed ? "pi pi-plus" : "pi pi-minus"} 
-                    className="p-button-rounded p-button-success p-button-text" 
+                <GenericButton
+                    onClick={options.onTogglerClick}
+                    icon={options.collapsed ? "pi pi-plus" : "pi pi-minus"}
+                    className="p-button-rounded p-button-success p-button-text"
                 />
             </div>
         );
@@ -178,8 +178,8 @@ const UserSettings = () => {
                         {user.username || user?.email || "Anon"}
                     </h1>
                     <h2 className="text-center text-xl my-2 truncate max-tab:px-4 max-mob:px-4">
-                    <Tooltip target=".pubkey-tooltip" content={"this is your nostr npub"} />
-                    {nip19.npubEncode(user.pubkey)} <i className="pi pi-question-circle text-xl pubkey-tooltip" />
+                        <Tooltip target=".pubkey-tooltip" content={"this is your nostr npub"} />
+                        {nip19.npubEncode(user.pubkey)} <i className="pi pi-question-circle text-xl pubkey-tooltip" />
                     </h2>
                     <div className="flex flex-col w-1/2 mx-auto justify-between items-center">
                         <h2 className="text-xl my-2 max-mob:text-base max-tab:text-base">Connect Your Lightning Wallet</h2>
@@ -189,7 +189,7 @@ const UserSettings = () => {
                         <SubscribeModal user={user} />
                     )}
                 </div>
-                {!session || !session?.user || !ndk ? (
+                {/* {!session || !session?.user || !ndk ? (
                     <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
                 ) : (
                     <div className="flex justify-between" style={{ flexDirection: windowWidth < 768 ? "column" : "row", gap: "1rem" }}>
@@ -256,7 +256,45 @@ const UserSettings = () => {
                         <Column body={rowData => formatDateTime(rowData?.createdAt)} header="Date"></Column>
                     </DataTable>
                     </div>
-                )}
+                )} */}
+                <div>
+                    <Panel
+                        headerTemplate={PanelHeader}
+                        toggleable
+                        collapsed={collapsed}
+                        onToggle={(e) => setCollapsed(e.value)}
+                    >
+                        <div className="flex flex-row justify-between">
+                            <InputText
+                                placeholder="Relay URL"
+                                value={newRelayUrl}
+                                onChange={(e) => setNewRelayUrl(e.target.value)}
+                            />
+                            <GenericButton
+                                label="Add"
+                                severity="success"
+                                className='w-fit px-4'
+                                outlined
+                                onClick={addRelay}
+                            />
+                        </div>
+                    </Panel>
+                    <DataTable value={userRelays}
+                        pt={{
+                            wrapper: {
+                                className: "rounded-lg rounded-t-none"
+                            },
+                            header: {
+                                className: "rounded-t-lg"
+                            }
+                        }}
+                        onValueChange={() => setUpdateTrigger(prev => prev + 1)} // Trigger update when table value changes
+                    >
+                        <Column field={(url) => url} header="Relay URL"></Column>
+                        <Column body={relayStatusBody} header="Status"></Column>
+                        <Column body={relayActionsBody} header="Actions"></Column>
+                    </DataTable>
+                </div>
             </div>
         )
     );

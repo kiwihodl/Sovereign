@@ -6,12 +6,14 @@ import { useImageProxy } from "@/hooks/useImageProxy";
 import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from "primereact/progressspinner";
 import ProgressListItem from "@/components/content/lists/ProgressListItem";
+import PurchasedListItem from "@/components/content/lists/PurchasedListItem";
 import { useNDKContext } from "@/context/NDKContext";
 import { formatDateTime } from "@/utils/time";
 import { Tooltip } from "primereact/tooltip";
 import { nip19 } from "nostr-tools";
 import Image from "next/image";
 import GithubContributionChart from "@/components/charts/GithubContributionChart";
+import GithubContributionChartDisabled from "@/components/charts/GithubContributionChartDisabled";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import { useToast } from "@/hooks/useToast";
 import UserProgress from "@/components/profile/progress/UserProgress";
@@ -55,6 +57,12 @@ const UserProfile = () => {
         </div>
     );
 
+    const purchasesHeader = (
+        <div className="flex flex-wrap align-items-center justify-content-between gap-2">
+            <span className="text-xl text-900 font-bold text-[#f8f8ff]">Purchases</span>
+        </div>
+    );
+
     return (
         user && (
             <div className="p-4">
@@ -86,7 +94,8 @@ const UserProfile = () => {
                         <Tooltip target=".pubkey-tooltip" content={"this is your nostr npub"} />
                         {nip19.npubEncode(user.pubkey)} <i className="pi pi-question-circle text-xl pubkey-tooltip" />
                     </h2>
-                    <GithubContributionChart username={"austinkelsay"} />
+                    {/* <GithubContributionChart username={"austinkelsay"} /> */}
+                    <GithubContributionChartDisabled username={"austinkelsay"} />
                     <UserProgress />
                 </div>
                 {!session || !session?.user || !ndk ? (
@@ -106,11 +115,11 @@ const UserProfile = () => {
                             }
                         }}
                     >
-                        <Column 
-                            field="completed" 
-                            header="Completed" 
+                        <Column
+                            field="completed"
+                            header="Completed"
                             body={(rowData) => (
-                                <i className={classNames('pi', {'pi-check-circle text-green-500': rowData.completed, 'pi-times-circle text-red-500': !rowData.completed})}></i>
+                                <i className={classNames('pi', { 'pi-check-circle text-green-500': rowData.completed, 'pi-times-circle text-red-500': !rowData.completed })}></i>
                             )}
                         ></Column>
                         <Column
@@ -122,6 +131,32 @@ const UserProfile = () => {
                         <Column body={(rowData) => {
                             return <ProgressListItem dTag={rowData.courseId} category="lessons" />
                         }} header="Lessons"></Column>
+                        <Column body={rowData => formatDateTime(rowData?.createdAt)} header="Date"></Column>
+                    </DataTable>
+                )}
+                {session && session?.user && (
+                    <DataTable
+                        emptyMessage="No purchases"
+                        value={session.user?.purchased}
+                        header={purchasesHeader}
+                        style={{ maxWidth: windowWidth < 768 ? "100%" : "90%", margin: "0 auto", borderRadius: "10px" }}
+                        pt={{
+                            wrapper: {
+                                className: "rounded-lg rounded-t-none"
+                            },
+                            header: {
+                                className: "rounded-t-lg mt-4"
+                            }
+                        }}
+                    >
+                        <Column field="amountPaid" header="Cost"></Column>
+                        <Column
+                            body={(rowData) => {
+                                return <PurchasedListItem eventId={rowData?.resource?.noteId || rowData?.course?.noteId} category={rowData?.course ? "courses" : "resources"} />
+                            }}
+                            header="Name"
+                        ></Column>
+                        <Column body={session.user?.purchased?.some((item) => item.courseId) ? "course" : "resource"} header="Category"></Column>
                         <Column body={rowData => formatDateTime(rowData?.createdAt)} header="Date"></Column>
                     </DataTable>
                 )}
