@@ -1,10 +1,20 @@
-const nostrData = {
-    names: {
-        plebdevs:
-            "f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741",
-    },
-};
+import { getNip05ByName } from "@/db/models/nip05Models";
 
 export default async function Nip05(req, res) {
-    return res.status(200).json(nostrData);
+    const name = req.query.name;
+    if (!name) {
+        return res.status(400).json({ error: "Name is required" });
+    }
+
+    const nip05 = await getNip05ByName(name);
+
+    if (!nip05) {
+        return res.status(404).json({ error: "NIP-05 not found" });
+    }
+
+    return res.status(200).json({
+        names: {
+            [nip05.name.toLowerCase()]: nip05.pubkey,
+        },
+    });
 }

@@ -49,6 +49,8 @@ export const getUserById = async (id) => {
           lesson: true,
         },
       },
+      nip05: true,
+      lightningAddress: true,
     },
   });
 };
@@ -74,6 +76,8 @@ export const getUserByPubkey = async (pubkey) => {
           lesson: true,
         },
       },
+      nip05: true,
+      lightningAddress: true,
     },
   });
 }

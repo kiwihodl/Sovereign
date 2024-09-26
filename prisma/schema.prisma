@@ -8,27 +8,29 @@ generator client {
 }
 
 model User {
-    id            String    @id @default(uuid())
-    pubkey        String?   @unique
-    privkey       String?
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    username      String?   @unique
-    avatar        String?
-    purchased     Purchase[]
-    courses       Course[]
-    resources     Resource[]
-    courseDrafts  CourseDraft[]
-    drafts        Draft[]
-    role          Role?
-    accounts      Account[]
-    sessions      Session[]
-    createdAt     DateTime  @default(now())
-    updatedAt     DateTime  @updatedAt
-    userLessons UserLesson[]
-    userCourses UserCourse[]
+    id               String            @id @default(uuid())
+    pubkey           String?           @unique
+    privkey          String?
+    name             String?
+    email            String?           @unique
+    emailVerified    DateTime?
+    image            String?
+    username         String?           @unique
+    avatar           String?
+    purchased        Purchase[]
+    courses          Course[]
+    resources        Resource[]
+    courseDrafts     CourseDraft[]
+    drafts           Draft[]
+    role             Role?
+    accounts         Account[]
+    sessions         Session[]
+    createdAt        DateTime          @default(now())
+    updatedAt        DateTime          @updatedAt
+    userLessons      UserLesson[]
+    userCourses      UserCourse[]
+    nip05            Nip05?
+    lightningAddress LightningAddress?
 }
 
 model Session {
@@ -69,31 +71,30 @@ model Account {
 }
 
 model Role {
-    id           String    @id @default(uuid())
-    user         User      @relation(fields: [userId], references: [id])
-    userId       String    @unique
-    subscribed           Boolean   @default(false)
-    admin                Boolean   @default(false)
+    id                    String    @id @default(uuid())
+    user                  User      @relation(fields: [userId], references: [id])
+    userId                String    @unique
+    subscribed            Boolean   @default(false)
+    admin                 Boolean   @default(false)
     subscriptionStartDate DateTime?
     lastPaymentAt         DateTime?
     subscriptionExpiredAt DateTime?
-    nwc                String?
+    nwc                   String?
 }
 
 model Resource {
-    id        String     @id // Client generates UUID
-    userId    String
-    user      User       @relation(fields: [userId], references: [id])
-    lessons   Lesson[]
+    id           String        @id // Client generates UUID
+    userId       String
+    user         User          @relation(fields: [userId], references: [id])
+    lessons      Lesson[]
     draftLessons DraftLesson[]
-    price     Int        @default(0)
-    purchases Purchase[]
-    noteId    String?    @unique
-    videoId   String?
-    createdAt DateTime   @default(now())
-    updatedAt DateTime   @updatedAt
+    price        Int           @default(0)
+    purchases    Purchase[]
+    noteId       String?       @unique
+    videoId      String?
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
 }
-
 
 model Draft {
     id              String        @id @default(uuid())
@@ -114,15 +115,15 @@ model Draft {
 }
 
 model Course {
-    id        String     @id
-    userId    String
-    user      User       @relation(fields: [userId], references: [id])
-    price     Int        @default(0)
-    lessons   Lesson[]
-    purchases Purchase[]
-    noteId    String?    @unique
-    createdAt DateTime   @default(now())
-    updatedAt DateTime   @updatedAt
+    id          String       @id
+    userId      String
+    user        User         @relation(fields: [userId], references: [id])
+    price       Int          @default(0)
+    lessons     Lesson[]
+    purchases   Purchase[]
+    noteId      String?      @unique
+    createdAt   DateTime     @default(now())
+    updatedAt   DateTime     @updatedAt
     userCourses UserCourse[]
 }
 
@@ -141,16 +142,16 @@ model CourseDraft {
 }
 
 model Lesson {
-    id         String   @id @default(uuid())
-    courseId   String?
-    course     Course?  @relation(fields: [courseId], references: [id])
-    resourceId String?
-    resource   Resource? @relation(fields: [resourceId], references: [id])
-    draftId    String?
-    draft      Draft?   @relation(fields: [draftId], references: [id])
-    index      Int
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
+    id          String       @id @default(uuid())
+    courseId    String?
+    course      Course?      @relation(fields: [courseId], references: [id])
+    resourceId  String?
+    resource    Resource?    @relation(fields: [resourceId], references: [id])
+    draftId     String?
+    draft       Draft?       @relation(fields: [draftId], references: [id])
+    index       Int
+    createdAt   DateTime     @default(now())
+    updatedAt   DateTime     @updatedAt
     userLessons UserLesson[]
 }
 
@@ -168,48 +169,74 @@ model DraftLesson {
 }
 
 model UserLesson {
-    id         String   @id @default(uuid())
-    userId     String
-    user       User     @relation(fields: [userId], references: [id])
-    lessonId   String
-    lesson     Lesson   @relation(fields: [lessonId], references: [id])
-    opened     Boolean  @default(false)
-    completed  Boolean  @default(false)
-    openedAt   DateTime?
+    id          String    @id @default(uuid())
+    userId      String
+    user        User      @relation(fields: [userId], references: [id])
+    lessonId    String
+    lesson      Lesson    @relation(fields: [lessonId], references: [id])
+    opened      Boolean   @default(false)
+    completed   Boolean   @default(false)
+    openedAt    DateTime?
     completedAt DateTime?
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
 
     @@unique([userId, lessonId])
 }
 
 model Purchase {
-    id         String   @id @default(uuid())
+    id         String    @id @default(uuid())
     userId     String
     courseId   String?
     resourceId String?
     amountPaid Int
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
-    user       User     @relation(fields: [userId], references: [id])
-    course     Course?  @relation(fields: [courseId], references: [id])
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+    user       User      @relation(fields: [userId], references: [id])
+    course     Course?   @relation(fields: [courseId], references: [id])
     resource   Resource? @relation(fields: [resourceId], references: [id])
 
     @@unique([userId, courseId])
 }
 
 model UserCourse {
-    id         String   @id @default(uuid())
-    userId     String
-    user       User     @relation(fields: [userId], references: [id])
-    courseId   String
-    course     Course   @relation(fields: [courseId], references: [id])
-    started    Boolean  @default(false)
-    completed  Boolean  @default(false)
-    startedAt  DateTime?
+    id          String    @id @default(uuid())
+    userId      String
+    user        User      @relation(fields: [userId], references: [id])
+    courseId    String
+    course      Course    @relation(fields: [courseId], references: [id])
+    started     Boolean   @default(false)
+    completed   Boolean   @default(false)
+    startedAt   DateTime?
     completedAt DateTime?
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
 
     @@unique([userId, courseId])
+}
+
+model Nip05 {
+    id        String   @id @default(uuid())
+    userId    String   @unique
+    user      User     @relation(fields: [userId], references: [id])
+    pubkey    String
+    name      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model LightningAddress {
+    id              String  @id @default(uuid())
+    userId          String  @unique
+    user            User    @relation(fields: [userId], references: [id])
+    name            String
+    allowsNostr     Boolean @default(true)
+    description     String?
+    // todo: change to BigInt to support native millisats
+    maxSendable     Int  @default(10000000)
+    minSendable     Int  @default(1)
+    invoiceMacaroon String
+    lndCert         String?
+    lndHost         String
+    lndPort         String  @default("8080")
 }

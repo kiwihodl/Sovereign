@@ -72,7 +72,7 @@ const UserSettings = () => {
     useEffect(() => {
         const intervalId = setInterval(() => {
             setUpdateTrigger(prev => prev + 1);
-        }, 3000); // Poll every 3 seconds
+        }, 7000); // Poll every 7 seconds
 
         return () => clearInterval(intervalId); // Cleanup on unmount
     }, []);
@@ -181,6 +181,12 @@ const UserSettings = () => {
                         <Tooltip target=".pubkey-tooltip" content={"this is your nostr npub"} />
                         {nip19.npubEncode(user.pubkey)} <i className="pi pi-question-circle text-xl pubkey-tooltip" />
                     </h2>
+                    <h3 className="text-center text-xl my-2">
+                        <span className="font-bold">Lightning Address:</span> {user.lightningAddress.name}@plebdevs.com
+                    </h3>
+                    <h3 className="text-center text-xl my-2">
+                        <span className="font-bold">NIP-05:</span> {user.nip05.name}@plebdevs.com
+                    </h3>
                     <div className="flex flex-col w-1/2 mx-auto justify-between items-center">
                         <h2 className="text-xl my-2 max-mob:text-base max-tab:text-base">Connect Your Lightning Wallet</h2>
                         <BitcoinConnectButton />

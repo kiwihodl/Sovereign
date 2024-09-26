@@ -94,6 +94,12 @@ const UserProfile = () => {
                         <Tooltip target=".pubkey-tooltip" content={"this is your nostr npub"} />
                         {nip19.npubEncode(user.pubkey)} <i className="pi pi-question-circle text-xl pubkey-tooltip" />
                     </h2>
+                    <h3 className="text-center text-xl my-2">
+                        <span className="font-bold">Lightning Address:</span> {user.lightningAddress.name}@plebdevs.com
+                    </h3>
+                    <h3 className="text-center text-xl my-2">
+                        <span className="font-bold">NIP-05:</span> {user.nip05.name}@plebdevs.com
+                    </h3>
                     {/* <GithubContributionChart username={"austinkelsay"} /> */}
                     <GithubContributionChartDisabled username={"austinkelsay"} />
                     <UserProgress />

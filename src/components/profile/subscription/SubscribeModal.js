@@ -13,6 +13,8 @@ import { Menu } from "primereact/menu";
 import { Message } from "primereact/message";
 import CancelSubscription from '@/components/profile/subscription/CancelSubscription';
 import CalendlyEmbed from '@/components/profile/subscription/CalendlyEmbed';
+import Nip05Form from '@/components/profile/subscription/Nip05Form';
+import LightningAddressForm from '@/components/profile/subscription/LightningAddressForm';
 import NostrIcon from '../../../../public/images/nostr.png';
 import Image from 'next/image';
 import RenewSubscription from '@/components/profile/subscription/RenewSubscription';
@@ -27,6 +29,8 @@ const SubscribeModal = ({ user }) => {
     const [subscribedUntil, setSubscribedUntil] = useState(null);
     const [subscriptionExpiredAt, setSubscriptionExpiredAt] = useState(null);
     const [calendlyVisible, setCalendlyVisible] = useState(false);
+    const [lightningAddressVisible, setLightningAddressVisible] = useState(false);
+    const [nip05Visible, setNip05Visible] = useState(false);
     const menu = useRef(null);
     const [cancelSubscriptionVisible, setCancelSubscriptionVisible] = useState(false);
     const [renewSubscriptionVisible, setRenewSubscriptionVisible] = useState(false);
@@ -93,17 +97,31 @@ const SubscribeModal = ({ user }) => {
 
     const menuItems = [
         {
-            label: "Renew Subscription",
-            icon: "pi pi-bolt",
-            command: () => {
-                setRenewSubscriptionVisible(true);
-            },
-        },
-        {
             label: "Schedule 1:1",
             icon: "pi pi-calendar",
             command: () => {
                 setCalendlyVisible(true);
+            },
+        },
+        {
+            label: session?.user?.lightningAddress ? "Update PlebDevs Lightning Address" : "Claim PlebDevs Lightning Address",
+            icon: "pi pi-bolt",
+            command: () => {
+                setLightningAddressVisible(true);
+            },
+        },
+        {
+            label: session?.user?.nip05 ? "Update PlebDevs Nostr NIP-05" : "Claim PlebDevs Nostr NIP-05",
+            icon: "pi pi-at",
+            command: () => {
+                setNip05Visible(true);
+            },
+        },
+        {
+            label: "Renew Subscription",
+            icon: "pi pi-sync",
+            command: () => {
+                setRenewSubscriptionVisible(true);
             },
         },
         {
@@ -121,10 +139,10 @@ const SubscribeModal = ({ user }) => {
             {subscribed && (
                 <i
                     className="pi pi-ellipsis-h text-2xl cursor-pointer hover:opacity-75"
-                onClick={(e) => menu.current.toggle(e)}
+                    onClick={(e) => menu.current.toggle(e)}
                 ></i>
             )}
-            <Menu model={menuItems} popup ref={menu} />
+            <Menu model={menuItems} popup ref={menu} className="w-fit" />
         </div>
     );
 
@@ -190,7 +208,7 @@ const SubscribeModal = ({ user }) => {
                                 <span>Claim your own personal plebdevs.com Lightning Address</span>
                             </div>
                             <div className="flex items-center">
-                                <Image src={NostrIcon} alt="Nostr" width={26 } height={26} className='mr-2' />
+                                <Image src={NostrIcon} alt="Nostr" width={26} height={26} className='mr-2' />
                                 <span>Claim your own personal plebdevs.com Nostr NIP-05 identity</span>
                             </div>
                         </div>
@@ -207,12 +225,10 @@ const SubscribeModal = ({ user }) => {
                     </Card>
                 )}
             </Dialog>
-            {calendlyVisible && (
-                <CalendlyEmbed 
-                    visible={calendlyVisible} 
-                    onHide={() => setCalendlyVisible(false)} 
-                />
-            )}
+            <CalendlyEmbed
+                visible={calendlyVisible}
+                onHide={() => setCalendlyVisible(false)}
+            />
             <CancelSubscription
                 visible={cancelSubscriptionVisible}
                 onHide={() => setCancelSubscriptionVisible(false)}
@@ -221,6 +237,14 @@ const SubscribeModal = ({ user }) => {
                 visible={renewSubscriptionVisible}
                 onHide={() => setRenewSubscriptionVisible(false)}
                 subscribedUntil={subscribedUntil}
+            />
+            <Nip05Form
+                visible={nip05Visible}
+                onHide={() => setNip05Visible(false)}
+            />
+            <LightningAddressForm
+                visible={lightningAddressVisible}
+                onHide={() => setLightningAddressVisible(false)}
             />
         </>
     );
