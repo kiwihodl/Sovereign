@@ -69,6 +69,7 @@ const RenewSubscription = ({ visible, onHide, subscribedUntil }) => {
                         onRecurringSubscriptionSuccess={handleSubscriptionSuccess}
                         onError={handleSubscriptionError}
                         setIsProcessing={setIsProcessing}
+                        layout="col"
                     />
                 </Card>
             )}

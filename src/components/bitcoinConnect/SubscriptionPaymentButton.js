@@ -19,7 +19,7 @@ const PaymentModal = dynamic(
     { ssr: false }
 );
 
-const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptionSuccess, setIsProcessing, oneTime = false, recurring = false }) => {
+const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptionSuccess, setIsProcessing, oneTime = false, recurring = false, layout = "row" }) => {
     const [invoice, setInvoice] = useState(null);
     const [showRecurringOptions, setShowRecurringOptions] = useState(false);
     const [nwcInput, setNwcInput] = useState('');
@@ -206,7 +206,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
     return (
         <>
             {!invoice && (
-                <div className="w-full flex flex-row justify-between">
+                <div className={`w-full flex ${layout === "row" ? "flex-row justify-between" : "flex-col items-center"}`}>
                     {(oneTime || (!oneTime && !recurring)) && (
                         <GenericButton
                             label="Pay as you go"
