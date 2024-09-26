@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useToast } from '@/hooks/useToast';
 import { InputText } from 'primereact/inputtext';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { InputNumber } from 'primereact/inputnumber';
 import GenericButton from '@/components/buttons/GenericButton';
 
 const LightningAddressForm = ({ visible, onHide }) => {
@@ -91,23 +92,25 @@ const LightningAddressForm = ({ visible, onHide }) => {
             ) : (
                 <p>Confirm your Lightning Address details</p>
             )}
-            <div className="flex flex-col gap-2 max-mob:min-w-[80vw] max-tab:min-w-[60vw] min-w-[40vw]">
+            <p className="text-sm text-gray-500">Only LND is currently supported at this time</p>
+            <div className="mt-4 flex flex-col gap-2 max-mob:min-w-[80vw] max-tab:min-w-[60vw] min-w-[40vw]">
                 <label>Name</label>
-                <InputText placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
+                <InputText placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} tooltip='This is your Lightning Address name, it must be unique and will be displayed as name@plebdevs.com' />
                 <label>Description</label>
-                <InputText placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+                <InputText placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} tooltip='This is your Lightning Address description, it will be displayed as the description LUD16 lnurlp endpoint' />
                 <label>Max Sendable</label>
-                <InputText placeholder="Max Sendable" value={maxSendable} onChange={(e) => setMaxSendable(e.target.value)} />
+                {/* Todo: max is 2,147,483 sats until i imlement bigInt for sat amounts */}
+                <InputNumber placeholder="Max Sendable" value={maxSendable} onChange={(e) => setMaxSendable(e.target.value)} max={2147483647} min={1000} tooltip='This is the maximum amount of sats that can be sent to your Lightning Address (currently denominated in sats NOT msat)' />
                 <label>Min Sendable</label>
-                <InputText placeholder="Min Sendable" value={minSendable} onChange={(e) => setMinSendable(e.target.value)} />
+                <InputNumber placeholder="Min Sendable" value={minSendable} onChange={(e) => setMinSendable(e.target.value)} min={1} max={2147483647} tooltip='This is the minimum amount of sats that can be sent to your Lightning Address (currently denominated in sats NOT msat)' />
                 <label>Invoice Macaroon</label>
-                <InputText placeholder="Invoice Macaroon" value={invoiceMacaroon} onChange={(e) => setInvoiceMacaroon(e.target.value)} />
+                <InputText placeholder="Invoice Macaroon" value={invoiceMacaroon} onChange={(e) => setInvoiceMacaroon(e.target.value)} tooltip='This is your LND Invoice Macaroon, it is used to create invoices for your Lightning Address but DOES NOT grant access to move funds from your LND node' />
                 <label>LND Cert</label>
-                <InputText placeholder="LND Cert" value={lndCert} onChange={(e) => setLndCert(e.target.value)} />
+                <InputText placeholder="LND Cert" value={lndCert} onChange={(e) => setLndCert(e.target.value)} tooltip='This is your LND TLS Certificate, it is used to connect to your LND node (this may be optional)' />
                 <label>LND Host</label>
-                <InputText placeholder="LND Host" value={lndHost} onChange={(e) => setLndHost(e.target.value)} />
+                <InputText placeholder="LND Host" value={lndHost} onChange={(e) => setLndHost(e.target.value)} tooltip='This is your LND Host, it is the hostname to your LND node' />
                 <label>LND Port</label>
-                <InputText placeholder="LND Port" value={lndPort} onChange={(e) => setLndPort(e.target.value)} />
+                <InputText placeholder="LND Port" value={lndPort} onChange={(e) => setLndPort(e.target.value)} tooltip='This is your LND Port, it is the port to your LND node (defaults to 8080)' />
             </div>
             {!existingLightningAddress && (
                 <div className="flex flex-row justify-center mt-6">

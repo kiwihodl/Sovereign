@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { verifyEvent } from 'nostr-tools/pure';
 import appConfig from "@/config/appConfig";
 import { runMiddleware, corsMiddleware } from "@/utils/corsMiddleware";
+import { getLightningAddressByName } from "@/db/models/lightningAddressModels";
 
 const BACKEND_URL = process.env.BACKEND_URL;
 
@@ -10,9 +11,21 @@ export default async function handler(req, res) {
     await runMiddleware(req, res, corsMiddleware);
     const { slug, ...queryParams } = req.query;
 
+    let foundAddress = null;
     const customAddress = appConfig.customLightningAddresses.find(addr => addr.name === slug);
 
     if (customAddress) {
+        foundAddress = customAddress;
+    } else {
+        foundAddress = await getLightningAddressByName(slug);
+    }
+
+    if (!foundAddress) {
+        res.status(404).json({ error: 'Lightning address not found' });
+        return;
+    }
+
+    if (foundAddress) {
         if (queryParams.amount) {
             const amount = parseInt(queryParams.amount);
             let metadata, metadataString, hash, descriptionHash;
@@ -41,7 +54,7 @@ export default async function handler(req, res) {
             } else {
                 // This is a regular lnurl-pay request
                 metadata = [
-                    ["text/plain", `${customAddress.name}'s LNURL endpoint, CHEERS!`]
+                    ["text/plain", `${foundAddress.name}'s LNURL endpoint, CHEERS!`]
                 ];
                 metadataString = JSON.stringify(metadata);
                 hash = crypto.createHash('sha256').update(metadataString).digest('hex');
@@ -49,10 +62,10 @@ export default async function handler(req, res) {
             }
 
             // Convert amount from millisatoshis to satoshis
-            if (amount < (customAddress.minSendable)) {
+            if (amount < (foundAddress.minSendable)) {
                 res.status(400).json({ error: 'Amount too low' });
                 return;
-            } else if (amount > (customAddress.maxSendable || Number.MAX_SAFE_INTEGER)) {
+            } else if (amount > (foundAddress.maxSendable || Number.MAX_SAFE_INTEGER)) {
                 res.status(400).json({ error: 'Amount too high' });
                 return;
             } else {
