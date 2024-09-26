@@ -9,17 +9,38 @@ import { Menu } from "primereact/menu";
 import { Message } from "primereact/message";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import SubscriptionPaymentButtons from '@/components/bitcoinConnect/SubscriptionPaymentButton';
+import Image from 'next/image';
+import NostrIcon from '../../../../public/images/nostr.png';
+import { Badge } from 'primereact/badge';
+import GenericButton from '@/components/buttons/GenericButton';
+import CancelSubscription from '@/components/profile/subscription/CancelSubscription';
+import CalendlyEmbed from '@/components/profile/subscription/CalendlyEmbed';
+import Nip05Form from '@/components/profile/subscription/Nip05Form';
+import LightningAddressForm from '@/components/profile/subscription/LightningAddressForm';
+import RenewSubscription from '@/components/profile/subscription/RenewSubscription';
 
-const UserSubscription = ({ user }) => {
+const UserSubscription = () => {
     const { data: session, update } = useSession();
     const { showToast } = useToast();
     const router = useRouter();
     const windowWidth = useWindowWidth();
+    const menu = useRef(null);
+    const [user, setUser] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [subscribed, setSubscribed] = useState(false);
     const [subscribedUntil, setSubscribedUntil] = useState(null);
     const [subscriptionExpiredAt, setSubscriptionExpiredAt] = useState(null);
-    const menu = useRef(null);
+    const [calendlyVisible, setCalendlyVisible] = useState(false);
+    const [lightningAddressVisible, setLightningAddressVisible] = useState(false);
+    const [nip05Visible, setNip05Visible] = useState(false);
+    const [cancelSubscriptionVisible, setCancelSubscriptionVisible] = useState(false);
+    const [renewSubscriptionVisible, setRenewSubscriptionVisible] = useState(false);
+
+    useEffect(() => {
+        if (session && session?.user) {
+            setUser(session.user);
+        }
+    }, [session])
 
     useEffect(() => {
         if (user && user.role) {
@@ -34,22 +55,22 @@ const UserSubscription = ({ user }) => {
         }
     }, [user]);
 
-    const handleSubscriptionSuccess = async (paymentResponse) => {
+    const handleSubscriptionSuccess = async (response) => {
         setIsProcessing(true);
         try {
-            const response = await axios.post('/api/subscription/create', {
-                paymentResponse,
+            const apiResponse = await axios.put('/api/users/subscription', {
+                userId: session.user.id,
+                isSubscribed: true,
             });
-            if (response.data.success) {
-                showToast('success', 'Subscription successful!');
+            if (apiResponse.data) {
                 await update();
-                router.push('/dashboard');
+                showToast('success', 'Subscription Successful', 'Your subscription has been activated.');
             } else {
-                showToast('error', 'Subscription failed. Please try again.');
+                throw new Error('Failed to update subscription status');
             }
         } catch (error) {
-            console.error('Subscription error:', error);
-            showToast('error', 'An error occurred. Please try again.');
+            console.error('Subscription update error:', error);
+            showToast('error', 'Subscription Update Failed', `Error: ${error.message}`);
         } finally {
             setIsProcessing(false);
         }
@@ -57,25 +78,18 @@ const UserSubscription = ({ user }) => {
 
     const handleSubscriptionError = (error) => {
         console.error('Subscription error:', error);
-        showToast('error', 'An error occurred during subscription. Please try again.');
+        showToast('error', 'Subscription Failed', `An error occurred: ${error.message}`);
+        setIsProcessing(false);
     };
 
-    const handleRecurringSubscriptionSuccess = async (paymentResponse) => {
+    const handleRecurringSubscriptionSuccess = async () => {
         setIsProcessing(true);
         try {
-            const response = await axios.post('/api/subscription/recurring', {
-                paymentResponse,
-            });
-            if (response.data.success) {
-                showToast('success', 'Recurring subscription set up successfully!');
-                await update();
-                router.push('/dashboard');
-            } else {
-                showToast('error', 'Failed to set up recurring subscription. Please try again.');
-            }
+            await update();
+            showToast('success', 'Recurring Subscription Activated', 'Your recurring subscription has been set up successfully.');
         } catch (error) {
-            console.error('Recurring subscription error:', error);
-            showToast('error', 'An error occurred. Please try again.');
+            console.error('Session update error:', error);
+            showToast('error', 'Session Update Failed', `Error: ${error.message}`);
         } finally {
             setIsProcessing(false);
         }
@@ -83,46 +97,64 @@ const UserSubscription = ({ user }) => {
 
     const menuItems = [
         {
-            label: "Renew Subscription",
-            icon: "pi pi-bolt",
-            command: () => {
-                // Add your renew functionality here
-            },
-        },
-        {
             label: "Schedule 1:1",
             icon: "pi pi-calendar",
             command: () => {
-                // Add your schedule functionality here
+                setCalendlyVisible(true);
+            },
+        },
+        {
+            label: session?.user?.lightningAddress ? "Update PlebDevs Lightning Address" : "Claim PlebDevs Lightning Address",
+            icon: "pi pi-bolt",
+            command: () => {
+                setLightningAddressVisible(true);
+            },
+        },
+        {
+            label: session?.user?.nip05 ? "Update PlebDevs Nostr NIP-05" : "Claim PlebDevs Nostr NIP-05",
+            icon: "pi pi-at",
+            command: () => {
+                setNip05Visible(true);
+            },
+        },
+        {
+            label: "Renew Subscription",
+            icon: "pi pi-sync",
+            command: () => {
+                setRenewSubscriptionVisible(true);
             },
         },
         {
             label: "Cancel Subscription",
             icon: "pi pi-trash",
             command: () => {
-                // Add your cancel functionality here
+                setCancelSubscriptionVisible(true);
             },
         },
     ];
 
+    useEffect(() => {
+        console.log(subscribed)
+    }, [subscribed])
+
     const subscriptionCardTitle = (
         <div className="w-full flex flex-row justify-between items-center">
             <span className="text-xl text-900 font-bold text-white">Plebdevs Subscription</span>
-            <i
-                className="pi pi-ellipsis-h text-2xlcursor-pointer hover:opacity-75"
-                onClick={(e) => menu.current.toggle(e)}
-            ></i>
-            <Menu model={menuItems} popup ref={menu} />
+            {subscribed && (
+                <i
+                    className="pi pi-ellipsis-h text-2xl cursor-pointer hover:opacity-75"
+                    onClick={(e) => menu.current.toggle(e)}
+                ></i>
+            )}
+            <Menu model={menuItems} popup ref={menu} className="w-fit" />
         </div>
     );
 
     return (
         <div className="p-4">
-            {
-                windowWidth < 768 && (
-                    <h1 className="text-3xl font-bold mb-6">Subscription Management</h1>
-                )
-            }
+            {windowWidth < 768 && (
+                <h1 className="text-3xl font-bold mb-6">Subscription Management</h1>
+            )}
             <Card title={subscriptionCardTitle} className="mb-6">
                 {subscribed && (
                     <div className="flex flex-col">
@@ -151,44 +183,40 @@ const UserSubscription = ({ user }) => {
                     </div>
                 ) : (
                     <div className="flex flex-col">
-                        <h2 className="text-2xl font-semibold mb-4">Choose your subscription plan:</h2>
-                        <div className="flex flex-col gap-4">
-                            <Card className='bg-gray-900 w-fit'>
-                                <h3 className="text-xl font-semibold mb-2">Monthly Subscription</h3>
-                                <p className="mb-4">Get access to all PlebDevs features / content one month at a time.</p>
-                                <SubscriptionPaymentButtons
-                                    onSuccess={handleSubscriptionSuccess}
-                                    onError={handleSubscriptionError}
-                                    amount={10}
-                                    currency="USD"
-                                    buttonText="Subscribe for $10/month"
-                                    oneTime={true}
-                                />
-                            </Card>
-                            <Card className='bg-gray-900 w-fit'>
-                                <h3 className="text-xl font-semibold mb-2">Recurring Monthly Subscription</h3>
-                                <p className="mb-4">Setup auto recurring monthly payments for uninterrupted access.</p>
-                                <SubscriptionPaymentButtons
-                                    onSuccess={handleRecurringSubscriptionSuccess}
-                                    onError={handleSubscriptionError}
-                                    amount={10}
-                                    currency="USD"
-                                    buttonText="Set up recurring $10/month"
-                                    recurring={true}
-                                />
-                            </Card>
+                        <div className="mb-4">
+                            <h2 className="text-2xl font-bold text-primary">Unlock Premium Benefits</h2>
+                            <p className="text-gray-400">Subscribe now and elevate your development journey!</p>
                         </div>
+                        <div className="flex flex-col gap-4 mb-4">
+                            <div className="flex items-center">
+                                <i className="pi pi-book text-2xl text-primary mr-2 text-blue-400"></i>
+                                <span>Access ALL current and future PlebDevs content</span>
+                            </div>
+                            <div className="flex items-center">
+                                <i className="pi pi-calendar text-2xl text-primary mr-2 text-red-400"></i>
+                                <span>Personal mentorship & guidance and access to exclusive 1:1 booking calendar</span>
+                            </div>
+                            <div className="flex items-center">
+                                <i className="pi pi-bolt text-2xl text-primary mr-2 text-yellow-500"></i>
+                                <span>Claim your own personal plebdevs.com Lightning Address</span>
+                            </div>
+                            <div className="flex items-center">
+                                <Image src={NostrIcon} alt="Nostr" width={26} height={26} className='mr-2' />
+                                <span>Claim your own personal plebdevs.com Nostr NIP-05 identity</span>
+                            </div>
+                        </div>
+                        <div className="text-center mb-4 flex flex-row justify-start">
+                            <i className="pi pi-star text-2xl text-primary mr-2 text-yellow-500"></i>
+                            <span className="text-center font-bold">I WILL MAKE SURE YOU WIN HARD AND LEVEL UP AS A DEV!</span>
+                        </div>
+                        <SubscriptionPaymentButtons
+                            onSuccess={handleSubscriptionSuccess}
+                            onRecurringSubscriptionSuccess={handleRecurringSubscriptionSuccess}
+                            onError={handleSubscriptionError}
+                            setIsProcessing={setIsProcessing}
+                        />
                     </div>
                 )}
-            </Card>
-
-            <Card title="Subscription Benefits" className="mb-6">
-                <ul className="list-disc pl-6">
-                    <li>Access to exclusive content</li>
-                    <li>Priority support</li>
-                    <li>Early access to new features</li>
-                    <li>Community forums</li>
-                </ul>
             </Card>
 
             <Card title="Frequently Asked Questions" className="mb-6">
@@ -204,6 +232,28 @@ const UserSubscription = ({ user }) => {
                     {/* Add more FAQ items as needed */}
                 </div>
             </Card>
+
+            <CalendlyEmbed
+                visible={calendlyVisible}
+                onHide={() => setCalendlyVisible(false)}
+            />
+            <CancelSubscription
+                visible={cancelSubscriptionVisible}
+                onHide={() => setCancelSubscriptionVisible(false)}
+            />
+            <RenewSubscription
+                visible={renewSubscriptionVisible}
+                onHide={() => setRenewSubscriptionVisible(false)}
+                subscribedUntil={subscribedUntil}
+            />
+            <Nip05Form
+                visible={nip05Visible}
+                onHide={() => setNip05Visible(false)}
+            />
+            <LightningAddressForm
+                visible={lightningAddressVisible}
+                onHide={() => setLightningAddressVisible(false)}
+            />
         </div>
     );
 };
