@@ -150,7 +150,7 @@ const Sidebar = ({ course = false }) => {
                                 <i className="pi pi-plus pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Create</p>
                             </div>
                         )}
-                        <div onClick={() => session ? router.push('/profile?tab=subscribe') : router.push('/auth/signin')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/profile?tab=subscribe') ? 'bg-gray-700' : ''}`}>
+                        <div onClick={() => session ? router.push('/profile?tab=subscribe') : router.push('/auth/signin')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/profile?tab=subscribe') || isActive('/subscribe') ? 'bg-gray-700' : ''}`}>
                             <i className="pi pi-star pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Subscribe</p>
                         </div>
                         <Accordion activeIndex={0} className={styles['p-accordion']}>

@@ -95,48 +95,6 @@ const UserSubscription = () => {
         }
     };
 
-    const menuItems = [
-        {
-            label: "Schedule 1:1",
-            icon: "pi pi-calendar",
-            command: () => {
-                setCalendlyVisible(true);
-            },
-        },
-        {
-            label: session?.user?.lightningAddress ? "Update PlebDevs Lightning Address" : "Claim PlebDevs Lightning Address",
-            icon: "pi pi-bolt",
-            command: () => {
-                setLightningAddressVisible(true);
-            },
-        },
-        {
-            label: session?.user?.nip05 ? "Update PlebDevs Nostr NIP-05" : "Claim PlebDevs Nostr NIP-05",
-            icon: "pi pi-at",
-            command: () => {
-                setNip05Visible(true);
-            },
-        },
-        {
-            label: "Renew Subscription",
-            icon: "pi pi-sync",
-            command: () => {
-                setRenewSubscriptionVisible(true);
-            },
-        },
-        {
-            label: "Cancel Subscription",
-            icon: "pi pi-trash",
-            command: () => {
-                setCancelSubscriptionVisible(true);
-            },
-        },
-    ];
-
-    useEffect(() => {
-        console.log(subscribed)
-    }, [subscribed])
-
     return (
         <div className="p-4">
             {windowWidth < 768 && (

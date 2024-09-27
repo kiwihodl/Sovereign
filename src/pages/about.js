@@ -34,7 +34,7 @@ const AboutPage = () => {
             )}
 
             <Card className="mb-4">
-                <div className='flex flex-row gap-4'>
+                <div className='flex flex-row gap-4 max-mob:flex-col max-tab:flex-col'>
                     <Message pt={{
                         icon: {
                             className: 'hidden'
@@ -73,7 +73,7 @@ const AboutPage = () => {
                             <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
                                 <li><span className="text-lg font-semibold">Documents:</span> Markdown documents posted as NIP-23 long-form events on Nostr.</li>
                                 <li><span className="text-lg font-semibold">Videos:</span> Enhanced markdown files with rich media support, including embedded videos, also saved as NIP-23 events.</li>
-                                <li><span className="text-lg font-semibold">Courses:</span> Nostr lists that combine multiple documents and videos into a structured learning path.</li>
+                                <li><span className="text-lg font-semibold">Courses:</span> Nostr lists (NIP-51) that combines multiple documents and videos into a structured learning path.</li>
                             </ul>
                         </div>
                     </div>
