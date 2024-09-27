@@ -219,8 +219,8 @@ const UserSubscription = () => {
                             <div className="flex flex-col">
                                 <div className="flex flex-col gap-4">
                                     <GenericButton severity="info" outlined className="w-fit text-start" label="Schedule 1:1" icon="pi pi-calendar" onClick={() => setCalendlyVisible(true)} />
-                                    <GenericButton severity="help" outlined className="w-fit text-start" label="Update Nostr NIP-05" icon="pi pi-at" onClick={() => setNip05Visible(true)} />
-                                    <GenericButton severity="warning" outlined className="w-fit text-start" label="Update Lightning Address" icon={<i style={{ color: "orange" }} className="pi pi-bolt mr-2"></i>} onClick={() => setLightningAddressVisible(true)} />
+                                    <GenericButton severity="help" outlined className="w-fit text-start" label={user?.nip05 ? "Update Nostr NIP-05" : "Claim PlebDevs Nostr NIP-05"} icon="pi pi-at" onClick={() => setNip05Visible(true)} />
+                                    <GenericButton severity="warning" outlined className="w-fit text-start" label={user?.lightningAddress ? "Update Lightning Address" : "Claim PlebDevs Lightning Address"} icon={<i style={{ color: "orange" }} className="pi pi-bolt mr-2"></i>} onClick={() => setLightningAddressVisible(true)} />
                                 </div>
                             </div>
                         )}
@@ -228,7 +228,7 @@ const UserSubscription = () => {
                     <Card title="Manage Subscription" className="mb-4">
                         <div className='flex flex-col gap-4'>
                                 <GenericButton outlined className="w-fit" label="Renew Subscription" icon="pi pi-sync" onClick={() => setRenewSubscriptionVisible(true)} />
-                                <GenericButton outlined className="w-fit" label="Cancel Subscription" icon="pi pi-trash" onClick={() => setCancelSubscriptionVisible(true)} />
+                                <GenericButton severity="danger" outlined className="w-fit" label="Cancel Subscription" icon="pi pi-trash" onClick={() => setCancelSubscriptionVisible(true)} />
                         </div>
                     </Card>
                 </>
@@ -238,11 +238,23 @@ const UserSubscription = () => {
                 <div className="flex flex-col gap-4">
                     <div>
                         <h3 className="text-lg font-semibold">How does the subscription work?</h3>
-                        <p>Our subscription provides monthly access to all PlebDevs features. You can choose between a one-time payment or a recurring subscription.</p>
+                        <p>Think of the subscriptions as a paetreon type model. You pay a monthly fee and in return you get access to premium features and all of the paid content. You can cancel at any time.</p>
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-semibold">How do I Subscribe? (Pay as you go)</h3>
+                        <p>The pay as you go subscription is a one-time payment that gives you access to all of the premium features for one month. You will need to manually renew your subscription every month.</p>
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-semibold">How do I Subscribe? (Recurring)</h3>
+                        <p>The recurring subscription option allows you to submit a Nostr Wallet Connect URI that will be used to automatically send the subscription fee every month. You can cancel at any time.</p>
                     </div>
                     <div>
                         <h3 className="text-lg font-semibold">Can I cancel my subscription?</h3>
                         <p>Yes, you can cancel your subscription at any time. Your access will remain active until the end of the current billing period.</p>
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-semibold">What happens if I don&apos;t renew my subscription?</h3>
+                        <p>If you don&apos;t renew your subscription, your access to 1:1 calendar and paid content will be removed. However, you will still have access to your plebdevs Lightning Address, NIP-05, and any content that you paid for.</p>
                     </div>
                     {/* Add more FAQ items as needed */}
                 </div>

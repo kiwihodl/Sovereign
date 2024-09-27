@@ -7,6 +7,7 @@ import { InputText } from 'primereact/inputtext';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { InputNumber } from 'primereact/inputnumber';
 import GenericButton from '@/components/buttons/GenericButton';
+import useWindowWidth from '@/hooks/useWindowWidth';
 
 const LightningAddressForm = ({ visible, onHide }) => {
     const [isProcessing, setIsProcessing] = useState(false);
@@ -20,6 +21,7 @@ const LightningAddressForm = ({ visible, onHide }) => {
     const [lndHost, setLndHost] = useState('');
     const [lndPort, setLndPort] = useState('8080');
 
+    const windowWidth = useWindowWidth();
     const { data: session, update } = useSession();
     const { showToast } = useToast();
 
@@ -86,7 +88,7 @@ const LightningAddressForm = ({ visible, onHide }) => {
     };
 
     return (
-        <Dialog header="Lightning Address" visible={visible} onHide={onHide}>
+        <Dialog header="Lightning Address" visible={visible} onHide={onHide} style={{ width: windowWidth < 768 ? '100vw' : '60vw' }}>
             {existingLightningAddress ? (
                 <p>Update your Lightning Address details</p>
             ) : (

@@ -191,7 +191,7 @@ const UserSettings = () => {
                             <span className="font-bold">NIP-05:</span> {user.nip05.name}@plebdevs.com
                         </h3>
                     )}
-                    <div className="flex flex-col w-1/2 mx-auto justify-between items-center">
+                    <div className="flex flex-col w-1/2 mx-auto justify-between items-center max-mob:w-full max-tab:w-full">
                         <h2 className="text-xl my-2 max-mob:text-base max-tab:text-base">Connect Your Lightning Wallet</h2>
                         <BitcoinConnectButton />
                     </div>

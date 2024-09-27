@@ -1,119 +1,131 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import NostrIcon from '../../public/images/nostr.png';
-import { Tooltip } from 'primereact/tooltip';
-import { useToast } from "@/hooks/useToast"
+import { Card } from 'primereact/card';
+import { Message } from 'primereact/message';
+import { useToast } from "@/hooks/useToast";
 import useWindowWidth from "@/hooks/useWindowWidth";
+import GenericButton from '@/components/buttons/GenericButton';
 
 const AboutPage = () => {
-    const {showToast} = useToast()
+    const { showToast } = useToast();
     const windowWidth = useWindowWidth();
-    const isMobileView = windowWidth <= 768;
 
     const copyToClipboard = async (text) => {
         try {
-          await navigator.clipboard.writeText(text);
-          showToast("success", "Copied", "Copied Lightning Address to clipboard")
-          if (window && window?.webln && window?.webln?.lnurl) {
-            await window.webln.enable();
-            const result = await window.webln.lnurl("austin@bitcoinpleb.dev");
-            if (result && result?.preimage) {
-              showToast("success", "Copied", "Copied Lightning Address to clipboard")
+            await navigator.clipboard.writeText(text);
+            showToast("success", "Copied", "Copied Lightning Address to clipboard");
+            if (window && window?.webln && window?.webln?.lnurl) {
+                await window.webln.enable();
+                const result = await window.webln.lnurl("austin@bitcoinpleb.dev");
+                if (result && result?.preimage) {
+                    showToast("success", "Payment Sent", "Thank you for your donation!");
+                }
             }
-          }
         } catch (err) {
-          console.error('Failed to copy:', err);
+            console.error('Failed to copy:', err);
         }
-      };
+    };
 
     return (
-        <div className="max-w-4xl mx-auto py-8 px-4">
-            <h1 className="text-3xl font-bold mb-6">About PlebDevs</h1>
-            
-            <div className="bg-gray-700 rounded-lg p-6 mb-8">
-                <p className="text-lg flex items-center">
-                    <i className="pi pi-info-circle text-blue-500 mr-3 text-2xl"></i>
-                    PlebDevs is a custom-built education platform designed to help new and aspiring developers, with a special focus on Bitcoin Lightning and Nostr technologies.
-                </p>
-                {/* <p className='text-lg font-semibold px-9 mt-4'> */}
-                    <p className='font-normal text-lg px-9 mt-4 mb-2'>The pitch is simple:</p>
-                    <ul className='list-disc list-inside ml-16 space-y-2'>
-                        <li>Learn how to code 💻</li>
-                        <li>Build Bitcoin / Lightning / Nostr apps ⚡</li>
-                        <li>Become a developer 🚀</li>
-                    </ul>
-                {/* </p> */}
-            </div>
+        <div className="p-4 max-w-4xl mx-auto">
+            {windowWidth < 768 && (
+                <h1 className="text-3xl font-bold mb-6">About PlebDevs</h1>
+            )}
 
-            <div className="space-y-8">
-                <h2 className="text-2xl font-bold flex items-center">
-                    <i className="pi pi-star text-yellow-500 mr-3 text-2xl"></i>
-                    Key Features
-                </h2>
-
-                {/* Feature sections */}
-                <FeatureSection
-                    icon="pi-cloud"
-                    title="Content Distribution"
-                    description="All educational content is published to Nostr and actively pulled from Nostr relays, ensuring decentralized and up-to-date information."
-                />
-
-                <FeatureSection
-                    icon="pi-file-edit"
-                    title="Content Types"
-                    description={
-                        <ul className="list-disc list-inside ml-6 space-y-2">
-                            <li><span className="font-bold">Documents:</span> Markdown documents posted as NIP-23 long-form events on Nostr.</li>
-                            <li><span className="font-bold">Videos:</span> Enhanced markdown files with rich media support, including embedded videos, also saved as NIP-23 events.</li>
-                            <li><span className="font-bold">Courses:</span> Nostr lists that combine multiple documents and videos into a structured learning path.</li>
-                        </ul>
-                    }
-                />
-            </div>
-
-            <div className="mt-12 bg-gray-700 rounded-lg p-6">
-                <p className="italic text-lg flex items-center">
-                    <i className="pi pi-flag text-blue-500 mr-3 text-2xl"></i>
-                    PlebDevs aims to provide a comprehensive, decentralized learning experience for aspiring developers, with a strong emphasis on emerging technologies in the Bitcoin ecosystem.
-                </p>
-            </div>
-
-            <div className="mt-12 bg-gray-700 rounded-lg p-6">
-                <div className="flex items-center justify-center space-x-16">
-                    <Tooltip target=".pi-github" content={isMobileView ? null : "GitHub"} position="bottom" />
-                    <a href="https://github.com/pleb-devs" target="_blank" rel="noopener noreferrer">
-                        <i className="pi pi-github text-white text-5xl"></i>
-                    </a>
-                    <Tooltip target=".pi-twitter" content={isMobileView ? null : "X.com"} position="bottom" />
-                    <a href="https://x.com/pleb_devs" target="_blank" rel="noopener noreferrer">
-                        <i className="pi pi-twitter text-black text-5xl"></i>
-                    </a>
-                    <Tooltip target=".nostr-icon" content={isMobileView ? null : "Nostr"} position="bottom" />
-                    <a href="https://nostr.com/plebdevs@plebdevs.com" target="_blank" rel="noopener noreferrer">
-                        <Image src={NostrIcon} alt="Nostr" width={44} height={44} className='nostr-icon' />
-                    </a>
-                    <Tooltip target=".pi-bolt" content={isMobileView ? null : "Donate"} position="bottom" />
-                    <p onClick={() => copyToClipboard("austin@bitcoinpleb.dev")} className='cursor-pointer'>
-                        <i className="pi pi-bolt text-yellow-500 text-5xl"></i>
-                    </p>
+            <Card className="mb-4">
+                <div className='flex flex-row gap-4'>
+                    <Message pt={{
+                        icon: {
+                            className: 'hidden'
+                        }
+                    }} severity="info" text="PlebDevs is a fully Lightning and Nostr integrated education, content, and community platform designed to help new and aspiring developers, with a focus on Bitcoin / Lightning / Nostr technologies." />
+                    <Message pt={{
+                        icon: {
+                            className: 'hidden'
+                        }
+                    }} severity="success" text="PlebDevs offers a personal yet distributed learning experience, combining videos, courses, documents, and community channels through Nostr, monetizing with Lightning, and integrating them into a single platform" />
                 </div>
-            </div>
+                <div className="mt-4">
+                    <h3 className='font-bold mb-2'>The pitch is simple:</h3>
+                    <ul className='list-disc list-inside ml-6 space-y-2'>
+                        <li className='text-lg'>Learn how to code 💻</li>
+                        <li className='text-lg'>Build Bitcoin / Lightning / Nostr apps ⚡</li>
+                        <li className='text-lg'>Become a developer 🚀</li>
+                    </ul>
+                </div>
+            </Card>
+
+            <Card title="Key Features" className="mb-4">
+                <div className="flex flex-col gap-4">
+                    <div className="flex flex-col items-start justify-center">
+                        <div className='flex flex-row items-start justify-center'>
+                            <i className="pi pi-cloud text-2xl text-primary mr-2 text-blue-400"></i>
+                            <h3 className='text-lg font-semibold'>Content Distribution:</h3>
+                        </div>
+                        <p className='text-lg'>All educational content is published to Nostr and actively pulled from Nostr relays, ensuring distributed and up-to-date information.</p>
+                    </div>
+                    <div className="flex items-start">
+                        <i className="pi pi-file-edit text-2xl text-primary mr-2 text-green-400 mt-1"></i>
+                        <div>
+                            <h3 className="text-lg font-semibold">Content Types:</h3>
+                            <p className='text-lg'>high signal, Bitcoin, Lightning, Nostr educational content.</p>
+                            <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
+                                <li><span className="text-lg font-semibold">Documents:</span> Markdown documents posted as NIP-23 long-form events on Nostr.</li>
+                                <li><span className="text-lg font-semibold">Videos:</span> Enhanced markdown files with rich media support, including embedded videos, also saved as NIP-23 events.</li>
+                                <li><span className="text-lg font-semibold">Courses:</span> Nostr lists that combine multiple documents and videos into a structured learning path.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="flex items-start">
+                        <i className="pi pi-users text-2xl text-primary mr-2 text-purple-400 mt-1"></i>
+                        <div>
+                            <h3 className="text-lg font-semibold">Community:</h3>
+                            <p className='text-lg'>All of the current PlebDevs Community channels.</p>
+                            <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
+                                <li><span className="text-lg font-semibold">Nostr:</span> Public plebdevs nostr chat</li>
+                                <li><span className="text-lg font-semibold">Discord:</span> PlebDevs Discord server</li>
+                                <li><span className="text-lg font-semibold">StackerNews:</span> StackerNews ~devs territory</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </Card>
+
+            <Card title="Connect with Us" className="mb-4">
+                <div className="flex flex-wrap gap-4 justify-center">
+                    <GenericButton
+                        severity="secondary"
+                        outlined
+                        icon="pi pi-github"
+                        label="GitHub"
+                        onClick={() => window.open('https://github.com/pleb-devs', '_blank')}
+                    />
+                    <GenericButton
+                        severity="info"
+                        outlined
+                        icon="pi pi-twitter"
+                        label="X.com"
+                        onClick={() => window.open('https://x.com/pleb_devs', '_blank')}
+                    />
+                    <GenericButton
+                        severity="help"
+                        outlined
+                        icon={<Image src={NostrIcon} alt="Nostr" width={20} height={20} className="mr-2" />}
+                        label="Nostr"
+                        onClick={() => window.open('https://nostr.com/plebdevs@plebdevs.com', '_blank')}
+                    />
+                    <GenericButton
+                        severity="warning"
+                        outlined
+                        icon="pi pi-bolt"
+                        label="Donate"
+                        onClick={() => copyToClipboard("austin@bitcoinpleb.dev")}
+                    />
+                </div>
+            </Card>
         </div>
     );
 };
-
-const FeatureSection = ({ icon, title, description }) => (
-    <div className="bg-gray-700 shadow-md rounded-lg p-6">
-        <h3 className="text-xl font-bold mb-4 flex items-center">
-            <i className={`pi ${icon} text-blue-500 mr-3 text-2xl`}></i>
-            {title}
-        </h3>
-        {typeof description === 'string' ? (
-            <p>{description}</p>
-        ) : (
-            description
-        )}
-    </div>
-);
 
 export default AboutPage;

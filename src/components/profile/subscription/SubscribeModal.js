@@ -23,6 +23,7 @@ const SubscribeModal = ({ user }) => {
     const { data: session, update } = useSession();
     const { showToast } = useToast();
     const router = useRouter();
+    const menu = useRef(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [visible, setVisible] = useState(false);
     const [subscribed, setSubscribed] = useState(false);
@@ -31,7 +32,6 @@ const SubscribeModal = ({ user }) => {
     const [calendlyVisible, setCalendlyVisible] = useState(false);
     const [lightningAddressVisible, setLightningAddressVisible] = useState(false);
     const [nip05Visible, setNip05Visible] = useState(false);
-    const menu = useRef(null);
     const [cancelSubscriptionVisible, setCancelSubscriptionVisible] = useState(false);
     const [renewSubscriptionVisible, setRenewSubscriptionVisible] = useState(false);
 

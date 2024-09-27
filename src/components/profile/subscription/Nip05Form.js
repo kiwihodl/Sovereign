@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/useToast';
 import { InputText } from 'primereact/inputtext';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import GenericButton from '@/components/buttons/GenericButton';
+import useWindowWidth from '@/hooks/useWindowWidth';
 
 const Nip05Form = ({ visible, onHide }) => {
     const [isProcessing, setIsProcessing] = useState(false);
@@ -13,6 +14,7 @@ const Nip05Form = ({ visible, onHide }) => {
     const [pubkey, setPubkey] = useState('');
     const [name, setName] = useState('');
 
+    const windowWidth = useWindowWidth();
     const { data: session, update } = useSession();
     const { showToast } = useToast();
 
@@ -74,7 +76,7 @@ const Nip05Form = ({ visible, onHide }) => {
     };
 
     return (
-        <Dialog header="NIP-05" visible={visible} onHide={onHide}>
+        <Dialog header="NIP-05" visible={visible} onHide={onHide} style={{ width: windowWidth < 768 ? '100vw' : '60vw' }}>
             {existingNip05 ? (
                 <p>Update your Pubkey and Name</p>
             ) : (

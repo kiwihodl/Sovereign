@@ -34,23 +34,6 @@ const UserProfile = () => {
         }
     }, [session]);
 
-    const menuItems = [
-        {
-            label: "Edit",
-            icon: "pi pi-pencil",
-            command: () => {
-                showToast("warn", "Alert", "This feature is not yet implemented");
-            },
-        },
-        {
-            label: "Delete",
-            icon: "pi pi-trash",
-            command: () => {
-                showToast("warn", "Alert", "This feature is not yet implemented");
-            },
-        },
-    ];
-
     const header = (
         <div className="flex flex-wrap align-items-center justify-content-between gap-2">
             <span className="text-xl text-900 font-bold text-[#f8f8ff]">Progress</span>
@@ -80,11 +63,6 @@ const UserProfile = () => {
                             height={100}
                             className="rounded-full my-4"
                         />
-                        <i
-                            className="pi pi-ellipsis-h absolute right-24 text-2xl my-4 cursor-pointer hover:opacity-75"
-                            onClick={(e) => menu.current.toggle(e)}
-                        ></i>
-                        <Menu model={menuItems} popup ref={menu} />
                     </div>
 
                     <h1 className="text-center text-2xl my-2">

@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 const allTasks = [
     { status: 'Create Account', completed: true, tier: 'Pleb', courseId: null },
     {
-        status: 'PlebDevs Starter (Coming Soon)',
+        status: 'PlebDevs Starter',
         completed: false,
         tier: 'New Dev',
         courseId: null,
@@ -16,8 +16,26 @@ const allTasks = [
             { status: 'Push Commit', completed: false }
         ]
     },
-    { status: 'PlebDevs Course 1', completed: false, tier: 'Junior Dev', courseId: 'd20e2e9b-5123-4a91-b27f-d75ea1d5811e' },
-    { status: 'PlebDevs Course 2', completed: false, tier: 'Plebdev', courseId: 'aa3b1641-ad2b-4ef4-9f0f-38951ae307b7' },
+    { 
+        status: 'PlebDevs Course 1', 
+        completed: false, 
+        tier: 'Junior Dev', 
+        courseId: 'd20e2e9b-5123-4a91-b27f-d75ea1d5811e',
+        subTasks: [
+            { status: 'Complete the course', completed: false },
+            { status: 'Submit Link to completed project', completed: false },
+        ]
+    },
+    { 
+        status: 'PlebDevs Course 2', 
+        completed: false, 
+        tier: 'Plebdev', 
+        courseId: 'aa3b1641-ad2b-4ef4-9f0f-38951ae307b7',
+        subTasks: [
+            {status: 'Complete the course', completed: false},
+            { status: 'Submit Link to completed project', completed: false },
+        ]
+    },
 ];
 
 const UserProgress = () => {
@@ -74,7 +92,7 @@ const UserProgress = () => {
     }, []);
 
     return (
-        <div className="bg-gray-800 rounded-3xl p-6 w-[500px] mx-auto my-8">
+        <div className="bg-gray-800 rounded-3xl p-6 w-[500px] max-mob:w-full max-tab:w-full mx-auto my-8">
             <h1 className="text-3xl font-bold text-white mb-2">Dev Journey (Coming Soon)</h1>
             <p className="text-gray-400 mb-4">Track your progress from Pleb to Plebdev</p>
 
@@ -121,8 +139,9 @@ const UserProgress = () => {
                                             </span>
                                         </div>
                                     }
-                                >
-                                    <ul className="space-y-2 mt-2 ml-9">
+                                    >
+                                    <ul className="space-y-2 mt-2 ml-9 max-mob:mt-0 max-tab:mt-0">
+                                        <span className="text-gray-400 text-xs">(Coming Soon)</span>
                                         {task.subTasks.map((subTask, subIndex) => (
                                             <li key={subIndex} className="flex items-center">
                                                 {subTask.completed ? (

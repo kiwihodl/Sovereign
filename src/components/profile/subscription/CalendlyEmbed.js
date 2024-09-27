@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
+import useWindowWidth from '@/hooks/useWindowWidth';
 
 const CalendlyEmbed = ({ visible, onHide }) => {
+    const windowWidth = useWindowWidth();
     useEffect(() => {
         if (visible) {
             const script = document.createElement('script');
@@ -26,7 +28,7 @@ const CalendlyEmbed = ({ visible, onHide }) => {
         <Dialog 
             header="Schedule a Meeting" 
             visible={visible} 
-            style={{ width: '50vw' }} 
+            style={{ width: windowWidth < 768 ? '100vw' : '50vw' }} 
             footer={dialogFooter} 
             onHide={onHide}
         >
