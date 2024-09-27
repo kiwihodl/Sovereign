@@ -137,25 +137,12 @@ const UserSubscription = () => {
         console.log(subscribed)
     }, [subscribed])
 
-    const subscriptionCardTitle = (
-        <div className="w-full flex flex-row justify-between items-center">
-            <span className="text-xl text-900 font-bold text-white">Plebdevs Subscription</span>
-            {subscribed && (
-                <i
-                    className="pi pi-ellipsis-h text-2xl cursor-pointer hover:opacity-75"
-                    onClick={(e) => menu.current.toggle(e)}
-                ></i>
-            )}
-            <Menu model={menuItems} popup ref={menu} className="w-fit" />
-        </div>
-    );
-
     return (
         <div className="p-4">
             {windowWidth < 768 && (
                 <h1 className="text-3xl font-bold mb-6">Subscription Management</h1>
             )}
-            <Card title={subscriptionCardTitle} className="mb-6">
+            <div className="mb-4 p-4 bg-gray-800 rounded-lg w-fit">
                 {subscribed && (
                     <div className="flex flex-col">
                         <Message className="w-fit" severity="success" text="Subscribed!" />
@@ -173,51 +160,79 @@ const UserSubscription = () => {
                         <Message className="w-fit" severity="warn" text={`Your subscription expired on ${subscriptionExpiredAt.toLocaleDateString()}`} />
                     </div>
                 )}
-            </Card>
-
-            <Card title="Subscribe to PlebDevs" className="mb-6">
-                {isProcessing ? (
-                    <div className="w-full flex flex-col mx-auto justify-center items-center mt-4">
-                        <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
-                        <span className="ml-2">Processing subscription...</span>
-                    </div>
-                ) : (
-                    <div className="flex flex-col">
-                        <div className="mb-4">
-                            <h2 className="text-2xl font-bold text-primary">Unlock Premium Benefits</h2>
-                            <p className="text-gray-400">Subscribe now and elevate your development journey!</p>
+            </div>
+            {!subscribed && (
+                <Card title="Subscribe to PlebDevs" className="mb-4">
+                    {isProcessing ? (
+                        <div className="w-full flex flex-col mx-auto justify-center items-center mt-4">
+                            <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
+                            <span className="ml-2">Processing subscription...</span>
                         </div>
-                        <div className="flex flex-col gap-4 mb-4">
-                            <div className="flex items-center">
-                                <i className="pi pi-book text-2xl text-primary mr-2 text-blue-400"></i>
-                                <span>Access ALL current and future PlebDevs content</span>
+                    ) : (
+                        <div className="flex flex-col">
+                            <div className="mb-4">
+                                <h2 className="text-2xl font-bold text-primary">Unlock Premium Benefits</h2>
+                                <p className="text-gray-400">Subscribe now and elevate your development journey!</p>
                             </div>
-                            <div className="flex items-center">
-                                <i className="pi pi-calendar text-2xl text-primary mr-2 text-red-400"></i>
-                                <span>Personal mentorship & guidance and access to exclusive 1:1 booking calendar</span>
+                            <div className="flex flex-col gap-4 mb-4">
+                                <div className="flex items-center">
+                                    <i className="pi pi-book text-2xl text-primary mr-2 text-blue-400"></i>
+                                    <span>Access ALL current and future PlebDevs content</span>
+                                </div>
+                                <div className="flex items-center">
+                                    <i className="pi pi-calendar text-2xl text-primary mr-2 text-red-400"></i>
+                                    <span>Personal mentorship & guidance and access to exclusive 1:1 booking calendar</span>
+                                </div>
+                                <div className="flex items-center">
+                                    <i className="pi pi-bolt text-2xl text-primary mr-2 text-yellow-500"></i>
+                                    <span>Claim your own personal plebdevs.com Lightning Address</span>
+                                </div>
+                                <div className="flex items-center">
+                                    <Image src={NostrIcon} alt="Nostr" width={25} height={25} className='mr-2' />
+                                    <span>Claim your own personal plebdevs.com Nostr NIP-05 identity</span>
+                                </div>
+                                <div className="flex items-center">
+                                <i className="pi pi-star text-2xl text-primary mr-2 text-yellow-500"></i>
+                                <span>I WILL MAKE SURE YOU WIN HARD AND LEVEL UP AS A DEV!</span>
                             </div>
-                            <div className="flex items-center">
-                                <i className="pi pi-bolt text-2xl text-primary mr-2 text-yellow-500"></i>
-                                <span>Claim your own personal plebdevs.com Lightning Address</span>
                             </div>
-                            <div className="flex items-center">
-                                <Image src={NostrIcon} alt="Nostr" width={26} height={26} className='mr-2' />
-                                <span>Claim your own personal plebdevs.com Nostr NIP-05 identity</span>
-                            </div>
+                            <SubscriptionPaymentButtons
+                                onSuccess={handleSubscriptionSuccess}
+                                onRecurringSubscriptionSuccess={handleRecurringSubscriptionSuccess}
+                                onError={handleSubscriptionError}
+                                setIsProcessing={setIsProcessing}
+                                layout={windowWidth < 768 ? "col" : "row"}
+                            />
                         </div>
-                        <div className="text-center mb-4 flex flex-row justify-start">
-                            <i className="pi pi-star text-2xl text-primary mr-2 text-yellow-500"></i>
-                            <span className="text-center font-bold">I WILL MAKE SURE YOU WIN HARD AND LEVEL UP AS A DEV!</span>
+                    )}
+                </Card>
+            )}
+            {subscribed && (
+                <>
+                    <Card title="Subscription Benefits" className="mb-4">
+                        {isProcessing ? (
+                            <div className="w-full flex flex-col mx-auto justify-center items-center mt-4">
+                                <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
+                                <span className="ml-2">Processing subscription...</span>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col">
+                                <div className="flex flex-col gap-4">
+                                    <GenericButton severity="info" outlined className="w-fit text-start" label="Schedule 1:1" icon="pi pi-calendar" onClick={() => setCalendlyVisible(true)} />
+                                    <GenericButton severity="help" outlined className="w-fit text-start" label="Update Nostr NIP-05" icon="pi pi-at" onClick={() => setNip05Visible(true)} />
+                                    <GenericButton severity="warning" outlined className="w-fit text-start" label="Update Lightning Address" icon={<i style={{ color: "orange" }} className="pi pi-bolt mr-2"></i>} onClick={() => setLightningAddressVisible(true)} />
+                                </div>
+                            </div>
+                        )}
+                    </Card>
+                    <Card title="Manage Subscription" className="mb-4">
+                        <div className='flex flex-col gap-4'>
+                                <GenericButton outlined className="w-fit" label="Renew Subscription" icon="pi pi-sync" onClick={() => setRenewSubscriptionVisible(true)} />
+                                <GenericButton outlined className="w-fit" label="Cancel Subscription" icon="pi pi-trash" onClick={() => setCancelSubscriptionVisible(true)} />
                         </div>
-                        <SubscriptionPaymentButtons
-                            onSuccess={handleSubscriptionSuccess}
-                            onRecurringSubscriptionSuccess={handleRecurringSubscriptionSuccess}
-                            onError={handleSubscriptionError}
-                            setIsProcessing={setIsProcessing}
-                        />
-                    </div>
-                )}
-            </Card>
+                    </Card>
+                </>
+            )}
 
             <Card title="Frequently Asked Questions" className="mb-6">
                 <div className="flex flex-col gap-4">

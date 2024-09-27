@@ -3,6 +3,23 @@ import { ProgressBar } from 'primereact/progressbar';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { useSession } from 'next-auth/react';
 
+const allTasks = [
+    { status: 'Create Account', completed: true, tier: 'Pleb', courseId: null },
+    {
+        status: 'PlebDevs Starter (Coming Soon)',
+        completed: false,
+        tier: 'New Dev',
+        courseId: null,
+        subTasks: [
+            { status: 'Connect GitHub', completed: false },
+            { status: 'Create First GitHub Repo', completed: false },
+            { status: 'Push Commit', completed: false }
+        ]
+    },
+    { status: 'PlebDevs Course 1', completed: false, tier: 'Junior Dev', courseId: 'd20e2e9b-5123-4a91-b27f-d75ea1d5811e' },
+    { status: 'PlebDevs Course 2', completed: false, tier: 'Plebdev', courseId: 'aa3b1641-ad2b-4ef4-9f0f-38951ae307b7' },
+];
+
 const UserProgress = () => {
     const [progress, setProgress] = useState(0);
     const [currentTier, setCurrentTier] = useState('Pleb');
@@ -15,30 +32,17 @@ const UserProgress = () => {
     useEffect(() => {
         if (session?.user) {
             const user = session.user;
-            const ids = user?.userCourses.map(course => course?.completed ? course.courseId : null).filter(id => id !== null);
+            const ids = user?.userCourses?.map(course => course?.completed ? course.courseId : null).filter(id => id !== null);
+            if (ids && ids.length > 0) {
             setCompletedCourses(ids);
             generateTasks(ids);
+            } else {
+                generateTasks([]);
+            }
         }
     }, [session]);
 
     const generateTasks = (completedCourseIds) => {
-        const allTasks = [
-            { status: 'Create Account', completed: true, tier: 'Pleb', courseId: null },
-            {
-                status: 'PlebDevs Starter (Coming Soon)',
-                completed: false,
-                tier: 'New Dev',
-                courseId: null,
-                subTasks: [
-                    { status: 'Connect GitHub', completed: false },
-                    { status: 'Create First GitHub Repo', completed: false },
-                    { status: 'Push Commit', completed: false }
-                ]
-            },
-            { status: 'PlebDevs Course 1', completed: false, tier: 'Junior Dev', courseId: 'd20e2e9b-5123-4a91-b27f-d75ea1d5811e' },
-            { status: 'PlebDevs Course 2', completed: false, tier: 'Plebdev', courseId: 'aa3b1641-ad2b-4ef4-9f0f-38951ae307b7' },
-        ];
-
         const updatedTasks = allTasks.map(task => ({
             ...task,
             completed: task.courseId === null || completedCourseIds.includes(task.courseId),
