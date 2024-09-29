@@ -43,6 +43,11 @@ const UserSettings = () => {
         }
     }, [ndk]);
 
+    const copyToClipboard = (text) => {
+        navigator.clipboard.writeText(text);
+        showToast("success", "Copied", "Copied to clipboard");
+    };
+
 
     const updateRelayStatuses = useCallback(() => {
         // export enum NDKRelayStatus {
@@ -182,13 +187,13 @@ const UserSettings = () => {
                         {nip19.npubEncode(user.pubkey)} <i className="pi pi-question-circle text-xl pubkey-tooltip" />
                     </h2>
                     {user?.lightningAddress && (
-                        <h3 className="text-center text-xl my-2">
-                            <span className="font-bold">Lightning Address:</span> {user.lightningAddress.name}@plebdevs.com
+                        <h3 className="w-fit mx-auto text-center text-xl my-2 bg-gray-800 rounded-lg p-4">
+                            <span className="font-bold">Lightning Address:</span> {user.lightningAddress.name}@plebdevs.com <i className="pi pi-copy cursor-pointer hover:text-gray-400" onClick={() => copyToClipboard(user.lightningAddress.name + "@plebdevs.com")} />
                         </h3>
                     )}
                     {user?.nip05 && (
-                        <h3 className="text-center text-xl my-2">
-                            <span className="font-bold">NIP-05:</span> {user.nip05.name}@plebdevs.com
+                        <h3 className="w-fit mx-auto text-center text-xl my-2 bg-gray-800 rounded-lg p-4">
+                            <span className="font-bold">NIP-05:</span> {user.nip05.name}@plebdevs.com <i className="pi pi-copy cursor-pointer hover:text-gray-400" onClick={() => copyToClipboard(user.nip05.name + "@plebdevs.com")} />
                         </h3>
                     )}
                     <div className="flex flex-col w-1/2 mx-auto justify-between items-center max-mob:w-full max-tab:w-full">

@@ -33,7 +33,7 @@ const AboutPage = () => {
                 <h1 className="text-3xl font-bold mb-6">About PlebDevs</h1>
             )}
 
-            <Card className="mb-4">
+            <Card title="About PlebDevs" className="mb-4">
                 <div className='flex flex-row gap-4 max-mob:flex-col max-tab:flex-col'>
                     <Message pt={{
                         icon: {

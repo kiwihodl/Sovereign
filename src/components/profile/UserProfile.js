@@ -28,6 +28,11 @@ const UserProfile = () => {
     const { showToast } = useToast();
     const menu = useRef(null);
 
+    const copyToClipboard = (text) => {
+        navigator.clipboard.writeText(text);
+        showToast("success", "Copied", "Copied to clipboard");
+    };
+
     useEffect(() => {
         if (session?.user) {
             setUser(session.user);
@@ -73,13 +78,13 @@ const UserProfile = () => {
                         {nip19.npubEncode(user.pubkey)} <i className="pi pi-question-circle text-xl pubkey-tooltip" />
                     </h2>
                     {user?.lightningAddress && (
-                        <h3 className="text-center text-xl my-2">
-                            <span className="font-bold">Lightning Address:</span> {user.lightningAddress.name}@plebdevs.com
+                        <h3 className="w-fit mx-auto text-center text-xl my-2 bg-gray-800 rounded-lg p-4">
+                            <span className="font-bold">Lightning Address:</span> {user.lightningAddress.name}@plebdevs.com <i className="pi pi-copy cursor-pointer hover:text-gray-400" onClick={() => copyToClipboard(user.lightningAddress.name + "@plebdevs.com")} />
                         </h3>
                     )}
                     {user?.nip05 && (
-                        <h3 className="text-center text-xl my-2">
-                            <span className="font-bold">NIP-05:</span> {user.nip05.name}@plebdevs.com
+                        <h3 className="w-fit mx-auto text-center text-xl my-2 bg-gray-800 rounded-lg p-4">
+                            <span className="font-bold">NIP-05:</span> {user.nip05.name}@plebdevs.com <i className="pi pi-copy cursor-pointer hover:text-gray-400" onClick={() => copyToClipboard(user.nip05.name + "@plebdevs.com")} />
                         </h3>
                     )}
                     {/* <GithubContributionChart username={"austinkelsay"} /> */}
