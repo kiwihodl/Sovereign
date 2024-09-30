@@ -1,3 +1,3 @@
-# Plebdevs Platform
+# Plebdevs
 
 still in development
