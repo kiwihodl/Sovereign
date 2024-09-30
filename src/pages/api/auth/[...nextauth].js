@@ -31,9 +31,8 @@ const authorize = async (pubkey) => {
         const response = await axios.get(`${BACKEND_URL}/api/users/${pubkey}`);
         if (response.status === 200 && response.data) {
             const fields = await findKind0Fields(profile);
-
             // Combine user object with kind0Fields, giving priority to kind0Fields
-            const combinedUser = { ...fields, ...response.data };
+            const combinedUser = { ...response.data, ...fields };
 
             // Update the user on the backend if necessary
             // await axios.put(`${BACKEND_URL}/api/users/${combinedUser.id}`, combinedUser);
@@ -43,7 +42,7 @@ const authorize = async (pubkey) => {
             // Create user
             if (profile) {
                 const fields = await findKind0Fields(profile);
-                const payload = { pubkey, ...fields };
+                const payload = { pubkey, username: fields.username, avatar: fields.avatar };
 
                 const createUserResponse = await axios.post(`${BACKEND_URL}/api/users`, payload);
                 return createUserResponse.data;
