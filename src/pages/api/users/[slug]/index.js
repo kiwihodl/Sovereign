@@ -1,4 +1,4 @@
-import { getUserById, getUserByPubkey, updateUser, deleteUser } from "@/db/models/userModels";
+import { getUserById, getUserByPubkey, getUserByEmail, updateUser, deleteUser } from "@/db/models/userModels";
 
 export default async function handler(req, res) {
   const { slug } = req.query;
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     } else if (isEmail) {
       // todo
       // If slug is an email
-      // user = await getUserByEmail(slug);
+      user = await getUserByEmail(slug);
     } else {
       // Assume slug is an ID
       const id = parseInt(slug);

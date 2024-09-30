@@ -239,6 +239,18 @@ export const getUserByEmail = async (email) => {
           resource: true,
         },
       },
+      userCourses: {
+        include: {
+          course: true,
+        },
+      },
+      userLessons: {
+        include: {
+          lesson: true,
+        },
+      },
+      nip05: true,
+      lightningAddress: true,
     },
   });
 };
