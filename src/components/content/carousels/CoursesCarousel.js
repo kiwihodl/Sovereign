@@ -39,8 +39,6 @@ export default function CoursesCarousel() {
                     // Sort courses by created_at in descending order (most recent first)
                     const sortedCourses = processedCourses.sort((a, b) => b.created_at - a.created_at);
 
-                    console.log("Sorted courses:", sortedCourses);
-
                     setProcessedCourses(sortedCourses);
                 } else {
                     console.log('No courses fetched or empty array returned');
