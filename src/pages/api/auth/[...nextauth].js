@@ -12,7 +12,9 @@ import { updateUser } from "@/db/models/userModels";
 import { createRole } from "@/db/models/roleModels";
 import appConfig from "@/config/appConfig";
 
-const BASE_URL = process.env.BASE_URL;
+// todo update EMAIL_FROM to be a plebdevs email
+
+const BACKEND_URL = process.env.BACKEND_URL;
 
 const ndk = new NDK({
     explicitRelayUrls: appConfig.defaultRelayUrls,
@@ -26,7 +28,7 @@ const authorize = async (pubkey) => {
         const profile = await user.fetchProfile();
 
         // Check if user exists, create if not
-        const response = await axios.get(`${BASE_URL}/api/users/${pubkey}`);
+        const response = await axios.get(`${BACKEND_URL}/api/users/${pubkey}`);
         if (response.status === 200 && response.data) {
             const fields = await findKind0Fields(profile);
 
@@ -34,7 +36,7 @@ const authorize = async (pubkey) => {
             const combinedUser = { ...fields, ...response.data };
 
             // Update the user on the backend if necessary
-            // await axios.put(`${BASE_URL}/api/users/${combinedUser.id}`, combinedUser);
+            // await axios.put(`${BACKEND_URL}/api/users/${combinedUser.id}`, combinedUser);
 
             return combinedUser;
         } else if (response.status === 204) {
@@ -43,7 +45,7 @@ const authorize = async (pubkey) => {
                 const fields = await findKind0Fields(profile);
                 const payload = { pubkey, ...fields };
 
-                const createUserResponse = await axios.post(`${BASE_URL}/api/users`, payload);
+                const createUserResponse = await axios.post(`${BACKEND_URL}/api/users`, payload);
                 return createUserResponse.data;
             }
         }

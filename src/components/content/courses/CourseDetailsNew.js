@@ -19,8 +19,6 @@ import appConfig from "@/config/appConfig";
 import useTrackCourse from '@/hooks/tracking/useTrackCourse';
 import { ProgressSpinner } from 'primereact/progressspinner';
 
-const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
-
 export default function CourseDetailsNew({ processedEvent, paidCourse, lessons, decryptionPerformed, handlePaymentSuccess, handlePaymentError }) {
     const [zapAmount, setZapAmount] = useState(0);
     const [author, setAuthor] = useState(null);

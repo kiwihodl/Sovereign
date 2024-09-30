@@ -1,8 +1,4 @@
 import prisma from "../prisma";
-import { webln } from "@getalby/sdk";
-import { LightningAddress } from "@getalby/sdk";
-
-const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
 
 export const getAllUsers = async () => {
   return await prisma.user.findMany({

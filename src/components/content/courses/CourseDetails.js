@@ -39,8 +39,6 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 768;
 
-    const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
-
     useEffect(() => {
         if (session) {
             setUser(session.user);
@@ -86,7 +84,7 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
         if (paidCourse && !decryptionPerformed) {
             return (
                 <CoursePaymentButton
-                    lnAddress={lnAddress}
+                    lnAddress={author?.lnAddress}
                     amount={processedEvent.price}
                     onSuccess={handlePaymentSuccess}
                     onError={handlePaymentError}
