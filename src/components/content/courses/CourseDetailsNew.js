@@ -103,7 +103,7 @@ export default function CourseDetailsNew({ processedEvent, paidCourse, lessons, 
         if (paidCourse && !decryptionPerformed) {
             return (
                 <CoursePaymentButton
-                    lnAddress={lnAddress}
+                    lnAddress={author?.lnAddress}
                     amount={processedEvent.price}
                     onSuccess={handlePaymentSuccess}
                     onError={handlePaymentError}

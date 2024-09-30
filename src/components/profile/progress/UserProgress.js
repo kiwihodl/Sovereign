@@ -41,7 +41,7 @@ const allTasks = [
 const UserProgress = () => {
     const [progress, setProgress] = useState(0);
     const [currentTier, setCurrentTier] = useState('Pleb');
-    const [expanded, setExpanded] = useState(null);
+    const [expandedItems, setExpandedItems] = useState({});
     const [completedCourses, setCompletedCourses] = useState([]);
     const [tasks, setTasks] = useState([]);
 
@@ -91,6 +91,13 @@ const UserProgress = () => {
         fetchProgress();
     }, []);
 
+    const handleAccordionChange = (index, isExpanded) => {
+        setExpandedItems(prev => ({
+            ...prev,
+            [index]: isExpanded
+        }));
+    };
+
     return (
         <div className="bg-gray-800 rounded-3xl p-6 w-[500px] max-mob:w-full max-tab:w-full mx-auto my-8">
             <h1 className="text-3xl font-bold text-white mb-2">Dev Journey (Coming Soon)</h1>
@@ -115,7 +122,11 @@ const UserProgress = () => {
                 {tasks.map((task, index) => (
                     <li key={index}>
                         {task.subTasks ? (
-                            <Accordion className="border-none" onTabOpen={(e) => setExpanded(true)} onTabClose={(e) => setExpanded(false)}>
+                            <Accordion 
+                                className="border-none" 
+                                onTabChange={(e) => handleAccordionChange(index, e.index === 0)}
+                                activeIndex={expandedItems[index] ? 0 : null}
+                            >
                                 <AccordionTab
                                     pt={{
                                         root: { className: 'border-none p-0' },
@@ -129,10 +140,12 @@ const UserProgress = () => {
                                         <div className="bg-gray-800 flex items-center justify-between w-full font-normal">
                                             <div className="flex items-center">
                                                 <div className="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center mr-3">
-                                                    <i className="pi pi-info-circle text-white text-lg"></i>
+                                                    <i className="pi pi-info-circle text-white text-2xl"></i>
                                                 </div>
-                                                <span className="text-lg text-gray-400">{task.status}</span>
-                                                <i className={`pi pi-chevron-down text-gray-400 ml-2 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`} />
+                                                <div className="flex items-center justify-between w-[160px] max-mob:w-[100px]">
+                                                    <span className="text-lg text-gray-400">{task.status}</span>
+                                                    <i className={`pi pi-chevron-down text-gray-400 ml-2 transition-transform duration-300 ${expandedItems[index] ? 'rotate-180' : ''}`} />
+                                                </div>
                                             </div>
                                             <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full w-20 text-center">
                                                 {task.tier}

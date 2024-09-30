@@ -23,7 +23,6 @@ import 'primeicons/primeicons.css';
 import { Tooltip } from 'primereact/tooltip';
 import 'primereact/resources/primereact.min.css';
 
-// todo make the summarry save in a formatted way so we can keep this spaces and line breaks
 const DocumentForm = ({ draft = null, isPublished = false }) => {
     const [title, setTitle] = useState(draft?.title || '');
     const [summary, setSummary] = useState(draft?.summary || '');

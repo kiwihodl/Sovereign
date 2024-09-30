@@ -34,6 +34,12 @@ export const findKind0Fields = async (kind0) => {
         fields.pubkey = pubkey;
     }
 
+    const lud16 = findTruthyPropertyValue(kind0, ['lud16', 'lightning', 'lnurl', 'lnurlp', 'lnurlw']);
+
+    if (lud16) {
+        fields.lightningAddress = lud16;
+    }
+
     return fields;
 }
 

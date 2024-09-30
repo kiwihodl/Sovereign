@@ -98,28 +98,30 @@ const AboutPage = () => {
                         severity="secondary"
                         outlined
                         icon="pi pi-github"
-                        label="GitHub"
+                        tooltip="Github"
+                        className="text-gray-300"
                         onClick={() => window.open('https://github.com/pleb-devs', '_blank')}
                     />
                     <GenericButton
                         severity="info"
                         outlined
                         icon="pi pi-twitter"
-                        label="X.com"
+                        tooltip="X"
                         onClick={() => window.open('https://x.com/pleb_devs', '_blank')}
                     />
                     <GenericButton
                         severity="help"
                         outlined
-                        icon={<Image src={NostrIcon} alt="Nostr" width={20} height={20} className="mr-2" />}
-                        label="Nostr"
+                        icon={<Image src={NostrIcon} alt="Nostr" width={20} height={20} className="mr-0" />}
+                        tooltip="Nostr"
                         onClick={() => window.open('https://nostr.com/plebdevs@plebdevs.com', '_blank')}
                     />
                     <GenericButton
                         severity="warning"
+                        className="text-yellow-400"
                         outlined
                         icon="pi pi-bolt"
-                        label="Donate"
+                        tooltip="Donate"
                         onClick={() => copyToClipboard("austin@bitcoinpleb.dev")}
                     />
                 </div>

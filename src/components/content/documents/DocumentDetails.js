@@ -21,8 +21,6 @@ const MDDisplay = dynamic(
     }
 );
 
-const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
-
 const DocumentDetails = ({ processedEvent, topics, title, summary, image, price, author, paidResource, decryptedContent, nAddress, handlePaymentSuccess, handlePaymentError, authorView }) => {
     const [zapAmount, setZapAmount] = useState(0);
     const router = useRouter();
@@ -96,7 +94,7 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                         </p>
                         <div className="flex flex-row items-center justify-center w-full mt-4">
                             <ResourcePaymentButton
-                                lnAddress={lnAddress}
+                                lnAddress={author?.lightningAddress}
                                 amount={price}
                                 onSuccess={handlePaymentSuccess}
                                 onError={handlePaymentError}
