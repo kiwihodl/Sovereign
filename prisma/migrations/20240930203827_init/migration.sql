@@ -193,6 +193,35 @@ CREATE TABLE "UserCourse" (
     CONSTRAINT "UserCourse_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Nip05" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "pubkey" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Nip05_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "LightningAddress" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "allowsNostr" BOOLEAN NOT NULL DEFAULT true,
+    "description" TEXT,
+    "maxSendable" INTEGER NOT NULL DEFAULT 10000000,
+    "minSendable" INTEGER NOT NULL DEFAULT 1,
+    "invoiceMacaroon" TEXT NOT NULL,
+    "lndCert" TEXT,
+    "lndHost" TEXT NOT NULL,
+    "lndPort" TEXT NOT NULL DEFAULT '8080',
+
+    CONSTRAINT "LightningAddress_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_pubkey_key" ON "User"("pubkey");
 
@@ -231,6 +260,12 @@ CREATE UNIQUE INDEX "Purchase_userId_courseId_key" ON "Purchase"("userId", "cour
 
 -- CreateIndex
 CREATE UNIQUE INDEX "UserCourse_userId_courseId_key" ON "UserCourse"("userId", "courseId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Nip05_userId_key" ON "Nip05"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "LightningAddress_userId_key" ON "LightningAddress"("userId");
 
 -- AddForeignKey
 ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -291,3 +326,9 @@ ALTER TABLE "UserCourse" ADD CONSTRAINT "UserCourse_userId_fkey" FOREIGN KEY ("u
 
 -- AddForeignKey
 ALTER TABLE "UserCourse" ADD CONSTRAINT "UserCourse_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Nip05" ADD CONSTRAINT "Nip05_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LightningAddress" ADD CONSTRAINT "LightningAddress_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
