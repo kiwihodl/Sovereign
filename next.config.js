@@ -31,7 +31,7 @@ module.exports = removeImports({
         headers: [
           {
             key: "Access-Control-Allow-Origin",
-            value: "https://plebdevs-three.vercel.app", // Set your origin
+            value: process.env.BACKEND_URL
           },
           {
             key: "Access-Control-Allow-Methods",
@@ -40,6 +40,26 @@ module.exports = removeImports({
           {
             key: "Access-Control-Allow-Headers",
             value: "Content-Type, Authorization",
+          },
+          {
+            key: "X-Frame-Options",
+            value: "DENY",
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'self'; frame-ancestors 'none';",
+          },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000; includeSubDomains; preload"
           },
         ],
       },
