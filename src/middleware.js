@@ -19,6 +19,7 @@ export default async function combinedMiddleware(request) {
   const ip = request.ip ?? '127.0.0.1';
   const hostname = request.nextUrl.hostname;
   const referer = request.headers.get('referer') || '';
+  console.log("hostname", hostname);
 
   // Bypass rate limiting and referer check for the deployment IP
   if (hostname === FRONTEND_HOSTNAME || hostname === FRONTEND_STAGING_HOSTNAME) {
