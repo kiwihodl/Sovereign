@@ -53,8 +53,6 @@ export default async function middleware(request) {
     `ratelimit_middleware_${ip}`
   );
 
-  console.log("headers", request.headers)
-
   if (!success) {
     return new NextResponse('Too Many Requests', {
       status: 429,

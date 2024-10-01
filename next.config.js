@@ -24,6 +24,27 @@ module.exports = removeImports({
       }
     ];
   },
+  async headers() {
+    return [
+      {
+        source: "/api/:path*",
+        headers: [
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "https://plebdevs-three.vercel.app", // Set your origin
+          },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET, POST, PUT, DELETE, OPTIONS",
+          },
+          {
+            key: "Access-Control-Allow-Headers",
+            value: "Content-Type, Authorization",
+          },
+        ],
+      },
+    ];
+  },
   env: {
     KV_URL: process.env.NODE_ENV !== 'production'
       ? process.env.REDIS_URL
