@@ -4,6 +4,8 @@ import { kv } from '@vercel/kv';
 
 const FRONTEND_HOSTNAME = process.env.FRONTEND_HOSTNAME
 const FRONTEND_STAGING_HOSTNAME = process.env.FRONTEND_STAGING_HOSTNAME
+const BACKEND_URL = process.env.BACKEND_URL
+const BACKEND_STAGING_URL = process.env.BACKEND_STAGING_URL
 
 const ratelimit = new Ratelimit({
   redis: kv,
@@ -17,29 +19,33 @@ export const config = {
 
 export default async function combinedMiddleware(request) {
   const ip = request.ip ?? '127.0.0.1';
-  const hostname = request.nextUrl.hostname;
-  const referer = request.headers.get('referer') || '';
-  console.log("hostname", hostname);
+  const origin = request.headers.get('origin') || '';
+  const pathname = request.nextUrl.pathname;
 
-  // Bypass rate limiting and referer check for the deployment IP
-  if (hostname === FRONTEND_HOSTNAME || hostname === FRONTEND_STAGING_HOSTNAME) {
-    return NextResponse.next();
-  }
-
-  // Bypass referer check for paths following /link
-  if (request.nextUrl.pathname.startsWith('/.well-known')) {
+  // Allow access to .well-known paths
+  if (pathname.startsWith('/.well-known')) {
     const { success } = await ratelimit.limit(ip);
     return success
       ? NextResponse.next()
       : NextResponse.redirect(new URL('/blocked', request.url));
   }
 
-  // Apply referer check for all other routes
-  if (!referer.startsWith(FRONTEND_HOSTNAME) && !referer.startsWith(FRONTEND_STAGING_HOSTNAME)) {
-    return new NextResponse(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
+  // Check if the request is coming from allowed origins
+  const allowedOrigins = [
+    FRONTEND_HOSTNAME,
+    FRONTEND_STAGING_HOSTNAME,
+    BACKEND_URL,
+    BACKEND_STAGING_URL
+  ].filter(Boolean);
+
+  if (!allowedOrigins.some(allowed => origin.startsWith(allowed))) {
+    return new NextResponse(JSON.stringify({ error: 'Forbidden' }), { 
+      status: 403,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 
-  // Apply rate limiting for all other routes
+  // Apply rate limiting for allowed origins
   const { success } = await ratelimit.limit(ip);
   return success
     ? NextResponse.next()
