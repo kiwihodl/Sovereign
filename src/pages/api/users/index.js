@@ -1,6 +1,6 @@
 import { getAllUsers, createUser } from '@/db/models/userModels';
 import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/api/auth/[...nextauth].js"
+import { authOptions } from "@/pages/api/auth/[...nextauth].js"
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
