@@ -1,8 +1,12 @@
 import { getAllUsers, createUser } from '@/db/models/userModels';
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/api/auth/[...nextauth].js"
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
+      const session = await getServerSession(req, res, authOptions)
+      console.log("Session", session)
       const users = await getAllUsers();
       res.status(200).json(users);
     } catch (error) {
