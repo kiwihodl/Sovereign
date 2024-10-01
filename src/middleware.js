@@ -6,6 +6,8 @@ const ratelimit = new Ratelimit({
   redis: kv,
   // 5 requests from the same IP in 10 seconds
   limiter: Ratelimit.slidingWindow(5, '10 s'),
+  analytics: true,
+  timeout: 1000, // 1 second
 });
 
 // Define which routes you want to rate limit
@@ -14,12 +16,19 @@ export const config = {
 };
 
 export default async function middleware(request) {
-  // You could alternatively limit based on user ID or similar
   const ip = request.ip ?? '127.0.0.1';
   const { success, pending, limit, reset, remaining } = await ratelimit.limit(
-    ip
+    `ratelimit_middleware_${ip}`
   );
-  return success
-    ? NextResponse.next()
-    : NextResponse.redirect(new URL('/blocked', request.url));
+
+  if (!success) {
+    return new NextResponse('Too Many Requests', {
+      status: 429,
+      headers: {
+        'Retry-After': reset.toString(),
+      },
+    });
+  }
+
+  return NextResponse.next();
 }
