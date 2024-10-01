@@ -1,8 +1,16 @@
 import { nip04 } from 'nostr-tools';
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/pages/api/auth/[...nextauth]"
 
 export default async function handler(req, res) {
+  const session = await getServerSession(req, res, authOptions)
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
+  if (!session || !session.user.role?.admin) {
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 
   const { content } = req.body;
