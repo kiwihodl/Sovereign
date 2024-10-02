@@ -10,7 +10,7 @@ const PLEBDEVS_API_KEY = process.env.PLEBDEVS_API_KEY;
 export default async function handler(req, res) {
     // make sure api key is in authorization header
     const apiKey = req.headers['authorization'];
-    if (apiKey !== PLEBDEVS_API_KEY) {
+    if (!apiKey || apiKey !== PLEBDEVS_API_KEY) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
     }
