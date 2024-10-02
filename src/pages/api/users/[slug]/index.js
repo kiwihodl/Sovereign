@@ -1,10 +1,19 @@
 import { getUserById, getUserByPubkey, getUserByEmail, updateUser, deleteUser } from "@/db/models/userModels";
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/pages/api/auth/[...nextauth].js"
 
 export default async function handler(req, res) {
   const { slug } = req.query;
   // Determine if slug is a pubkey, ID, or email
   const isPubkey = /^[0-9a-fA-F]{64}$/.test(slug);
   const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(slug);
+
+  const session = await getServerSession(req, res, authOptions);
+
+  if (!session) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
 
   try {
     let user;

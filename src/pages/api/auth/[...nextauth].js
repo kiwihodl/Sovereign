@@ -2,20 +2,16 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import EmailProvider from "next-auth/providers/email";
 import NDK from "@nostr-dev-kit/ndk";
-import axios from "axios";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/db/prisma";
 import { findKind0Fields } from "@/utils/nostr";
 import { generateSecretKey, getPublicKey } from 'nostr-tools/pure'
 import { bytesToHex } from '@noble/hashes/utils'
-import { updateUser } from "@/db/models/userModels";
+import { updateUser, getUserByPubkey, createUser } from "@/db/models/userModels";
 import { createRole } from "@/db/models/roleModels";
 import appConfig from "@/config/appConfig";
 
 // todo update EMAIL_FROM to be a plebdevs email
-
-const BACKEND_URL = process.env.BACKEND_URL;
-
 const ndk = new NDK({
     explicitRelayUrls: appConfig.defaultRelayUrls,
 });
@@ -28,24 +24,25 @@ const authorize = async (pubkey) => {
         const profile = await user.fetchProfile();
 
         // Check if user exists, create if not
-        const response = await axios.get(`${BACKEND_URL}/api/users/${pubkey}`);
-        if (response.status === 200 && response.data) {
+        let dbUser = await getUserByPubkey(pubkey);
+        
+        if (dbUser) {
             const fields = await findKind0Fields(profile);
             // Combine user object with kind0Fields, giving priority to kind0Fields
-            const combinedUser = { ...response.data, ...fields };
+            const combinedUser = { ...dbUser, ...fields };
 
-            // Update the user on the backend if necessary
-            // await axios.put(`${BACKEND_URL}/api/users/${combinedUser.id}`, combinedUser);
+            // Update the user in the database if necessary
+            dbUser = await updateUser(dbUser.id, combinedUser);
 
-            return combinedUser;
-        } else if (response.status === 204) {
+            return dbUser;
+        } else {
             // Create user
             if (profile) {
                 const fields = await findKind0Fields(profile);
                 const payload = { pubkey, username: fields.username, avatar: fields.avatar };
 
-                const createUserResponse = await axios.post(`${BACKEND_URL}/api/users`, payload);
-                return createUserResponse.data;
+                dbUser = await createUser(payload);
+                return dbUser;
             }
         }
     } catch (error) {

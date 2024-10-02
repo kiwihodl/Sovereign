@@ -1,11 +1,21 @@
 import { getUserLessons, createOrUpdateUserLesson } from "@/db/models/userLessonModels";
 import { getResourceById } from "@/db/models/resourceModels";
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/pages/api/auth/[...nextauth].js"
 
 // todo somehow make it to where we can get lesson slug in this endpoint
 export default async function handler(req, res) {
   const { method } = req;
   const { slug, courseId } = req.query;
   const userId = slug;
+
+  const session = await getServerSession(req, res, authOptions);
+
+  if (!session) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
   switch (method) {
     case "GET":
       try {

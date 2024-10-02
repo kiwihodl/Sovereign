@@ -2,6 +2,7 @@ import { getAllUsers, createUser } from '@/db/models/userModels';
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/pages/api/auth/[...nextauth].js"
 
+// todo add recaptcha for additional security
 export default async function handler(req, res) {
   // const session = await getServerSession(req, res, authOptions);
   if (req.method === 'POST') {

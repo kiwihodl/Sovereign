@@ -1,8 +1,17 @@
 import { getNip05, createNip05, updateNip05, deleteNip05 } from '@/db/models/nip05Models';
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/pages/api/auth/[...nextauth].js"
 
 export default async function handler(req, res) {
   const { slug } = req.query;
   const userId = slug;
+
+  const session = await getServerSession(req, res, authOptions);
+
+  if (!session) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
 
   switch (req.method) {
     case 'GET':
