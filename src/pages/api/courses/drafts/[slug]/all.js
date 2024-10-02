@@ -1,8 +1,17 @@
 import { getAllCourseDraftsByUserId } from "@/db/models/courseDraftModels";
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/pages/api/auth/[...nextauth]"
 
 export default async function handler(req, res) {
     // the slug here is user id to get all drafts for a given user
     const {slug} = req.query;
+
+    const session = await getServerSession(req, res, authOptions)
+
+    if (!session) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     if (req.method === 'GET') {
         if (slug) {
             try {

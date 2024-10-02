@@ -5,8 +5,16 @@ import appConfig from "@/config/appConfig";
 import { getLightningAddressByName } from "@/db/models/lightningAddressModels";
 
 const ZAP_PRIVKEY = process.env.ZAP_PRIVKEY;
+const PLEBDEVS_API_KEY = process.env.PLEBDEVS_API_KEY;
 
 export default async function handler(req, res) {
+    // make sure api key is in authorization header
+    const apiKey = req.headers['authorization'];
+    if (apiKey !== PLEBDEVS_API_KEY) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+    }
+
     try {
         const { amount, description_hash, zap_request=null, name } = req.body;
 

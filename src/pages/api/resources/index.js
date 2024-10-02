@@ -1,4 +1,6 @@
 import { getAllResources, createResource } from "@/db/models/resourceModels";
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/pages/api/auth/[...nextauth]"
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
@@ -9,6 +11,12 @@ export default async function handler(req, res) {
       res.status(500).json({ error: error.message });
     }
   } else if (req.method === 'POST') {
+    const session = await getServerSession(req, res, authOptions)
+
+    if (!session || !session?.user?.role?.admin) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     try {
       const resource = await createResource(req.body);
       res.status(201).json(resource);

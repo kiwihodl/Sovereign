@@ -6,6 +6,7 @@ import { runMiddleware, corsMiddleware } from "@/utils/corsMiddleware";
 import { getLightningAddressByName } from "@/db/models/lightningAddressModels";
 
 const BACKEND_URL = process.env.BACKEND_URL;
+const PLEBDEVS_API_KEY = process.env.PLEBDEVS_API_KEY;
 
 export default async function handler(req, res) {
     await runMiddleware(req, res, corsMiddleware);
@@ -70,7 +71,11 @@ export default async function handler(req, res) {
                 return;
             } else {
                 try {
-                    const response = await axios.post(`${BACKEND_URL}/api/lightning-address/lnd`, { amount: amount, description_hash: descriptionHash, name: slug, zap_request: queryParams?.nostr ? queryParams.nostr : null });
+                    const response = await axios.post(`${BACKEND_URL}/api/lightning-address/lnd`, { amount: amount, description_hash: descriptionHash, name: slug, zap_request: queryParams?.nostr ? queryParams.nostr : null }, {
+                        headers: {
+                            'Authorization': PLEBDEVS_API_KEY
+                        }
+                    });
                     res.status(200).json({ pr: response.data });
                 } catch (error) {
                     console.error(error);

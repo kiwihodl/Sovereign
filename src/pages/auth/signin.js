@@ -4,6 +4,7 @@ import { useNDKContext } from "@/context/NDKContext";
 import GenericButton from "@/components/buttons/GenericButton";
 import { InputText } from 'primereact/inputtext';
 
+// todo add recaptcha for additional security
 export default function SignIn() {
   const [email, setEmail] = useState("")
   const [showEmailInput, setShowEmailInput] = useState(false)

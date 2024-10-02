@@ -1,7 +1,11 @@
 import { getResourceById, updateResource, deleteResource, } from "@/db/models/resourceModels";
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/pages/api/auth/[...nextauth]"
 
 export default async function handler(req, res) {
   const { slug } = req.query;
+
+  const session = await getServerSession(req, res, authOptions)
 
   if (req.method === 'GET') {
     try {
@@ -15,6 +19,10 @@ export default async function handler(req, res) {
       res.status(500).json({ error: error.message });
     }
   } else if (req.method === 'PUT') {
+    if (!session || !session?.user?.role?.admin) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     try {
       console.log('req.body:', req.body);
       console.log('slug:', slug);
@@ -31,6 +39,10 @@ export default async function handler(req, res) {
       res.status(400).json({ error: error.message });
     }
   } else if (req.method === 'DELETE') {
+    if (!session || !session?.user?.role?.admin) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     try {
         await deleteResource(slug);
         res.status(204).end();

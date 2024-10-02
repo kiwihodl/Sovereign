@@ -1,6 +1,14 @@
 import { getAllDraftLessons, createDraftLesson } from "@/db/models/draftLessonModels";
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/pages/api/auth/[...nextauth]"
 
 export default async function handler(req, res) {
+  const session = await getServerSession(req, res, authOptions)
+
+  if (!session) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
   if (req.method === 'GET') {
     try {
       const draftLessons = await getAllDraftLessons();
