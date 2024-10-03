@@ -48,7 +48,8 @@ const InteractivePromotionalCarousel = () => {
   const { returnImageProxy } = useImageProxy();
   const { showToast } = useToast();
   const windowWidth = useWindowWidth();
-  const isMobileView = windowWidth <= 1360;
+  const isTabView = windowWidth <= 1360;
+  const isMobile = windowWidth <= 768;
   const router = useRouter();
   const videoRef = useRef(null);
 
@@ -75,13 +76,13 @@ const InteractivePromotionalCarousel = () => {
   }, [selectedPromotion]);
 
   return (
-    <div className={`flex ${isMobileView ? 'flex-col' : 'flex-row'} bg-gray-900 text-white m-4 mx-14 rounded-lg ${isMobileView ? 'h-auto' : 'h-[620px]'} ${isMobileView ? 'w-full mx-0 ml-0 mt-0' : null}`}>
-      <div className={isMobileView ? 'w-full' : 'lg:w-2/3 relative'}>
+    <div className={`flex ${isTabView ? 'flex-col' : 'flex-row'} bg-gray-900 text-white m-4 mx-14 rounded-lg ${isTabView ? 'h-auto' : 'h-[620px]'} ${isTabView ? 'w-full mx-0 ml-0 mt-0' : null}`}>
+      <div className={isTabView ? 'w-full' : 'lg:w-2/3 relative'}>
         {selectedPromotion.video ? (
           <video
             ref={videoRef}
             src={selectedPromotion.video}
-            className={`object-cover w-full ${isMobileView ? 'h-[300px]' : 'h-full'} rounded-lg`}
+            className={`object-cover w-full ${isTabView ? 'h-[300px]' : 'h-full'} rounded-lg`}
             loop
             muted
             playsInline
@@ -92,17 +93,17 @@ const InteractivePromotionalCarousel = () => {
             alt={selectedPromotion.title}
             width={800}
             height={600}
-            className={`object-cover w-full ${isMobileView ? 'h-[300px]' : 'h-full'} rounded-lg opacity-75`}
+            className={`object-cover w-full ${isTabView ? 'h-[300px]' : 'h-full'} rounded-lg opacity-75`}
           />
         )}
-        {isMobileView ? (
+        {isTabView ? (
           <div className="p-6 space-y-2">
             <div className="uppercase text-sm font-bold text-[#f8f8ff]">{selectedPromotion.category}</div>
             <h2 className="text-4xl font-bold leading-tight text-white drop-shadow-lg">
               {selectedPromotion.title}
             </h2>
             <p className="text-lg text-white drop-shadow-md">{selectedPromotion.description}</p>
-            <div className={`flex flex-row gap-2 mt-4 ${isMobileView ? 'flex-col' : ''}`}>
+            <div className={`flex flex-row gap-2 mt-4 ${isTabView ? 'flex-col' : ''}`}>
               {
                 (() => {
                   switch (selectedPromotion.category) {
@@ -139,7 +140,7 @@ const InteractivePromotionalCarousel = () => {
         ) : (
           <>
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent rounded-lg" />
-            <div className={`absolute bottom-0 left-0 p-6 space-y-2 ${isMobileView ? 'pb-16' : ''}`}>
+            <div className={`absolute bottom-0 left-0 p-6 space-y-2 ${isTabView ? 'pb-16' : ''}`}>
               <div className="uppercase text-sm font-bold text-[#f8f8ff]">{selectedPromotion.category}</div>
               <h2 className="text-4xl font-bold leading-tight text-white drop-shadow-lg">
                 {selectedPromotion.title}
@@ -183,13 +184,13 @@ const InteractivePromotionalCarousel = () => {
           </>
         )}
       </div>
-      <div className={isMobileView ? 'w-full p-4' : 'lg:w-1/3 p-4 space-y-4'}>
-        {isMobileView ? (
+      <div className={isTabView ? 'w-full p-4' : 'lg:w-1/3 p-4 space-y-4'}>
+        {isTabView ? (
           <div className="flex overflow-x-auto pb-4 space-x-4">
             {promotions.map((promo) => (
               <div
                 key={promo.id}
-                className={`flex-shrink-0 w-64 space-y-4 cursor-pointer transition-colors duration-200 bg-gray-800 ${selectedPromotion.id === promo.id ? "bg-gray-800" : "hover:bg-gray-700"
+                className={`flex-shrink-0 w-64 space-y-4 cursor-pointer transition-colors duration-200 hover:bg-gray-700 ${selectedPromotion.id === promo.id ? "bg-gray-700" : "bg-gray-800"
                   } p-4 rounded-lg shadow-lg`}
                 onClick={() => setSelectedPromotion(promo)}>
                 <div className="flex items-center gap-2">
@@ -215,8 +216,9 @@ const InteractivePromotionalCarousel = () => {
             </div>
           ))
         )}
-        {isMobileView ? (
-          <div className="w-[528px] flex flex-col bg-gray-800 p-4 rounded-lg shadow-lg">
+        {isTabView ? (
+          // todo: turn this into a stepper for multiple messages
+          <div className={`${isMobile ? "min-w-full" : "w-[529px]" } flex flex-col bg-gray-800 p-4 rounded-lg shadow-lg`}>
             <p>Welcome! 👋</p>
             <p>Plebdevs is open source software and is still in early development. If you have any questions drop an issue on the Github repo, or reach out to me in the Community tab, cheers! - <span className="italic">Austin</span></p>
             <div className="flex flex-wrap gap-4 justify-center mt-2">
