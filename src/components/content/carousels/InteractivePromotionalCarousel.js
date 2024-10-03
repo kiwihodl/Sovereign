@@ -204,7 +204,7 @@ const InteractivePromotionalCarousel = () => {
           promotions.map((promo) => (
             <div
               key={promo.id}
-              className={`space-evenly cursor-pointer transition-colors duration-200 bg-gray-800 ${selectedPromotion.id === promo.id ? "bg-gray-800" : "hover:bg-gray-700"
+              className={`space-evenly cursor-pointer transition-colors duration-200 hover:bg-gray-700 ${selectedPromotion.id === promo.id ? "bg-gray-700" : "bg-gray-800"
                 } p-4 rounded-lg shadow-lg`}
               onClick={() => setSelectedPromotion(promo)}>
               <div className="flex items-center gap-2">
@@ -215,36 +215,69 @@ const InteractivePromotionalCarousel = () => {
             </div>
           ))
         )}
-        <div className="flex flex-col bg-gray-800 p-4 rounded-lg shadow-lg">
-          <p>Welcome! 👋</p>
-          <p>Plebdevs is open source software and is still in early development. If you have any questions drop an issue on the Github repo, or reach out to me in the Community tab, cheers! - <span className="italic">Austin</span></p>
-          <div className="flex flex-wrap gap-4 justify-center mt-2">
-            <i
-              className="pi pi-github text-gray-300 cursor-pointer text-xl hover:opacity-80"
-              onClick={() => window.open('https://github.com/pleb-devs', '_blank')}
-              title="Github"
-            />
-            <i
-              className="pi pi-twitter text-blue-400 rounded-full cursor-pointer text-xl hover:opacity-80"
-              onClick={() => window.open('https://x.com/pleb_devs', '_blank')}
-              title="X"
-            />
-            <Image
-              src={NostrIcon}
-              alt="Nostr"
-              width={22}
-              height={22}
-              className="cursor-pointer hover:opacity-80"
-              onClick={() => window.open('https://nostr.com/plebdevs@plebdevs.com', '_blank')}
-              title="Nostr"
-            />
-            <i
-              className="pi pi-bolt text-yellow-400 cursor-pointer text-xl hover:opacity-80"
-              onClick={() => copyToClipboard("austin@bitcoinpleb.dev")}
-              title="Donate"
-            />
+        {isMobileView ? (
+          <div className="w-[528px] flex flex-col bg-gray-800 p-4 rounded-lg shadow-lg">
+            <p>Welcome! 👋</p>
+            <p>Plebdevs is open source software and is still in early development. If you have any questions drop an issue on the Github repo, or reach out to me in the Community tab, cheers! - <span className="italic">Austin</span></p>
+            <div className="flex flex-wrap gap-4 justify-center mt-2">
+              <i
+                className="pi pi-github text-gray-300 cursor-pointer text-xl hover:opacity-80"
+                onClick={() => window.open('https://github.com/pleb-devs', '_blank')}
+                title="Github"
+              />
+              <i
+                className="pi pi-twitter text-blue-400 rounded-full cursor-pointer text-xl hover:opacity-80"
+                onClick={() => window.open('https://x.com/pleb_devs', '_blank')}
+                title="X"
+              />
+              <Image
+                src={NostrIcon}
+                alt="Nostr"
+                width={22}
+                height={22}
+                className="cursor-pointer hover:opacity-80"
+                onClick={() => window.open('https://nostr.com/plebdevs@plebdevs.com', '_blank')}
+                title="Nostr"
+              />
+              <i
+                className="pi pi-bolt text-yellow-400 cursor-pointer text-xl hover:opacity-80"
+                onClick={() => copyToClipboard("austin@bitcoinpleb.dev")}
+                title="Donate"
+              />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex flex-col bg-gray-800 p-4 rounded-lg shadow-lg">
+            <p>Welcome! 👋</p>
+            <p>Plebdevs is open source software and is still in early development. If you have any questions drop an issue on the Github repo, or reach out to me in the Community tab, cheers! - <span className="italic">Austin</span></p>
+            <div className="flex flex-wrap gap-4 justify-center mt-2">
+              <i
+                className="pi pi-github text-gray-300 cursor-pointer text-xl hover:opacity-80"
+                onClick={() => window.open('https://github.com/pleb-devs', '_blank')}
+                title="Github"
+              />
+              <i
+                className="pi pi-twitter text-blue-400 rounded-full cursor-pointer text-xl hover:opacity-80"
+                onClick={() => window.open('https://x.com/pleb_devs', '_blank')}
+                title="X"
+              />
+              <Image
+                src={NostrIcon}
+                alt="Nostr"
+                width={22}
+                height={22}
+                className="cursor-pointer hover:opacity-80"
+                onClick={() => window.open('https://nostr.com/plebdevs@plebdevs.com', '_blank')}
+                title="Nostr"
+              />
+              <i
+                className="pi pi-bolt text-yellow-400 cursor-pointer text-xl hover:opacity-80"
+                onClick={() => copyToClipboard("austin@bitcoinpleb.dev")}
+                title="Donate"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
