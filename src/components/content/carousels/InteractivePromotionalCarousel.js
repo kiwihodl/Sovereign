@@ -4,6 +4,8 @@ import { useImageProxy } from "@/hooks/useImageProxy"
 import GenericButton from "@/components/buttons/GenericButton"
 import { useRouter } from "next/router"
 import useWindowWidth from "@/hooks/useWindowWidth"
+import NostrIcon from "../../../../public/images/nostr.png"
+import { useToast } from "@/hooks/useToast";
 
 // With current spacing the title can only be 1 line
 const promotions = [
@@ -44,10 +46,27 @@ const promotions = [
 const InteractivePromotionalCarousel = () => {
   const [selectedPromotion, setSelectedPromotion] = useState(promotions[0])
   const { returnImageProxy } = useImageProxy();
+  const { showToast } = useToast();
   const windowWidth = useWindowWidth();
   const isMobileView = windowWidth <= 1360;
   const router = useRouter();
   const videoRef = useRef(null);
+
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast("success", "Copied", "Copied Lightning Address to clipboard");
+      if (window && window?.webln && window?.webln?.lnurl) {
+        await window.webln.enable();
+        const result = await window.webln.lnurl("austin@bitcoinpleb.dev");
+        if (result && result?.preimage) {
+          showToast("success", "Payment Sent", "Thank you for your donation!");
+        }
+      }
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
 
   useEffect(() => {
     if (videoRef.current && selectedPromotion.video) {
@@ -164,7 +183,7 @@ const InteractivePromotionalCarousel = () => {
           </>
         )}
       </div>
-      <div className={isMobileView ? 'w-full p-4' : 'lg:w-1/3 p-6 space-y-4'}>
+      <div className={isMobileView ? 'w-full p-4' : 'lg:w-1/3 p-4 space-y-4'}>
         {isMobileView ? (
           <div className="flex overflow-x-auto pb-4 space-x-4">
             {promotions.map((promo) => (
@@ -185,17 +204,57 @@ const InteractivePromotionalCarousel = () => {
           promotions.map((promo) => (
             <div
               key={promo.id}
-              className={`space-y-8 cursor-pointer transition-colors duration-200 bg-gray-800 ${selectedPromotion.id === promo.id ? "bg-gray-800" : "hover:bg-gray-700"
+              className={`space-evenly cursor-pointer transition-colors duration-200 bg-gray-800 ${selectedPromotion.id === promo.id ? "bg-gray-800" : "hover:bg-gray-700"
                 } p-4 rounded-lg shadow-lg`}
               onClick={() => setSelectedPromotion(promo)}>
               <div className="flex items-center gap-2">
-                <i className={`${promo.icon} text-2xl text-[#f8f8ff]`}></i>
-                <div className="text-lg font-semibold text-[#f8f8ff]">{promo.category}</div>
+                <i className={`${promo.icon} text-xl text-[#f8f8ff]`}></i>
+                <div className="font-semibold text-[#f8f8ff]">{promo.category}</div>
               </div>
-              <h4 className="text-white text-lg">{promo.title}</h4>
+              <h4 className="text-white">{promo.title}</h4>
             </div>
           ))
         )}
+        <div className="flex flex-col bg-gray-800 p-4 rounded-lg shadow-lg">
+          <p>Welcome! 👋</p>
+          <p>Plebdevs is open source software and is still in early development. If you have any questions drop an issue on the Github repo, or reach out to me in the Community tab, cheers! - <span className="italic">Austin</span></p>
+          <div className="flex flex-wrap gap-4 justify-center mt-2">
+            <GenericButton
+              severity="secondary"
+              outlined
+              size="small"
+              icon="pi pi-github"
+              tooltip="Github"
+              className="text-gray-300"
+              onClick={() => window.open('https://github.com/pleb-devs', '_blank')}
+            />
+            <GenericButton
+              severity="info"
+              outlined
+              size="small"
+              icon="pi pi-twitter"
+              tooltip="X"
+              onClick={() => window.open('https://x.com/pleb_devs', '_blank')}
+            />
+            <GenericButton
+              severity="help"
+              outlined
+              size="small"
+              icon={<Image src={NostrIcon} alt="Nostr" width={100} height={100} className="mr-0" />}
+              tooltip="Nostr"
+              onClick={() => window.open('https://nostr.com/plebdevs@plebdevs.com', '_blank')}
+            />
+            <GenericButton
+              severity="warning"
+              className="text-yellow-400"
+              outlined
+              size="small"
+              icon="pi pi-bolt"
+              tooltip="Donate"
+              onClick={() => copyToClipboard("austin@bitcoinpleb.dev")}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
