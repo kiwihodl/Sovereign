@@ -12,7 +12,7 @@ const promotions = [
   {
     id: 1,
     category: "PLEBDEVS",
-    title: "Developer education & community platform",
+    title: "Developer education / community platform",
     description: "PlebDevs is your gateway to mastering Bitcoin, Lightning, and Nostr technologies. Join our community of aspiring developers and start your journey today!",
     icon: "pi pi-code",
     video: "/videos/plebdevs-montage.mp4",
@@ -28,7 +28,7 @@ const promotions = [
   {
     id: 3,
     category: "COMMUNITY",
-    title: "Join Our Community of learners, hackers, and plebs",
+    title: "Join Our Community of learners / hackers",
     description: "Connect with other developers, share your projects, and get support from our community of Bitcoin enthusiasts.",
     icon: "pi pi-users",
     image: "https://pikwizard.com/pw/medium/50238b1cad4ff412fdafc1325efa1c9f.jpg",
@@ -219,39 +219,29 @@ const InteractivePromotionalCarousel = () => {
           <p>Welcome! 👋</p>
           <p>Plebdevs is open source software and is still in early development. If you have any questions drop an issue on the Github repo, or reach out to me in the Community tab, cheers! - <span className="italic">Austin</span></p>
           <div className="flex flex-wrap gap-4 justify-center mt-2">
-            <GenericButton
-              severity="secondary"
-              outlined
-              size="small"
-              icon="pi pi-github"
-              tooltip="Github"
-              className="text-gray-300"
+            <i
+              className="pi pi-github text-gray-300 cursor-pointer text-xl hover:opacity-80"
               onClick={() => window.open('https://github.com/pleb-devs', '_blank')}
+              title="Github"
             />
-            <GenericButton
-              severity="info"
-              outlined
-              size="small"
-              icon="pi pi-twitter"
-              tooltip="X"
+            <i
+              className="pi pi-twitter text-blue-400 rounded-full cursor-pointer text-xl hover:opacity-80"
               onClick={() => window.open('https://x.com/pleb_devs', '_blank')}
+              title="X"
             />
-            <GenericButton
-              severity="help"
-              outlined
-              size="small"
-              icon={<Image src={NostrIcon} alt="Nostr" width={100} height={100} className="mr-0" />}
-              tooltip="Nostr"
+            <Image
+              src={NostrIcon}
+              alt="Nostr"
+              width={22}
+              height={22}
+              className="cursor-pointer hover:opacity-80"
               onClick={() => window.open('https://nostr.com/plebdevs@plebdevs.com', '_blank')}
+              title="Nostr"
             />
-            <GenericButton
-              severity="warning"
-              className="text-yellow-400"
-              outlined
-              size="small"
-              icon="pi pi-bolt"
-              tooltip="Donate"
+            <i
+              className="pi pi-bolt text-yellow-400 cursor-pointer text-xl hover:opacity-80"
               onClick={() => copyToClipboard("austin@bitcoinpleb.dev")}
+              title="Donate"
             />
           </div>
         </div>
