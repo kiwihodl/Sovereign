@@ -32,7 +32,6 @@ const authorize = async (pubkey) => {
             const combinedUser = { ...dbUser, ...fields };
 
             // Update the user in the database if necessary
-            console.log("dbUser", dbUser);
             dbUser = await updateUser(dbUser.id, combinedUser);
 
             return dbUser;
