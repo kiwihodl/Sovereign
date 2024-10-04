@@ -25,24 +25,59 @@ const authorize = async (pubkey) => {
 
         // Check if user exists, create if not
         let dbUser = await getUserByPubkey(pubkey);
-        
+
         if (dbUser) {
             const fields = await findKind0Fields(profile);
+            // See if any of the fields values have changed compared to dbUser
+            const updatedFields = Object.keys(fields).reduce((acc, key) => {
+                if (fields[key] !== dbUser[key] && key !== "lud16") {
+                    acc[key] = fields[key];
+                }
+                return acc;
+            }, {});
+
+            // if there are updated fields, update the user only with the updated fields
+            if (Object.keys(updatedFields).length > 0) {
+                dbUser = await updateUser(dbUser.id, updatedFields);
+            }
+
             // Combine user object with kind0Fields, giving priority to kind0Fields
             const combinedUser = { ...dbUser, ...fields };
 
-            // Update the user in the database if necessary
-            dbUser = await updateUser(dbUser.id, combinedUser);
-
-            return dbUser;
+            return combinedUser;
         } else {
             // Create user
             if (profile) {
                 const fields = await findKind0Fields(profile);
                 const payload = { pubkey, username: fields.username, avatar: fields.avatar };
 
-                dbUser = await createUser(payload);
-                return dbUser;
+                if (appConfig.authorPubkeys.includes(pubkey)) {
+                    // create a new author role for this user
+                    const createdUser = await createUser(payload);
+                    const role = await createRole({
+                        userId: createdUser.id,
+                        admin: true,
+                        subscribed: false,
+                    });
+
+                    if (!role) {
+                        console.error("Failed to create role");
+                        return null;
+                    }
+
+                    const updatedUser = await updateUser(createdUser.id, { role: role.id });
+                    if (!updatedUser) {
+                        console.error("Failed to update user");
+                        return null;
+                    }
+                    
+                    const fullUser = await getUserByPubkey(pubkey);
+
+                    return fullUser;
+                } else {
+                    dbUser = await createUser(payload);
+                    return dbUser;
+                }
             }
         }
     } catch (error) {
@@ -89,10 +124,10 @@ export const authOptions = {
             // if the user has no pubkey, generate a new key pair
             if (token && token?.user && token?.user?.id && !token.user?.pubkey) {
                 try {
-                    let sk = generateSecretKey() 
+                    let sk = generateSecretKey()
                     let pk = getPublicKey(sk)
                     let skHex = bytesToHex(sk)
-                    const updatedUser = await updateUser(token.user.id, {pubkey: pk, privkey: skHex});
+                    const updatedUser = await updateUser(token.user.id, { pubkey: pk, privkey: skHex });
                     if (!updatedUser) {
                         console.error("Failed to update user");
                         return null;
@@ -104,32 +139,32 @@ export const authOptions = {
                 }
             }
 
-            // todo this does not work on first login only the second time
-            if (user && appConfig.authorPubkeys.includes(user?.pubkey) && !user?.role) {
-                console.log("user in appConfig condition", user);
-                // create a new author role for this user
-                const role = await createRole({
-                    userId: user.id,
-                    admin: true,
-                    subscribed: false,
-                });
+            // // todo this does not work on first login only the second time
+            // if (user && appConfig.authorPubkeys.includes(user?.pubkey) && !user?.role) {
+            //     console.log("user in appConfig condition", user);
+            //     // create a new author role for this user
+            //     const role = await createRole({
+            //         userId: user.id,
+            //         admin: true,
+            //         subscribed: false,
+            //     });
 
-                console.log("role", role);
+            //     console.log("role", role);
 
-                if (!role) {
-                    console.error("Failed to create role");
-                    return null;
-                }
+            //     if (!role) {
+            //         console.error("Failed to create role");
+            //         return null;
+            //     }
 
-                console.log("user in appConfig condition", user);
+            //     console.log("user in appConfig condition", user);
 
-                const updatedUser = await updateUser(user.id, {role: role.id});
-                if (!updatedUser) {
-                    console.error("Failed to update user");
-                    return null;
-                }
-                token.user = updatedUser;
-            }
+            //     const updatedUser = await updateUser(user.id, {role: role.id});
+            //     if (!updatedUser) {
+            //         console.error("Failed to update user");
+            //         return null;
+            //     }
+            //     token.user = updatedUser;
+            // }
 
             // Add combined user object to the token
             if (user) {
@@ -150,7 +185,7 @@ export const authOptions = {
             token = {}
             session = {}
             return true
-          },
+        },
     },
     secret: process.env.NEXTAUTH_SECRET,
     session: { strategy: "jwt" },

@@ -10,7 +10,7 @@ const localRatelimit = {
   limit: async (key) => {
     const now = Date.now();
     const windowMs = 10 * 1000; // 10 seconds
-    const maxRequests = 5;
+    const maxRequests = 20;
 
     const requestLog = inMemoryStore.get(key) || [];
     const windowStart = now - windowMs;
