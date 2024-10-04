@@ -224,7 +224,7 @@ const InteractivePromotionalCarousel = () => {
             <div className="flex flex-wrap gap-4 justify-center mt-2">
               <i
                 className="pi pi-github text-gray-300 cursor-pointer text-xl hover:opacity-80"
-                onClick={() => window.open('https://github.com/pleb-devs', '_blank')}
+                onClick={() => window.open('https://github.com/austinkelsay/plebdevs', '_blank')}
                 title="Github"
               />
               <i
@@ -255,7 +255,7 @@ const InteractivePromotionalCarousel = () => {
             <div className="flex flex-wrap gap-4 justify-center mt-2">
               <i
                 className="pi pi-github text-gray-300 cursor-pointer text-xl hover:opacity-80"
-                onClick={() => window.open('https://github.com/pleb-devs', '_blank')}
+                onClick={() => window.open('https://github.com/austinkelsay/plebdevs', '_blank')}
                 title="Github"
               />
               <i
