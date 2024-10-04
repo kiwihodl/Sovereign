@@ -99,7 +99,8 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                         </p>
                         <div className="flex flex-row items-center justify-center w-full mt-4">
                             <ResourcePaymentButton
-                                lnAddress={author?.lightningAddress}
+                                // lnAddress={author?.lightningAddress}
+                                lnAddress={"bitcoinplebdev@stacker.news"}
                                 amount={price}
                                 onSuccess={handlePaymentSuccess}
                                 onError={handlePaymentError}

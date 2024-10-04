@@ -38,6 +38,10 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
         }
     }, [zaps, processedEvent]);
 
+    useEffect(() => {
+        console.log("author", author);
+    }, [author]);
+
     const handleDelete = async () => {
         try {
             const response = await axios.delete(`/api/resources/${processedEvent.d}`);
@@ -97,7 +101,8 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                     </p>
                     <div className="flex flex-row items-center justify-center w-full mt-4 z-10">
                         <ResourcePaymentButton
-                            lnAddress={author?.lnAddress}
+                            // lnAddress={author?.lnAddress}
+                            lnAddress={"bitcoinplebdev@stacker.news"}
                             amount={price}
                             onSuccess={handlePaymentSuccess}
                             onError={handlePaymentError}

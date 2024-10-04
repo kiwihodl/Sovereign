@@ -84,7 +84,8 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
         if (paidCourse && !decryptionPerformed) {
             return (
                 <CoursePaymentButton
-                    lnAddress={author?.lnAddress}
+                    // lnAddress={author?.lnAddress}
+                    lnAddress={"bitcoinplebdev@stacker.news"}
                     amount={processedEvent.price}
                     onSuccess={handlePaymentSuccess}
                     onError={handlePaymentError}
