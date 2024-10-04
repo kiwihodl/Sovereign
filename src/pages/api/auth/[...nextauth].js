@@ -106,6 +106,7 @@ export const authOptions = {
 
             // todo this does not work on first login only the second time
             if (user && appConfig.authorPubkeys.includes(user?.pubkey) && !user?.role) {
+                console.log("user in appConfig condition", user);
                 // create a new author role for this user
                 const role = await createRole({
                     userId: user.id,
