@@ -121,6 +121,8 @@ export const authOptions = {
                     return null;
                 }
 
+                console.log("user in appConfig condition", user);
+
                 const updatedUser = await updateUser(user.id, {role: role.id});
                 if (!updatedUser) {
                     console.error("Failed to update user");
