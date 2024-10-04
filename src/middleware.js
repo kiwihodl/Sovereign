@@ -36,7 +36,7 @@ const localRatelimit = {
 const ratelimit = process.env.NODE_ENV === 'production'
   ? new Ratelimit({
       redis: kv,
-      limiter: Ratelimit.slidingWindow(10, '10 s'),
+      limiter: Ratelimit.slidingWindow(20, '10 s'),
       analytics: true,
       timeout: 1000,
     })
