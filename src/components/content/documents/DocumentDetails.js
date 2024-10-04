@@ -13,6 +13,7 @@ import { getTotalFromZaps } from "@/utils/lightning";
 import { useSession } from "next-auth/react";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import dynamic from "next/dynamic";
+import { auth } from "@getalby/sdk";
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -41,6 +42,10 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
     useEffect(() => {
         console.log("authorView", authorView);
     }, [authorView]);
+
+    useEffect(() => {
+        console.log("author", author);
+    }, [author]);
 
     const handleDelete = async () => {
         try {
