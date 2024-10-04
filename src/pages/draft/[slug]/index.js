@@ -220,7 +220,8 @@ export default function Draft() {
                     // todo update this for dev and prod
                     const extractedVideoId = draft.content.split('?videoKey=')[1].split('"')[0];
                     videoId = extractedVideoId;
-                    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+                    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+                    console.log("BASE URL", baseUrl);
                     const videoEmbed = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><video src="${baseUrl}/api/get-video-url?videoKey=${encodeURIComponent(extractedVideoId)}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" controls></video></div>`;
                     if (draft?.price) {
                         const encryptedVideoUrl = await encryptContent(videoEmbed);
