@@ -15,7 +15,7 @@ const promotions = [
     title: "Developer education / community platform",
     description: "PlebDevs is your gateway to mastering Bitcoin, Lightning, and Nostr technologies. Join our community of aspiring developers and start your journey today!",
     icon: "pi pi-code",
-    video: "/videos/plebdevs-montage.mp4",
+    video: "https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-montage.mp4",
   },
   {
     id: 2,
