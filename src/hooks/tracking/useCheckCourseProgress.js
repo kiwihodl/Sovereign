@@ -3,7 +3,7 @@ import { useSession } from 'next-auth/react';
 import axios from 'axios';
 
 const useCheckCourseProgress = () => {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
 
   useEffect(() => {
     const updateCourseCompletionStatus = async () => {
@@ -17,6 +17,7 @@ const useCheckCourseProgress = () => {
 
         try {
           const response = await axios.get(`/api/users/${userId}/courses/${courseId}`);
+          console.log("RESPONSE", response.data);
           const isCompleted = response.data.completed;
           console.log("IS COMPLETED", isCompleted);
 
@@ -25,6 +26,7 @@ const useCheckCourseProgress = () => {
               completed: true,
               completedAt: new Date().toISOString(),
             });
+            update()
             console.log(`Course ${courseId} marked as completed for user ${userId}`);
           }
         } catch (error) {
@@ -34,7 +36,7 @@ const useCheckCourseProgress = () => {
     };
 
     updateCourseCompletionStatus();
-  }, [session]);
+  }, [session, update]);
 
   return null;
 };
