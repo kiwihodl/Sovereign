@@ -16,7 +16,7 @@ const useCheckCourseProgress = () => {
         const courseId = userCourse.courseId;
 
         try {
-          const response = await axios.get(`/api/users/${userId}/courses/${courseId}`);
+          const response = await axios.get(`/api/users/${userId}/courses?courseSlug=${courseId}`);
           const isCompleted = response.data === true;
 
           if (isCompleted && !userCourse.completed) {
