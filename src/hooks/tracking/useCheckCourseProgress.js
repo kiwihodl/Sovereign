@@ -16,11 +16,11 @@ const useCheckCourseProgress = () => {
         const courseId = userCourse.courseId;
 
         try {
-          const response = await axios.get(`/api/users/${userId}/courses?courseSlug=${courseId}`);
+          const response = await axios.get(`/api/users/${userId}/courses/${courseId}`);
           const isCompleted = response.data === true;
 
           if (isCompleted && !userCourse.completed) {
-            await axios.post(`/api/users/${userId}/courses/${courseId}`, {
+            await axios.post(`/api/users/${userId}/courses?courseSlug=${courseId}`, {
               completed: true,
               completedAt: new Date().toISOString(),
             });
