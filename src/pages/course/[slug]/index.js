@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/router";
 import { parseCourseEvent, parseEvent, findKind0Fields } from "@/utils/nostr";
-import CourseDetailsNew from "@/components/content/courses/CourseDetailsNew";
+import CourseDetails from "@/components/content/courses/CourseDetails";
 import VideoLesson from "@/components/content/courses/VideoLesson";
 import DocumentLesson from "@/components/content/courses/DocumentLesson";
 import { useNDKContext } from "@/context/NDKContext";
@@ -214,7 +214,7 @@ const Course = () => {
     return (
         <>
             {course && paidCourse !== null && (
-                <CourseDetailsNew
+                <CourseDetails
                     processedEvent={course}
                     paidCourse={paidCourse}
                     lessons={uniqueLessons}

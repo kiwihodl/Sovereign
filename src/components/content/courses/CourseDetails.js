@@ -1,49 +1,42 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/router';
-import { useImageProxy } from '@/hooks/useImageProxy';
-import ZapDisplay from '@/components/zaps/ZapDisplay';
-import { getTotalFromZaps } from '@/utils/lightning';
+import axios from 'axios';
+import { useToast } from "@/hooks/useToast";
 import { Tag } from 'primereact/tag';
-import { nip19 } from 'nostr-tools';
-import { useSession } from 'next-auth/react';
-import GenericButton from '@/components/buttons/GenericButton';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
-import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
-import { useNDKContext } from "@/context/NDKContext";
-import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscription';
-import { findKind0Fields } from '@/utils/nostr';
-import 'primeicons/primeicons.css';
+import { useRouter } from 'next/router';
 import CoursePaymentButton from "@/components/bitcoinConnect/CoursePaymentButton";
-import { ProgressSpinner } from 'primereact/progressspinner';
+import ZapDisplay from '@/components/zaps/ZapDisplay';
+import GenericButton from '@/components/buttons/GenericButton';
+import { nip19 } from 'nostr-tools';
+import { useImageProxy } from '@/hooks/useImageProxy';
+import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscription';
+import { getTotalFromZaps } from '@/utils/lightning';
+import { useSession } from 'next-auth/react';
+import useWindowWidth from "@/hooks/useWindowWidth";
+import { useNDKContext } from "@/context/NDKContext";
+import { findKind0Fields } from '@/utils/nostr';
 import appConfig from "@/config/appConfig";
-import useWindowWidth from '@/hooks/useWindowWidth';
-
-const MDDisplay = dynamic(
-    () => import("@uiw/react-markdown-preview"),
-    {
-        ssr: false,
-    }
-);
+import useTrackCourse from '@/hooks/tracking/useTrackCourse';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 export default function CourseDetails({ processedEvent, paidCourse, lessons, decryptionPerformed, handlePaymentSuccess, handlePaymentError }) {
-    const [author, setAuthor] = useState(null);
-    const [nAddress, setNAddress] = useState(null);    
     const [zapAmount, setZapAmount] = useState(0);
-    const [user, setUser] = useState(null);
-    const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: processedEvent });
-    const { returnImageProxy } = useImageProxy();
-    const { data: session, status } = useSession();
+    const [author, setAuthor] = useState(null);
+    const [nAddress, setNAddress] = useState(null);
     const router = useRouter();
-    const {ndk, addSigner} = useNDKContext();
+    const { returnImageProxy } = useImageProxy();
+    const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: processedEvent });
+    const { data: session, status } = useSession();
+    const { showToast } = useToast();
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 768;
+    const { ndk } = useNDKContext();
 
-    useEffect(() => {
-        if (session) {
-            setUser(session.user);
-        }
-    }, [session]);
+    const { isCompleted } = useTrackCourse({
+        courseId: processedEvent?.d,
+        paidCourse,
+        decryptionPerformed
+    });
 
     const fetchAuthor = useCallback(async (pubkey) => {
         if (!pubkey) return;
@@ -57,12 +50,6 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
 
     useEffect(() => {
         if (processedEvent) {
-            fetchAuthor(processedEvent.pubkey);
-        }
-    }, [fetchAuthor, processedEvent]);
-
-    useEffect(() => {
-        if (processedEvent?.d) {
             const naddr = nip19.naddrEncode({
                 pubkey: processedEvent.pubkey,
                 kind: processedEvent.kind,
@@ -74,18 +61,47 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
     }, [processedEvent]);
 
     useEffect(() => {
+        if (processedEvent) {
+            fetchAuthor(processedEvent.pubkey);
+        }
+    }, [fetchAuthor, processedEvent]);
+
+    useEffect(() => {
         if (zaps.length > 0) {
             const total = getTotalFromZaps(zaps, processedEvent);
             setZapAmount(total);
         }
     }, [zaps, processedEvent]);
 
+    const handleDelete = async () => {
+        try {
+            const response = await axios.delete(`/api/courses/${processedEvent.d}`);
+            if (response.status === 204) {
+                showToast('success', 'Success', 'Course deleted successfully.');
+                router.push('/');
+            }
+        } catch (error) {
+            showToast('error', 'Error', 'Failed to delete course. Please try again.');
+        }
+    }
+
     const renderPaymentMessage = () => {
+        if (session?.user && session.user?.role?.subscribed && decryptionPerformed) {
+            return <GenericButton tooltipOptions={{ position: 'top' }} tooltip={`You are subscribed so you can access all paid content`} icon="pi pi-check" label="Subscribed" severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
+        }
+
+        if (paidCourse && decryptionPerformed && author && processedEvent?.pubkey !== session?.user?.pubkey && !session?.user?.role?.subscribed) {
+            return <GenericButton icon="pi pi-check" label={`Paid ${processedEvent.price} sats`} severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
+        }
+
+        if (paidCourse && author && processedEvent?.pubkey === session?.user?.pubkey) {
+            return <GenericButton tooltipOptions={{ position: 'top' }} tooltip={`You created this paid course, users must pay ${processedEvent.price} sats to access it`} icon="pi pi-check" label={`Price ${processedEvent.price} sats`} severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
+        }
+
         if (paidCourse && !decryptionPerformed) {
             return (
                 <CoursePaymentButton
-                    // lnAddress={author?.lnAddress}
-                    lnAddress={"bitcoinplebdev@stacker.news"}
+                    lnAddress={author?.lud16}
                     amount={processedEvent.price}
                     onSuccess={handlePaymentSuccess}
                     onError={handlePaymentError}
@@ -94,99 +110,81 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
             );
         }
 
-        const coursePurchased = session?.user?.purchased?.some(purchase => 
-            purchase?.courseId === processedEvent.d
-        );
-        
-        if (paidCourse && decryptionPerformed && author && session?.user?.role?.subscribed && processedEvent?.pubkey !== session?.user?.pubkey) {
-            return <GenericButton tooltipOptions={{position: 'top'}} tooltip={`You are subscribed so you can access all paid content`} icon="pi pi-check" label="Subscribed" severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
-        }
-        
-        if (paidCourse && author && processedEvent?.pubkey === session?.user?.pubkey) {
-            return <GenericButton tooltipOptions={{position: 'top'}} tooltip={`You created this paid course, users must pay ${processedEvent.price} sats to access it`} icon="pi pi-check" label={`Price ${processedEvent.price} sats`} severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
-        }
-
-        if (paidCourse && decryptionPerformed && author && coursePurchased) {
-            return <GenericButton tooltipOptions={{position: 'top'}} tooltip={`You have purchased this course`} icon="pi pi-check" label="Purchased" severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
-        }
-        
         return null;
     };
 
     if (!processedEvent || !author) {
-        return (
-            <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
-        );
+        return <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>;
     }
 
     return (
-        <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
-            <div className='w-full flex flex-row justify-between max-tab:flex-col max-mob:flex-col'>
-            <i className='pi pi-arrow-left pr-8 cursor-pointer hover:opacity-75' onClick={() => router.push('/')} />
-                <div className='w-[75vw] mx-auto flex flex-row items-start justify-between max-tab:flex-col max-mob:flex-col max-tab:w-[95vw] max-mob:w-[95vw]'>
-                    <div className='flex flex-col items-start max-w-[45vw] max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
-                        <div className='pt-2 flex flex-row justify-start w-full'>
-                            {processedEvent && processedEvent.topics && processedEvent.topics.length > 0 && (
+        <div className="w-full">
+            <div className="relative w-full h-[400px] mb-8">
+                <Image
+                    alt="course image"
+                    src={returnImageProxy(processedEvent.image)}
+                    fill
+                    className="object-cover"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+            </div>
+            <div className="w-full mx-auto px-4 py-8 -mt-32 relative z-10 max-mob:px-0 max-tab:px-0">
+                <i className={`pi pi-arrow-left cursor-pointer hover:opacity-75 absolute top-0 left-4`} onClick={() => router.push('/')} />
+                <div className="mb-8 bg-gray-800/70 rounded-lg p-4 max-mob:rounded-t-none max-tab:rounded-t-none">
+                    {isCompleted && <Tag severity="success" value="Completed" />}
+                    <div className="flex flex-row items-center justify-between w-full">
+                        <h1 className='text-4xl font-bold text-white'>{processedEvent.name}</h1>
+                        <div className="flex flex-wrap gap-2">
+                            {processedEvent.topics && processedEvent.topics.length > 0 && (
                                 processedEvent.topics.map((topic, index) => (
-                                    <Tag className='mr-2 text-white' key={index} value={topic}></Tag>
+                                    <Tag className='text-white' key={index} value={topic}></Tag>
                                 ))
                             )}
                         </div>
-                        <h1 className='text-4xl mt-6'>{processedEvent?.name}</h1>
-                        <p className='text-xl mt-6'>{processedEvent?.description}</p>
-                        <div className='flex flex-row w-full mt-6 items-center'>
+                    </div>
+                    <div className='text-xl text-gray-200 mb-4 mt-4 max-mob:text-base'>{processedEvent.description && (
+                        processedEvent.description.split('\n').map((line, index) => (
+                            <p key={index}>{line}</p>
+                        ))
+                    )}
+                    </div>
+                    <div className='flex items-center justify-between'>
+                        <div className='flex items-center'>
                             <Image
-                                alt="avatar thumbnail"
+                                alt="avatar image"
                                 src={returnImageProxy(author?.avatar, author?.pubkey)}
                                 width={50}
                                 height={50}
                                 className="rounded-full mr-4"
                             />
-                            <p className='text-lg'>
-                                Created by{' '}
-                                <a rel='noreferrer noopener' target='_blank' className='text-blue-500 hover:underline'>
+                            <p className='text-lg text-white'>
+                                By{' '}
+                                <a rel='noreferrer noopener' target='_blank' className='text-blue-300 hover:underline'>
                                     {author?.username || author?.name || author?.pubkey}
                                 </a>
                             </p>
                         </div>
+                        <ZapDisplay
+                            zapAmount={zapAmount}
+                            event={processedEvent}
+                            zapsLoading={zapsLoading && zapAmount === 0}
+                        />
                     </div>
-                    <div className='flex flex-col max-tab:mt-12 max-mob:mt-12'>
-                        {processedEvent && (
-                            <div className='flex flex-col items-center justify-between rounded-lg h-72 p-4 bg-gray-700 drop-shadow-md'>
-                                <Image
-                                    alt="course thumbnail"
-                                    src={returnImageProxy(processedEvent.image)}
-                                    width={344}
-                                    height={194}
-                                    className="w-[344px] h-[194px] object-cover object-top rounded-lg"
-                                />
-                                <div className='w-full flex justify-between items-center'>
-                                    {renderPaymentMessage()}
-                                    <ZapDisplay 
-                                        zapAmount={zapAmount} 
-                                        event={processedEvent} 
-                                        zapsLoading={zapsLoading && zapAmount === 0} 
-                                    />
-                                </div>
+                    <div className='w-full mt-8 flex flex-wrap justify-between items-center'>
+                        {renderPaymentMessage()}
+                        {processedEvent?.pubkey === session?.user?.pubkey ? (
+                            <div className='flex space-x-2 mt-4 sm:mt-0'>
+                                <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
+                                <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
+                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={isMobileView ? null : "View Nostr Event"} tooltipOptions={{ position: paidCourse ? 'left' : 'right' }} />
+                            </div>
+                        ) : (
+                            <div className='flex space-x-2 mt-4 sm:mt-0'>
+                                <GenericButton className='my-2' outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={isMobileView ? null : "View Nostr Event"} tooltipOptions={{ position: paidCourse ? 'left' : 'right' }} />
                             </div>
                         )}
                     </div>
                 </div>
-            </div>
-            {typeof window !== 'undefined' && nAddress !== null && (
-                <div className='px-24'>
-                    <ZapThreadsWrapper
-                        anchor={nAddress}
-                        user={user?.pubkey || null}
-                        relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.mutinywallet.com/, wss://relay.primal.net/"
-                        disable="zaps"
-                    />
-                </div>
-            )}
-            <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
-                {
-                    processedEvent?.content && <MDDisplay className='p-4 rounded-lg' source={processedEvent.content} />
-                }
             </div>
         </div>
     );

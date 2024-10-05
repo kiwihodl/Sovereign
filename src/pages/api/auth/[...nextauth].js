@@ -28,9 +28,9 @@ const authorize = async (pubkey) => {
 
         if (dbUser) {
             const fields = await findKind0Fields(profile);
-            // See if any of the fields values have changed compared to dbUser
-            const updatedFields = Object.keys(fields).reduce((acc, key) => {
-                if (fields[key] !== dbUser[key] && key !== "lud16") {
+            // Only update 'avatar' or 'username' if they are different from kind0 fields on the dbUser
+            const updatedFields = ['avatar', 'username'].reduce((acc, key) => {
+                if (fields[key] !== dbUser[key]) {
                     acc[key] = fields[key];
                 }
                 return acc;
@@ -42,7 +42,7 @@ const authorize = async (pubkey) => {
             }
 
             // Combine user object with kind0Fields, giving priority to kind0Fields
-            const combinedUser = { ...dbUser, ...fields };
+            const combinedUser = { ...dbUser, kind0: fields };
 
             return combinedUser;
         } else {
@@ -73,10 +73,10 @@ const authorize = async (pubkey) => {
                     
                     const fullUser = await getUserByPubkey(pubkey);
 
-                    return fullUser;
+                    return { ...fullUser, kind0: fields };
                 } else {
                     dbUser = await createUser(payload);
-                    return dbUser;
+                    return { ...dbUser, kind0: fields };
                 }
             }
         }
@@ -132,41 +132,14 @@ export const authOptions = {
                         console.error("Failed to update user");
                         return null;
                     }
-                    token.user = updatedUser;
+                    const fullUser = await getUserByPubkey(pk);
+                    token.user = fullUser;
                 } catch (error) {
                     console.error("Ephemeral key pair generation error:", error);
                     return null;
                 }
             }
-
-            // // todo this does not work on first login only the second time
-            // if (user && appConfig.authorPubkeys.includes(user?.pubkey) && !user?.role) {
-            //     console.log("user in appConfig condition", user);
-            //     // create a new author role for this user
-            //     const role = await createRole({
-            //         userId: user.id,
-            //         admin: true,
-            //         subscribed: false,
-            //     });
-
-            //     console.log("role", role);
-
-            //     if (!role) {
-            //         console.error("Failed to create role");
-            //         return null;
-            //     }
-
-            //     console.log("user in appConfig condition", user);
-
-            //     const updatedUser = await updateUser(user.id, {role: role.id});
-            //     if (!updatedUser) {
-            //         console.error("Failed to update user");
-            //         return null;
-            //     }
-            //     token.user = updatedUser;
-            // }
-
-            // Add combined user object to the token
+            
             if (user) {
                 token.user = user;
             }
