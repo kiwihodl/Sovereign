@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import axios from 'axios';
-import { checkCourseCompletion } from '@/db/models/userCourseModels';
 
 const useCheckCourseProgress = () => {
   const { data: session } = useSession();
@@ -15,18 +14,21 @@ const useCheckCourseProgress = () => {
 
       for (const userCourse of userCourses) {
         const courseId = userCourse.courseId;
-        const isCompleted = await checkCourseCompletion(userId, courseId);
 
-        if (isCompleted) {
-          try {
+        try {
+          const response = await axios.get(`/api/users/${userId}/courses/${courseId}`);
+          const isCompleted = response.data.completed;
+          console.log("IS COMPLETED", isCompleted);
+
+          if (isCompleted && !userCourse.completed) {
             await axios.put(`/api/users/${userId}/courses/${courseId}`, {
               completed: true,
               completedAt: new Date().toISOString(),
             });
             console.log(`Course ${courseId} marked as completed for user ${userId}`);
-          } catch (error) {
-            console.error(`Failed to update course ${courseId} completion status:`, error);
           }
+        } catch (error) {
+          console.error(`Failed to update course ${courseId} completion status:`, error);
         }
       }
     };
