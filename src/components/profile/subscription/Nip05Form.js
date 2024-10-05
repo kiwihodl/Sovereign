@@ -39,7 +39,7 @@ const Nip05Form = ({ visible, onHide }) => {
             } else {
                 response = await axios.post(`/api/users/${session.user.id}/nip05`, { pubkey, name: lowercaseName });
             }
-            if (existingNip05 && response.status === 201) {
+            if (!existingNip05 && response.status === 201) {
                 showToast('success', 'NIP-05 Claimed', 'Your NIP-05 has been claimed');
                 update();
                 onHide();
@@ -48,6 +48,7 @@ const Nip05Form = ({ visible, onHide }) => {
                 update();
                 onHide();
             } else {
+                console.log("RESPONSE", response);
                 showToast('error', 'Error updating NIP-05', response.data.error);
             }
         } catch (error) {
