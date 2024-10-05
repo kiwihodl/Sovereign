@@ -17,9 +17,7 @@ const useCheckCourseProgress = () => {
 
         try {
           const response = await axios.get(`/api/users/${userId}/courses/${courseId}`);
-          console.log("RESPONSE", response.data);
-          const isCompleted = response.data.completed;
-          console.log("IS COMPLETED", isCompleted);
+          const isCompleted = response.data === true;
 
           if (isCompleted && !userCourse.completed) {
             await axios.put(`/api/users/${userId}/courses/${courseId}`, {

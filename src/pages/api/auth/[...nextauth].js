@@ -43,8 +43,6 @@ const authorize = async (pubkey) => {
             // add the kind0 fields to the user
             const combinedUser = { ...dbUser, kind0: fields };
 
-            console.log("COMBINED USER", combinedUser);
-
             return combinedUser;
         } else {
             // Create user
