@@ -20,7 +20,7 @@ const useCheckCourseProgress = () => {
           const isCompleted = response.data === true;
 
           if (isCompleted && !userCourse.completed) {
-            await axios.put(`/api/users/${userId}/courses/${courseId}`, {
+            await axios.post(`/api/users/${userId}/courses/${courseId}`, {
               completed: true,
               completedAt: new Date().toISOString(),
             });
