@@ -14,6 +14,7 @@ import { nip19 } from "nostr-tools";
 import Image from "next/image";
 import GithubContributionChart from "@/components/charts/GithubContributionChart";
 import GithubContributionChartDisabled from "@/components/charts/GithubContributionChartDisabled";
+import useCheckCourseProgress from "@/hooks/tracking/useCheckCourseProgress";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import { useToast } from "@/hooks/useToast";
 import UserProgress from "@/components/profile/progress/UserProgress";
@@ -27,6 +28,7 @@ const UserProfile = () => {
     const { ndk, addSigner } = useNDKContext();
     const { showToast } = useToast();
     const menu = useRef(null);
+    useCheckCourseProgress();
 
     const copyToClipboard = (text) => {
         navigator.clipboard.writeText(text);
