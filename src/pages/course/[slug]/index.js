@@ -191,6 +191,7 @@ const Course = () => {
     };
 
     const handlePaymentSuccess = async (response) => {
+        console.log("response in handlePaymentSuccess", response);
         if (response && response?.preimage) {
             const updated = await update();
             console.log("session after update", updated);

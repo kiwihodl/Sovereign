@@ -76,7 +76,6 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
             const result = await axios.post('/api/purchase/course', purchaseData);
 
             if (result.status === 200) {
-                showToast('success', 'Payment Successful', `Paid ${amount} sats and updated user purchases`);
                 if (onSuccess) onSuccess(response);
             } else {
                 throw new Error('Failed to update user purchases');

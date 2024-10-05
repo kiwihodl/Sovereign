@@ -29,20 +29,21 @@ const authorize = async (pubkey) => {
         if (dbUser) {
             const fields = await findKind0Fields(profile);
             // Only update 'avatar' or 'username' if they are different from kind0 fields on the dbUser
-            const updatedFields = ['avatar', 'username'].reduce((acc, key) => {
-                if (fields[key] !== dbUser[key]) {
-                    acc[key] = fields[key];
+            if (fields.avatar !== dbUser.avatar) {
+                const updatedUser = await updateUser(dbUser.id, { avatar: fields.avatar });
+                if (updatedUser) {
+                    dbUser = await getUserByPubkey(pubkey);
                 }
-                return acc;
-            }, {});
-
-            // if there are updated fields, update the user only with the updated fields
-            if (Object.keys(updatedFields).length > 0) {
-                dbUser = await updateUser(dbUser.id, updatedFields);
+            } else if (fields.username !== dbUser.username) {
+                const updatedUser = await updateUser(dbUser.id, { username: fields.username });
+                if (updatedUser) {
+                    dbUser = await getUserByPubkey(pubkey);
+                }
             }
-
-            // Combine user object with kind0Fields, giving priority to kind0Fields
+            // add the kind0 fields to the user
             const combinedUser = { ...dbUser, kind0: fields };
+
+            console.log("COMBINED USER", combinedUser);
 
             return combinedUser;
         } else {
@@ -139,7 +140,7 @@ export const authOptions = {
                     return null;
                 }
             }
-            
+
             if (user) {
                 token.user = user;
             }

@@ -10,7 +10,7 @@ const localRatelimit = {
   limit: async (key) => {
     const now = Date.now();
     const windowMs = 10 * 1000; // 10 seconds
-    const maxRequests = 20;
+    const maxRequests = 25;
 
     const requestLog = inMemoryStore.get(key) || [];
     const windowStart = now - windowMs;
@@ -36,7 +36,7 @@ const localRatelimit = {
 const ratelimit = process.env.NODE_ENV === 'production'
   ? new Ratelimit({
       redis: kv,
-      limiter: Ratelimit.slidingWindow(20, '10 s'),
+      limiter: Ratelimit.slidingWindow(25, '10 s'),
       analytics: true,
       timeout: 1000,
     })
