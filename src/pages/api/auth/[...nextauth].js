@@ -48,7 +48,7 @@ const authorize = async (pubkey) => {
         } else {
             // Create user
             if (profile) {
-                track('Nostr Signup', { pubkey: pubkey, method: "nostr" });
+                track('Nostr Signup', { pubkey: pubkey });
                 const fields = await findKind0Fields(profile);
                 const payload = { pubkey, username: fields.username, avatar: fields.avatar };
 
@@ -114,11 +114,18 @@ export const authOptions = {
             },
             from: process.env.EMAIL_FROM,
             sendVerificationRequest: async ({ identifier, url, provider }) => {
+                // Track the email signup event
                 track('Email Signup', { email: identifier });
 
-                // Use the default sendVerificationRequest function or customize it
-                const { sendVerificationRequest } = require("next-auth/providers/email");
-                await sendVerificationRequest({ identifier, url, provider });
+                // Use nodemailer to send the email
+                const transport = nodemailer.createTransport(provider.server);
+                await transport.sendMail({
+                    to: identifier,
+                    from: provider.from,
+                    subject: `Sign in to ${new URL(url).host}`,
+                    text: `Sign in to ${new URL(url).host}\n${url}\n\n`,
+                    html: `<p>Sign in to <strong>${new URL(url).host}</strong></p><p><a href="${url}">Sign in</a></p>`,
+                });
             }
         }),
     ],
