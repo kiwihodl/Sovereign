@@ -70,18 +70,25 @@ export default function Details() {
         if (router.isReady) {
             const { slug } = router.query;
 
+            
             if (!slug) {
                 return;
             }
+            
+            let id;
 
-            const { data } = nip19.decode(slug)
+            if (slug.includes("naddr")) {
+                const { data } = nip19.decode(slug)
 
-            if (!data) {
-                showToast('error', 'Error', 'Resource not found');
-                return;
+                if (!data) {
+                    showToast('error', 'Error', 'Resource not found');
+                    return;
+                }
+                
+                id = data?.identifier;
+            } else {
+                id = slug;
             }
-
-            const id = data?.identifier;
 
             const fetchEvent = async (id, retryCount = 0) => {
                 setLoading(true);

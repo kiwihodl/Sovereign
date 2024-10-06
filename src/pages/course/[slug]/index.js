@@ -25,13 +25,19 @@ const useCourseData = (ndk, fetchAuthor, router) => {
     useEffect(() => {
         if (router.isReady) {
             const { slug } = router.query;
-            const { data } = nip19.decode(slug);
-            if (!data) {
-                showToast('error', 'Error', 'Course not found');
-                setLoading(false);
-                return;
+            let id;
+            if (slug.includes("naddr")) {
+                const { data } = nip19.decode(slug);
+                if (!data) {
+                    showToast('error', 'Error', 'Course not found');
+                    setLoading(false);
+                    return;
+                }
+                id = data?.identifier;
+            } else {
+                id = slug;
             }
-            const id = data?.identifier;
+
             const fetchCourse = async (id) => {
                 try {
                     await ndk.connect();

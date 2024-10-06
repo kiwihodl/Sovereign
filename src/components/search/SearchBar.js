@@ -66,7 +66,11 @@ const SearchBar = () => {
     }, [selectedSearchOption, contentResults, communityResults]);
 
     const handleContentSelect = (content) => {
-        router.push(`/details/${content.id}`);
+        if (content?.type === 'course') {
+            router.push(`/course/${content.id}`);
+        } else {
+            router.push(`/details/${content.id}`);
+        }
         setSearchTerm('');
         searchContent('');
         op.current.hide();
