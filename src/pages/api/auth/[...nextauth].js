@@ -149,6 +149,9 @@ export const authOptions = {
                         return null;
                     }
                     const fullUser = await getUserByPubkey(pk);
+                    if (fullUser && fullUser.email === "austinkelsay@protonmail.com") {
+                        console.log("FULLLSNDE", fullUser);
+                    }
                     token.user = fullUser;
                 } catch (error) {
                     console.error("Ephemeral key pair generation error:", error);
