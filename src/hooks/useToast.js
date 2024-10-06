@@ -14,7 +14,7 @@ export const ToastProvider = ({ children }) => {
 
     return (
         <ToastContext.Provider value={{ showToast }}>
-            <Toast ref={toast} />
+            <Toast ref={toast} style={{ zIndex: 50 }} />
             {children}
         </ToastContext.Provider>
     );
