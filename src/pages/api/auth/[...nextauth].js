@@ -5,6 +5,7 @@ import EmailProvider from "next-auth/providers/email";
 import NDK from "@nostr-dev-kit/ndk";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/db/prisma";
+import nodemailer from 'nodemailer';
 import { findKind0Fields } from "@/utils/nostr";
 import { generateSecretKey, getPublicKey } from 'nostr-tools/pure'
 import { bytesToHex } from '@noble/hashes/utils'
