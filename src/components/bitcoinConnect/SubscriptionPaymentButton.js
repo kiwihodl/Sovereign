@@ -96,7 +96,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
                 requestMethods: ['pay_invoice'],
                 maxAmount: 25,
                 editable: false,
-                budgetRenewal: 'monthly',
+                budgetRenewal: 'daily',
                 expiresAt: yearFromNow,
             };
             await newNwc.initNWC(initNwcOptions);
