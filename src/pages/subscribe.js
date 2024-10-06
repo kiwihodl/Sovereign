@@ -151,7 +151,7 @@ const Subscribe = () => {
                             <div className="flex flex-col">
                                 <Message className="w-fit" severity="success" text="Subscribed!" />
                                 <p className="mt-4">Thank you for your support 🎉</p>
-                                <p className="text-sm text-gray-400">Pay-as-you-go subscription will renew on {subscribedUntil.toLocaleDateString()}</p>
+                                <p className="text-sm text-gray-400">Pay-as-you-go subscription must be manually renewed on {subscribedUntil.toLocaleDateString()}</p>
                             </div>
                         )}
                         {(!subscribed && !subscriptionExpiredAt) && (
