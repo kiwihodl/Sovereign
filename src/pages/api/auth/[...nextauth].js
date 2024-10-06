@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
+import { track } from '@vercel/analytics/server';
 import CredentialsProvider from "next-auth/providers/credentials";
 import EmailProvider from "next-auth/providers/email";
 import NDK from "@nostr-dev-kit/ndk";
@@ -47,6 +48,7 @@ const authorize = async (pubkey) => {
         } else {
             // Create user
             if (profile) {
+                track('Nostr Signup', { pubkey: pubkey, method: "nostr" });
                 const fields = await findKind0Fields(profile);
                 const payload = { pubkey, username: fields.username, avatar: fields.avatar };
 
@@ -110,7 +112,14 @@ export const authOptions = {
                     pass: process.env.EMAIL_SERVER_PASSWORD
                 }
             },
-            from: process.env.EMAIL_FROM
+            from: process.env.EMAIL_FROM,
+            sendVerificationRequest: async ({ identifier, url, provider }) => {
+                track('Email Signup', { email: identifier });
+
+                // Use the default sendVerificationRequest function or customize it
+                const { sendVerificationRequest } = require("next-auth/providers/email");
+                await sendVerificationRequest({ identifier, url, provider });
+            }
         }),
     ],
     callbacks: {

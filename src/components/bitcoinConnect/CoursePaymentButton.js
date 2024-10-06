@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Dialog } from 'primereact/dialog';
 import { LightningAddress } from '@getalby/lightning-tools';
+import { track } from '@vercel/analytics';
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from 'primereact/progressspinner';
@@ -76,6 +77,7 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
             const result = await axios.post('/api/purchase/course', purchaseData);
 
             if (result.status === 200) {
+                track('Course Payment', { courseId: courseId });
                 if (onSuccess) onSuccess(response);
             } else {
                 throw new Error('Failed to update user purchases');

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from 'primereact/button';
-import { ProgressSpinner } from 'primereact/progressspinner';
+import { track } from '@vercel/analytics';
 import { initializeBitcoinConnect } from './BitcoinConnect';
 import { LightningAddress } from '@getalby/lightning-tools';
 import { useToast } from '@/hooks/useToast';
@@ -74,6 +73,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
 
     const handlePaymentSuccess = async (response) => {
         console.log('Payment successful', response);
+        track('Subscription Payment', { method: "pay_as_you_go" });
         showToast('success', 'Payment Successful', 'Your payment has been processed successfully.');
         if (onSuccess) onSuccess(response);
     };
@@ -131,6 +131,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
                 });
 
                 if (subscriptionResponse.status === 200) {
+                    track('Subscription Payment', { method: "recurring" });
                     showToast('success', 'Subscription Setup', 'Recurring subscription setup successful!');
                     if (onRecurringSubscriptionSuccess) onRecurringSubscriptionSuccess();
                 } else {
@@ -184,6 +185,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
                 });
 
                 if (subscriptionResponse.status === 200) {
+                    track('Subscription Payment', { method: "recurring-manual" });
                     showToast('success', 'NWC', 'Subscription setup successful!');
                     if (onRecurringSubscriptionSuccess) onRecurringSubscriptionSuccess();
                 } else {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Dialog } from 'primereact/dialog';
+import { track } from '@vercel/analytics';
 import { LightningAddress } from '@getalby/lightning-tools';
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
@@ -73,6 +74,7 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
       const result = await axios.post('/api/purchase/resource', purchaseData);
 
       if (result.status === 200) {
+        track('Resource Payment', { resourceId: resourceId });
         if (onSuccess) onSuccess(response);
       } else {
         throw new Error('Failed to update user purchases');

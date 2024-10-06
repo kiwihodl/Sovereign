@@ -8,8 +8,6 @@ import { InputText } from 'primereact/inputtext';
 export default function SignIn() {
   const [email, setEmail] = useState("")
   const [showEmailInput, setShowEmailInput] = useState(false)
-  const [nostrPubkey, setNostrPubkey] = useState("")
-  const [nostrPrivkey, setNostrPrivkey] = useState("")
   const {ndk, addSigner} = useNDKContext();
   const { data: session, status } = useSession(); // Get the current session's data and status
 
