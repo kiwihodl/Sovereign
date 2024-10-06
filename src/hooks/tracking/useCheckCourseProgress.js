@@ -10,7 +10,7 @@ const useCheckCourseProgress = () => {
       if (!session?.user) return;
 
       const userId = session.user.id;
-      const userCourses = session.user.userCourses;
+      const userCourses = session.user?.userCourses || [];
 
       for (const userCourse of userCourses) {
         const courseId = userCourse.courseId;

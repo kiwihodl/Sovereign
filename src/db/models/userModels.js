@@ -132,6 +132,21 @@ export const addCoursePurchaseToUser = async (userId, purchaseData) => {
 };
 
 export const createUser = async (data) => {
+  // Check if a user with the given email already exists
+  let existingUser = null;
+  // todo: special condition for email login, should be handled before getting here
+  if (data?.email) {
+    existingUser = await prisma.user.findUnique({
+      where: { email: data?.email },
+    });
+  }
+
+  if (existingUser) {
+    // If user exists, return the existing user
+    return existingUser;
+  }
+
+  // If user does not exist, create a new user
   return await prisma.user.create({
     data: {
       ...data,
