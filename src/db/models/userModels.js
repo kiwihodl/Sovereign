@@ -142,6 +142,7 @@ export const createUser = async (data) => {
   }
 
   if (existingUser) {
+    console.log("user already exists", existingUser);
     // If user exists, return the existing user
     return existingUser;
   }
