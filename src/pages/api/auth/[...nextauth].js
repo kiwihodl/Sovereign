@@ -165,6 +165,9 @@ export const authOptions = {
             return token;
         },
         async session({ session, token }) {
+            if (session.user.email === "austinkelsay@protonmail.com") {
+                console.log("SESSION", session);
+            }
             // Add user from token to session
             session.user = token.user;
             session.jwt = token;
