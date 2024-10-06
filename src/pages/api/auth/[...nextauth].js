@@ -9,7 +9,7 @@ import nodemailer from 'nodemailer';
 import { findKind0Fields } from "@/utils/nostr";
 import { generateSecretKey, getPublicKey } from 'nostr-tools/pure'
 import { bytesToHex } from '@noble/hashes/utils'
-import { updateUser, getUserByPubkey, createUser } from "@/db/models/userModels";
+import { updateUser, getUserByPubkey, createUser, getUserByEmail } from "@/db/models/userModels";
 import { createRole } from "@/db/models/roleModels";
 import appConfig from "@/config/appConfig";
 
