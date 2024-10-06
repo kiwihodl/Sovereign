@@ -72,7 +72,7 @@ const authorize = async (pubkey) => {
                         console.error("Failed to update user");
                         return null;
                     }
-                    
+
                     const fullUser = await getUserByPubkey(pubkey);
 
                     return { ...fullUser, kind0: fields };
@@ -137,27 +137,6 @@ export const authOptions = {
                 const newUser = await authorize(token.user.pubkey);
                 token.user = newUser;
             }
-            // if the user has no pubkey, generate a new key pair
-            // if (token && token?.user && token?.user?.id && !token.user?.pubkey) {
-            //     try {
-            //         let sk = generateSecretKey()
-            //         let pk = getPublicKey(sk)
-            //         let skHex = bytesToHex(sk)
-            //         const updatedUser = await updateUser(token.user.id, { pubkey: pk, privkey: skHex });
-            //         if (!updatedUser) {
-            //             console.error("Failed to update user");
-            //             return null;
-            //         }
-            //         const fullUser = await getUserByPubkey(pk);
-            //         if (fullUser && fullUser.email === "austinkelsay@protonmail.com") {
-            //             console.log("FULLLSNDE", fullUser);
-            //         }
-            //         token.user = fullUser;
-            //     } catch (error) {
-            //         console.error("Ephemeral key pair generation error:", error);
-            //         return null;
-            //     }
-            // }
 
             if (user) {
                 token.user = user;
@@ -168,23 +147,24 @@ export const authOptions = {
             if (session.user?.email) {
                 const existingUser = await getUserByEmail(session.user.email);
                 if (existingUser) {
-                    console.log("EXISTING USER", existingUser);
-                    session.user = existingUser;
-                    token.user = existingUser;
-                } else {
-                    console.log("CREATING USER", session, token);
-                    const createdUser = await createUser({ email: session.user.email });
-                    let sk = generateSecretKey()
-                    let pk = getPublicKey(sk)
-                    let skHex = bytesToHex(sk)
-                    const updatedUser = await updateUser(createdUser.id, { pubkey: pk, privkey: skHex });
-                    if (!updatedUser) {
-                        console.error("Failed to update user");
-                        return null;
+                    if (!existingUser?.pubkey) {
+                        let sk = generateSecretKey()
+                        let pk = getPublicKey(sk)
+                        let skHex = bytesToHex(sk)
+                        const updatedUser = await updateUser(existingUser.id, { pubkey: pk, privkey: skHex });
+                        if (!updatedUser) {
+                            console.error("Failed to update user");
+                            return null;
+                        }
+                        const fullUser = await getUserByPubkey(pk);
+                        session.user = fullUser;
+                        token.user = fullUser;
+                        return session;
+                    } else {
+                        session.user = existingUser;
+                        token.user = existingUser;
+                        return session;
                     }
-                    const fullUser = await getUserByPubkey(pk);
-                    session.user = fullUser;
-                    token.user = fullUser;
                 }
             }
             // Add user from token to session
