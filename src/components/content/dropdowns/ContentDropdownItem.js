@@ -19,16 +19,16 @@ const ContentDropdownItem = ({ content, onSelect }) => {
                     className="w-[100px] h-[100px] object-cover object-center border-round"
                 />
                 <div className="flex-1 max-w-[80vw]">
-                    <div className="text-lg text-900 font-bold">{content.title || content.name}</div>
-                    <div className="w-full text-sm text-600 text-wrap line-clamp-2">{content.summary || content.description && (
+                    <div className="text-lg text-900 font-bold">{content?.title || content?.name}</div>
+                    <div className="w-full text-sm text-600 text-wrap line-clamp-2">{content?.summary || content?.description && (
                         <div className="text-xl mt-4">
-                            {content.summary.split('\n').map((line, index) => (
+                            {content?.summary?.split('\n').map((line, index) => (
                                 <p key={index}>{line}</p>
                             ))}
                         </div>
                     )}
                     </div>
-                    {content.price && <div className="text-sm pt-6 text-gray-500">Price: {content.price}</div>}
+                    {content?.price && <div className="text-sm pt-6 text-gray-500">Price: {content.price}</div>}
                     {content?.topics?.length > 0 && (
                         <div className="text-sm pt-6 text-gray-500">
                             {content.topics.map((topic) => (
@@ -37,7 +37,7 @@ const ContentDropdownItem = ({ content, onSelect }) => {
                         </div>
                     )}
                     <div className="text-sm pt-6 text-gray-500">
-                    {(content.published_at || content.created_at) ? `Published: ${formatUnixTimestamp(content.published_at || content.created_at)}` : "not yet published"}
+                    {(content?.published_at || content?.created_at) ? `Published: ${formatUnixTimestamp(content?.published_at || content?.created_at)}` : "not yet published"}
                     </div>
                 </div>
                 <div className="flex flex-col justify-end">
