@@ -206,7 +206,7 @@ const InteractivePromotionalCarousel = () => {
             <div
               key={promo.id}
               className={`space-evenly cursor-pointer transition-colors duration-200 hover:bg-gray-700 ${selectedPromotion.id === promo.id ? "bg-gray-700" : "bg-gray-800"
-                } p-4 rounded-lg shadow-lg`}
+                } p-3 rounded-lg shadow-lg`}
               onClick={() => setSelectedPromotion(promo)}>
               <div className="flex items-center gap-2">
                 <i className={`${promo.icon} text-xl text-[#f8f8ff]`}></i>

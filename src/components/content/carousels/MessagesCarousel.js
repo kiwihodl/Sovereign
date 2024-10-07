@@ -7,9 +7,9 @@ import NostrIcon from "../../../../public/images/nostr.png";
 const MessageCarousel = ({ copyToClipboard }) => {
 
     const messageTemplate = ({title, description, showGithub, showX, showNostr, showYoutube, showDonate, showFeedback}) => (
-        <div className="flex flex-col justify-between bg-gray-800 p-4 rounded-lg shadow-lg min-h-[182px]">
-            <p>{title}</p>
-            <p>{description}</p>
+        <div className="flex flex-col justify-between bg-gray-800 p-3 rounded-lg shadow-lg min-h-[182px]">
+            <p className="text-[#f8f8ff] text-[19px] font-semibold">{title}</p>
+            <p className="text-[#f8f8ff]">{description}</p>
             <div className="flex flex-wrap gap-4 justify-center">
                 {showGithub && (
                     <i
@@ -74,7 +74,7 @@ const MessageCarousel = ({ copyToClipboard }) => {
             showFeedback: true,
         },
         {
-            title: "PLEBDEVS 🤝👨‍💻🤝👩‍💻🤝🧑‍💻🤝",
+            title: "PlebDevs 🤝👨‍💻🤝👩‍💻🤝🧑‍💻🤝",
             description: "Plebdevs is open source software and is still in early development. If you have any questions drop an issue on the Github repo, or reach out to me in the Community tab, cheers! - Austin",
             showGithub: true,
             showX: true,
