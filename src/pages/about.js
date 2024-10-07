@@ -117,6 +117,13 @@ const AboutPage = () => {
                         onClick={() => window.open('https://nostr.com/plebdevs@plebdevs.com', '_blank')}
                     />
                     <GenericButton
+                        severity="danger"
+                        outlined
+                        icon="pi pi-youtube"
+                        tooltip="Youtube"
+                        onClick={() => window.open('https://www.youtube.com/@plebdevs', '_blank')}
+                    />
+                    <GenericButton
                         severity="warning"
                         className="text-yellow-400"
                         outlined

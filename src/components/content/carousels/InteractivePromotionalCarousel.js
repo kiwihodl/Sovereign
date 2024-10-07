@@ -4,8 +4,8 @@ import { useImageProxy } from "@/hooks/useImageProxy"
 import GenericButton from "@/components/buttons/GenericButton"
 import { useRouter } from "next/router"
 import useWindowWidth from "@/hooks/useWindowWidth"
-import NostrIcon from "../../../../public/images/nostr.png"
 import { useToast } from "@/hooks/useToast";
+import MessageCarousel from '@/components/content/carousels/MessagesCarousel';
 
 // With current spacing the title can only be 1 line
 const promotions = [
@@ -216,70 +216,7 @@ const InteractivePromotionalCarousel = () => {
             </div>
           ))
         )}
-        {isTabView ? (
-          // todo: turn this into a stepper for multiple messages
-          <div className={`${isMobile ? "min-w-full" : "w-[529px]" } flex flex-col bg-gray-800 p-4 rounded-lg shadow-lg`}>
-            <p>Welcome! 👋</p>
-            <p>Plebdevs is open source software and is still in early development. If you have any questions drop an issue on the Github repo, or reach out to me in the Community tab, cheers! - <span className="italic">Austin</span></p>
-            <div className="flex flex-wrap gap-4 justify-center mt-2">
-              <i
-                className="pi pi-github text-gray-300 cursor-pointer text-xl hover:opacity-80"
-                onClick={() => window.open('https://github.com/austinkelsay/plebdevs', '_blank')}
-                title="Github"
-              />
-              <i
-                className="pi pi-twitter text-blue-400 rounded-full cursor-pointer text-xl hover:opacity-80"
-                onClick={() => window.open('https://x.com/pleb_devs', '_blank')}
-                title="X"
-              />
-              <Image
-                src={NostrIcon}
-                alt="Nostr"
-                width={22}
-                height={22}
-                className="cursor-pointer hover:opacity-80"
-                onClick={() => window.open('https://nostr.com/plebdevs@plebdevs.com', '_blank')}
-                title="Nostr"
-              />
-              <i
-                className="pi pi-bolt text-yellow-400 cursor-pointer text-xl hover:opacity-80"
-                onClick={() => copyToClipboard("austin@bitcoinpleb.dev")}
-                title="Donate"
-              />
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col bg-gray-800 p-4 rounded-lg shadow-lg">
-            <p>Welcome! 👋</p>
-            <p>Plebdevs is open source software and is still in early development. If you have any questions drop an issue on the Github repo, or reach out to me in the Community tab, cheers! - <span className="italic">Austin</span></p>
-            <div className="flex flex-wrap gap-4 justify-center mt-2">
-              <i
-                className="pi pi-github text-gray-300 cursor-pointer text-xl hover:opacity-80"
-                onClick={() => window.open('https://github.com/austinkelsay/plebdevs', '_blank')}
-                title="Github"
-              />
-              <i
-                className="pi pi-twitter text-blue-400 rounded-full cursor-pointer text-xl hover:opacity-80"
-                onClick={() => window.open('https://x.com/pleb_devs', '_blank')}
-                title="X"
-              />
-              <Image
-                src={NostrIcon}
-                alt="Nostr"
-                width={22}
-                height={22}
-                className="cursor-pointer hover:opacity-80"
-                onClick={() => window.open('https://nostr.com/plebdevs@plebdevs.com', '_blank')}
-                title="Nostr"
-              />
-              <i
-                className="pi pi-bolt text-yellow-400 cursor-pointer text-xl hover:opacity-80"
-                onClick={() => copyToClipboard("austin@bitcoinpleb.dev")}
-                title="Donate"
-              />
-            </div>
-          </div>
-        )}
+        <MessageCarousel copyToClipboard={copyToClipboard} />
       </div>
     </div>
   );
