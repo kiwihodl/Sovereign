@@ -43,6 +43,8 @@ const promotions = [
   },
 ]
 
+const yellowFocusOutlineStyle = "focus:shadow-[0_0_0_2px_rgba(255,255,255,1),0_0_0_4px_rgba(252,211,77,1),0_1px_2px_0_rgba(0,0,0,1)] dark:focus:shadow-[0_0_0_2px_rgba(28,33,39,1),0_0_0_4px_rgba(252,211,77,0.7),0_1px_2px_0_rgba(0,0,0,0)]"
+
 const InteractivePromotionalCarousel = () => {
   const [selectedPromotion, setSelectedPromotion] = useState(promotions[0])
   const { returnImageProxy } = useImageProxy();
@@ -111,7 +113,7 @@ const InteractivePromotionalCarousel = () => {
                       return (
                         <div className="flex flex-row gap-2">
                           <GenericButton onClick={() => router.push('/subscribe')} severity="warning" icon={<i className="pi pi-star pr-2 pb-1" />} label="Subscribe" className="w-fit py-2 font-semibold" size="small" outlined />
-                          <GenericButton onClick={() => router.push('/content?tag=all')} severity="primary" icon={<i className="pi pi-eye pr-2" />} label="View all content" className="w-fit py-2 font-semibold" size="small" outlined />
+                          <GenericButton onClick={() => router.push('/content?tag=all')} severity="primary" icon={<i className="pi pi-eye pr-2" />} label="All content" className="w-fit py-2 font-semibold" size="small" outlined />
                         </div>
                       );
                     case "CONTENT":
@@ -153,9 +155,10 @@ const InteractivePromotionalCarousel = () => {
                       case "PLEBDEVS":
                         return (
                           <div className="flex flex-row gap-4 mt-4">
-                            <GenericButton onClick={() => router.push('/about')} severity="success" icon={<i className="pi pi-question-circle pr-2 pb-[2px]" />} label="Learn More" className="py-2 font-semibold" size="small" outlined />
+                            <GenericButton onClick={() => router.push('/about')} severity="success" icon={<i className="pi pi-question-circle pr-2 pb-[2px]" />} label="About" className="py-2 font-semibold" size="small" outlined />
                             <GenericButton onClick={() => router.push('/subscribe')} severity="warning" icon={<i className="pi pi-star pr-2 pb-1" />} label="Subscribe" className="py-2 font-semibold" size="small" outlined />
-                            <GenericButton onClick={() => router.push('/content?tag=all')} severity="primary" icon={<i className="pi pi-eye pr-2" />} label="View all content" className="py-2 font-semibold" size="small" outlined />
+                            <GenericButton onClick={() => router.push('/content?tag=all')} severity="primary" icon={<i className="pi pi-eye pr-2" />} label="All content" className="py-2 font-semibold" size="small" outlined />
+                            <GenericButton onClick={() => copyToClipboard()} icon={<i className="pi pi-bolt pr-2" />} label="Donate" className={`py-2 font-semibold text-yellow-300 ${yellowFocusOutlineStyle}`} size="small" outlined />
                           </div>
                         );
                       case "CONTENT":
