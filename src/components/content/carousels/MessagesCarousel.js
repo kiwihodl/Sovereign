@@ -8,7 +8,7 @@ const MessageCarousel = ({ copyToClipboard }) => {
     const messageTemplate = ({title, description, showGithub, showX, showNostr, showYoutube, showDonate, showFeedback}) => (
         <div className="flex flex-col justify-between bg-gray-800 p-3 rounded-lg shadow-lg min-h-[182px]">
             <p className="text-[#f8f8ff] text-[18px] font-semibold">{title}</p>
-            <p className="text-[#f8f8ff]">{description}</p>
+            <p className="text-[#f8f8ff] mt-1">{description}</p>
             <div className="flex flex-wrap gap-4 justify-center mt-2">
                 {showGithub && (
                     <i
