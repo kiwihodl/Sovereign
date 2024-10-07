@@ -76,13 +76,13 @@ const InteractivePromotionalCarousel = () => {
   }, [selectedPromotion]);
 
   return (
-    <div className={`flex ${isTabView ? 'flex-col' : 'flex-row'} bg-gray-900 text-white m-4 mx-14 rounded-lg ${isTabView ? 'h-auto' : 'h-[620px]'} ${isTabView ? 'w-full mx-0 ml-0 mt-0' : null}`}>
+    <div className={`flex ${isTabView ? 'flex-col' : 'flex-row'} bg-gray-900 text-white m-4 mx-14 rounded-lg rounded-tr-none rounded-br-none ${isTabView ? 'h-auto' : 'h-[620px]'} ${isTabView ? 'w-full mx-0 ml-0 mt-0' : null}`}>
       <div className={isTabView ? 'w-full' : 'lg:w-2/3 relative'}>
         {selectedPromotion.video ? (
           <video
             ref={videoRef}
             src={selectedPromotion.video}
-            className={`object-cover w-full ${isTabView ? 'h-[300px]' : 'h-full'} rounded-lg`}
+            className={`object-cover w-full ${isTabView ? 'h-[300px]' : 'h-full'} rounded-lg rounded-tr-none rounded-br-none`}
             loop
             muted
             playsInline
@@ -93,7 +93,7 @@ const InteractivePromotionalCarousel = () => {
             alt={selectedPromotion.title}
             width={800}
             height={600}
-            className={`object-cover w-full ${isTabView ? 'h-[300px]' : 'h-full'} rounded-lg opacity-75`}
+            className={`object-cover w-full ${isTabView ? 'h-[300px]' : 'h-full'} rounded-lg opacity-75 rounded-tr-none rounded-br-none`}
           />
         )}
         {isTabView ? (
