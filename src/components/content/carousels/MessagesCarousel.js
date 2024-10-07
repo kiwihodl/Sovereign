@@ -5,12 +5,11 @@ import Image from "next/image";
 import NostrIcon from "../../../../public/images/nostr.png";
 
 const MessageCarousel = ({ copyToClipboard }) => {
-
     const messageTemplate = ({title, description, showGithub, showX, showNostr, showYoutube, showDonate, showFeedback}) => (
         <div className="flex flex-col justify-between bg-gray-800 p-3 rounded-lg shadow-lg min-h-[182px]">
             <p className="text-[#f8f8ff] text-[18px] font-semibold">{title}</p>
             <p className="text-[#f8f8ff]">{description}</p>
-            <div className="flex flex-wrap gap-4 justify-center">
+            <div className="flex flex-wrap gap-4 justify-center mt-2">
                 {showGithub && (
                     <i
                         className="pi pi-github text-gray-300 cursor-pointer text-xl hover:opacity-80"
@@ -96,7 +95,7 @@ const MessageCarousel = ({ copyToClipboard }) => {
     ];
 
     return (
-        <Carousel autoplayInterval={5000} showNavigators={false} value={messages} numVisible={1} numScroll={1} itemTemplate={messageTemplate} />
+        <Carousel autoplayInterval={5000} showNavigators={false} value={messages} numVisible={1} numScroll={1} itemTemplate={messageTemplate} activeIndex={0} />
     );
 };
 
