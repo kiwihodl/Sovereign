@@ -95,7 +95,7 @@ const MessageCarousel = ({ copyToClipboard }) => {
     ];
 
     return (
-        <Carousel autoplayInterval={5000} showNavigators={false} value={messages} numVisible={1} numScroll={1} itemTemplate={messageTemplate} activeIndex={0} />
+        <Carousel autoplayInterval={10000} showNavigators={false} value={messages} numVisible={1} numScroll={1} itemTemplate={messageTemplate} activeIndex={0} />
     );
 };
 
