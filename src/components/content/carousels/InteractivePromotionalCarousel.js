@@ -76,7 +76,7 @@ const InteractivePromotionalCarousel = () => {
   }, [selectedPromotion]);
 
   return (
-    <div className={`flex ${isTabView ? 'flex-col' : 'flex-row'} bg-gray-900 text-white m-4 mx-14 rounded-lg rounded-tr-none rounded-br-none ${isTabView ? 'h-auto' : 'h-[620px]'} ${isTabView ? 'w-full mx-0 ml-0 mt-0' : null}`}>
+    <div className={`flex ${isTabView ? 'flex-col' : 'flex-row'} bg-gray-900 text-white m-4 mx-14 rounded-lg ${isTabView ? 'h-auto' : 'h-[620px]'} ${isTabView ? 'w-full mx-0 ml-0 mt-0' : null}`}>
       <div className={isTabView ? 'w-full' : 'lg:w-2/3 relative'}>
         {selectedPromotion.video ? (
           <video
