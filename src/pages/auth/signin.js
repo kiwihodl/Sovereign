@@ -1,15 +1,16 @@
-import { signIn, useSession } from "next-auth/react"
+import { signIn, useSession, getSession } from "next-auth/react"
+import { useRouter } from "next/router";
 import { useState, useEffect } from "react"
 import { useNDKContext } from "@/context/NDKContext";
 import GenericButton from "@/components/buttons/GenericButton";
 import { InputText } from 'primereact/inputtext';
 
-// todo add recaptcha for additional security
 export default function SignIn() {
   const [email, setEmail] = useState("")
   const [showEmailInput, setShowEmailInput] = useState(false)
   const {ndk, addSigner} = useNDKContext();
-  const { data: session, status } = useSession(); // Get the current session's data and status
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
     console.log("session", session)
@@ -34,9 +35,35 @@ export default function SignIn() {
     }
   }
 
-  const handleAnonymousSignIn = (e) => {
+  const handleAnonymousSignIn = async (e) => {
     e.preventDefault()
-    signIn("anonymous")
+    
+    // Check if we have keys in local storage
+    const storedPubkey = localStorage.getItem('anonymousPubkey')
+    const storedPrivkey = localStorage.getItem('anonymousPrivkey')
+    
+    const result = await signIn("anonymous", { 
+      pubkey: storedPubkey, 
+      privkey: storedPrivkey,
+      redirect: false
+    })
+
+    if (result?.ok) {
+      // Fetch the session to get the pubkey and privkey
+      const session = await getSession()
+      if (session?.pubkey && session?.privkey) {
+        localStorage.setItem('anonymousPubkey', session.pubkey)
+        localStorage.setItem('anonymousPrivkey', session.privkey)
+        console.log("Anonymous login successful. Pubkey:", session.pubkey)
+        router.push('/')
+      } else {
+        console.error("Pubkey or privkey not found in session")
+      }
+      // Redirect or update UI as needed
+    } else {
+      // Handle error
+      console.error("Anonymous login failed:", result?.error)
+    }
   }
 
   return (

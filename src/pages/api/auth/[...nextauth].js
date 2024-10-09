@@ -129,47 +129,66 @@ export const authOptions = {
                 });
             }
         }),
+        CredentialsProvider({
+            id: "anonymous",
+            name: "Anonymous",
+            credentials: {
+                pubkey: { label: "Public Key", type: "text" },
+                privkey: { label: "Private Key", type: "text" },
+            },
+            authorize: async (credentials) => {
+                let pubkey, privkey;
+
+                if (credentials?.pubkey && credentials?.pubkey !== "null" && credentials?.privkey && credentials?.privkey !== "null") {
+                    // Use provided keys
+                    pubkey = credentials.pubkey;
+                    privkey = credentials.privkey;
+                } else {
+                    // Generate new keys
+                    const sk = generateSecretKey();
+                    pubkey = getPublicKey(sk);
+                    privkey = bytesToHex(sk);
+                    console.log('pubkey', pubkey);
+                    console.log('privkey', privkey);
+                }
+
+                // Check if user exists in the database
+                let dbUser = await getUserByPubkey(pubkey);
+                
+                if (!dbUser) {
+                    // Create new user if not exists
+                    dbUser = await createUser({
+                        pubkey: pubkey,
+                        username: pubkey.slice(0, 8), // Use first 8 characters of pubkey as username
+                    });
+                }
+                
+                // Return user object with pubkey and privkey
+                return { ...dbUser, pubkey, privkey };
+            },
+        }),
     ],
     callbacks: {
-        async jwt({ token, trigger, user }) {
-            if (trigger === "update") {
-                // if we trigger an update call the authorize function again
-                const newUser = await authorize(token.user.pubkey);
-                token.user = newUser;
-            }
-
+        async jwt({ token, user, account }) {  // Add 'account' parameter here
             if (user) {
                 token.user = user;
+                if (user.pubkey && user.privkey) {
+                    token.pubkey = user.pubkey;
+                    token.privkey = user.privkey;
+                }
+            }
+            if (account?.provider === 'anonymous') {
+                token.isAnonymous = true;
             }
             return token;
         },
         async session({ session, token }) {
-            if (session.user?.email) {
-                const existingUser = await getUserByEmail(session.user.email);
-                if (existingUser) {
-                    if (!existingUser?.pubkey) {
-                        let sk = generateSecretKey()
-                        let pk = getPublicKey(sk)
-                        let skHex = bytesToHex(sk)
-                        const updatedUser = await updateUser(existingUser.id, { pubkey: pk, privkey: skHex });
-                        if (!updatedUser) {
-                            console.error("Failed to update user");
-                            return null;
-                        }
-                        const fullUser = await getUserByPubkey(pk);
-                        session.user = fullUser;
-                        token.user = fullUser;
-                        return session;
-                    } else {
-                        session.user = existingUser;
-                        token.user = existingUser;
-                        return session;
-                    }
-                }
-            }
-            // Add user from token to session
             session.user = token.user;
-            session.jwt = token;
+            if (token.pubkey && token.privkey) {
+                session.pubkey = token.pubkey;
+                session.privkey = token.privkey;
+            }
+            session.isAnonymous = token.isAnonymous;
             return session;
         },
         async redirect({ url, baseUrl }) {
@@ -180,6 +199,16 @@ export const authOptions = {
             session = {}
             return true
         },
+        async signIn({ user, account }) {
+            if (account.provider === 'anonymous') {
+              return {
+                ...user,
+                pubkey: user.pubkey,
+                privkey: user.privkey,
+              };
+            }
+            return true;
+          },
     },
     secret: process.env.NEXTAUTH_SECRET,
     session: { strategy: "jwt" },
