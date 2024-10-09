@@ -13,7 +13,7 @@ const promotions = [
     id: 1,
     category: "PLEBDEVS",
     title: "Content and Community platform",
-    description: "One of a kind Nostr / Lightning integrated Content and Community platform.",
+    description: "A one of a kind Nostr / Lightning integrated Content and Community platform.",
     icon: "pi pi-code",
     video: "https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-montage.mp4",
   },
