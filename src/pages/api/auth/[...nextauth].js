@@ -169,7 +169,13 @@ export const authOptions = {
         }),
     ],
     callbacks: {
-        async jwt({ token, user, account }) {  // Add 'account' parameter here
+        async jwt({ token, user, account, trigger }) {
+            if (trigger === "update" && account?.provider !== "anonymous") {
+                // if we trigger an update call the authorize function again
+                const newUser = await authorize(token.user.pubkey);
+                token.user = newUser;
+            }
+
             if (user) {
                 token.user = user;
                 if (user.pubkey && user.privkey) {
