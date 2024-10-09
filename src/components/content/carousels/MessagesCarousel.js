@@ -64,6 +64,15 @@ const MessageCarousel = ({ copyToClipboard }) => {
 
     const messages = [
         {
+            title: "Welcome to the PlebDevs Platform testing phase! 👋",
+            description: "During this testing phase all prices will be reduced by 10x but all purchases, subscriptions, and progress will be reset on launch, cheers!",
+            showGithub: false,
+            showX: false,
+            showNostr: false,
+            showDonate: false,
+            showFeedback: true,
+        },
+        {
             title: "PlebDevs 🤝👨‍💻🤝👩‍💻🤝🧑‍💻🤝",
             description: "Plebdevs is open source software and is still in early development. If you have any questions drop an issue on the Github repo, or reach out to me in the Community tab.",
             showGithub: true,
@@ -82,21 +91,12 @@ const MessageCarousel = ({ copyToClipboard }) => {
             showYoutube: true,
             showDonate: true,
             showFeedback: false,
-        },
-        {
-            title: "Welcome to the PlebDevs Platform testing phase! 👋",
-            description: "During this testing phase all prices will be reduced by 10x but all purchases, subscriptions, and progress will be reset on launch, cheers!",
-            showGithub: false,
-            showX: false,
-            showNostr: false,
-            showDonate: false,
-            showFeedback: true,
-        },
+        }
         // todo add donate message
     ];
 
     return (
-        <Carousel autoplayInterval={8000} showNavigators={false} value={messages} numVisible={1} numScroll={1} itemTemplate={messageTemplate} activeIndex={0} />
+        <Carousel showNavigators={false} value={messages} numVisible={1} numScroll={1} itemTemplate={messageTemplate} />
     );
 };
 
