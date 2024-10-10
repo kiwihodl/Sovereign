@@ -36,11 +36,18 @@ const AboutPage = () => {
             <Card title="Key Features" className="mb-4">
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col items-start justify-center">
-                        <div className='flex flex-row items-start justify-center'>
+                        <div className='flex items-start'>
                             <i className="pi pi-cloud text-2xl text-primary mr-2 text-blue-400"></i>
-                            <h3 className='text-lg font-semibold'>Content Distribution:</h3>
+                            <div>
+                                <h3 className='text-lg font-semibold'>Content Distribution:</h3>
+                                <p className='text-lg'>All educational content is published to Nostr and actively pulled from Nostr relays, ensuring distributed and up-to-date information.</p>
+                                <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
+                                    <li><span className="text-lg font-semibold">Nostr:</span> All content is published to Nostr and actively pulled from Nostr relays, ensuring distributed and up-to-date information.</li>
+                                    <li><span className="text-lg font-semibold">Zaps:</span> Zaps are currently initated through Zapper - <a href="https://zapper.nostrapps.org" target="_blank" rel="noopener noreferrer" className="text-blue-400">https://zapper.nostrapps.org</a> <br /> <span className="pl-4">* Zaps are pulled from Nostr using our own NDK integration.</span></li>
+                                    <li><span className="text-lg font-semibold">Comments:</span> For comments we are leveraging ZapThreads - <a href="https://zapthreads.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400">https://zapthreads.com</a> <br /> <span className="pl-4">* Comments are enabled on all content but for Community they are only enabled on the nostr feed.</span></li>
+                                </ul>
+                            </div>
                         </div>
-                        <p className='text-lg'>All educational content is published to Nostr and actively pulled from Nostr relays, ensuring distributed and up-to-date information.</p>
                     </div>
                     <div className="flex items-start">
                         <i className="pi pi-file-edit text-2xl text-primary mr-2 text-green-400 mt-1"></i>
@@ -55,14 +62,37 @@ const AboutPage = () => {
                         </div>
                     </div>
                     <div className="flex items-start">
+                        <i className="pi pi-bolt text-2xl text-primary mr-2 mt-1 text-yellow-400"></i>
+                        <div>
+                            <h3 className="text-lg font-semibold">Content Monetization:</h3>
+                            <p className='text-lg'>All content is zappable and some content is PAID requiring a Lightning purchase through the platform to view.</p>
+                            <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
+                                <li><span className="text-lg font-semibold">Free:</span> Free content is available to all users. <br /> <span className="pl-4">* can be viewed on PlebDevs or any nostr client that supports NIP-23 and NIP-51.</span></li>
+                                <li><span className="text-lg font-semibold">Paid:</span> Paid content is available for purchase with Lightning. <br /> <span className="pl-4">* published to nostr but encrypted with plebdevs private key, currently only viewable on PlebDevs platform.</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div className='flex items-start'>
+                        <i className="pi pi-star text-2xl text-primary mr-2 text-orange-400 mt-1"></i>
+                        <div>
+                            <h3 className="text-lg font-semibold">Subscriptions:</h3>
+                            <p className='text-lg'>The PlebDevs subscription unlocks all paid content, gives access to our 1:1 calendar for tutoring/help, and grants you a plebdevs.com Lightning Address and Nostr NIP-05 identity.</p>
+                            <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
+                                <li><span className="text-lg font-semibold">Pay-as-you-go:</span> 21,000 sats - A one-time payment that gives you access to all of the premium features for one month <br /> <span className="pl-4">* you will need to manually renew your subscription every month.</span></li>
+                                <li><span className="text-lg font-semibold">Recurring:</span> 21,000 sats - A subscription option allows you to submit a Nostr Wallet Connect URI that will be used to automatically send the subscription fee every month <br /> <span className="pl-4">* you can cancel at any time.</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div className="flex items-start">
                         <i className="pi pi-users text-2xl text-primary mr-2 text-purple-400 mt-1"></i>
                         <div>
                             <h3 className="text-lg font-semibold">Community:</h3>
                             <p className='text-lg'>All of the current PlebDevs Community channels.</p>
                             <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
-                                <li><span className="text-lg font-semibold">Nostr:</span> Public plebdevs nostr chat</li>
-                                <li><span className="text-lg font-semibold">Discord:</span> PlebDevs Discord server</li>
-                                <li><span className="text-lg font-semibold">StackerNews:</span> StackerNews ~devs territory</li>
+                                <li><span className="text-lg font-semibold">Nostr:</span> Public plebdevs nostr chat (Read / Write) <br /> <span className="pl-4">* this is the only feed that you can write to from the plebdevs platform currently.</span></li>
+                                <li><span className="text-lg font-semibold">Discord:</span> PlebDevs Discord server (Read Only) <br /> <span className="pl-4">* discord was the original home of the PlebDevs community, look at us now!</span></li>
+                                <li><span className="text-lg font-semibold">StackerNews:</span> StackerNews ~devs territory (Read Only) <br /> <span className="pl-4">* a territory is like a &apos;subreddit&apos; on stackernews, plebdevs owns the ~devs territory.</span></li>
                             </ul>
                         </div>
                     </div>
