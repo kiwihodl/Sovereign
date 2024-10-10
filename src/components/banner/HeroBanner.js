@@ -14,7 +14,8 @@ const HeroBanner = () => {
     const isTabView = windowWidth <= 1360;
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
-    const videoRef = useRef(null);
+
+    const isMobile = windowWidth <= 800;
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -40,28 +41,16 @@ const HeroBanner = () => {
         }
     };
 
-    // useEffect(() => {
-    //     videoRef.current.play();
-    //   }, []);
-
     return (
-        <div className="h-[450px] relative flex justify-center items-center overflow-hidden">
+        <div className={`${isMobile ? 'h-[350px]' : 'h-[450px]'} mx-0 relative flex justify-center items-center overflow-hidden`}>
             <Image
                 src={returnImageProxy("https://media.istockphoto.com/id/1224500457/photo/programming-code-abstract-technology-background-of-software-developer-and-computer-script.jpg?s=612x612&w=0&k=20&c=nHMypkMTU1HUUW85Zt0Ff7MDbq17n0eVeXaoM9Knt4Q=")}
                 alt="Banner"
                 quality={100}
                 fill
                 style={{ objectFit: 'cover' }}
-                className='opacity-100'
+                className='opacity-100 rounded-lg'
             />
-            {/* <video
-                src={"https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-montage.mp4"}
-                className={`object-cover w-full h-[450px] rounded-lg rounded-tr-none rounded-br-none`}
-                ref={videoRef}
-                loop
-                muted
-                playsInline
-            /> */}
             <div className="absolute inset-0 bg-gradient-to-br from-black via-black/40 to-transparent rounded-lg" />
             <div className={`absolute inset-0 flex flex-col justify-center ${isTabView ? 'items-center text-center' : 'items-start pl-12'}`}>
                 <h1 className={`text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 ${isTabView ? 'px-4' : ''}`}>
@@ -71,16 +60,22 @@ const HeroBanner = () => {
                     </span>
                     <span className="block">Become a dev</span>
                 </h1>
-                <h2 className="text-2xl text-[#f8f8ff] mb-8 font-semibold">
-                    A one of a kind developer education and community platform built on Nostr and fully Lightning integrated.
-                </h2>
+                {isMobile ? (
+                    <h3 className="text-[#f8f8ff] mb-8 font-semibold">
+                        A one of a kind developer education and community platform built on Nostr and fully Lightning integrated.
+                    </h3>
+                ) : (
+                    <h2 className="text-[#f8f8ff] mb-8 font-semibold">
+                        A one of a kind developer education and community platform built on Nostr and fully Lightning integrated.
+                    </h2>
+                )}
                 <div className="space-x-4">
                     <GenericButton
                         label="Learn"
                         icon="pi pi-book"
                         rounded
                         severity="info"
-                        size="large"
+                        size={isMobile ? null : "large"}
                         outlined
                         onClick={() => router.push('/content?tag=all')}
                     />
@@ -88,7 +83,7 @@ const HeroBanner = () => {
                         label="Connect"
                         icon="pi pi-users"
                         rounded
-                        size="large"
+                        size={isMobile ? null : "large"}
                         severity="success"
                         outlined
                         onClick={() => router.push('/feed?channel=global')}

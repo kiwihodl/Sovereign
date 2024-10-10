@@ -51,7 +51,6 @@ const InteractivePromotionalCarousel = () => {
   const { showToast } = useToast();
   const windowWidth = useWindowWidth();
   const isTabView = windowWidth <= 1360;
-  const isMobile = windowWidth <= 768;
   const router = useRouter();
   const videoRef = useRef(null);
 
@@ -78,13 +77,13 @@ const InteractivePromotionalCarousel = () => {
   }, [selectedPromotion]);
 
   return (
-    <div className={`flex ${isTabView ? 'flex-col' : 'flex-row'} bg-gray-900 text-white m-4 mx-14 rounded-lg ${isTabView ? 'h-auto' : 'h-[620px]'} ${isTabView ? 'w-full mx-0 ml-0 mt-0' : null}`}>
+    <div className={`flex ${isTabView ? 'flex-col' : 'flex-row'} bg-gray-900 text-white m-4 mx-0 rounded-lg ${isTabView ? 'h-auto' : 'h-[620px]'} ${isTabView ? 'w-full mx-0 ml-0 mt-0' : null}`}>
       <div className={isTabView ? 'w-full' : 'lg:w-2/3 relative'}>
         {selectedPromotion.video ? (
           <video
             ref={videoRef}
             src={selectedPromotion.video}
-            className={`object-cover w-full ${isTabView ? 'h-[300px]' : 'h-full'} rounded-lg rounded-tr-none rounded-br-none`}
+            className={`object-cover w-full ${isTabView ? 'h-[300px] rounded-lg' : 'h-full rounded-tr-none rounded-br-none'} rounded-lg opacity-100`}
             loop
             muted
             playsInline
@@ -95,7 +94,7 @@ const InteractivePromotionalCarousel = () => {
             alt={selectedPromotion.title}
             width={800}
             height={600}
-            className={`object-cover w-full ${isTabView ? 'h-[300px]' : 'h-full'} rounded-lg opacity-75 rounded-tr-none rounded-br-none`}
+            className={`object-cover w-full ${isTabView ? 'h-[300px] rounded-lg' : 'h-full rounded-tr-none rounded-br-none'} rounded-lg opacity-75`}
           />
         )}
         {isTabView ? (
@@ -155,7 +154,7 @@ const InteractivePromotionalCarousel = () => {
                       case "PLEBDEVS":
                         return (
                           <div className="flex flex-row gap-4 mt-4">
-                            <GenericButton onClick={() => router.push('/about')} severity="success" icon={<i className="pi pi-question-circle pr-2 pb-[2px]" />} label="About" className="py-2 font-semibold" size="small" outlined />
+                            {/* <GenericButton onClick={() => router.push('/about')} severity="success" icon={<i className="pi pi-question-circle pr-2 pb-[2px]" />} label="About" className="py-2 font-semibold" size="small" outlined /> */}
                             <GenericButton onClick={() => router.push('/subscribe')} severity="warning" icon={<i className="pi pi-star pr-2 pb-1" />} label="Subscribe" className="py-2 font-semibold" size="small" outlined />
                             <GenericButton onClick={() => router.push('/content?tag=all')} severity="primary" icon={<i className="pi pi-eye pr-2" />} label="All content" className="py-2 font-semibold" size="small" outlined />
                             <GenericButton onClick={() => copyToClipboard()} icon={<i className="pi pi-bolt pr-2" />} label="Donate" className={`py-2 font-semibold text-yellow-300 ${yellowFocusOutlineStyle}`} size="small" outlined />

@@ -6,10 +6,13 @@ import { Message } from 'primereact/message';
 import { useToast } from "@/hooks/useToast";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import GenericButton from '@/components/buttons/GenericButton';
+import InteractivePromotionalCarousel from '@/components/content/carousels/InteractivePromotionalCarousel';
 
 const AboutPage = () => {
     const { showToast } = useToast();
     const windowWidth = useWindowWidth();
+
+    const isTabView = windowWidth <= 1360;
 
     const copyToClipboard = async (text) => {
         try {
@@ -28,34 +31,8 @@ const AboutPage = () => {
     };
 
     return (
-        <div className="p-4 max-w-4xl mx-auto">
-            {windowWidth < 768 && (
-                <h1 className="text-3xl font-bold mb-6">About PlebDevs</h1>
-            )}
-
-            <Card title="About PlebDevs" className="mb-4">
-                <div className='flex flex-row gap-4 max-mob:flex-col max-tab:flex-col'>
-                    <Message pt={{
-                        icon: {
-                            className: 'hidden'
-                        }
-                    }} severity="info" text="PlebDevs is a fully Lightning and Nostr integrated education, content, and community platform designed to help new and aspiring developers, with a focus on Bitcoin / Lightning / Nostr technologies." />
-                    <Message pt={{
-                        icon: {
-                            className: 'hidden'
-                        }
-                    }} severity="success" text="PlebDevs offers a personal yet distributed learning experience, combining videos, courses, documents, and community channels through Nostr, monetizing with Lightning, and integrating them into a single platform" />
-                </div>
-                <div className="mt-4">
-                    <h3 className='font-bold mb-2'>The pitch is simple:</h3>
-                    <ul className='list-disc list-inside ml-6 space-y-2'>
-                        <li className='text-lg'>Learn how to code 💻</li>
-                        <li className='text-lg'>Build Bitcoin / Lightning / Nostr apps ⚡</li>
-                        <li className='text-lg'>Become a developer 🚀</li>
-                    </ul>
-                </div>
-            </Card>
-
+        <div className={`${isTabView ? 'w-full' : 'w-[83vw]'} p-4 mx-auto`}>
+            <InteractivePromotionalCarousel />
             <Card title="Key Features" className="mb-4">
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col items-start justify-center">
