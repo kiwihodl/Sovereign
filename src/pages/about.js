@@ -65,7 +65,7 @@ const AboutPage = () => {
                         <i className="pi pi-bolt text-2xl text-primary mr-2 mt-1 text-yellow-400"></i>
                         <div>
                             <h3 className="text-lg font-semibold">Content Monetization:</h3>
-                            <p className='text-lg'>All content is zappable and some content is PAID requiring a Lightning purchase through the platform to view.</p>
+                            <p className='text-lg'>All content is zappable and some content is PAID requiring a Lightning purchase or Subscription through the platform for permanent access.</p>
                             <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
                                 <li><span className="text-lg font-semibold">Free:</span> Free content is available to all users. <br /> <span className="pl-4">* can be viewed on PlebDevs or any nostr client that supports NIP-23 and NIP-51.</span></li>
                                 <li><span className="text-lg font-semibold">Paid:</span> Paid content is available for purchase with Lightning. <br /> <span className="pl-4">* published to nostr but encrypted with plebdevs private key, currently only viewable on PlebDevs platform.</span></li>
