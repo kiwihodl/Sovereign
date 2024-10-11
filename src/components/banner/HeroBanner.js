@@ -42,7 +42,7 @@ const HeroBanner = () => {
     };
 
     return (
-        <div className={`${isMobile ? 'h-[350px]' : 'h-[450px]'} mx-0 relative flex justify-center items-center overflow-hidden`}>
+        <div className={`${isMobile ? 'h-[350px]' : 'h-[450px]'} ${isTabView ? 'mx-0' : 'mx-14'} relative flex justify-center items-center overflow-hidden`}>
             <Image
                 // src={returnImageProxy("https://media.istockphoto.com/id/1224500457/photo/programming-code-abstract-technology-background-of-software-developer-and-computer-script.jpg?s=612x612&w=0&k=20&c=nHMypkMTU1HUUW85Zt0Ff7MDbq17n0eVeXaoM9Knt4Q=")}
                 src={HeroImage}
@@ -55,7 +55,7 @@ const HeroBanner = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-black via-black/20 to-transparent rounded-lg" />
             
             {!isTabView && (
-                <div className="absolute right-0 top-0 bottom-0 w-1/2 overflow-hidden rounded-r-lg opacity-100 p-12 rounded-lg shadow-lg">
+                <div className="absolute right-0 top-0 bottom-0 w-1/2 overflow-hidden rounded-r-lg opacity-90 p-12 rounded-lg shadow-lg">
                     <video
                         className="w-full h-full object-cover rounded-lg shadow-lg"
                         autoPlay
