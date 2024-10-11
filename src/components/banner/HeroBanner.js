@@ -57,7 +57,7 @@ const HeroBanner = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-black via-black/20 to-transparent rounded-lg" />
 
             {!isTabView && (
-                <div className="absolute right-0 top-24 bottom-0 w-1/2 overflow-hidden rounded-l-lg opacity-100 p-2 rounded-lg shadow-lg mr-4">
+                <div className="absolute right-0 top-24 bottom-0 w-1/2 overflow-hidden rounded-l-lg opacity-100 p-2 rounded-lg shadow-lg mr-2">
                     <video
                         className="w-full object-cover rounded-lg shadow-lg"
                         autoPlay
