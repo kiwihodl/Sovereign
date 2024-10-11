@@ -44,14 +44,31 @@ const HeroBanner = () => {
     return (
         <div className={`${isMobile ? 'h-[350px]' : 'h-[450px]'} mx-0 relative flex justify-center items-center overflow-hidden`}>
             <Image
-                src={returnImageProxy("https://media.istockphoto.com/id/1224500457/photo/programming-code-abstract-technology-background-of-software-developer-and-computer-script.jpg?s=612x612&w=0&k=20&c=nHMypkMTU1HUUW85Zt0Ff7MDbq17n0eVeXaoM9Knt4Q=")}
+                // src={returnImageProxy("https://media.istockphoto.com/id/1224500457/photo/programming-code-abstract-technology-background-of-software-developer-and-computer-script.jpg?s=612x612&w=0&k=20&c=nHMypkMTU1HUUW85Zt0Ff7MDbq17n0eVeXaoM9Knt4Q=")}
+                src={HeroImage}
                 alt="Banner"
                 quality={100}
                 fill
                 style={{ objectFit: 'cover' }}
                 className='opacity-100 rounded-lg'
             />
-            <div className="absolute inset-0 bg-gradient-to-br from-black via-black/40 to-transparent rounded-lg" />
+            <div className="absolute inset-0 bg-gradient-to-br from-black via-black/20 to-transparent rounded-lg" />
+            
+            {!isTabView && (
+                <div className="absolute right-0 top-0 bottom-0 w-1/2 overflow-hidden rounded-r-lg opacity-100 p-8 rounded-lg shadow-lg">
+                    <video
+                        className="w-full h-full object-cover rounded-lg shadow-lg"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                    >
+                        <source src="https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-montage.mp4" type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            )}
+
             <div className={`absolute inset-0 flex flex-col justify-center ${isTabView ? 'items-center text-center' : 'items-start pl-12'}`}>
                 <h1 className={`text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 ${isTabView ? 'px-4' : ''}`}>
                     <span className="block">Learn to code</span>
@@ -65,7 +82,7 @@ const HeroBanner = () => {
                         A one of a kind developer education and community platform built on Nostr and fully Lightning integrated.
                     </h3>
                 ) : (
-                    <h2 className="text-[#f8f8ff] mb-8 font-semibold">
+                    <h2 className="text-[#f8f8ff] mb-8 font-semibold max-w-[50%]">
                         A one of a kind developer education and community platform built on Nostr and fully Lightning integrated.
                     </h2>
                 )}
