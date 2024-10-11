@@ -3,8 +3,11 @@ import useWindowWidth from '@/hooks/useWindowWidth';
 import Image from 'next/image';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { useRouter } from 'next/router';
+import { Avatar } from 'primereact/avatar';
+import { AvatarGroup } from 'primereact/avatargroup';
 import GenericButton from '../buttons/GenericButton';
 import HeroImage from '../../../public/images/hero-image.png';
+import plebdevsGuy from '../../../public/images/plebdevs-guy.png';
 
 const HeroBanner = () => {
     const [currentTech, setCurrentTech] = useState('Bitcoin');
@@ -42,22 +45,21 @@ const HeroBanner = () => {
     };
 
     return (
-        <div className={`${isMobile ? 'h-[350px]' : 'h-[450px]'} ${isTabView ? 'mx-0' : 'mx-14'} relative flex justify-center items-center overflow-hidden`}>
+        <div className={`${isMobile ? 'h-[450px]' : 'h-[600px]'} ${isTabView ? 'mx-0' : 'm-14'} relative flex justify-center items-center overflow-hidden drop-shadow-2xl`}>
             <Image
-                // src={returnImageProxy("https://media.istockphoto.com/id/1224500457/photo/programming-code-abstract-technology-background-of-software-developer-and-computer-script.jpg?s=612x612&w=0&k=20&c=nHMypkMTU1HUUW85Zt0Ff7MDbq17n0eVeXaoM9Knt4Q=")}
                 src={HeroImage}
                 alt="Banner"
                 quality={100}
                 fill
-                style={{ objectFit: 'cover' }}
+                style={{ objectFit: 'cover', transform: 'scaleX(-1)' }}
                 className='opacity-100 rounded-lg'
             />
             <div className="absolute inset-0 bg-gradient-to-br from-black via-black/20 to-transparent rounded-lg" />
-            
+
             {!isTabView && (
-                <div className="absolute right-0 top-0 bottom-0 w-1/2 overflow-hidden rounded-r-lg opacity-90 p-12 rounded-lg shadow-lg">
+                <div className="absolute right-0 top-24 bottom-0 w-1/2 overflow-hidden rounded-l-lg opacity-100 p-2 rounded-lg shadow-lg mr-4">
                     <video
-                        className="w-full h-full object-cover rounded-lg shadow-lg"
+                        className="w-full object-cover rounded-lg shadow-lg"
                         autoPlay
                         loop
                         muted
@@ -70,7 +72,7 @@ const HeroBanner = () => {
             )}
 
             <div className={`absolute inset-0 flex flex-col justify-center ${isTabView ? 'items-center text-center' : 'items-start pl-12'}`}>
-                <h1 className={`text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 ${isTabView ? 'px-4' : ''}`}>
+                <h1 className={`text-4xl sm:text-4xl lg:text-6xl font-bold leading-tight mb-6 ${isTabView ? 'px-4' : ''} max-w-[42%]`}>
                     <span className="block">Learn to code</span>
                     <span className={`block ${getColorClass(currentTech)} transition-opacity duration-500 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
                         Build {currentTech} apps
@@ -82,26 +84,47 @@ const HeroBanner = () => {
                         A one of a kind developer education and community platform built on Nostr and fully Lightning integrated.
                     </h3>
                 ) : (
-                    <h2 className="text-[#f8f8ff] mb-8 font-semibold max-w-[50%]">
+                    <h2 className="text-[#f8f8ff] mb-8 font-semibold max-w-[42%]">
                         A one of a kind developer education and community platform built on Nostr and fully Lightning integrated.
                     </h2>
                 )}
+                <div className="mb-8 flex flex-row">
+                    <AvatarGroup>
+                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"} size="large" shape="circle" />
+                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/asiyajavayant.png"} size="large" shape="circle" />
+                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/onyamalimba.png"} size="large" shape="circle" />
+                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/ionibowcher.png"} size="large" shape="circle" />
+                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/xuxuefeng.png"} size="large" shape="circle" />
+                        <Avatar label="500+" shape="circle" size="large" className="text-base" />
+                    </AvatarGroup>
+                    <div className="flex flex-col justify-between my-2 ml-4">
+                        <div className="flex flex-row gap-2">
+                            {Array.from({ length: 5 }).map((_, index) => (
+                                <i key={index} className="pi pi-star-fill text-yellow-500" />
+                            ))}
+                            <p className="text-sm">4.9</p>
+                        </div>
+                        <span className="text-sm">from 500+ students</span>
+                    </div>
+                </div>
                 <div className="space-x-4">
                     <GenericButton
                         label="Learn"
-                        icon="pi pi-book"
+                        icon={<i className="pi pi-book pr-2 text-2xl" />}
                         rounded
                         severity="info"
+                        className="border-2"
                         size={isMobile ? null : "large"}
                         outlined
                         onClick={() => router.push('/content?tag=all')}
                     />
                     <GenericButton
                         label="Connect"
-                        icon="pi pi-users"
+                        icon={<i className="pi pi-users pr-2 text-2xl" />}
                         rounded
                         size={isMobile ? null : "large"}
                         severity="success"
+                        className="border-2"
                         outlined
                         onClick={() => router.push('/feed?channel=global')}
                     />
