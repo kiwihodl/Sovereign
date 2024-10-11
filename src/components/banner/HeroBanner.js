@@ -14,10 +14,10 @@ const HeroBanner = () => {
     const [isAnimating, setIsAnimating] = useState(false);
     const techs = ['Bitcoin', 'Lightning', 'Nostr'];
     const windowWidth = useWindowWidth();
-    const isTabView = windowWidth <= 1360;
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
-
+    
+    const isTabView = windowWidth <= 1360;
     const isMobile = windowWidth <= 800;
     const isWideScreen = windowWidth >= 2200;
     const isSuperWideScreen = windowWidth >= 2600;
@@ -81,7 +81,7 @@ const HeroBanner = () => {
             )}
 
             <div className={`absolute inset-0 flex flex-col justify-center ${isTabView ? 'items-center text-center' : 'items-start pl-12'}`}>
-                <h1 className={`text-4xl sm:text-4xl lg:text-6xl font-bold leading-tight mb-6 ${isTabView ? 'px-4 max-w-[50%]' : ''}`}>
+                <h1 className={`text-4xl sm:text-4xl lg:text-6xl font-bold leading-tight mb-6 ${isTabView ? 'px-4' : 'max-w-[50%]'}`}>
                     <span className="block">Learn to code</span>
                     <span className={`block ${getColorClass(currentTech)} transition-opacity duration-500 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
                         Build {currentTech} apps
