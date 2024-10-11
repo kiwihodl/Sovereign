@@ -19,6 +19,8 @@ const HeroBanner = () => {
     const { returnImageProxy } = useImageProxy();
 
     const isMobile = windowWidth <= 800;
+    const isWideScreen = windowWidth >= 2200;
+    const isSuperWideScreen = windowWidth >= 2600;
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -44,8 +46,15 @@ const HeroBanner = () => {
         }
     };
 
+    const getHeroHeight = () => {
+        if (isSuperWideScreen) return 'h-[900px]';
+        if (isWideScreen) return 'h-[700px]';
+        if (isMobile) return 'h-[450px]';
+        return 'h-[600px]';
+    };
+
     return (
-        <div className={`${isMobile ? 'h-[450px]' : 'h-[600px]'} ${isTabView ? 'mx-0' : 'm-14'} relative flex justify-center items-center overflow-hidden drop-shadow-2xl`}>
+        <div className={`${getHeroHeight()} ${isTabView ? 'mx-0' : 'm-14'} relative flex justify-center items-center overflow-hidden drop-shadow-2xl`}>
             <Image
                 src={HeroImage}
                 alt="Banner"
