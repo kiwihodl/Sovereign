@@ -48,6 +48,12 @@ const Details = () => {
     }, [event, nAddress]);
 
     useEffect(() => {
+        if (!author && event?.pubkey) {
+            fetchAuthor(event?.pubkey);
+        }
+    }, [author, event, fetchAuthor]);
+
+    useEffect(() => {
         const fetchAndProcessEvent = async () => {
             if (!router.isReady || !router.query.slug) return;
 
