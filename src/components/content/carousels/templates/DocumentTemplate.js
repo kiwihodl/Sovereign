@@ -67,7 +67,7 @@ export function DocumentTemplate({ document }) {
                     </div>
                 </CardHeader>
             </div>
-            <CardContent className={`${isMobile ? "px-2" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
+            <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
                 <div className="flex flex-wrap gap-2">
                     {document?.topics?.map((topic, index) => (
                         <Tag key={index} className="px-3 py-1 text-sm text-[#f8f8ff]">
@@ -75,9 +75,9 @@ export function DocumentTemplate({ document }) {
                         </Tag>
                     ))}
                 </div>
-                <p className="font-bold text-gray-300 min-w-[12%]">{document?.readTime || "5 min"} read</p>
+                <p className="font-bold text-gray-300 min-w-[5%]">{document?.readTime || "5 min"} read</p>
             </CardContent>
-            <CardDescription className={`${isMobile ? "p-2" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center`}
+            <CardDescription className={`${isMobile ? "p-3" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center`}
                 style={{
                     overflow: "hidden",
                     display: "-webkit-box",
@@ -91,7 +91,7 @@ export function DocumentTemplate({ document }) {
                     <div className="flex flex-col items-end">
                         {
                             document?.price && document?.price > 0 ? (
-                                <Message className={`${isMobile ? "py-1 text-sm" : "py-2"}`} icon="pi pi-lock" severity="info" text={`Price: ${document.price} sats`} />
+                                <Message className={`${isMobile ? "py-1 text-sm" : "py-2"}`} icon="pi pi-lock" severity="info" text={`${document.price} sats`} />
                             ) : (
                                 <Message className={`${isMobile ? "py-1 text-sm" : "py-2"}`} icon="pi pi-lock-open" severity="success" text="Free" />
                             )

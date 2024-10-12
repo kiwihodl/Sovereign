@@ -112,6 +112,7 @@ export const parseEvent = (event) => {
             case 't':
                 if (tag[1] === 'video') {
                     eventData.type = 'video';
+                    eventData.topics.push(tag[1]);
                 } else if (tag[1] !== "plebdevs") {
                     eventData.topics.push(tag[1]);
                 }
@@ -183,6 +184,9 @@ export const parseCourseEvent = (event) => {
                 break;
             case 'r':
                 eventData.additionalLinks.push(tag[1]);
+                break;
+            case 't':
+                eventData.topics.push(tag[1]);
                 break;
             default:
                 break;
