@@ -10,6 +10,7 @@ import { useRouter } from "next/router";
 import { nip19 } from "nostr-tools";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { Tag } from "primereact/tag";
+import { Message } from "primereact/message";
 import GenericButton from "@/components/buttons/GenericButton";
 import appConfig from "@/config/appConfig";
 
@@ -22,12 +23,12 @@ export function VideoTemplate({ video }) {
 
     useEffect(() => {
         if (video && video?.pubkey && video?.kind && video?.id) {
-        const addr = nip19.naddrEncode({
-            pubkey: video.pubkey,
-            kind: video.kind,
-            identifier: video.id,
-            relayUrls: appConfig.defaultRelayUrls
-        })
+            const addr = nip19.naddrEncode({
+                pubkey: video.pubkey,
+                kind: video.kind,
+                identifier: video.id,
+                relayUrls: appConfig.defaultRelayUrls
+            })
             setNAddress(addr);
         }
     }, [video]);
@@ -72,17 +73,29 @@ export function VideoTemplate({ video }) {
                         </Tag>
                     ))}
                 </div>
+                <p className="font-bold text-gray-300 min-w-[12%]">{video?.duration || "5 min"} watch</p>
             </CardContent>
-            <CardDescription className="p-6 py-2 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center"
+            <CardDescription className="p-6 py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center"
                 style={{
                     overflow: "hidden",
                     display: "-webkit-box",
                     WebkitBoxOrient: "vertical",
                     WebkitLineClamp: "2"
                 }}>
-                {(video.summary || video.description)?.split('\n').map((line, index) => (
-                    <span key={index}>{line}</span>
-                ))}
+                <div className="w-full flex flex-row justify-between items-center">
+                    {(video.summary || video.description)?.split('\n').map((line, index) => (
+                        <span key={index}>{line}</span>
+                    ))}
+                    <div className="flex flex-col items-end">
+                        {
+                            video?.price && video?.price > 0 ? (
+                                <Message className="py-2" icon="pi pi-lock" severity="info" text={`Price: ${video.price} sats`} />
+                            ) : (
+                                <Message className="py-2" icon="pi pi-lock-open" severity="success" text="Free" />
+                            )
+                        }
+                    </div>
+                </div>
             </CardDescription>
             <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4">
                 <p className="text-sm text-gray-300">{video?.published_at && video.published_at !== "" ? (
