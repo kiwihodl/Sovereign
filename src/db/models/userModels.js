@@ -83,9 +83,21 @@ export const addResourcePurchaseToUser = async (userId, purchaseData) => {
     where: { id: userId },
     data: {
       purchased: {
-        create: {
-          resourceId: purchaseData.resourceId,
-          amountPaid: purchaseData.amountPaid,
+        upsert: {
+          where: {
+            userId_courseId_resourceId: {
+              userId: userId,
+              courseId: null,
+              resourceId: purchaseData.resourceId,
+            },
+          },
+          create: {
+            resourceId: purchaseData.resourceId,
+            amountPaid: purchaseData.amountPaid,
+          },
+          update: {
+            amountPaid: purchaseData.amountPaid,
+          },
         },
       },
     },
@@ -106,9 +118,10 @@ export const addCoursePurchaseToUser = async (userId, purchaseData) => {
       purchased: {
         upsert: {
           where: {
-            userId_courseId: {
+            userId_courseId_resourceId: {
               userId: userId,
               courseId: purchaseData.courseId,
+              resourceId: null,
             },
           },
           create: {

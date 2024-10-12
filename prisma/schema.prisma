@@ -1,13 +1,13 @@
-// datasource db {
-//     provider = "postgresql"
-//     url      = env("DATABASE_URL")
-// }
-
 datasource db {
-  provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
+
+// datasource db {
+//   provider = "postgresql"
+//   url = env("POSTGRES_PRISMA_URL")
+//   directUrl = env("POSTGRES_URL_NON_POOLING")
+// }
 
 generator client {
     provider = "prisma-client-js"
@@ -202,7 +202,7 @@ model Purchase {
     course     Course?   @relation(fields: [courseId], references: [id])
     resource   Resource? @relation(fields: [resourceId], references: [id])
 
-    @@unique([userId, courseId])
+    @@unique([userId, courseId, resourceId])
 }
 
 model UserCourse {

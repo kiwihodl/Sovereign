@@ -99,21 +99,21 @@ const HeroBanner = () => {
                 )}
                 <div className="mb-8 flex flex-row">
                     <AvatarGroup>
-                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"} size="large" shape="circle" />
-                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/asiyajavayant.png"} size="large" shape="circle" />
-                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/onyamalimba.png"} size="large" shape="circle" />
-                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/ionibowcher.png"} size="large" shape="circle" />
-                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/xuxuefeng.png"} size="large" shape="circle" />
-                        <Avatar label="500+" shape="circle" size="large" className="text-base" />
+                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"} size={isMobile ? "normal" : "large"} shape="circle" />
+                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/asiyajavayant.png"} size={isMobile ? "normal" : "large"} shape="circle" />
+                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/onyamalimba.png"} size={isMobile ? "normal" : "large"} shape="circle" />
+                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/ionibowcher.png"} size={isMobile ? "normal" : "large"} shape="circle" />
+                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/xuxuefeng.png"} size={isMobile ? "normal" : "large"} shape="circle" />
+                        <Avatar label="500+" shape="circle" size={isMobile ? "normal" : "large"} className={`${isMobile ? 'text-sm' : 'text-base'}`} />
                     </AvatarGroup>
                     <div className="flex flex-col justify-between my-2 ml-4">
                         <div className="flex flex-row gap-2">
                             {Array.from({ length: 5 }).map((_, index) => (
-                                <i key={index} className="pi pi-star-fill text-yellow-500" />
+                                <i key={index} className={`pi pi-star-fill text-yellow-500 ${isMobile ? 'text-base' : 'text-2xl'}`} />
                             ))}
-                            <p className="text-sm">4.9</p>
+                            <p className={`text-sm ${isMobile ? 'text-base' : 'text-2xl'}`}>4.87</p>
                         </div>
-                        <span className="text-sm">from 500+ students</span>
+                        <span className={`text-sm ${isMobile ? 'text-base' : 'text-2xl'}`}>500+ students enrolled</span>
                     </div>
                 </div>
                 <div className="space-x-4">
