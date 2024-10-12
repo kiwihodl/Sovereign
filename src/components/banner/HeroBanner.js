@@ -90,11 +90,11 @@ const HeroBanner = () => {
                 </h1>
                 {isMobile ? (
                     <h3 className="text-[#f8f8ff] mb-8 font-semibold">
-                        A one of a kind developer education and community platform built on Nostr and fully Lightning integrated.
+                        A one of a kind developer education, content, and community platform built on Nostr and fully Lightning integrated.
                     </h3>
                 ) : (
                     <h2 className="text-[#f8f8ff] mb-8 font-semibold max-w-[42%]">
-                        A one of a kind developer education and community platform built on Nostr and fully Lightning integrated.
+                        A one of a kind developer education, content, and community platform built on Nostr and fully Lightning integrated.
                     </h2>
                 )}
                 <div className="mb-8 flex flex-row">

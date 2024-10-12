@@ -57,7 +57,7 @@ export function useZapsSubscription({ event }) {
         // Set a 4-second timeout to stop loading state if no zaps are received
         timeoutId = setTimeout(() => {
           setZapsLoading(false);
-        }, 4000);
+        }, 3000);
 
       } catch (error) {
         console.error("Error subscribing to zaps:", error);
