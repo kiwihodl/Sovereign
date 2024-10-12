@@ -10,6 +10,7 @@ import { formatTimestampToHowLongAgo } from "@/utils/time";
 import { nip19 } from "nostr-tools";
 import { Tag } from "primereact/tag";
 import { Message } from "primereact/message";
+import useWindowWidth from "@/hooks/useWindowWidth";
 import GenericButton from "@/components/buttons/GenericButton";
 import appConfig from "@/config/appConfig";
 
@@ -19,6 +20,8 @@ export function DocumentTemplate({ document }) {
     const [zapAmount, setZapAmount] = useState(0);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
+    const windowWidth = useWindowWidth();
+    const isMobile = windowWidth < 768;
 
     useEffect(() => {
         if (document && document?.id) {
@@ -64,7 +67,7 @@ export function DocumentTemplate({ document }) {
                     </div>
                 </CardHeader>
             </div>
-            <CardContent className="pt-6 pb-2 w-full flex flex-row justify-between items-center">
+            <CardContent className={`${isMobile ? "px-2" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
                 <div className="flex flex-wrap gap-2">
                     {document?.topics?.map((topic, index) => (
                         <Tag key={index} className="px-3 py-1 text-sm text-[#f8f8ff]">
@@ -74,11 +77,12 @@ export function DocumentTemplate({ document }) {
                 </div>
                 <p className="font-bold text-gray-300 min-w-[12%]">{document?.readTime || "5 min"} read</p>
             </CardContent>
-            <CardDescription className="p-6 py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center" style={{
-                overflow: "hidden",
-                display: "-webkit-box",
-                WebkitBoxOrient: "vertical",
-                WebkitLineClamp: "2"
+            <CardDescription className={`${isMobile ? "p-2" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center`}
+                style={{
+                    overflow: "hidden",
+                    display: "-webkit-box",
+                    WebkitBoxOrient: "vertical",
+                    WebkitLineClamp: "2"
             }}>
                 <div className="w-full flex flex-row justify-between items-center">
                     {(document.summary || document.description)?.split('\n').map((line, index) => (
@@ -87,9 +91,9 @@ export function DocumentTemplate({ document }) {
                     <div className="flex flex-col items-end">
                         {
                             document?.price && document?.price > 0 ? (
-                                <Message className="py-2" icon="pi pi-lock" severity="info" text={`Price: ${document.price} sats`} />
+                                <Message className={`${isMobile ? "py-1 text-sm" : "py-2"}`} icon="pi pi-lock" severity="info" text={`Price: ${document.price} sats`} />
                             ) : (
-                                <Message className="py-2" icon="pi pi-lock-open" severity="success" text="Free" />
+                                <Message className={`${isMobile ? "py-1 text-sm" : "py-2"}`} icon="pi pi-lock-open" severity="success" text="Free" />
                             )
                         }
                     </div>

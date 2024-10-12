@@ -9,6 +9,7 @@ import { useImageProxy } from "@/hooks/useImageProxy";
 import { useRouter } from "next/router";
 import { nip19 } from "nostr-tools";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
+import useWindowWidth from "@/hooks/useWindowWidth";
 import { Tag } from "primereact/tag";
 import { Message } from "primereact/message";
 import GenericButton from "@/components/buttons/GenericButton";
@@ -19,7 +20,10 @@ export function VideoTemplate({ video }) {
     const [zapAmount, setZapAmount] = useState(0);
     const [nAddress, setNAddress] = useState(null);
     const router = useRouter();
+    const windowWidth = useWindowWidth();
     const { returnImageProxy } = useImageProxy();
+
+    const isMobile = windowWidth < 768;
 
     useEffect(() => {
         if (video && video?.pubkey && video?.kind && video?.id) {
@@ -65,7 +69,7 @@ export function VideoTemplate({ video }) {
                     </div>
                 </CardHeader>
             </div>
-            <CardContent className="pt-6 pb-2">
+            <CardContent className={`${isMobile ? "px-2" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
                 <div className="flex flex-wrap gap-2">
                     {video?.topics?.map((topic, index) => (
                         <Tag key={index} className="px-3 py-1 text-sm text-[#f8f8ff]">
@@ -75,7 +79,7 @@ export function VideoTemplate({ video }) {
                 </div>
                 <p className="font-bold text-gray-300 min-w-[12%]">{video?.duration || "5 min"} watch</p>
             </CardContent>
-            <CardDescription className="p-6 py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center"
+            <CardDescription className={`${isMobile ? "p-2" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center`}
                 style={{
                     overflow: "hidden",
                     display: "-webkit-box",
@@ -89,9 +93,9 @@ export function VideoTemplate({ video }) {
                     <div className="flex flex-col items-end">
                         {
                             video?.price && video?.price > 0 ? (
-                                <Message className="py-2" icon="pi pi-lock" severity="info" text={`Price: ${video.price} sats`} />
+                                <Message className={`${isMobile ? "py-1 text-sm" : "py-2"}`} icon="pi pi-lock" severity="info" text={`Price: ${video.price} sats`} />
                             ) : (
-                                <Message className="py-2" icon="pi pi-lock-open" severity="success" text="Free" />
+                                <Message className={`${isMobile ? "py-1 text-sm" : "py-2"}`} icon="pi pi-lock-open" severity="success" text="Free" />
                             )
                         }
                     </div>
