@@ -91,9 +91,9 @@ export function DocumentTemplate({ document }) {
                     <div className="flex flex-col items-end">
                         {
                             document?.price && document?.price > 0 ? (
-                                <Message className={`${isMobile ? "py-1 text-sm" : "py-2"}`} icon="pi pi-lock" severity="info" text={`${document.price} sats`} />
+                                <Message className={`${isMobile ? "py-1 text-sm" : "py-2"} whitespace-nowrap`} icon="pi pi-lock" severity="info" text={`${document.price} sats`} />
                             ) : (
-                                <Message className={`${isMobile ? "py-1 text-sm" : "py-2"}`} icon="pi pi-lock-open" severity="success" text="Free" />
+                                <Message className={`${isMobile ? "py-1 text-sm" : "py-2"} whitespace-nowrap`} icon="pi pi-lock-open" severity="success" text="Free" />
                             )
                         }
                     </div>
