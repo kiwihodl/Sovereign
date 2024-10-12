@@ -1,5 +1,4 @@
 import NextAuth from "next-auth";
-import { track } from '@vercel/analytics/server';
 import CredentialsProvider from "next-auth/providers/credentials";
 import EmailProvider from "next-auth/providers/email";
 import NDK from "@nostr-dev-kit/ndk";
@@ -14,8 +13,9 @@ import { createRole } from "@/db/models/roleModels";
 import appConfig from "@/config/appConfig";
 
 // todo update EMAIL_FROM to be a plebdevs email
+// TODO: remove hardcoded relays from here after testing phase
 const ndk = new NDK({
-    explicitRelayUrls: appConfig.defaultRelayUrls,
+    explicitRelayUrls: [...appConfig.defaultRelayUrls, "wss://relay.damus.io/", "wss://relay.snort.social/"],
 });
 
 const authorize = async (pubkey) => {
@@ -49,7 +49,6 @@ const authorize = async (pubkey) => {
         } else {
             // Create user
             if (profile) {
-                track('Nostr Signup', { pubkey: pubkey });
                 const fields = await findKind0Fields(profile);
                 const payload = { pubkey, username: fields.username, avatar: fields.avatar };
 
@@ -115,9 +114,6 @@ export const authOptions = {
             },
             from: process.env.EMAIL_FROM,
             sendVerificationRequest: async ({ identifier, url, provider }) => {
-                // Track the email signup event
-                track('Email Signup', { email: identifier });
-
                 // Use nodemailer to send the email
                 const transport = nodemailer.createTransport(provider.server);
                 await transport.sendMail({
@@ -148,8 +144,6 @@ export const authOptions = {
                     const sk = generateSecretKey();
                     pubkey = getPublicKey(sk);
                     privkey = bytesToHex(sk);
-                    console.log('pubkey', pubkey);
-                    console.log('privkey', privkey);
                 }
 
                 // Check if user exists in the database
