@@ -13,14 +13,19 @@ export default async function handler(req, res) {
     try {
       const { userId, resourceId, amountPaid } = req.body;
 
+      if (!userId || !resourceId || !amountPaid) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+
       const updatedUser = await addResourcePurchaseToUser(userId, {
         resourceId,
-        amountPaid: parseInt(amountPaid, 10) // Ensure amountPaid is an integer
+        amountPaid: parseInt(amountPaid, 10)
       });
 
       res.status(200).json(updatedUser);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      console.error('Error in resource purchase:', error);
+      res.status(500).json({ error: 'An error occurred while processing the purchase' });
     }
   } else {
     res.setHeader('Allow', ['POST']);
