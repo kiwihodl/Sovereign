@@ -202,7 +202,6 @@ const Course = () => {
             const updated = await update();
             console.log("session after update", updated);
             showToast('success', 'Payment Success', 'You have successfully purchased this course');
-            router.reload();
         } else {
             showToast('error', 'Error', 'Failed to purchase course. Please try again.');
         }
