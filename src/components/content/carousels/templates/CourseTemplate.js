@@ -95,7 +95,7 @@ export function CourseTemplate({ course }) {
           WebkitBoxOrient: "vertical",
           WebkitLineClamp: "2"
         }}>
-        <div className="w-full flex flex-row justify-between items-center">
+        <div className="w-full flex flex-row justify-between items-start">
           {(course.summary || course.description)?.split('\n').map((line, index) => (
             <span key={index}>{line}</span>
           ))}
