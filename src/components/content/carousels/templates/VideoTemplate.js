@@ -101,7 +101,7 @@ export function VideoTemplate({ video }) {
                     </div>
                 </div>
             </CardDescription>
-            <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4">
+            <CardFooter className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4 ${isMobile ? "px-3" : ""}`}>
                 <p className="text-sm text-gray-300">{video?.published_at && video.published_at !== "" ? (
                     formatTimestampToHowLongAgo(video.published_at)
                 ) : (

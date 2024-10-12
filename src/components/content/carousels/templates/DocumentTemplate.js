@@ -99,7 +99,7 @@ export function DocumentTemplate({ document }) {
                     </div>
                 </div>
             </CardDescription>
-            <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4">
+            <CardFooter className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4 ${isMobile ? "px-3" : ""}`}>
                 <p className="text-sm text-gray-300">{document?.published_at && document.published_at !== "" ? (
                     formatTimestampToHowLongAgo(document.published_at)
                 ) : (

@@ -110,7 +110,7 @@ export function CourseTemplate({ course }) {
           </div>
         </div>
       </CardDescription>
-      <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4">
+      <CardFooter className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4 ${isMobile ? "px-3" : ""}`}>
         <p className="text-sm text-gray-300">{course?.published_at && course.published_at !== "" ? (
           formatTimestampToHowLongAgo(course.published_at)
         ) : (
