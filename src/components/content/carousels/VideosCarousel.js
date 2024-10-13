@@ -38,6 +38,7 @@ export default function VideosCarousel() {
             if (res.data) {
                 res.data.forEach(lesson => {
                     if (lesson?.resource?.price > 0) {
+                        console.log("lesson?.resource?.resourceId", lesson);
                         setPaidLessons(prev => [...prev, lesson?.resource?.resourceId]);
                     }
                 });
