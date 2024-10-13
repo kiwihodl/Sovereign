@@ -157,7 +157,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
                 if (lesson.unpublished) {
                     const validationResult = validateEvent(lesson.unpublished);
                     if (validationResult !== true) {
-                        console.log('invalid lesson:', lesson.unpublished);
+                        console.error('invalid lesson:', lesson.unpublished);
                         console.error('Invalid event:', validationResult);
                         showToast('error', 'Error', `Invalid event: ${validationResult}`);
                         return;
