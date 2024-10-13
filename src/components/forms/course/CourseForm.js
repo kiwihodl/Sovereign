@@ -122,11 +122,13 @@ const CourseForm = ({ draft = null }) => {
         }
     };
 
-    const addTopic = () => {
+    const addTopic = (e) => {
+        e.preventDefault();
         setTopics([...topics, '']);
     };
 
-    const removeTopic = (index) => {
+    const removeTopic = (e, index) => {
+        e.preventDefault();
         const updatedTopics = topics.filter((_, i) => i !== index);
         setTopics(updatedTopics);
     };
@@ -206,11 +208,11 @@ const CourseForm = ({ draft = null }) => {
                     <div key={index} className="p-inputgroup flex-1 mt-4">
                         <InputText value={topic} onChange={(e) => handleTopicChange(index, e.target.value)} placeholder={`Topic #${index + 1}`} className="w-full" />
                         {index > 0 && (
-                            <GenericButton icon="pi pi-times" className="p-button-danger mt-2" onClick={() => removeTopic(index)} />
+                            <GenericButton icon="pi pi-times" className="p-button-danger mt-2" onClick={(e) => removeTopic(e, index)} />
                         )}
                     </div>
                 ))}
-                <GenericButton icon="pi pi-plus" onClick={addTopic} className="p-button-outlined mt-2" />
+                <GenericButton icon="pi pi-plus" onClick={(e) => addTopic(e)} className="p-button-outlined mt-2" />
             </div>
             <div className="flex justify-center mt-8">
                 <GenericButton type="submit" severity="success" outlined label={draft ? 'Update Course Draft' : 'Create Course Draft'} />
