@@ -58,7 +58,6 @@ export function useVideos() {
         if (isClient && contentIds) {
             fetchVideosFromNDK().then(fetchedVideos => {
                 if (fetchedVideos && fetchedVideos.length > 0) {
-                    console.log('fetchedvideos', fetchedVideos)
                     setVideos(fetchedVideos);
                 }
             });
