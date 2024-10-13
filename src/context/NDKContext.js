@@ -6,7 +6,7 @@ import appConfig from "@/config/appConfig";
 
 const NDKContext = createContext(null);
 
-const readOnlyRelays = ["wss://nostr21.com/", "wss://nostr.wine/", "wss://yestr.me/", "wss://lightningrelay.com/", "wss://nostr.land/", "wss://us.nsotr.land", "wss://relay.keychat.io"];
+const readOnlyRelays = ["wss://nostr21.com/", "wss://nostr.wine/", "wss://yestr.me/", "wss://lightningrelay.com/", "wss://nostr.land/", "wss://us.nostr.land", "wss://relay.keychat.io"];
 
 export const NDKProvider = ({ children }) => {
   const [ndk, setNdk] = useState(null);
