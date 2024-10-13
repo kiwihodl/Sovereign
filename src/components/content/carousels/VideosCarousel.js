@@ -38,7 +38,7 @@ export default function VideosCarousel() {
             if (res.data) {
                 res.data.forEach(lesson => {
                     if (lesson?.resource?.price > 0) {
-                        setPaidLessons(prev => [...prev, lesson]);
+                        setPaidLessons(prev => [...prev, lesson?.resource?.resourceId]);
                     }
                 });
             }
@@ -52,16 +52,11 @@ export default function VideosCarousel() {
             try {
                 if (videos && videos.length > 0 && paidLessons.length > 0) {
                     const processedVideos = videos.map(video => parseEvent(video));
-                    console.log("processedVideos", processedVideos);
                     
                     const sortedVideos = processedVideos.sort((a, b) => b.created_at - a.created_at);
 
-                    console.log("paidLessons", paidLessons);
-
                     // filter out videos that are in the paid lessons array
-                    const filteredVideos = sortedVideos.filter(video => !paidLessons.includes(video?.resource?.resourceId));
-
-                    console.log("filteredVideos", filteredVideos);
+                    const filteredVideos = sortedVideos.filter(video => !paidLessons.includes(video?.d));
 
                     setProcessedVideos(filteredVideos);
                 } else {

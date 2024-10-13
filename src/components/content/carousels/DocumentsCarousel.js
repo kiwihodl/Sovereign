@@ -39,7 +39,7 @@ export default function DocumentsCarousel() {
             if (res.data) {
                 res.data.forEach(lesson => {
                     if (lesson?.resource?.price > 0) {
-                        setPaidLessons(prev => [...prev, lesson]);
+                        setPaidLessons(prev => [...prev, lesson?.resource?.resourceId]);
                     }
                 });
             }
@@ -57,7 +57,7 @@ export default function DocumentsCarousel() {
                     const sortedDocuments = processedDocuments.sort((a, b) => b.created_at - a.created_at);
 
                     // filter out documents that are in the paid lessons array
-                    const filteredDocuments = sortedDocuments.filter(document => !paidLessons.includes(document?.resource?.resourceId));
+                    const filteredDocuments = sortedDocuments.filter(document => !paidLessons.includes(document?.d));
 
                     setProcessedDocuments(filteredDocuments);
                 } else {
