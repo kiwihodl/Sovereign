@@ -4,35 +4,21 @@ import GenericButton from '@/components/buttons/GenericButton';
 import { Panel } from 'primereact/panel';
 import { useNDKContext } from "@/context/NDKContext";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
-import NDK, { NDKNip07Signer } from "@nostr-dev-kit/ndk";
 import { useToast } from '@/hooks/useToast';
 
-const MessageInput = ({ onMessageSent }) => {
+const MessageInput = () => {
     const [message, setMessage] = useState('');
     const [collapsed, setCollapsed] = useState(true);
-    // todo: revert this after testing phase
-    // const { ndk, addSigner } = useNDKContext();
-    const ndk = new NDK({
-        explicitRelayUrls: ["wss://nos.lol/",
-      "wss://relay.damus.io/",
-      "wss://relay.snort.social/",
-      "wss://relay.nostr.band/",
-      "wss://relay.mutinywallet.com/",
-      "wss://relay.primal.net/"]
-    });
+    const { ndk, addSigner } = useNDKContext();
     const { showToast } = useToast();
 
     const handleSubmit = async () => {
         if (!message.trim() || !ndk) return;
 
         try {
-            // if (!ndk.signer) {
-            //     await addSigner();
-            // }
-
-            const nip07signer = new NDKNip07Signer();
-            await ndk.signer?.user();
-            ndk.signer = nip07signer;
+            if (!ndk.signer) {
+                await addSigner();
+            }
             const event = new NDKEvent(ndk);
             event.kind = 1;
             event.content = message;
@@ -41,7 +27,6 @@ const MessageInput = ({ onMessageSent }) => {
             await event.publish();
             showToast('success', 'Message Sent', 'Your message has been sent to the PlebDevs community.');
             setMessage(''); // Clear the input after successful publish
-            onMessageSent(); // Call this function to close the accordion
         } catch (error) {
             console.error("Error publishing message:", error);
             showToast('error', 'Error', 'There was an error sending your message. Please try again.');

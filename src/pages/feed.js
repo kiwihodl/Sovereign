@@ -79,8 +79,7 @@ const Feed = () => {
                 </div>
                 <Divider />
                 <MessageInput 
-                    collapsed={false} 
-                    // onMessageSent={handleMessageSent}
+                    collapsed={false}
                 />
             </div>
             <div className="min-bottom-bar:hidden">
