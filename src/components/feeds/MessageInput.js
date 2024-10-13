@@ -9,11 +9,14 @@ import { useToast } from '@/hooks/useToast';
 const MessageInput = ({ onMessageSent }) => {
     const [message, setMessage] = useState('');
     const [collapsed, setCollapsed] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { ndk, addSigner } = useNDKContext();
     const { showToast } = useToast();
 
     const handleSubmit = async () => {
-        if (!message.trim() || !ndk) return;
+        if (!message.trim() || !ndk || isSubmitting) return;
+
+        setIsSubmitting(true);
 
         try {
             if (!ndk.signer) {
@@ -32,6 +35,8 @@ const MessageInput = ({ onMessageSent }) => {
         } catch (error) {
             console.error("Error publishing message:", error);
             showToast('error', 'Error', 'There was an error sending your message. Please try again.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -70,6 +75,7 @@ const MessageInput = ({ onMessageSent }) => {
                     outlined
                     onClick={handleSubmit}
                     className="w-fit py-2"
+                    disabled={isSubmitting}
                 />
             </div>
         </Panel>
