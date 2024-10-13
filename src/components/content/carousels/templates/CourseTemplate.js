@@ -96,9 +96,14 @@ export function CourseTemplate({ course }) {
           WebkitLineClamp: "2"
         }}>
         <div className="w-full flex flex-row justify-between items-start">
-          {(course.summary || course.description)?.split('\n').map((line, index) => (
+          {/* <div className="flex flex-col max-h-[200px]">
+            {(course.summary || course.description)?.split('\n').map((line, index) => (
+              <span className="line-clamp-2" key={index}>{line}</span>
+            ))}
+          </div> */}
+          <p className="line-clamp-2">{(course.summary || course.description)?.split('\n').map((line, index) => (
             <span key={index}>{line}</span>
-          ))}
+          ))}</p>
           <div className="flex flex-col items-end">
             {
               course?.price && course?.price > 0 ? (

@@ -87,9 +87,9 @@ export function VideoTemplate({ video }) {
                     WebkitLineClamp: "2"
                 }}>
                 <div className="w-full flex flex-row justify-between items-start">
-                    {(video.summary || video.description)?.split('\n').map((line, index) => (
+                    <p className="line-clamp-2">{(video.summary || video.description)?.split('\n').map((line, index) => (
                         <span key={index}>{line}</span>
-                    ))}
+                    ))}</p>
                     <div className="flex flex-col items-end">
                         {
                             video?.price && video?.price > 0 ? (
