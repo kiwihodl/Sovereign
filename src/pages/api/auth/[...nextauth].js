@@ -14,7 +14,7 @@ import appConfig from "@/config/appConfig";
 
 // todo update EMAIL_FROM to be a plebdevs email
 const ndk = new NDK({
-    explicitRelayUrls: appConfig.defaultRelayUrls
+    explicitRelayUrls: [...appConfig.defaultRelayUrls, "wss://relay.primal.net/", "wss://relay.damus.io/"]
 });
 
 const authorize = async (pubkey) => {
