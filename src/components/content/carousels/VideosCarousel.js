@@ -38,8 +38,7 @@ export default function VideosCarousel() {
             if (res.data) {
                 res.data.forEach(lesson => {
                     if (lesson?.resource?.price > 0) {
-                        console.log("lesson?.resource?.resourceId", lesson);
-                        setPaidLessons(prev => [...prev, lesson?.resource?.resourceId]);
+                        setPaidLessons(prev => [...prev, lesson?.resourceId]);
                     }
                 });
             }
@@ -53,8 +52,6 @@ export default function VideosCarousel() {
             try {
                 if (videos && videos.length > 0 && paidLessons.length > 0) {
                     const processedVideos = videos.map(video => parseEvent(video));
-                    console.log("processedVideos", processedVideos);
-                    console.log("paidLessons", paidLessons);
                     
                     const sortedVideos = processedVideos.sort((a, b) => b.created_at - a.created_at);
 

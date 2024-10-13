@@ -39,7 +39,7 @@ export default function DocumentsCarousel() {
             if (res.data) {
                 res.data.forEach(lesson => {
                     if (lesson?.resource?.price > 0) {
-                        setPaidLessons(prev => [...prev, lesson?.resource?.resourceId]);
+                        setPaidLessons(prev => [...prev, lesson?.resourceId]);
                     }
                 });
             }
