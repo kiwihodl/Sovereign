@@ -52,6 +52,8 @@ export default function VideosCarousel() {
             try {
                 if (videos && videos.length > 0 && paidLessons.length > 0) {
                     const processedVideos = videos.map(video => parseEvent(video));
+                    console.log("processedVideos", processedVideos);
+                    console.log("paidLessons", paidLessons);
                     
                     const sortedVideos = processedVideos.sort((a, b) => b.created_at - a.created_at);
 
