@@ -51,9 +51,9 @@ export default function DocumentsCarousel() {
     useEffect(() => {
         const fetch = async () => {
             try {
-                if (documents && documents.length > 0) {
+                if (documents && documents.length > 0 && paidLessons.length > 0) {
                     const processedDocuments = documents.map(document => parseEvent(document));
-                    
+                    console.log('processedDocuments', processedDocuments);
                     // Sort documents by created_at in descending order (most recent first)
                     const sortedDocuments = processedDocuments.sort((a, b) => b.created_at - a.created_at);
 
@@ -69,7 +69,7 @@ export default function DocumentsCarousel() {
             }
         };        
         fetch();
-    }, [documents]);
+    }, [documents, paidLessons]);
 
     if (documentsError) {
         return <div>Error: {documentsError.message}</div>
