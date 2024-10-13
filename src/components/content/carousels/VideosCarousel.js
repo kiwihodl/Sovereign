@@ -56,7 +56,7 @@ export default function VideosCarousel() {
                     const sortedVideos = processedVideos.sort((a, b) => b.created_at - a.created_at);
 
                     // filter out videos that are in the paid lessons array
-                    const filteredVideos = sortedVideos.filter(video => !paidLessons.includes(video.id));
+                    const filteredVideos = sortedVideos.filter(video => !paidLessons.includes(video?.d));
 
                     setProcessedVideos(filteredVideos);
                 } else {

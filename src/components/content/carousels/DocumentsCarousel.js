@@ -58,7 +58,7 @@ export default function DocumentsCarousel() {
                     const sortedDocuments = processedDocuments.sort((a, b) => b.created_at - a.created_at);
 
                     // filter out documents that are in the paid lessons array
-                    const filteredDocuments = sortedDocuments.filter(document => !paidLessons.includes(document.id));
+                    const filteredDocuments = sortedDocuments.filter(document => !paidLessons.includes(document?.d));
 
                     setProcessedDocuments(filteredDocuments);
                 } else {
