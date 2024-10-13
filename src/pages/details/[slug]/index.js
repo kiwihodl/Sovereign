@@ -95,8 +95,6 @@ const Details = () => {
                             setDecryptedContent(decrypted);
                         }
                     }
-                } else {
-                    showToast('error', 'Error', 'Event not found');
                 }
             } catch (error) {
                 console.error('Error fetching event:', error);
