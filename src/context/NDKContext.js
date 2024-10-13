@@ -6,9 +6,13 @@ import appConfig from "@/config/appConfig";
 
 const NDKContext = createContext(null);
 
+const readOnlyRelays = ["wss://nostr21.com/", "wss://nostr.wine/", "wss://yestr.me/", "wss://lightningrelay.com/", "wss://nostr.land/", "wss://us.nsotr.land", "wss://relay.keychat.io"];
+
 export const NDKProvider = ({ children }) => {
   const [ndk, setNdk] = useState(null);
-  const [userRelays, setUserRelays] = useLocalStorage("userRelays", appConfig.defaultRelayUrls);
+  // todo: remove this after testing phase
+  // const [userRelays, setUserRelays] = useLocalStorage("userRelays", appConfig.defaultRelayUrls);
+  const [userRelays, setUserRelays] = useState(readOnlyRelays);
 
   const createNDKInstance = (relays) => {
     const allRelays = [...new Set([...appConfig.defaultRelayUrls, ...relays])];

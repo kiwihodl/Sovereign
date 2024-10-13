@@ -13,9 +13,8 @@ import { createRole } from "@/db/models/roleModels";
 import appConfig from "@/config/appConfig";
 
 // todo update EMAIL_FROM to be a plebdevs email
-// TODO: remove hardcoded relays from here after testing phase
 const ndk = new NDK({
-    explicitRelayUrls: [...appConfig.defaultRelayUrls, "wss://relay.damus.io/", "wss://relay.snort.social/"],
+    explicitRelayUrls: appConfig.defaultRelayUrls
 });
 
 const authorize = async (pubkey) => {
