@@ -52,13 +52,11 @@ export default function VideosCarousel() {
             try {
                 if (videos && videos.length > 0 && paidLessons.length > 0) {
                     const processedVideos = videos.map(video => parseEvent(video));
-                    console.log('processedVideos', processedVideos);
                     
                     const sortedVideos = processedVideos.sort((a, b) => b.created_at - a.created_at);
-                    console.log('paidLessons', paidLessons);
 
                     // filter out videos that are in the paid lessons array
-                    const filteredVideos = sortedVideos.filter(video => !paidLessons.includes(video?.d));
+                    const filteredVideos = sortedVideos.filter(video => !paidLessons.includes(video?.resource?.resourceId));
 
                     setProcessedVideos(filteredVideos);
                 } else {

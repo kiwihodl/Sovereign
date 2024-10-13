@@ -53,12 +53,11 @@ export default function DocumentsCarousel() {
             try {
                 if (documents && documents.length > 0 && paidLessons.length > 0) {
                     const processedDocuments = documents.map(document => parseEvent(document));
-                    console.log('processedDocuments', processedDocuments);
                     // Sort documents by created_at in descending order (most recent first)
                     const sortedDocuments = processedDocuments.sort((a, b) => b.created_at - a.created_at);
 
                     // filter out documents that are in the paid lessons array
-                    const filteredDocuments = sortedDocuments.filter(document => !paidLessons.includes(document?.d));
+                    const filteredDocuments = sortedDocuments.filter(document => !paidLessons.includes(document?.resource?.resourceId));
 
                     setProcessedDocuments(filteredDocuments);
                 } else {
