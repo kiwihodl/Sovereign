@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Carousel } from 'primereact/carousel';
 import { parseEvent } from '@/utils/nostr';
 import { DocumentTemplate } from '@/components/content/carousels/templates/DocumentTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 import { useDocuments } from '@/hooks/nostr/useDocuments';
 import useWindowWidth from '@/hooks/useWindowWidth';
+import { nip19 } from 'nostr-tools';
 import { Divider } from 'primereact/divider';
 const responsiveOptions = [
     {
@@ -26,9 +28,25 @@ const responsiveOptions = [
 
 export default function DocumentsCarousel() {
     const [processedDocuments, setProcessedDocuments] = useState([]);
+    const [paidLessons, setPaidLessons] = useState([]);
     const { documents, documentsLoading, documentsError } = useDocuments()
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 450;
+
+    // todo: cache this in react query
+    useEffect(() => {
+        axios.get('/api/lessons').then(res => {
+            if (res.data) {
+                res.data.forEach(lesson => {
+                    if (lesson?.resource?.price > 0) {
+                        setPaidLessons(prev => [...prev, lesson]);
+                    }
+                });
+            }
+        }).catch(err => {
+            console.log('err', err);
+        });
+    }, []);
 
     useEffect(() => {
         const fetch = async () => {
@@ -39,7 +57,10 @@ export default function DocumentsCarousel() {
                     // Sort documents by created_at in descending order (most recent first)
                     const sortedDocuments = processedDocuments.sort((a, b) => b.created_at - a.created_at);
 
-                    setProcessedDocuments(sortedDocuments);
+                    // filter out documents that are in the paid lessons array
+                    const filteredDocuments = sortedDocuments.filter(document => !paidLessons.includes(document.id));
+
+                    setProcessedDocuments(filteredDocuments);
                 } else {
                     console.log('No documents fetched or empty array returned');
                 }

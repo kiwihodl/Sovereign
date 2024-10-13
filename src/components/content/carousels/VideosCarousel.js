@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Carousel } from 'primereact/carousel';
 import { parseEvent } from '@/utils/nostr';
 import {VideoTemplate} from '@/components/content/carousels/templates/VideoTemplate';
@@ -27,9 +28,24 @@ const responsiveOptions = [
 
 export default function VideosCarousel() {
     const [processedVideos, setProcessedVideos] = useState([]);
+    const [paidLessons, setPaidLessons] = useState([]);
     const { videos, videosLoading, videosError } = useVideos();
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 450;
+
+    useEffect(() => {
+        axios.get('/api/lessons').then(res => {
+            if (res.data) {
+                res.data.forEach(lesson => {
+                    if (lesson?.resource?.price > 0) {
+                        setPaidLessons(prev => [...prev, lesson]);
+                    }
+                });
+            }
+        }).catch(err => {
+            console.log('err', err);
+        });
+    }, []);
 
     useEffect(() => {
         const fetch = async () => {
@@ -39,8 +55,10 @@ export default function VideosCarousel() {
                     
                     const sortedVideos = processedVideos.sort((a, b) => b.created_at - a.created_at);
 
-                    console.log('Sorted videos:', sortedVideos);
-                    setProcessedVideos(sortedVideos);
+                    // filter out videos that are in the paid lessons array
+                    const filteredVideos = sortedVideos.filter(video => !paidLessons.includes(video.id));
+
+                    setProcessedVideos(filteredVideos);
                 } else {
                     console.log('No videos fetched or empty array returned');
                 }
