@@ -70,7 +70,7 @@ export function VideoTemplate({ video }) {
                 </CardHeader>
             </div>
             <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 max-w-[60%]">
                     {video?.topics?.map((topic, index) => (
                         <Tag key={index} className="px-3 py-1 text-sm text-[#f8f8ff]">
                             {topic}

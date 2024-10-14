@@ -79,7 +79,7 @@ export function CourseTemplate({ course }) {
         </CardHeader>
       </div>
       <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 max-w-[60%]">
           {course && course.topics && course.topics.map((topic, index) => (
             <Tag key={index} className="px-3 py-1 text-sm text-[#f8f8ff]">
               {topic}
@@ -96,11 +96,6 @@ export function CourseTemplate({ course }) {
           WebkitLineClamp: "2"
         }}>
         <div className="w-full flex flex-row justify-between items-start">
-          {/* <div className="flex flex-col max-h-[200px]">
-            {(course.summary || course.description)?.split('\n').map((line, index) => (
-              <span className="line-clamp-2" key={index}>{line}</span>
-            ))}
-          </div> */}
           <p className="line-clamp-2">{(course.summary || course.description)?.split('\n').map((line, index) => (
             <span key={index}>{line}</span>
           ))}</p>
