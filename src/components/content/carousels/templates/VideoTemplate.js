@@ -47,13 +47,12 @@ export function VideoTemplate({ video }) {
 
     return (
         <Card className="overflow-hidden group hover:shadow-xl transition-all duration-300 bg-gray-800 m-2 border-none">
-            <div className="relative aspect-video">
+            <div className="relative h-48 sm:h-64">
                 <Image
                     src={returnImageProxy(video.image)}
                     alt="Video background"
                     quality={100}
                     layout="fill"
-                    objectFit="cover"
                     className={`${router.pathname === "/content" ? "w-full h-full object-cover" : "w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"}`}
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary-foreground/50" />
@@ -69,7 +68,7 @@ export function VideoTemplate({ video }) {
                     </div>
                 </CardHeader>
             </div>
-            <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
+            {/* <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
                 <div className="flex flex-wrap gap-2">
                     {video?.topics?.map((topic, index) => (
                         <Tag size="small" key={index} className="px-3 py-1 text-sm text-[#f8f8ff]">
@@ -100,7 +99,7 @@ export function VideoTemplate({ video }) {
                         }
                     </div>
                 </div>
-            </CardDescription>
+            </CardDescription> */}
             <CardFooter className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4 ${isMobile ? "px-3" : ""}`}>
                 <p className="text-sm text-gray-300">{video?.published_at && video.published_at !== "" ? (
                     formatTimestampToHowLongAgo(video.published_at)
