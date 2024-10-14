@@ -47,20 +47,19 @@ export function VideoTemplate({ video }) {
 
     return (
         <Card className="overflow-hidden group hover:shadow-xl transition-all duration-300 bg-gray-800 m-2 border-none">
-            <div className="relative h-48 sm:h-64">
-            <div
-                className="relative w-full h-0 "
-                style={{ paddingBottom: "56.25%" }}
-            >
+            <div className="relative h-48 sm:h-64 overflow-hidden">
                 <Image
-                    alt="video thumbnail"
                     src={returnImageProxy(video.image)}
+                    alt="Video background"
                     quality={100}
                     layout="fill"
                     objectFit="cover"
-                    className="rounded-md"
+                    className={`${
+                        router.pathname === "/content"
+                            ? "w-full h-full object-cover"
+                            : "w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    }`}
                 />
-                </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary-foreground/50" />
                 <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/50 text-white px-3 py-1 rounded-full">
                     <ZapDisplay zapAmount={zapAmount} event={video} zapsLoading={zapsLoading && zapAmount === 0} />
