@@ -85,7 +85,7 @@ export function DocumentTemplate({ document }) {
                     WebkitLineClamp: "2"
             }}>
                 <div className="w-full flex flex-row justify-between items-start max-w-[100%]">
-                    <p className="line-clamp-2 break-words max-w-[60%]">{(document.summary || document.description)?.split('\n').map((line, index) => (
+                    <p className="line-clamp-2 break-words">{(document.summary || document.description)?.split('\n').map((line, index) => (
                         <span key={index}>{line}</span>
                     ))}</p>
                     <div className="flex flex-col items-end">

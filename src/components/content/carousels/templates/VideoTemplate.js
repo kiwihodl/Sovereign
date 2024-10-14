@@ -47,7 +47,7 @@ export function VideoTemplate({ video }) {
 
     return (
         <Card className="overflow-hidden group hover:shadow-xl transition-all duration-300 bg-gray-800 m-2 border-none">
-            <div className="relative h-48 sm:h-64">
+            <div className="relative h-48">
                 <Image
                     src={returnImageProxy(video.image)}
                     alt="Video background"
@@ -86,7 +86,7 @@ export function VideoTemplate({ video }) {
                     WebkitLineClamp: "2"
             }}>
                 <div className="w-full flex flex-row justify-between items-start max-w-[100%]">
-                    <p className="line-clamp-2 break-words max-w-[60%]">{(video.summary || video.description)?.split('\n').map((line, index) => (
+                    <p className="line-clamp-2 break-words">{(video.summary || video.description)?.split('\n').map((line, index) => (
                         <span key={index}>{line}</span>
                     ))}</p>
                     <div className="flex flex-col items-end">
