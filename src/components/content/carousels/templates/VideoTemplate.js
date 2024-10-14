@@ -53,8 +53,8 @@ export function VideoTemplate({ video }) {
                 style={{ paddingBottom: "56.25%" }}
             >
                 <Image
-                    alt="workshop thumbnail"
-                    src={returnImageProxy(workshop.image)}
+                    alt="video thumbnail"
+                    src={returnImageProxy(video.image)}
                     quality={100}
                     layout="fill"
                     objectFit="cover"
