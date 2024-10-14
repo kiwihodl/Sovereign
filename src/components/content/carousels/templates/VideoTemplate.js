@@ -7,33 +7,32 @@ import { useZapsSubscription } from "@/hooks/nostrQueries/zaps/useZapsSubscripti
 import { getTotalFromZaps } from "@/utils/lightning";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useRouter } from "next/router";
-import { nip19 } from "nostr-tools";
 import { formatTimestampToHowLongAgo } from "@/utils/time";
-import useWindowWidth from "@/hooks/useWindowWidth";
+import { nip19 } from "nostr-tools";
 import { Tag } from "primereact/tag";
 import { Message } from "primereact/message";
+import useWindowWidth from "@/hooks/useWindowWidth";
 import GenericButton from "@/components/buttons/GenericButton";
 import appConfig from "@/config/appConfig";
 
 export function VideoTemplate({ video }) {
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: video });
-    const [zapAmount, setZapAmount] = useState(0);
     const [nAddress, setNAddress] = useState(null);
+    const [zapAmount, setZapAmount] = useState(0);
     const router = useRouter();
-    const windowWidth = useWindowWidth();
     const { returnImageProxy } = useImageProxy();
-
+    const windowWidth = useWindowWidth();
     const isMobile = windowWidth < 768;
 
     useEffect(() => {
-        if (video && video?.pubkey && video?.kind && video?.id) {
-            const addr = nip19.naddrEncode({
+        if (video && video?.id) {
+            const nAddress = nip19.naddrEncode({
                 pubkey: video.pubkey,
                 kind: video.kind,
                 identifier: video.id,
                 relayUrls: appConfig.defaultRelayUrls
-            })
-            setNAddress(addr);
+            });
+            setNAddress(nAddress);
         }
     }, [video]);
 
@@ -51,7 +50,7 @@ export function VideoTemplate({ video }) {
             <div className="relative h-48 sm:h-64">
                 <Image
                     src={returnImageProxy(video.image)}
-                    alt="Video thumbnail"
+                    alt="Video background"
                     quality={100}
                     layout="fill"
                     className={`${router.pathname === "/content" ? "w-full h-full object-cover" : "w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"}`}
@@ -70,7 +69,7 @@ export function VideoTemplate({ video }) {
                 </CardHeader>
             </div>
             <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
-                <div className="flex flex-wrap gap-2 max-w-[50%]">
+                <div className="flex flex-wrap gap-2">
                     {video?.topics?.map((topic, index) => (
                         <Tag size="small" key={index} className="px-3 py-1 text-sm text-[#f8f8ff]">
                             {topic}
@@ -79,13 +78,13 @@ export function VideoTemplate({ video }) {
                 </div>
                 <p className="font-bold text-gray-300 min-w-[5%]">{video?.duration || "5 min"} watch</p>
             </CardContent>
-            <CardDescription className={`${isMobile ? "p-3" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center max-w-[50%]`}
+            <CardDescription className={`${isMobile ? "p-3" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center`}
                 style={{
                     overflow: "hidden",
                     display: "-webkit-box",
                     WebkitBoxOrient: "vertical",
                     WebkitLineClamp: "2"
-                }}>
+            }}>
                 <div className="w-full flex flex-row justify-between items-start">
                     <p className="line-clamp-2">{(video.summary || video.description)?.split('\n').map((line, index) => (
                         <span key={index}>{line}</span>

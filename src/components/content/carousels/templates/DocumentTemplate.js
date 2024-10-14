@@ -68,7 +68,7 @@ export function DocumentTemplate({ document }) {
                 </CardHeader>
             </div>
             <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
-                <div className="flex flex-wrap gap-2 max-w-[50%]">
+                <div className="flex flex-wrap gap-2">
                     {document?.topics?.map((topic, index) => (
                         <Tag size="small" key={index} className="px-3 py-1 text-sm text-[#f8f8ff]">
                             {topic}
@@ -77,7 +77,7 @@ export function DocumentTemplate({ document }) {
                 </div>
                 <p className="font-bold text-gray-300 min-w-[5%]">{document?.readTime || "5 min"} read</p>
             </CardContent>
-            <CardDescription className={`${isMobile ? "p-3" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center max-w-[50%]`}
+            <CardDescription className={`${isMobile ? "p-3" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center`}
                 style={{
                     overflow: "hidden",
                     display: "-webkit-box",
