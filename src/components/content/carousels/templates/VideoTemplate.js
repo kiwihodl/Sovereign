@@ -85,7 +85,7 @@ export function VideoTemplate({ video }) {
                     WebkitBoxOrient: "vertical",
                     WebkitLineClamp: "2"
             }}>
-                <div className="w-full flex flex-row justify-between items-start">
+                <div className="w-full flex flex-row justify-between items-start max-w-[100%]">
                     <p className="line-clamp-2">{(video.summary || video.description)?.split('\n').map((line, index) => (
                         <span key={index}>{line}</span>
                     ))}</p>
