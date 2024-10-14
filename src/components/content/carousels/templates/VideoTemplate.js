@@ -78,7 +78,7 @@ export function VideoTemplate({ video }) {
                 </div>
                 <p className="font-bold text-gray-300 min-w-[5%]">{video?.duration || "5 min"} watch</p>
             </CardContent>
-            <CardDescription className={`${isMobile ? "p-3" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center`}
+            <CardDescription className={`${isMobile ? "p-3" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center max-w-[100%]`}
                 style={{
                     overflow: "hidden",
                     display: "-webkit-box",
