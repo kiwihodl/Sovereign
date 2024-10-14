@@ -45,14 +45,18 @@ export function DocumentTemplate({ document }) {
     if (zapsError) return <div>Error: {zapsError}</div>;
 
     return (
-        <Card className="overflow-hidden group hover:shadow-xl transition-all duration-300 bg-gray-800 m-2 border-none">
-            <div className="relative h-48 sm:h-64">
+        <Card className="w-full overflow-hidden group hover:shadow-xl transition-all duration-300 bg-gray-800 m-2 border-none">
+            <div
+                className="relative w-full h-0"
+                style={{ paddingBottom: "56.25%" }}
+            >
                 <Image
+                    alt="document thumbnail"
                     src={returnImageProxy(document.image)}
-                    alt="Document background"
                     quality={100}
                     layout="fill"
-                    className={`${router.pathname === "/content" ? "w-full h-full object-cover" : "w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"}`}
+                    objectFit="cover"
+                    className="rounded-md"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary-foreground/50" />
                 <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/50 text-white px-3 py-1 rounded-full">
@@ -84,9 +88,9 @@ export function DocumentTemplate({ document }) {
                     WebkitBoxOrient: "vertical",
                     WebkitLineClamp: "2"
             }}>
-                <div className="w-full flex flex-row justify-between items-start">
-                    <p className="line-clamp-2 break-words">{(document.summary || document.description)?.split('\n').map((line, index) => (
-                        <span className="break-words max-w-[70%]" key={index}>{line}</span>
+                <div className="w-full flex flex-row justify-between items-start break-words">
+                    <p className="line-clamp-2 text-wrap break-words overflow-hidden">{(document.summary || document.description)?.split('\n').map((line, index) => (
+                        <span className="text-wrap break-words overflow-hidden" key={index}>{line}</span>
                     ))}</p>
                     <div className="flex flex-col items-end">
                         {

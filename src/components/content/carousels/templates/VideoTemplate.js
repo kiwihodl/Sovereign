@@ -47,13 +47,17 @@ export function VideoTemplate({ video }) {
 
     return (
         <Card className="overflow-hidden group hover:shadow-xl transition-all duration-300 bg-gray-800 m-2 border-none">
-            <div className="relative h-48 sm:h-64">
+            <div
+                className="relative w-full h-0"
+                style={{ paddingBottom: "56.25%" }}
+            >
                 <Image
+                    alt="video thumbnail"
                     src={returnImageProxy(video.image)}
-                    alt="Video background"
                     quality={100}
                     layout="fill"
-                    className={`${router.pathname === "/content" ? "w-full h-full object-cover" : "w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"}`}
+                    objectFit="cover"
+                    className="rounded-md"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary-foreground/50" />
                 <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/50 text-white px-3 py-1 rounded-full">
@@ -86,8 +90,8 @@ export function VideoTemplate({ video }) {
                     WebkitLineClamp: "2"
             }}>
                 <div className="w-full flex flex-row justify-between items-start">
-                    <p className="line-clamp-2 break-words max-w-[70%]">{(video.summary || video.description)?.split('\n').map((line, index) => (
-                        <span className="break-words" key={index}>{line}</span>
+                    <p className="line-clamp-2 text-wrap break-words">{(video.summary || video.description)?.split('\n').map((line, index) => (
+                        <span className="text-wrap break-words" key={index}>{line}</span>
                     ))}</p>
                     <div className="flex flex-col items-end">
                         {
