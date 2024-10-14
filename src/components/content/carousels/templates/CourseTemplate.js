@@ -81,7 +81,7 @@ export function CourseTemplate({ course }) {
       <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
         <div className="flex flex-wrap gap-2 max-w-[50%]">
           {course && course.topics && course.topics.map((topic, index) => (
-            <Tag key={index} className="px-3 py-1 text-sm text-[#f8f8ff]">
+            <Tag size="small" key={index} className="px-3 py-1 text-sm text-[#f8f8ff]">
               {topic}
             </Tag>
           ))}
