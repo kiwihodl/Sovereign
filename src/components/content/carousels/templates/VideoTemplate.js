@@ -69,7 +69,7 @@ export function VideoTemplate({ video }) {
                 </CardHeader>
             </div>
             <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 max-w-[70%]">
                     {video?.topics?.map((topic, index) => (
                         <Tag size="small" key={index} className="px-3 py-1 text-sm text-[#f8f8ff]">
                             {topic}
@@ -85,9 +85,9 @@ export function VideoTemplate({ video }) {
                     WebkitBoxOrient: "vertical",
                     WebkitLineClamp: "2"
             }}>
-                <div className="w-full flex flex-row justify-between items-start max-w-[100%]">
+                <div className="w-full flex flex-row justify-between items-start">
                     <p className="line-clamp-2 break-words max-w-[70%]">{(video.summary || video.description)?.split('\n').map((line, index) => (
-                        <span key={index}>{line}</span>
+                        <span className="break-words" key={index}>{line}</span>
                     ))}</p>
                     <div className="flex flex-col items-end">
                         {
