@@ -68,7 +68,7 @@ export function VideoTemplate({ video }) {
                     </div>
                 </CardHeader>
             </div>
-            {/* <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
+            <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
                 <div className="flex flex-wrap gap-2">
                     {video?.topics?.map((topic, index) => (
                         <Tag size="small" key={index} className="px-3 py-1 text-sm text-[#f8f8ff]">
@@ -99,7 +99,7 @@ export function VideoTemplate({ video }) {
                         }
                     </div>
                 </div>
-            </CardDescription> */}
+            </CardDescription>
             <CardFooter className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4 ${isMobile ? "px-3" : ""}`}>
                 <p className="text-sm text-gray-300">{video?.published_at && video.published_at !== "" ? (
                     formatTimestampToHowLongAgo(video.published_at)
