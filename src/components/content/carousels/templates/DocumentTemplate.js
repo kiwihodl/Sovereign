@@ -68,7 +68,7 @@ export function DocumentTemplate({ document }) {
                 </CardHeader>
             </div>
             <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
-            <div className="flex flex-wrap gap-2 max-w-[60%]">
+                <div className="flex flex-wrap gap-2 max-w-[60%]">
                     {document?.topics?.map((topic, index) => (
                         <Tag key={index} className="px-3 py-1 text-sm text-[#f8f8ff]">
                             {topic}
@@ -91,9 +91,9 @@ export function DocumentTemplate({ document }) {
                     <div className="flex flex-col items-end">
                         {
                             document?.price && document?.price > 0 ? (
-                                <Message className={`${isMobile ? "py-1 text-sm" : "py-2"} whitespace-nowrap`} icon="pi pi-lock" severity="info" text={`${document.price} sats`} />
+                                <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock" severity="info" text={`${document.price} sats`} />
                             ) : (
-                                <Message className={`${isMobile ? "py-1 text-sm" : "py-2"} whitespace-nowrap`} icon="pi pi-lock-open" severity="success" text="Free" />
+                                <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock-open" severity="success" text="Free" />
                             )
                         }
                     </div>

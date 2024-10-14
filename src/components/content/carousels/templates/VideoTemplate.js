@@ -93,9 +93,9 @@ export function VideoTemplate({ video }) {
                     <div className="flex flex-col items-end">
                         {
                             video?.price && video?.price > 0 ? (
-                                <Message className={`${isMobile ? "py-1 text-sm" : "py-2"} whitespace-nowrap`} icon="pi pi-lock" severity="info" text={`${video.price} sats`} />
+                                <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock" severity="info" text={`${video.price} sats`} />
                             ) : (
-                                <Message className={`${isMobile ? "py-1 text-sm" : "py-2"} whitespace-nowrap`} icon="pi pi-lock-open" severity="success" text="Free" />
+                                <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock-open" severity="success" text="Free" />
                             )
                         }
                     </div>
