@@ -13,7 +13,6 @@ import { getTotalFromZaps } from "@/utils/lightning";
 import { useSession } from "next-auth/react";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import dynamic from "next/dynamic";
-import { auth } from "@getalby/sdk";
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -22,8 +21,9 @@ const MDDisplay = dynamic(
     }
 );
 
-const DocumentDetails = ({ processedEvent, topics, title, summary, image, price, author, paidResource, decryptedContent, nAddress, handlePaymentSuccess, handlePaymentError, authorView }) => {
+const DocumentDetails = ({ processedEvent, topics, title, summary, image, price, author, paidResource, decryptedContent, nAddress, handlePaymentSuccess, handlePaymentError, authorView, isLesson }) => {
     const [zapAmount, setZapAmount] = useState(0);
+    const [course, setCourse] = useState(null);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: processedEvent });
@@ -38,6 +38,18 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
             setZapAmount(total);
         }
     }, [zaps, processedEvent]);
+
+    useEffect(() => {
+        if (isLesson) {
+            axios.get(`/api/resources/${processedEvent.d}`).then(res => {
+                if (res.data && res.data.lessons[0]?.courseId) {
+                    setCourse(res.data.lessons[0]?.courseId);
+                }
+            }).catch(err => {
+                console.log('err', err);
+            });
+        }
+    }, [processedEvent.d, isLesson]);
 
     useEffect(() => {
         console.log("authorView", authorView);
@@ -132,9 +144,10 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                     <div className="flex flex-row items-center justify-between w-full">
                         <h1 className='text-4xl font-bold text-white'>{title}</h1>
                         <div className="flex flex-wrap gap-2">
+                            {isLesson && <Tag size="small" className="text-[#f8f8ff]" value="lesson" />}
                             {topics && topics.length > 0 && (
                                 topics.map((topic, index) => (
-                                    <Tag className='text-white' key={index} value={topic}></Tag>
+                                    <Tag className='text-[#f8f8ff]' key={index} value={topic}></Tag>
                                 ))
                             )}
                         </div>
@@ -181,7 +194,8 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                                 />
                             </div>
                         ) : (
-                            <div className="w-full flex flex-row justify-end">
+                            <div className="w-full flex flex-row justify-end gap-2">
+                                {course && <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`/course/${course}`, '_blank')} label="Open Course" tooltip="This is a lesson in a course" tooltipOptions={{ position: 'top' }} />}
                                 <GenericButton
                                     tooltip={isMobileView ? null : "View Nostr Note"}
                                     tooltipOptions={{ position: 'left' }}

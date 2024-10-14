@@ -29,6 +29,7 @@ const responsiveOptions = [
 export default function VideosCarousel() {
     const [processedVideos, setProcessedVideos] = useState([]);
     const [paidLessons, setPaidLessons] = useState([]);
+    const [freeLessons, setFreeLessons] = useState([]);
     const { videos, videosLoading, videosError } = useVideos();
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 450;
@@ -39,6 +40,8 @@ export default function VideosCarousel() {
                 res.data.forEach(lesson => {
                     if (lesson?.resource?.price > 0) {
                         setPaidLessons(prev => [...prev, lesson?.resourceId]);
+                    } else {
+                        setFreeLessons(prev => [...prev, lesson?.resourceId]);
                     }
                 });
             }
@@ -89,7 +92,7 @@ export default function VideosCarousel() {
                 itemTemplate={(item) => 
                     !processedVideos.length ? 
                     <TemplateSkeleton key={Math.random()} /> : 
-                    <VideoTemplate key={item.id} video={item} />
+                    <VideoTemplate key={item.id} video={item} isLesson={freeLessons.includes(item.d)} />
                 }
                 responsiveOptions={responsiveOptions}
             />

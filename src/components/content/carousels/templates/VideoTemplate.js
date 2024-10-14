@@ -15,7 +15,7 @@ import useWindowWidth from "@/hooks/useWindowWidth";
 import GenericButton from "@/components/buttons/GenericButton";
 import appConfig from "@/config/appConfig";
 
-export function VideoTemplate({ video }) {
+export function VideoTemplate({ video, isLesson }) {
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: video });
     const [nAddress, setNAddress] = useState(null);
     const [zapAmount, setZapAmount] = useState(0);
@@ -74,6 +74,7 @@ export function VideoTemplate({ video }) {
             </div>
             <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
                 <div className="flex flex-wrap gap-2 max-w-[70%]">
+                    {isLesson && <Tag size="small" className="px-3 py-1 text-sm text-[#f8f8ff]" value="lesson" />}
                     {video?.topics?.map((topic, index) => (
                         <Tag size="small" key={index} className="px-3 py-1 text-sm text-[#f8f8ff]">
                             {topic}

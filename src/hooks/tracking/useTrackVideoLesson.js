@@ -14,7 +14,6 @@ const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed, pa
   useEffect(() => {
     if (session?.user?.role?.admin) {
       setIsAdmin(true);
-      setIsCompleted(true); // Automatically mark as completed for admins
     }
   }, [session]);
 

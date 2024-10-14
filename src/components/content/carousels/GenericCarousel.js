@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import axios from 'axios';
 import { Carousel } from 'primereact/carousel';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 import { VideoTemplate } from '@/components/content/carousels/templates/VideoTemplate';
@@ -23,12 +24,21 @@ const responsiveOptions = [
 
 export default function GenericCarousel({items, selectedTopic, title}) {
     const [carousels, setCarousels] = useState([]);
+    const [lessons, setLessons] = useState([]);
 
     const memoizedItems = useMemo(() => items, [items]);
 
     useEffect(() => {
-        console.log("carousel update", carousels);
-    }, [carousels]);
+        axios.get('/api/lessons').then(res => {
+            if (res.data) {
+                res.data.forEach(lesson => {
+                    setLessons(prev => [...prev, lesson?.resourceId]);
+                });
+            }
+        }).catch(err => {
+            console.log('err', err);
+        });
+    }, []);
 
     const getItemsPerCarousel = useCallback(() => {
         const width = window.innerWidth;
@@ -65,9 +75,9 @@ export default function GenericCarousel({items, selectedTopic, title}) {
                     itemTemplate={(item) => {
                         if (carouselItems.length > 0) {
                             if (item.type === 'document') {
-                                return <DocumentTemplate key={item.id} document={item} />;
+                                return <DocumentTemplate key={item.id} document={item} isLesson={lessons.includes(item?.d)} />;
                             } else if (item.type === 'video') {
-                                return <VideoTemplate key={item.id} video={item} />;
+                                return <VideoTemplate key={item.id} video={item} isLesson={lessons.includes(item?.d)} />;
                             } else if (item.type === 'course') {
                                 return <CourseTemplate key={item.id} course={item} />;
                             }

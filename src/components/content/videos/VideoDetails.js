@@ -21,8 +21,9 @@ const MDDisplay = dynamic(
     }
 );
 
-const VideoDetails = ({ processedEvent, topics, title, summary, image, price, author, paidResource, decryptedContent, nAddress, handlePaymentSuccess, handlePaymentError, authorView }) => {
+const VideoDetails = ({ processedEvent, topics, title, summary, image, price, author, paidResource, decryptedContent, nAddress, handlePaymentSuccess, handlePaymentError, authorView, isLesson }) => {
     const [zapAmount, setZapAmount] = useState(0);
+    const [course, setCourse] = useState(null);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: processedEvent });
@@ -30,6 +31,18 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
     const { showToast } = useToast();
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 768;
+
+    useEffect(() => {
+        if (isLesson) {
+            axios.get(`/api/resources/${processedEvent.d}`).then(res => {
+                if (res.data && res.data.lessons[0]?.courseId) {
+                    setCourse(res.data.lessons[0]?.courseId);
+                }
+            }).catch(err => {
+                console.log('err', err);
+            });
+        }
+    }, [processedEvent.d, isLesson]);
 
     useEffect(() => {
         if (zaps.length > 0) {
@@ -124,6 +137,7 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                 <div className="w-full flex flex-col items-start justify-start mt-2 px-2">
                     <div className="flex flex-row items-center gap-2 w-full">
                         <h1 className='text-4xl'>{title}</h1>
+                        {isLesson && <Tag className="mt-2 text-white" value="lesson" />}
                         {topics && topics.length > 0 && (
                             topics.map((topic, index) => (
                                 <Tag className='mt-2 text-white' key={index} value={topic}></Tag>
@@ -165,11 +179,12 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                             <div className='flex flex-row justify-center items-center space-x-2'>
                                 <GenericButton onClick={() => router.push(`/details/${nAddress}/edit`)} label="Edit" severity='warning' outlined />
                                 <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
-                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={ isMobileView ? null : "View Nostr Event" } tooltipOptions={{ position: 'right' }} />
+                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={isMobileView ? null : "View Nostr Event"} tooltipOptions={{ position: 'right' }} />
                             </div>
                         ) : (
                             <div className='flex flex-row justify-center items-center space-x-2'>
-                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={ isMobileView ? null : "View Nostr Event" } tooltipOptions={{ position: paidResource ? 'left' : 'right' }} />
+                                {course && <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`/course/${course}`, '_blank')} label="Open Course" tooltip="This is a lesson in a course" tooltipOptions={{ position: 'top' }} />}
+                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={isMobileView ? null : "View Nostr Event"} tooltipOptions={{ position: paidResource ? 'left' : 'right' }} />
                             </div>
                         )}
                     </div>

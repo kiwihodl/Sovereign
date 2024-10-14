@@ -14,7 +14,7 @@ import useWindowWidth from "@/hooks/useWindowWidth";
 import GenericButton from "@/components/buttons/GenericButton";
 import appConfig from "@/config/appConfig";
 
-export function DocumentTemplate({ document }) {
+export function DocumentTemplate({ document, isLesson }) {
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: document });
     const [nAddress, setNAddress] = useState(null);
     const [zapAmount, setZapAmount] = useState(0);
@@ -73,6 +73,7 @@ export function DocumentTemplate({ document }) {
             </div>
             <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
                 <div className="flex flex-wrap gap-2 max-w-[70%]">
+                    {isLesson && <Tag size="small" className="px-2 py-1 text-sm text-[#f8f8ff]" value="lesson" />}
                     {document?.topics?.map((topic, index) => (
                         <Tag size="small" key={index} className="px-2 py-1 text-sm text-[#f8f8ff]">
                             {topic}

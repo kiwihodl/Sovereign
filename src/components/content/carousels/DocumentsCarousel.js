@@ -29,6 +29,7 @@ const responsiveOptions = [
 export default function DocumentsCarousel() {
     const [processedDocuments, setProcessedDocuments] = useState([]);
     const [paidLessons, setPaidLessons] = useState([]);
+    const [freeLessons, setFreeLessons] = useState([]);
     const { documents, documentsLoading, documentsError } = useDocuments()
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 450;
@@ -40,6 +41,8 @@ export default function DocumentsCarousel() {
                 res.data.forEach(lesson => {
                     if (lesson?.resource?.price > 0) {
                         setPaidLessons(prev => [...prev, lesson?.resourceId]);
+                    } else {
+                        setFreeLessons(prev => [...prev, lesson?.resourceId]);
                     }
                 });
             }
@@ -91,7 +94,7 @@ export default function DocumentsCarousel() {
                 }}
                 itemTemplate={(item) => 
                         processedDocuments.length > 0 ? 
-                        <DocumentTemplate key={item.id} document={item} /> : 
+                        <DocumentTemplate key={item.id} document={item} isLesson={freeLessons.includes(item.d)} /> : 
                         <TemplateSkeleton key={Math.random()} />
                 }
                 responsiveOptions={responsiveOptions} />

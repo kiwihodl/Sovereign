@@ -9,6 +9,7 @@ import { useDecryptContent } from "@/hooks/encryption/useDecryptContent";
 import { useToast } from "@/hooks/useToast";
 import { useRouter } from "next/router";
 import { ProgressSpinner } from 'primereact/progressspinner';
+import axios from 'axios';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import { appConfig } from "@/config/appConfig";
 
@@ -19,11 +20,24 @@ const Details = () => {
     const [decryptedContent, setDecryptedContent] = useState(null);
     const [authorView, setAuthorView] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [lessons, setLessons] = useState([]);
     const { data: session } = useSession();
     const { ndk } = useNDKContext();
     const { decryptContent } = useDecryptContent();
     const router = useRouter();
     const { showToast } = useToast();
+
+    useEffect(() => {
+        axios.get('/api/lessons').then(res => {
+            if (res.data) {
+                res.data.forEach(lesson => {
+                    setLessons(prev => [...prev, lesson?.resourceId]);
+                });
+            }
+        }).catch(err => {
+            console.log('err', err);
+        });
+    }, []);
 
     const fetchAuthor = useCallback(async (pubkey) => {
         if (!pubkey) return;
@@ -140,6 +154,7 @@ const Details = () => {
                 price={event.price}
                 author={author}
                 paidResource={!!event.price}
+                isLesson={lessons.includes(event.d)}
                 nAddress={nAddress}
                 decryptedContent={decryptedContent}
                 handlePaymentSuccess={handlePaymentSuccess}

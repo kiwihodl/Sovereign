@@ -14,7 +14,6 @@ const useTrackDocumentLesson = ({ lessonId, courseId, readTime, paidCourse, decr
   useEffect(() => {
     if (session?.user?.role?.admin) {
       setIsAdmin(true);
-      setIsCompleted(true); // Automatically mark as completed for admins
     }
   }, [session]);
 

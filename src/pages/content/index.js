@@ -12,7 +12,8 @@ import { useRouter } from 'next/router';
 
 const MenuTab = ({ items, selectedTopic, onTabChange }) => {
     const router = useRouter();
-    const allItems = ['All', ...items];
+    // spread the items except for 'document' 'video' and 'course'
+    const allItems = ['All', ...items.filter(item => item !== 'document' && item !== 'video' && item !== 'course')];
 
     const menuItems = allItems.map((item, index) => {
         let icon = 'pi pi-tag';
