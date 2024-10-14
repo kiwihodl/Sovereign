@@ -5,9 +5,10 @@ import CourseDetails from "@/components/content/courses/CourseDetails";
 import VideoLesson from "@/components/content/courses/VideoLesson";
 import DocumentLesson from "@/components/content/courses/DocumentLesson";
 import { useNDKContext } from "@/context/NDKContext";
-import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
+import axios from "axios";
 import { nip04, nip19 } from 'nostr-tools';
+import { useToast } from "@/hooks/useToast";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Tag } from 'primereact/tag';
@@ -21,48 +22,75 @@ const useCourseData = (ndk, fetchAuthor, router) => {
     const [lessonIds, setLessonIds] = useState([]);
     const [paidCourse, setPaidCourse] = useState(null);
     const [loading, setLoading] = useState(true);
+    const { showToast } = useToast();
 
     useEffect(() => {
-        if (router.isReady) {
-            const { slug } = router.query;
-            let id;
+        if (!router.isReady) return;
+
+        const { slug } = router.query;
+        let id;
+
+        const fetchCourseId = async () => {
             if (slug.includes("naddr")) {
                 const { data } = nip19.decode(slug);
-                if (!data) {
-                    showToast('error', 'Error', 'Course not found');
-                    setLoading(false);
-                    return;
+                if (!data?.identifier) {
+                    showToast('error', 'Error', 'Resource not found');
+                    return null;
                 }
-                id = data?.identifier;
-            } else {
-                id = slug;
+                return data.identifier;
+            } else if (slug.includes("-")) {
+                try {
+                    const res = await axios.get(`/api/courses/${slug}`);
+                    return res.data?.noteId;
+                } catch (err) {
+                    console.error('Error fetching course:', err);
+                    showToast('error', 'Error', 'Course not found');
+                    return null;
+                }
+            }
+            return slug;
+        };
+
+        const fetchCourse = async (courseId) => {
+            try {
+                await ndk.connect();
+                const event = await ndk.fetchEvent({ ids: [courseId] });
+                if (!event) return null;
+
+                const author = await fetchAuthor(event.pubkey);
+                const lessonIds = event.tags
+                    .filter(tag => tag[0] === 'a')
+                    .map(tag => tag[1].split(':')[2]);
+                
+                const parsedCourse = { ...parseCourseEvent(event), author };
+                return { parsedCourse, lessonIds };
+            } catch (error) {
+                console.error('Error fetching event:', error);
+                return null;
+            }
+        };
+
+        const initializeCourse = async () => {
+            setLoading(true);
+            id = await fetchCourseId();
+            console.log('id', id);
+            if (!id) {
+                setLoading(false);
+                return;
             }
 
-            const fetchCourse = async (id) => {
-                try {
-                    await ndk.connect();
-                    const filter = { ids: [id] };
-                    const event = await ndk.fetchEvent(filter);
-                    if (event) {
-                        const author = await fetchAuthor(event.pubkey);
-                        const aTags = event.tags.filter(tag => tag[0] === 'a');
-                        const lessonIds = aTags.map(tag => tag[1].split(':')[2]);
-                        setLessonIds(lessonIds);
-                        const parsedCourse = { ...parseCourseEvent(event), author };
-                        setCourse(parsedCourse);
-                        setPaidCourse(parsedCourse.price && parsedCourse.price > 0);
-                    }
-                    setLoading(false);
-                } catch (error) {
-                    console.error('Error fetching event:', error);
-                    setLoading(false);
-                }
-            };
-            if (ndk && id) {
-                fetchCourse(id);
+            const courseData = await fetchCourse(id);
+            if (courseData) {
+                const { parsedCourse, lessonIds } = courseData;
+                setCourse(parsedCourse);
+                setLessonIds(lessonIds);
+                setPaidCourse(parsedCourse.price && parsedCourse.price > 0);
             }
-        }
-    }, [router.isReady, router.query, ndk, fetchAuthor]);
+            setLoading(false);
+        };
+
+        initializeCourse();
+    }, [router.isReady, router.query, ndk, fetchAuthor, showToast]);
 
     return { course, lessonIds, paidCourse, loading };
 };
@@ -70,7 +98,7 @@ const useCourseData = (ndk, fetchAuthor, router) => {
 const useLessons = (ndk, fetchAuthor, lessonIds, pubkey) => {
     const [lessons, setLessons] = useState([]);
     const [uniqueLessons, setUniqueLessons] = useState([]);
-
+    const { showToast } = useToast();
     useEffect(() => {
         if (lessonIds.length > 0) {
             const fetchLesson = async (lessonId) => {
