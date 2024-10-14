@@ -45,7 +45,7 @@ export function DocumentTemplate({ document }) {
     if (zapsError) return <div>Error: {zapsError}</div>;
 
     return (
-        <Card className="w-full overflow-hidden group hover:shadow-xl transition-all duration-300 bg-gray-800 m-2 border-none">
+        <Card className="overflow-hidden group hover:shadow-xl transition-all duration-300 bg-gray-800 m-2 border-none">
             <div
                 className="relative w-full h-0"
                 style={{ paddingBottom: "56.25%" }}
@@ -79,29 +79,29 @@ export function DocumentTemplate({ document }) {
                         </Tag>
                     ))}
                 </div>
-                <p className="font-bold text-gray-300">{document?.readTime || "5min"} read</p>
+                <div className="flex flex-col items-end">
+                    <p className="font-bold text-gray-300">{document?.readTime || "5 min"} read</p>
+                    <div className="flex flex-col items-end">
+                        {
+                            document?.price && document?.price > 0 ? (
+                                <Message className={`${isMobile ? "text-xs" : "text-base"} py-1 whitespace-nowrap`} icon="pi pi-lock" severity="info" text={`${document.price} sats`} />
+                            ) : (
+                                <Message className={`${isMobile ? "text-xs" : "text-base"} py-1 whitespace-nowrap`} icon="pi pi-lock-open" severity="success" text="Free" />
+                            )
+                        }
+                    </div>
+                </div>
             </CardContent>
-            <CardDescription className={`${isMobile ? "p-3" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center max-w-[100%]`}
+            <CardDescription className={`${isMobile ? "w-full p-3" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center max-w-[100%]`}
                 style={{
                     overflow: "hidden",
                     display: "-webkit-box",
                     WebkitBoxOrient: "vertical",
                     WebkitLineClamp: "2"
-            }}>
-                <div className="w-full flex flex-row justify-between items-start break-words">
-                    <p className="line-clamp-2 text-wrap break-words overflow-hidden">{(document.summary || document.description)?.split('\n').map((line, index) => (
-                        <span className="text-wrap break-words overflow-hidden" key={index}>{line}</span>
-                    ))}</p>
-                    <div className="flex flex-col items-end">
-                        {
-                            document?.price && document?.price > 0 ? (
-                                <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock" severity="info" text={`${document.price} sats`} />
-                            ) : (
-                                <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock-open" severity="success" text="Free" />
-                            )
-                        }
-                    </div>
-                </div>
+                }}>
+                <p className="line-clamp-2 text-wrap break-words overflow-hidden">{(document.summary || document.description)?.split('\n').map((line, index) => (
+                    <span className="text-wrap break-words overflow-hidden" key={index}>{line}</span>
+                ))}</p>
             </CardDescription>
             <CardFooter className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4 ${isMobile ? "px-3" : ""}`}>
                 <p className="text-sm text-gray-300">{document?.published_at && document.published_at !== "" ? (

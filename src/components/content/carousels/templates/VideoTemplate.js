@@ -80,29 +80,29 @@ export function VideoTemplate({ video }) {
                         </Tag>
                     ))}
                 </div>
-                <p className="font-bold text-gray-300">{video?.duration || "5min"} watch</p>
+                <div className="flex flex-col items-end">
+                    <p className="font-bold text-gray-300">{video?.duration || "5 min"} watch</p>
+                    <div className="flex flex-col items-end">
+                        {
+                            video?.price && video?.price > 0 ? (
+                                <Message className={`${isMobile ? "text-xs" : "text-base"} py-1 whitespace-nowrap`} icon="pi pi-lock" severity="info" text={`${video.price} sats`} />
+                            ) : (
+                                <Message className={`${isMobile ? "text-xs" : "text-base"} py-1 whitespace-nowrap`} icon="pi pi-lock-open" severity="success" text="Free" />
+                            )
+                        }
+                    </div>
+                </div>
             </CardContent>
-            <CardDescription className={`${isMobile ? "p-3" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center max-w-[100%]`}
+            <CardDescription className={`${isMobile ? "w-full p-3" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center max-w-[100%]`}
                 style={{
                     overflow: "hidden",
                     display: "-webkit-box",
                     WebkitBoxOrient: "vertical",
                     WebkitLineClamp: "2"
-            }}>
-                <div className="w-full flex flex-row justify-between items-start">
-                    <p className="line-clamp-2 text-wrap break-words">{(video.summary || video.description)?.split('\n').map((line, index) => (
-                        <span className="text-wrap break-words" key={index}>{line}</span>
-                    ))}</p>
-                    <div className="flex flex-col items-end">
-                        {
-                            video?.price && video?.price > 0 ? (
-                                <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock" severity="info" text={`${video.price} sats`} />
-                            ) : (
-                                <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock-open" severity="success" text="Free" />
-                            )
-                        }
-                    </div>
-                </div>
+                }}>
+                <p className="line-clamp-2 text-wrap break-words">{(video.summary || video.description)?.split('\n').map((line, index) => (
+                    <span className="text-wrap break-words" key={index}>{line}</span>
+                ))}</p>
             </CardDescription>
             <CardFooter className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4 ${isMobile ? "px-3" : ""}`}>
                 <p className="text-sm text-gray-300">{video?.published_at && video.published_at !== "" ? (

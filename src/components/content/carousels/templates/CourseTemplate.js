@@ -62,7 +62,7 @@ export function CourseTemplate({ course }) {
         style={{ paddingBottom: "56.25%" }}
       >
         <Image
-          alt="course thumbnail"
+          alt="video thumbnail"
           src={returnImageProxy(course.image)}
           quality={100}
           layout="fill"
@@ -70,14 +70,14 @@ export function CourseTemplate({ course }) {
           className="rounded-md"
         />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary-foreground/50" />
-        <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/50 text-white px-2 py-1 rounded-full z-10">
+        <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/50 text-white px-3 py-1 rounded-full">
           <ZapDisplay zapAmount={zapAmount} event={course} zapsLoading={zapsLoading && zapAmount === 0} />
         </div>
         <CardHeader className="absolute bottom-[-8px] left-0 right-0 text-white bg-gray-800/70 w-fit rounded-lg rounded-bl-none rounded-tl-none rounded-br-none p-4 max-w-[70%] max-h-[60%]">
           <div className="flex items-center justify-center gap-4">
             <i className="pi pi-book text-2xl text-[#f8f8ff]"></i>
             <div>
-              <CardTitle className="text-2xl sm:text-3xl mb-2">{course.name || course.title}</CardTitle>
+              <CardTitle className="text-2xl sm:text-3xl mb-2">{course.title}</CardTitle>
             </div>
           </div>
         </CardHeader>
@@ -90,19 +90,8 @@ export function CourseTemplate({ course }) {
             </Tag>
           ))}
         </div>
-        <p className="font-bold text-gray-300">{lessonCount} {lessonCount === 1 ? "lesson" : "lessons"}</p>
-      </CardContent>
-      <CardDescription className={`${isMobile ? "p-3" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center max-w-[100%]`}
-        style={{
-          overflow: "hidden",
-          display: "-webkit-box",
-          WebkitBoxOrient: "vertical",
-          WebkitLineClamp: "2"
-        }}>
-        <div className="w-full flex flex-row justify-between items-start">
-          <p className="line-clamp-2 text-wrap break-words">{(course.summary || course.description)?.split('\n').map((line, index) => (
-            <span className="text-wrap break-words" key={index}>{line}</span>
-          ))}</p>
+        <div className="flex flex-col items-end">
+          <p className="font-bold text-gray-300">{lessonCount} {lessonCount === 1 ? "lesson" : "lessons"}</p>
           <div className="flex flex-col items-end">
             {
               course?.price && course?.price > 0 ? (
@@ -113,6 +102,17 @@ export function CourseTemplate({ course }) {
             }
           </div>
         </div>
+      </CardContent>
+      <CardDescription className={`${isMobile ? "w-full p-3" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center max-w-[100%]`}
+                style={{
+                    overflow: "hidden",
+                    display: "-webkit-box",
+                    WebkitBoxOrient: "vertical",
+                    WebkitLineClamp: "2"
+                }}>
+        <p className="line-clamp-2 text-wrap break-words">{(course.summary || course.description)?.split('\n').map((line, index) => (
+          <span className="text-wrap break-words" key={index}>{line}</span>
+        ))}</p>
       </CardDescription>
       <CardFooter className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4 ${isMobile ? "px-3" : ""}`}>
         <p className="text-sm text-gray-300">{course?.published_at && course.published_at !== "" ? (
