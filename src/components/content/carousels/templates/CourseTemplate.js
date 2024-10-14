@@ -85,12 +85,12 @@ export function CourseTemplate({ course }) {
       <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
         <div className="flex flex-wrap gap-2 max-w-[70%]">
           {course && course.topics && course.topics.map((topic, index) => (
-            <Tag size="small" key={index} className="px-3 py-1 text-sm text-[#f8f8ff]">
+            <Tag size="small" key={index} className="px-2 py-1 text-sm text-[#f8f8ff]">
               {topic}
             </Tag>
           ))}
         </div>
-        <p className="font-bold text-gray-300 min-w-[5%]">{lessonCount} {lessonCount === 1 ? "lesson" : "lessons"}</p>
+        <p className="font-bold text-gray-300">{lessonCount} {lessonCount === 1 ? "lesson" : "lessons"}</p>
       </CardContent>
       <CardDescription className={`${isMobile ? "p-3" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center max-w-[100%]`}
         style={{
