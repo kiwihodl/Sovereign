@@ -135,7 +135,7 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
             {renderContent()}
             <div className="bg-gray-800/90 rounded-lg p-4 m-4 max-mob:m-0 max-tab:m-0 max-mob:rounded-t-none max-tab:rounded-t-none">
                 <div className={`w-full flex flex-col items-start justify-start mt-2 px-2 ${isMobileView ? 'flex-col' : 'flex-row'}`}>
-                    <div className={`flex ${isMobileView ? 'flex-col' : 'flex-row'} items-center gap-2 w-full`}>
+                    <div className="flex flex-row items-center gap-2 w-full">
                         <h1 className='text-4xl'>{title}</h1>
                         {topics && topics.length > 0 && (
                             topics.map((topic, index) => (
