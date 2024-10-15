@@ -134,15 +134,17 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
         <div className="w-full">
             {renderContent()}
             <div className="bg-gray-800/90 rounded-lg p-4 m-4 max-mob:m-0 max-tab:m-0 max-mob:rounded-t-none max-tab:rounded-t-none">
-                <div className={`w-full flex flex-col items-start justify-start mt-2 px-2 ${isMobileView ? 'flex-col' : 'flex-row'}`}>
-                    <div className="flex flex-row items-center gap-2 w-full">
+                <div className={`w-full flex flex-col items-start justify-start mt-2 px-2`}>
+                    <div className="flex flex-col items-start gap-2 w-full">
                         <h1 className='text-4xl'>{title}</h1>
-                        {topics && topics.length > 0 && (
-                            topics.map((topic, index) => (
-                                <Tag className='mt-2 text-white' key={index} value={topic}></Tag>
-                            ))
-                        )}
-                        {isLesson && <Tag className="mt-2 text-white" value="lesson" />}
+                        <div className="flex flex-row items-center gap-2 w-full">
+                            {topics && topics.length > 0 && (
+                                topics.map((topic, index) => (
+                                    <Tag className='mt-2 text-white' key={index} value={topic}></Tag>
+                                ))
+                            )}
+                            {isLesson && <Tag className="mt-2 text-white" value="lesson" />}
+                        </div>
                     </div>
                     <div className='flex flex-row items-center justify-between w-full'>
                         <div className="mt-4 max-mob:text-base max-tab:text-base">
@@ -176,14 +178,14 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                         </div>
                         {authorView ? (
                             <div className='flex flex-row justify-center items-center space-x-2'>
-                                <GenericButton onClick={() => router.push(`/details/${nAddress}/edit`)} label="Edit" severity='warning' outlined />
-                                <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
-                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={isMobileView ? null : "View Nostr Event"} tooltipOptions={{ position: 'right' }} />
+                                <GenericButton size={isMobileView ? 'small' : 'large'} onClick={() => router.push(`/details/${nAddress}/edit`)} label="Edit" severity='warning' outlined />
+                                <GenericButton size={isMobileView ? 'small' : 'large'} onClick={handleDelete} label="Delete" severity='danger' outlined />
+                                <GenericButton size={isMobileView ? 'small' : 'large'} outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={isMobileView ? null : "View Nostr Event"} tooltipOptions={{ position: 'right' }} />
                             </div>
                         ) : (
                             <div className='flex flex-row justify-center items-center space-x-2'>
-                                {course && <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`/course/${course}`, '_blank')} label="Open Course" tooltip="This is a lesson in a course" tooltipOptions={{ position: 'top' }} />}
-                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={isMobileView ? null : "View Nostr Event"} tooltipOptions={{ position: paidResource ? 'left' : 'right' }} />
+                                {course && <GenericButton size={isMobileView ? 'small' : 'large'} outlined icon="pi pi-external-link" onClick={() => window.open(`/course/${course}`, '_blank')} label={isMobileView ? "Course" : "Open Course"} tooltip="This is a lesson in a course" tooltipOptions={{ position: 'top' }} />}
+                                <GenericButton size={isMobileView ? 'small' : 'large'} outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={isMobileView ? null : "View Nostr Event"} tooltipOptions={{ position: paidResource ? 'left' : 'right' }} />
                             </div>
                         )}
                     </div>
