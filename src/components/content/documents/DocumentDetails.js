@@ -144,12 +144,12 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                     <div className="flex flex-row items-center justify-between w-full">
                         <h1 className='text-4xl font-bold text-white'>{title}</h1>
                         <div className="flex flex-wrap gap-2">
-                            {isLesson && <Tag size="small" className="text-[#f8f8ff]" value="lesson" />}
                             {topics && topics.length > 0 && (
                                 topics.map((topic, index) => (
                                     <Tag className='text-[#f8f8ff]' key={index} value={topic}></Tag>
                                 ))
                             )}
+                            {isLesson && <Tag size="small" className="text-[#f8f8ff]" value="lesson" />}
                         </div>
                     </div>
                     {(summary)?.split('\n').map((line, index) => (

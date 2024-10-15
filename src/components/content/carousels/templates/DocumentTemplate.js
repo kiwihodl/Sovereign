@@ -73,12 +73,12 @@ export function DocumentTemplate({ document, isLesson }) {
             </div>
             <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-start`}>
                 <div className="flex flex-wrap gap-2 max-w-[65%]">
-                    {isLesson && <Tag size="small" className="px-2 py-1 text-sm text-[#f8f8ff]" value="lesson" />}
                     {document?.topics?.map((topic, index) => (
                         <Tag size="small" key={index} className="px-2 py-1 text-sm text-[#f8f8ff]">
                             {topic}
                         </Tag>
                     ))}
+                    {isLesson && <Tag size="small" className="px-2 py-1 text-sm text-[#f8f8ff]" value="lesson" />}
                 </div>
                 <div className="flex flex-col items-end">
                     <p className="font-bold text-gray-300">{document?.readTime || "5 min"} read</p>

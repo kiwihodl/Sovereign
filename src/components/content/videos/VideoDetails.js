@@ -137,13 +137,12 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                 <div className="w-full flex flex-col items-start justify-start mt-2 px-2">
                     <div className="flex flex-row items-center gap-2 w-full">
                         <h1 className='text-4xl'>{title}</h1>
-                        {isLesson && <Tag className="mt-2 text-white" value="lesson" />}
                         {topics && topics.length > 0 && (
                             topics.map((topic, index) => (
                                 <Tag className='mt-2 text-white' key={index} value={topic}></Tag>
                             ))
-                        )
-                        }
+                        )}
+                        {isLesson && <Tag className="mt-2 text-white" value="lesson" />}
                     </div>
                     <div className='flex flex-row items-center justify-between w-full'>
                         <div className="mt-4 max-mob:text-base max-tab:text-base">
