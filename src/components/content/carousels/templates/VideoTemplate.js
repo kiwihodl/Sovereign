@@ -72,8 +72,8 @@ export function VideoTemplate({ video, isLesson }) {
                     </div>
                 </CardHeader>
             </div>
-            <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-center`}>
-                <div className="flex flex-wrap gap-2 max-w-[70%]">
+            <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-start`}>
+                <div className="flex flex-wrap gap-2 max-w-[65%]">
                     {isLesson && <Tag size="small" className="px-3 py-1 text-sm text-[#f8f8ff]" value="lesson" />}
                     {video?.topics?.map((topic, index) => (
                         <Tag size="small" key={index} className="px-3 py-1 text-sm text-[#f8f8ff]">

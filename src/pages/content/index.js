@@ -12,8 +12,10 @@ import { useRouter } from 'next/router';
 
 const MenuTab = ({ items, selectedTopic, onTabChange }) => {
     const router = useRouter();
-    // spread the items except for 'document' 'video' and 'course'
-    const allItems = ['All', ...items.filter(item => item !== 'document' && item !== 'video' && item !== 'course')];
+    // Reorder items to put 'Free' and 'Paid' after 'Courses', 'Videos', and 'Documents'
+    const priorityItems = ['All', 'Courses', 'Videos', 'Documents', 'Free', 'Paid'];
+    const otherItems = items.filter(item => !priorityItems.includes(item) && item !== 'document' && item !== 'video' && item !== 'course');
+    const allItems = [...priorityItems, ...otherItems];
 
     const menuItems = allItems.map((item, index) => {
         let icon = 'pi pi-tag';
@@ -21,6 +23,8 @@ const MenuTab = ({ items, selectedTopic, onTabChange }) => {
         else if (item === 'Documents') icon = 'pi pi-file';
         else if (item === 'Videos') icon = 'pi pi-video';
         else if (item === 'Courses') icon = 'pi pi-desktop';
+        else if (item === 'Free') icon = 'pi pi-lock-open';
+        else if (item === 'Paid') icon = 'pi pi-lock';
 
         const queryParam = item === 'all' ? '' : `?tag=${item.toLowerCase()}`;
         const isActive = router.asPath === `/content${queryParam}`;
@@ -118,7 +122,7 @@ const ContentPage = () => {
         setAllContent(allContent);
 
         const uniqueTopics = new Set(allContent.map(item => item.topics).flat());
-        const priorityItems = ['All', 'Courses', 'Videos', 'Documents'];
+        const priorityItems = ['All', 'Courses', 'Videos', 'Documents', 'Free', 'Paid'];
         const otherTopics = Array.from(uniqueTopics).filter(topic => !priorityItems.includes(topic));
         const combinedTopics = [...priorityItems.slice(1), ...otherTopics];
         setAllTopics(combinedTopics);
@@ -130,10 +134,16 @@ const ContentPage = () => {
 
     const filterContent = (topic, content) => {
         let filtered = content;
+        console.log('topic', topic);
+        console.log('content', content);
         if (topic !== 'All') {
             const topicLower = topic.toLowerCase();
             if (['courses', 'videos', 'documents'].includes(topicLower)) {
                 filtered = content.filter(item => item.type === topicLower.slice(0, -1));
+            } else if (topicLower === 'free') {
+                filtered = content.filter(item => !item.price || Number(item.price) === 0);
+            } else if (topicLower === 'paid') {
+                filtered = content.filter(item => item.price && Number(item.price) > 0);
             } else {
                 filtered = content.filter(item => item.topics && item.topics.includes(topic.toLowerCase()));
             }
@@ -167,7 +177,7 @@ const ContentPage = () => {
                 <h1 className="text-3xl font-bold mb-4 ml-1">All Content</h1>
             </div>
             <MenuTab
-                items={['Courses', 'Videos', 'Documents', ...allTopics.filter(topic => !['Courses', 'Videos', 'Documents'].includes(topic))]}
+                items={allTopics}
                 selectedTopic={selectedTopic}
                 onTabChange={handleTopicChange}
                 className="max-w-[90%] mx-auto"
