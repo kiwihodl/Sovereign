@@ -2,10 +2,13 @@ import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import ZapForm from './ZapForm';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import useWindowWidth from '@/hooks/useWindowWidth';
 
 const ZapDisplay = ({ zapAmount, event, zapsLoading }) => {
     const op = useRef(null);
     const [extraLoading, setExtraLoading] = useState(false);
+    const windowWidth = useWindowWidth();
+    const isMobile = windowWidth < 768;
 
     useMemo(() => {
         let timeout;
@@ -28,7 +31,7 @@ const ZapDisplay = ({ zapAmount, event, zapsLoading }) => {
                     )}
                 </span>
             </span>
-            <OverlayPanel className='w-[40%] h-[40%]' ref={op}>
+            <OverlayPanel className={`${isMobile ? 'w-[90%] h-[90%]' : 'w-[50%] h-[50%]'}`} ref={op}>
                 <ZapForm event={event} />
             </OverlayPanel>
         </>
