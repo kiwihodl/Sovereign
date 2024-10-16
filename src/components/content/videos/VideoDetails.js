@@ -51,10 +51,6 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
         }
     }, [zaps, processedEvent]);
 
-    useEffect(() => {
-        console.log("author", author);
-    }, [author]);
-
     const handleDelete = async () => {
         try {
             const response = await axios.delete(`/api/resources/${processedEvent.d}`);
