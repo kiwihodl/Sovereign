@@ -148,11 +148,14 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                         <p key={index}>{line}</p>
                     ))}
                     {processedEvent?.additionalLinks && processedEvent?.additionalLinks.length > 0 && (
-                        processedEvent?.additionalLinks.map((link, index) => (
-                            <a key={index} href={link} target="_blank" rel="noopener noreferrer">
-                                {link}
-                            </a>
-                        ))
+                        <>
+                            <p>Additional Links:</p>
+                            {processedEvent.additionalLinks.map((link, index) => (
+                                <a className="text-blue-500 hover:underline hover:text-blue-600" key={index} href={link} target="_blank" rel="noopener noreferrer">
+                                    {link}
+                                </a>
+                            ))}
+                        </>
                     )}
                     <div className='flex items-center justify-between'>
                         <div className='flex items-center'>

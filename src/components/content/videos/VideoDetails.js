@@ -148,11 +148,14 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                                 <p key={index}>{line}</p>
                             ))}
                             {processedEvent?.additionalLinks && processedEvent?.additionalLinks.length > 0 && (
-                                processedEvent?.additionalLinks.map((link, index) => (
-                                    <a key={index} href={link} target="_blank" rel="noopener noreferrer">
-                                        {link}
-                                    </a>
-                                ))
+                                <>
+                                    <p>Additional Links:</p>
+                                    {processedEvent.additionalLinks.map((link, index) => (
+                                        <a className="text-blue-500 hover:underline hover:text-blue-600" key={index} href={link} target="_blank" rel="noopener noreferrer">
+                                            {link}
+                                        </a>
+                                    ))}
+                                </>
                             )}
                         </div>
                         <ZapDisplay
@@ -160,37 +163,6 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                             event={processedEvent}
                             zapsLoading={zapsLoading && zapAmount === 0}
                         />
-                    </div>
-                </div>
-                <div className='w-full flex flex-col space-y-4 mt-4'>
-                    <div className='flex flex-row justify-between items-center'>
-                        <div className='flex flex-row w-fit items-center'>
-                            <Image
-                                alt="avatar image"
-                                src={returnImageProxy(author?.avatar, author?.username)}
-                                width={50}
-                                height={50}
-                                className="rounded-full mr-4"
-                            />
-                            <p className='text-lg'>
-                                Created by{' '}
-                                <a rel='noreferrer noopener' target='_blank' className='text-blue-500 hover:underline'>
-                                    {author?.username}
-                                </a>
-                            </p>
-                        </div>
-                        {authorView ? (
-                            <div className='flex flex-row justify-center items-center space-x-2'>
-                                <GenericButton size={isMobileView ? 'small' : 'large'} onClick={() => router.push(`/details/${processedEvent.d}/edit`)} label="Edit" severity='warning' outlined />
-                                <GenericButton size={isMobileView ? 'small' : 'large'} onClick={handleDelete} label="Delete" severity='danger' outlined />
-                                <GenericButton size={isMobileView ? 'small' : 'large'} outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={isMobileView ? null : "View Nostr Event"} tooltipOptions={{ position: 'right' }} />
-                            </div>
-                        ) : (
-                            <div className='flex flex-row justify-center items-center space-x-2'>
-                                {course && <GenericButton size={isMobileView ? 'small' : 'large'} outlined icon="pi pi-external-link" onClick={() => window.open(`/course/${course}`, '_blank')} label={isMobileView ? "Course" : "Open Course"} tooltip="This is a lesson in a course" tooltipOptions={{ position: 'top' }} />}
-                                <GenericButton size={isMobileView ? 'small' : 'large'} outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={isMobileView ? null : "View Nostr Event"} tooltipOptions={{ position: paidResource ? 'left' : 'right' }} />
-                            </div>
-                        )}
                     </div>
                 </div>
                 <div className="w-full flex flex-row justify-end mt-4">
