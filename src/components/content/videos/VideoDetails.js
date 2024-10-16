@@ -132,7 +132,14 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
             <div className="bg-gray-800/90 rounded-lg p-4 m-4 max-mob:m-0 max-tab:m-0 max-mob:rounded-t-none max-tab:rounded-t-none">
                 <div className={`w-full flex flex-col items-start justify-start mt-2 px-2`}>
                     <div className="flex flex-col items-start gap-2 w-full">
-                        <h1 className='text-4xl'>{title}</h1>
+                        <div className="flex flex-row items-center justify-between gap-2 w-full">
+                            <h1 className='text-4xl flex-grow'>{title}</h1>
+                            <ZapDisplay
+                                zapAmount={zapAmount}
+                                event={processedEvent}
+                                zapsLoading={zapsLoading && zapAmount === 0}
+                            />
+                        </div>
                         <div className="flex flex-row items-center gap-2 w-full">
                             {topics && topics.length > 0 && (
                                 topics.map((topic, index) => (
@@ -148,36 +155,31 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                                 <p key={index}>{line}</p>
                             ))}
                             {processedEvent?.additionalLinks && processedEvent?.additionalLinks.length > 0 && (
-                                <>
+                                <div className="my-4">
                                     <p>Additional Links:</p>
                                     {processedEvent.additionalLinks.map((link, index) => (
                                         <a className="text-blue-500 hover:underline hover:text-blue-600" key={index} href={link} target="_blank" rel="noopener noreferrer">
                                             {link}
                                         </a>
                                     ))}
-                                </>
+                                </div>
                             )}
                         </div>
-                        <div className='flex items-center'>
-                            <Image
-                                alt="avatar image"
-                                src={returnImageProxy(author?.avatar, author?.username)}
-                                width={50}
-                                height={50}
-                                className="rounded-full mr-4"
-                            />
-                            <p className='text-lg text-white'>
-                                By{' '}
-                                <a rel='noreferrer noopener' target='_blank' className='text-blue-300 hover:underline'>
-                                    {author?.username}
-                                </a>
-                            </p>
-                        </div>
-                        <ZapDisplay
-                            zapAmount={zapAmount}
-                            event={processedEvent}
-                            zapsLoading={zapsLoading && zapAmount === 0}
+                    </div>
+                    <div className='flex items-center'>
+                        <Image
+                            alt="avatar image"
+                            src={returnImageProxy(author?.avatar, author?.username)}
+                            width={50}
+                            height={50}
+                            className="rounded-full mr-4"
                         />
+                        <p className='text-lg text-white'>
+                            By{' '}
+                            <a rel='noreferrer noopener' target='_blank' className='text-blue-300 hover:underline'>
+                                {author?.username}
+                            </a>
+                        </p>
                     </div>
                 </div>
                 <div className="w-full flex flex-row justify-end mt-4">

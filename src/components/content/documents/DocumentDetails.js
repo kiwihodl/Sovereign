@@ -148,14 +148,14 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                         <p key={index}>{line}</p>
                     ))}
                     {processedEvent?.additionalLinks && processedEvent?.additionalLinks.length > 0 && (
-                        <>
+                        <div className="my-4">
                             <p>Additional Links:</p>
                             {processedEvent.additionalLinks.map((link, index) => (
                                 <a className="text-blue-500 hover:underline hover:text-blue-600" key={index} href={link} target="_blank" rel="noopener noreferrer">
                                     {link}
                                 </a>
                             ))}
-                        </>
+                        </div>
                     )}
                     <div className='flex items-center justify-between'>
                         <div className='flex items-center'>
@@ -183,7 +183,7 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                         {renderPaymentMessage()}
                         {authorView ? (
                             <div className='flex space-x-2 mt-4 sm:mt-0'>
-                                <GenericButton onClick={() => router.push(`/details/${processedEvent.d}/edit`)} label="Edit" severity='warning' outlined />
+                                <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
                                 <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
                                 <GenericButton
                                     tooltip={isMobileView ? null : "View Nostr Note"}
