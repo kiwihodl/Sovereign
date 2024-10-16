@@ -158,6 +158,21 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                                 </>
                             )}
                         </div>
+                        <div className='flex items-center'>
+                            <Image
+                                alt="avatar image"
+                                src={returnImageProxy(author?.avatar, author?.username)}
+                                width={50}
+                                height={50}
+                                className="rounded-full mr-4"
+                            />
+                            <p className='text-lg text-white'>
+                                By{' '}
+                                <a rel='noreferrer noopener' target='_blank' className='text-blue-300 hover:underline'>
+                                    {author?.username}
+                                </a>
+                            </p>
+                        </div>
                         <ZapDisplay
                             zapAmount={zapAmount}
                             event={processedEvent}
