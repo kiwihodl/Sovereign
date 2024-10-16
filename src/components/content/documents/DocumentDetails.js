@@ -51,14 +51,6 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
         }
     }, [processedEvent.d, isLesson]);
 
-    useEffect(() => {
-        console.log("authorView", authorView);
-    }, [authorView]);
-
-    useEffect(() => {
-        console.log("author", author);
-    }, [author]);
-
     const handleDelete = async () => {
         try {
             const response = await axios.delete(`/api/resources/${processedEvent.d}`);
@@ -155,6 +147,13 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                     {(summary)?.split('\n').map((line, index) => (
                         <p key={index}>{line}</p>
                     ))}
+                    {processedEvent?.additionalLinks && processedEvent?.additionalLinks.length > 0 && (
+                        processedEvent?.additionalLinks.map((link, index) => (
+                            <a key={index} href={link} target="_blank" rel="noopener noreferrer">
+                                {link}
+                            </a>
+                        ))
+                    )}
                     <div className='flex items-center justify-between'>
                         <div className='flex items-center'>
                             <Image
@@ -181,7 +180,7 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                         {renderPaymentMessage()}
                         {authorView ? (
                             <div className='flex space-x-2 mt-4 sm:mt-0'>
-                                <GenericButton onClick={() => router.push(`/details/${nAddress}/edit`)} label="Edit" severity='warning' outlined />
+                                <GenericButton onClick={() => router.push(`/details/${processedEvent.d}/edit`)} label="Edit" severity='warning' outlined />
                                 <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
                                 <GenericButton
                                     tooltip={isMobileView ? null : "View Nostr Note"}

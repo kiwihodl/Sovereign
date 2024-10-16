@@ -147,6 +147,13 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                             {(summary)?.split('\n').map((line, index) => (
                                 <p key={index}>{line}</p>
                             ))}
+                            {processedEvent?.additionalLinks && processedEvent?.additionalLinks.length > 0 && (
+                                processedEvent?.additionalLinks.map((link, index) => (
+                                    <a key={index} href={link} target="_blank" rel="noopener noreferrer">
+                                        {link}
+                                    </a>
+                                ))
+                            )}
                         </div>
                         <ZapDisplay
                             zapAmount={zapAmount}
@@ -174,7 +181,7 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                         </div>
                         {authorView ? (
                             <div className='flex flex-row justify-center items-center space-x-2'>
-                                <GenericButton size={isMobileView ? 'small' : 'large'} onClick={() => router.push(`/details/${nAddress}/edit`)} label="Edit" severity='warning' outlined />
+                                <GenericButton size={isMobileView ? 'small' : 'large'} onClick={() => router.push(`/details/${processedEvent.d}/edit`)} label="Edit" severity='warning' outlined />
                                 <GenericButton size={isMobileView ? 'small' : 'large'} onClick={handleDelete} label="Delete" severity='danger' outlined />
                                 <GenericButton size={isMobileView ? 'small' : 'large'} outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={isMobileView ? null : "View Nostr Event"} tooltipOptions={{ position: 'right' }} />
                             </div>
