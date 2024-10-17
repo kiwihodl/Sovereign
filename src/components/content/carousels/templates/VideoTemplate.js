@@ -15,9 +15,8 @@ import useWindowWidth from "@/hooks/useWindowWidth";
 import GenericButton from "@/components/buttons/GenericButton";
 import appConfig from "@/config/appConfig";
 
-export function VideoTemplate({ video, isLesson }) {
+export function VideoTemplate({ video, isLesson, onZapAmountChange }) {
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: video });
-    const [nAddress, setNAddress] = useState(null);
     const [zapAmount, setZapAmount] = useState(0);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
@@ -40,8 +39,9 @@ export function VideoTemplate({ video, isLesson }) {
         if (zaps.length > 0) {
             const total = getTotalFromZaps(zaps, video);
             setZapAmount(total);
+            onZapAmountChange(video.id, total);
         }
-    }, [zaps, video]);
+    }, [zaps, video, onZapAmountChange]);
 
     if (zapsError) return <div>Error: {zapsError}</div>;
 

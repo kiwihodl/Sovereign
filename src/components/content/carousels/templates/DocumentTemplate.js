@@ -14,9 +14,8 @@ import useWindowWidth from "@/hooks/useWindowWidth";
 import GenericButton from "@/components/buttons/GenericButton";
 import appConfig from "@/config/appConfig";
 
-export function DocumentTemplate({ document, isLesson }) {
+export function DocumentTemplate({ document, isLesson, onZapAmountChange }) {
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: document });
-    const [nAddress, setNAddress] = useState(null);
     const [zapAmount, setZapAmount] = useState(0);
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
@@ -39,8 +38,9 @@ export function DocumentTemplate({ document, isLesson }) {
         if (zaps.length > 0) {
             const total = getTotalFromZaps(zaps, document);
             setZapAmount(total);
+            onZapAmountChange(document.id, total);
         }
-    }, [zaps, document]);
+    }, [zaps, document, onZapAmountChange]);
 
     if (zapsError) return <div>Error: {zapsError}</div>;
 

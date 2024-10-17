@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Carousel } from 'primereact/carousel';
 import { parseEvent } from '@/utils/nostr';
-import {VideoTemplate} from '@/components/content/carousels/templates/VideoTemplate';
+import { VideoTemplate } from '@/components/content/carousels/templates/VideoTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 import { useVideos } from '@/hooks/nostr/useVideos';
 import useWindowWidth from '@/hooks/useWindowWidth';
@@ -30,9 +30,14 @@ export default function VideosCarousel() {
     const [processedVideos, setProcessedVideos] = useState([]);
     const [paidLessons, setPaidLessons] = useState([]);
     const [freeLessons, setFreeLessons] = useState([]);
+    const [zapAmounts, setZapAmounts] = useState({});
     const { videos, videosLoading, videosError } = useVideos();
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 450;
+
+    const handleZapAmountChange = useCallback((videoId, amount) => {
+        setZapAmounts(prev => ({ ...prev, [videoId]: amount }));
+    }, []);
 
     useEffect(() => {
         axios.get('/api/lessons').then(res => {
@@ -55,12 +60,8 @@ export default function VideosCarousel() {
             try {
                 if (videos && videos.length > 0 && paidLessons.length > 0) {
                     const processedVideos = videos.map(video => parseEvent(video));
-                    
-                    const sortedVideos = processedVideos.sort((a, b) => b.created_at - a.created_at);
-
-                    // filter out videos that are in the paid lessons array
-                    const filteredVideos = sortedVideos.filter(video => !paidLessons.includes(video?.d));
-
+                    // Filter out videos that are in the paid lessons array
+                    const filteredVideos = processedVideos.filter(video => !paidLessons.includes(video?.d));
                     setProcessedVideos(filteredVideos);
                 } else {
                     console.log('No videos fetched or empty array returned');
@@ -71,6 +72,15 @@ export default function VideosCarousel() {
         };
         fetch();
     }, [videos, paidLessons]);
+
+    useEffect(() => {
+        if (Object.keys(zapAmounts).length === processedVideos.length) {
+            const sortedVideos = [...processedVideos].sort((a, b) => 
+                (zapAmounts[b.id] || 0) - (zapAmounts[a.id] || 0)
+            );
+            setProcessedVideos(sortedVideos);
+        }
+    }, [zapAmounts, processedVideos]);
 
     if (videosError) return <div>Error: {videosError}</div>;
 
@@ -92,7 +102,12 @@ export default function VideosCarousel() {
                 itemTemplate={(item) => 
                     !processedVideos.length ? 
                     <TemplateSkeleton key={Math.random()} /> : 
-                    <VideoTemplate key={item.id} video={item} isLesson={freeLessons.includes(item.d)} />
+                    <VideoTemplate 
+                        key={item.id} 
+                        video={item} 
+                        isLesson={freeLessons.includes(item.d)}
+                        onZapAmountChange={handleZapAmountChange}
+                    />
                 }
                 responsiveOptions={responsiveOptions}
             />
