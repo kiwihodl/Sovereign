@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { Carousel } from 'primereact/carousel';
 import { parseCourseEvent } from '@/utils/nostr';
 import { CourseTemplate } from '@/components/content/carousels/templates/CourseTemplate';
@@ -26,21 +26,20 @@ const responsiveOptions = [
 
 export default function CoursesCarousel() {
     const [processedCourses, setProcessedCourses] = useState([]);
-    const [zapAmounts, setZapAmounts] = useState({});
     const { courses, coursesLoading, coursesError } = useCourses()
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 450;
-
-    const handleZapAmountChange = useCallback((courseId, amount) => {
-        setZapAmounts(prev => ({ ...prev, [courseId]: amount }));
-    }, []);
 
     useEffect(() => {
         const fetch = async () => {
             try {
                 if (courses && courses.length > 0) {
                     const processedCourses = courses.map(course => parseCourseEvent(course));
-                    setProcessedCourses(processedCourses);
+                    
+                    // Sort courses by created_at in descending order (most recent first)
+                    const sortedCourses = processedCourses.sort((a, b) => b.created_at - a.created_at);
+
+                    setProcessedCourses(sortedCourses);
                 } else {
                     console.log('No courses fetched or empty array returned');
                 }
@@ -50,15 +49,6 @@ export default function CoursesCarousel() {
         };
         fetch();
     }, [courses]);
-
-    useEffect(() => {
-        if (Object.keys(zapAmounts).length === processedCourses.length) {
-            const sortedCourses = [...processedCourses].sort((a, b) => 
-                (zapAmounts[b.id] || 0) - (zapAmounts[a.id] || 0)
-            );
-            setProcessedCourses(sortedCourses);
-        }
-    }, [zapAmounts, processedCourses]);
 
     if (coursesError) {
         return <div>Error: {coursesError.message}</div>
@@ -83,7 +73,7 @@ export default function CoursesCarousel() {
                     itemTemplate={(item) => 
                         !processedCourses.length ? 
                         <TemplateSkeleton key={Math.random()} /> : 
-                        <CourseTemplate key={item.id} course={item} onZapAmountChange={handleZapAmountChange} />
+                        <CourseTemplate key={item.id} course={item} />
                     }
                     responsiveOptions={responsiveOptions} />
             </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Carousel } from 'primereact/carousel';
 import { parseEvent } from '@/utils/nostr';
@@ -30,14 +30,9 @@ export default function DocumentsCarousel() {
     const [processedDocuments, setProcessedDocuments] = useState([]);
     const [paidLessons, setPaidLessons] = useState([]);
     const [freeLessons, setFreeLessons] = useState([]);
-    const [zapAmounts, setZapAmounts] = useState({});
     const { documents, documentsLoading, documentsError } = useDocuments()
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 450;
-
-    const handleZapAmountChange = useCallback((documentId, amount) => {
-        setZapAmounts(prev => ({ ...prev, [documentId]: amount }));
-    }, []);
 
     // todo: cache this in react query
     useEffect(() => {
@@ -61,8 +56,12 @@ export default function DocumentsCarousel() {
             try {
                 if (documents && documents.length > 0 && paidLessons.length > 0) {
                     const processedDocuments = documents.map(document => parseEvent(document));
-                    // Filter out documents that are in the paid lessons array
-                    const filteredDocuments = processedDocuments.filter(document => !paidLessons.includes(document?.d));
+                    // Sort documents by created_at in descending order (most recent first)
+                    const sortedDocuments = processedDocuments.sort((a, b) => b.created_at - a.created_at);
+
+                    // filter out documents that are in the paid lessons array
+                    const filteredDocuments = sortedDocuments.filter(document => !paidLessons.includes(document?.d));
+
                     setProcessedDocuments(filteredDocuments);
                 } else {
                     console.log('No documents fetched or empty array returned');
@@ -73,15 +72,6 @@ export default function DocumentsCarousel() {
         };        
         fetch();
     }, [documents, paidLessons]);
-
-    useEffect(() => {
-        if (Object.keys(zapAmounts).length === processedDocuments.length) {
-            const sortedDocuments = [...processedDocuments].sort((a, b) => 
-                (zapAmounts[b.id] || 0) - (zapAmounts[a.id] || 0)
-            );
-            setProcessedDocuments(sortedDocuments);
-        }
-    }, [zapAmounts, processedDocuments]);
 
     if (documentsError) {
         return <div>Error: {documentsError.message}</div>
@@ -104,7 +94,7 @@ export default function DocumentsCarousel() {
                 }}
                 itemTemplate={(item) => 
                         processedDocuments.length > 0 ? 
-                        <DocumentTemplate key={item.id} document={item} isLesson={freeLessons.includes(item.d)} handleZapAmountChange={handleZapAmountChange} /> : 
+                        <DocumentTemplate key={item.id} document={item} isLesson={freeLessons.includes(item.d)} /> : 
                         <TemplateSkeleton key={Math.random()} />
                 }
                 responsiveOptions={responsiveOptions} />
