@@ -11,8 +11,8 @@ const readOnlyRelays = ["wss://nostr21.com/", "wss://nostr.wine/", "wss://yestr.
 export const NDKProvider = ({ children }) => {
   const [ndk, setNdk] = useState(null);
   // todo: remove this after testing phase
-  const [userRelays, setUserRelays] = useLocalStorage("userRelays", appConfig.defaultRelayUrls);
-  // const [userRelays, setUserRelays] = useState([...readOnlyRelays, "wss://relay.devs.tools"]);
+  // const [userRelays, setUserRelays] = useLocalStorage("userRelays", appConfig.defaultRelayUrls);
+  const [userRelays, setUserRelays] = useState([...readOnlyRelays, "wss://relay.devs.tools"]);
 
   const createNDKInstance = (relays) => {
     const allRelays = [...new Set([...appConfig.defaultRelayUrls, ...relays])];
