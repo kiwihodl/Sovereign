@@ -54,7 +54,7 @@ const Feed = () => {
         <div className="bg-gray-900 h-[100vh] w-[100vw] min-bottom-bar:w-[86vw]">
             <div className="w-[100vw] min-bottom-bar:w-[86vw] px-4 pt-4 flex flex-col items-start">
                 <div className='mb-4 flex flex-row items-end'>
-                    <h1 className="font-bold mb-0">Community</h1>
+                    <h1 className="font-bold mb-0">Feeds</h1>
                     <GenericButton
                         icon={getTagIcon(title)}
                         className='ml-2 text-sm p-2 py-1 flex items-center cursor-default hover:bg-transparent'
