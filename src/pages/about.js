@@ -42,7 +42,7 @@ const AboutPage = () => {
                                 <h3 className='text-lg font-semibold'>Content Distribution:</h3>
                                 <p className='text-lg'>All educational content is published to Nostr and actively pulled from Nostr relays, ensuring distributed and up-to-date information.</p>
                                 <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
-                                    <li><span className="text-lg font-semibold">Nostr:</span> All content is published to Nostr and actively pulled from Nostr relays, ensuring distributed and up-to-date information.</li>
+                                    <li><span className="text-lg font-semibold">Nostr:</span> Content is published to Nostr and pulled from Nostr relays. A database is used for storing metadata about events but the actual content only exists on nostr relays.</li>
                                     <li><span className="text-lg font-semibold">Zaps:</span> Zaps are currently initated through Zapper - <a href="https://zapper.nostrapps.org" target="_blank" rel="noopener noreferrer" className="text-blue-400">https://zapper.nostrapps.org</a> <br /> <span className="pl-4">* Zaps are pulled from Nostr using our own NDK integration.</span></li>
                                     <li><span className="text-lg font-semibold">Comments:</span> For comments we are leveraging ZapThreads - <a href="https://zapthreads.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400">https://zapthreads.com</a> <br /> <span className="pl-4">* Comments are enabled on all content but for Community they are only enabled on the nostr feed.</span></li>
                                 </ul>
