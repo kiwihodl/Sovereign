@@ -11,7 +11,7 @@ import styles from "./sidebar.module.css";
 import { Divider } from 'primereact/divider';
 
 const Sidebar = ({ course = false }) => {
-    const [isExpanded, setIsExpanded] = useState(true);
+    const [isExpanded, setIsExpanded] = useState(false);
     const { isAdmin } = useIsAdmin();
     const [lessons, setLessons] = useState([]);
     const router = useRouter();
@@ -162,7 +162,7 @@ const Sidebar = ({ course = false }) => {
                                     content: styles['p-accordion-content'],
                                     header: 'text-lg'
                                 }}
-                                header={"Community"}>
+                                header={"Feeds"}>
                                 <div onClick={() => router.push('/feed?channel=global')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/feed?channel=global') ? 'bg-gray-700' : ''}`}>
                                     <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-hashtag text-sm pr-1"></i> global</p>
                                 </div>

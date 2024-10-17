@@ -74,7 +74,7 @@ const MessageCarousel = ({ copyToClipboard }) => {
         },
         {
             title: "PlebDevs 🤝👨‍💻🤝👩‍💻🤝🧑‍💻🤝",
-            description: "Plebdevs is open source software and is still in early development. If you have any questions drop an issue on the Github repo, or reach out to me in the Community tab.",
+            description: "Plebdevs is open source software and is still in early development. If you have any questions drop an issue on the Github repo, or reach out to me in the Community feed.",
             showGithub: true,
             showX: true,
             showNostr: true,

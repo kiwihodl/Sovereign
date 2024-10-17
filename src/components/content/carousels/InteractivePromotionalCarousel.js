@@ -125,7 +125,7 @@ const InteractivePromotionalCarousel = () => {
                       );
                     case "COMMUNITY":
                       return (
-                        <GenericButton onClick={() => router.push('/feed?channel=global')} icon={<i className="pi pi-users pr-2 pb-1" />} label="Open Community Feed" className="w-fit py-2 font-semibold" size="small" outlined />
+                        <GenericButton onClick={() => router.push('/feed?channel=global')} icon={<i className="pi pi-users pr-2 pb-1" />} label="Open Community Feeds" className="w-fit py-2 font-semibold" size="small" outlined />
                       );
                     case "LIGHTNING / NOSTR":
                       return (
@@ -170,7 +170,7 @@ const InteractivePromotionalCarousel = () => {
                         );
                       case "COMMUNITY":
                         return (
-                          <GenericButton onClick={() => router.push('/feed?channel=global')} icon={<i className="pi pi-users pr-2 pb-1" />} label="Open Community Feed" className="py-2 font-semibold" size="small" outlined />
+                          <GenericButton onClick={() => router.push('/feed?channel=global')} icon={<i className="pi pi-users pr-2 pb-1" />} label="Open Community Feeds" className="py-2 font-semibold" size="small" outlined />
                         );
                       case "LIGHTNING / NOSTR":
                         return (
