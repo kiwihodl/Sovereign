@@ -39,6 +39,8 @@ export function CourseTemplate({ course }) {
     }
   }, [course]);
 
+  console.log(nip19.decode("naddr1qvzqqqr4gupzpueu32tp0jc47uzlcuxdgcw06m40ytu7ynpna2adnqty3e0vda6pqpqryvrxxyun2vnrxasngvt98q6rycfs8ycrvvpjx5mrjdpkvs6ryef38qmngcnpv4jkyd3nxcmxvvpkvgmrydpcxqmxxdfhvsckxctpvs42mx08"))
+
   useEffect(() => {
     if (course && course?.id) {
       const nAddress = nip19.naddrEncode({
