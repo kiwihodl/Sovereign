@@ -11,7 +11,7 @@ import styles from "./sidebar.module.css";
 import { Divider } from 'primereact/divider';
 
 const Sidebar = ({ course = false }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(true);
     const { isAdmin } = useIsAdmin();
     const [lessons, setLessons] = useState([]);
     const router = useRouter();
@@ -121,7 +121,7 @@ const Sidebar = ({ course = false }) => {
                         <div onClick={() => router.push('/')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/') ? 'bg-gray-700' : ''}`}>
                             <i className="pi pi-home pl-5" /> <p className="pl-2 rounded-md font-bold text-lg">Home</p>
                         </div>
-                        <Accordion activeIndex={0} className={styles['p-accordion']} style={{ marginBottom: '0px', paddingBottom: '0px' }}>
+                        <Accordion className={styles['p-accordion']} style={{ marginBottom: '0px', paddingBottom: '0px' }}>
                             <AccordionTab
                                 pt={{
                                     headerAction: ({ context }) => ({
@@ -153,7 +153,7 @@ const Sidebar = ({ course = false }) => {
                         <div onClick={() => session ? router.push('/profile?tab=subscribe') : router.push('/subscribe')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/profile?tab=subscribe') || isActive('/subscribe') ? 'bg-gray-700' : ''}`}>
                             <i className="pi pi-star pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Subscribe</p>
                         </div>
-                        <Accordion activeIndex={0} className={styles['p-accordion']}>
+                        <Accordion className={styles['p-accordion']}>
                             <AccordionTab
                                 pt={{
                                     headerAction: ({ context }) => ({
