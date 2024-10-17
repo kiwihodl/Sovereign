@@ -15,7 +15,7 @@ import useWindowWidth from "@/hooks/useWindowWidth";
 import GenericButton from "@/components/buttons/GenericButton";
 import appConfig from "@/config/appConfig";
 
-export function CourseTemplate({ course }) {
+export function CourseTemplate({ course, onZapAmountChange }) {
   const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: course });
   const [zapAmount, setZapAmount] = useState(0);
   const [lessonCount, setLessonCount] = useState(0);
@@ -29,8 +29,9 @@ export function CourseTemplate({ course }) {
     if (zaps.length > 0) {
       const total = getTotalFromZaps(zaps, course);
       setZapAmount(total);
+      onZapAmountChange(course.id, total);
     }
-  }, [zaps, course]);
+  }, [zaps, course, onZapAmountChange]);
 
   useEffect(() => {
     if (course && course?.tags) {
