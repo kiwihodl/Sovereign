@@ -15,7 +15,7 @@ import useWindowWidth from "@/hooks/useWindowWidth";
 import GenericButton from "@/components/buttons/GenericButton";
 import appConfig from "@/config/appConfig";
 
-export function CourseTemplate({ course }) {
+export function CourseTemplate({ course, showMetaTags = true }) {
   const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: course });
   const [zapAmount, setZapAmount] = useState(0);
   const [lessonCount, setLessonCount] = useState(0);
@@ -53,6 +53,13 @@ export function CourseTemplate({ course }) {
     }
   }, [course]);
 
+  const shouldShowMetaTags = (topic) => {
+    if (!showMetaTags) {
+      return !["lesson", "document", "video", "course"].includes(topic);
+    }
+    return true;
+  }
+
   if (!nAddress) return <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
 
   if (zapsError) return <div>Error: {zapsError}</div>;
@@ -87,9 +94,11 @@ export function CourseTemplate({ course }) {
       <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-start`}>
         <div className="flex flex-wrap gap-2 max-w-[65%]">
           {course && course.topics && course.topics.map((topic, index) => (
-            <Tag size="small" key={index} className="px-2 py-1 text-sm text-[#f8f8ff]">
-              {topic}
-            </Tag>
+            shouldShowMetaTags(topic) && (
+              <Tag size="small" key={index} className="px-2 py-1 text-sm text-[#f8f8ff]">
+                {topic}
+              </Tag>
+            )
           ))}
         </div>
         <div className="flex flex-col items-end">

@@ -73,7 +73,7 @@ export default function CoursesCarousel() {
                     itemTemplate={(item) => 
                         !processedCourses.length ? 
                         <TemplateSkeleton key={Math.random()} /> : 
-                        <CourseTemplate key={item.id} course={item} />
+                        <CourseTemplate key={item.id} course={item} showMetaTags={false} />
                     }
                     responsiveOptions={responsiveOptions} />
             </div>

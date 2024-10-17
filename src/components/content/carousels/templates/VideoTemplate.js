@@ -15,7 +15,7 @@ import useWindowWidth from "@/hooks/useWindowWidth";
 import GenericButton from "@/components/buttons/GenericButton";
 import appConfig from "@/config/appConfig";
 
-export function VideoTemplate({ video, isLesson }) {
+export function VideoTemplate({ video, isLesson, showMetaTags }) {
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: video });
     const [nAddress, setNAddress] = useState(null);
     const [zapAmount, setZapAmount] = useState(0);
@@ -42,6 +42,13 @@ export function VideoTemplate({ video, isLesson }) {
             setZapAmount(total);
         }
     }, [zaps, video]);
+
+    const shouldShowMetaTags = (topic) => {
+        if (!showMetaTags) {
+            return !["lesson", "document", "video", "course"].includes(topic);
+        }
+        return true;
+    }
 
     if (zapsError) return <div>Error: {zapsError}</div>;
 
@@ -75,11 +82,13 @@ export function VideoTemplate({ video, isLesson }) {
             <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-start`}>
                 <div className="flex flex-wrap gap-2 max-w-[65%]">
                     {video?.topics?.map((topic, index) => (
-                        <Tag size="small" key={index} className="px-3 py-1 text-sm text-[#f8f8ff]">
-                            {topic}
-                        </Tag>
+                        shouldShowMetaTags(topic) && (
+                            <Tag size="small" key={index} className="px-2 py-1 text-sm text-[#f8f8ff]">
+                                {topic}
+                            </Tag>
+                        )
                     ))}
-                    {isLesson && <Tag size="small" className="px-3 py-1 text-sm text-[#f8f8ff]" value="lesson" />}
+                    {isLesson && showMetaTags && <Tag size="small" className="px-3 py-1 text-sm text-[#f8f8ff]" value="lesson" />}
                 </div>
                 <div className="flex flex-col items-end">
                     <p className="font-bold text-gray-300">{video?.duration || "5 min"} watch</p>

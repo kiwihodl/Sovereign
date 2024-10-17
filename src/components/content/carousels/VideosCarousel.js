@@ -92,7 +92,7 @@ export default function VideosCarousel() {
                 itemTemplate={(item) => 
                     !processedVideos.length ? 
                     <TemplateSkeleton key={Math.random()} /> : 
-                    <VideoTemplate key={item.id} video={item} isLesson={freeLessons.includes(item.d)} />
+                    <VideoTemplate key={item.id} video={item} isLesson={freeLessons.includes(item.d)} showMetaTags={false} />
                 }
                 responsiveOptions={responsiveOptions}
             />

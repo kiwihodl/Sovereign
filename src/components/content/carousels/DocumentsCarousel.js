@@ -94,7 +94,7 @@ export default function DocumentsCarousel() {
                 }}
                 itemTemplate={(item) => 
                         processedDocuments.length > 0 ? 
-                        <DocumentTemplate key={item.id} document={item} isLesson={freeLessons.includes(item.d)} /> : 
+                        <DocumentTemplate key={item.id} document={item} isLesson={freeLessons.includes(item.d)} showMetaTags={false} /> : 
                         <TemplateSkeleton key={Math.random()} />
                 }
                 responsiveOptions={responsiveOptions} />
