@@ -79,7 +79,7 @@ export function CourseTemplate({ course }) {
           <div className="flex items-center justify-center gap-4">
             <i className="pi pi-book text-2xl text-[#f8f8ff]"></i>
             <div>
-              <CardTitle className="text-2xl sm:text-3xl mb-2">{course.name}</CardTitle>
+              <CardTitle className="text-xl sm:text-2xl mb-2">{course.name}</CardTitle>
             </div>
           </div>
         </CardHeader>

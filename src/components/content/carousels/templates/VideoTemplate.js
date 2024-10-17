@@ -67,7 +67,7 @@ export function VideoTemplate({ video, isLesson }) {
                     <div className="flex items-center justify-center gap-4">
                         <i className="pi pi-video text-2xl text-[#f8f8ff]"></i>
                         <div>
-                            <CardTitle className="text-2xl sm:text-3xl mb-2">{video.title}</CardTitle>
+                            <CardTitle className="text-xl sm:text-2xl mb-2">{video.title}</CardTitle>
                         </div>
                     </div>
                 </CardHeader>
