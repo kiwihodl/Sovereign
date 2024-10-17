@@ -107,7 +107,7 @@ const AboutPage = () => {
                         icon="pi pi-github"
                         tooltip="Github"
                         className="text-gray-300"
-                        onClick={() => window.open('https://github.com/pleb-devs', '_blank')}
+                        onClick={() => window.open('https://github.com/austinkelsay/plebdevs', '_blank')}
                     />
                     <GenericButton
                         severity="info"
