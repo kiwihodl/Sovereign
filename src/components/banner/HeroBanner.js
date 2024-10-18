@@ -103,11 +103,11 @@ const HeroBanner = () => {
                 )}
                 <div className="mb-8 flex flex-row">
                     <AvatarGroup>
-                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"} size={isMobile ? "normal" : "large"} shape="circle" />
-                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/asiyajavayant.png"} size={isMobile ? "normal" : "large"} shape="circle" />
-                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/onyamalimba.png"} size={isMobile ? "normal" : "large"} shape="circle" />
-                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/ionibowcher.png"} size={isMobile ? "normal" : "large"} shape="circle" />
-                        <Avatar image={"https://primefaces.org/cdn/primereact/images/avatar/xuxuefeng.png"} size={isMobile ? "normal" : "large"} shape="circle" />
+                        <Avatar image={"https://pbs.twimg.com/profile_images/1674493492519751680/wxuiYCJA_400x400.jpg"} size={isMobile ? "normal" : "large"} shape="circle" />
+                        <Avatar image={"https://cdn.discordapp.com/avatars/823623334582681610/a19c596166584d2f51e444103255336d.png?size=1024"} size={isMobile ? "normal" : "large"} shape="circle" />
+                        <Avatar image={"https://pbs.twimg.com/profile_images/1724533572537880576/WBcctRHT_400x400.jpg"} size={isMobile ? "normal" : "large"} shape="circle" />
+                        <Avatar image={"https://cdn.discordapp.com/avatars/850975720872214578/37b3790a77e5c848d9489c2649420aa9.png?size=1024"} size={isMobile ? "normal" : "large"} shape="circle" />
+                        <Avatar image={"https://i.nostr.build/BksqZ8QSHxr9FGj2.webp"} size={isMobile ? "normal" : "large"} shape="circle" />
                         <Avatar label="500+" shape="circle" size={isMobile ? "normal" : "large"} className={`${isMobile ? 'text-sm' : 'text-base'}`} />
                     </AvatarGroup>
                     <div className="flex flex-col justify-between my-2 ml-4">

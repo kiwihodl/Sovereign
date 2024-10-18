@@ -17,7 +17,7 @@ const allTasks = [
         ]
     },
     { 
-        status: 'PlebDevs Course 1', 
+        status: 'Frontend Course', 
         completed: false, 
         tier: 'Junior Dev', 
         courseId: 'd20e2e9b-5123-4a91-b27f-d75ea1d5811e',
@@ -27,7 +27,7 @@ const allTasks = [
         ]
     },
     { 
-        status: 'PlebDevs Course 2', 
+        status: 'Backend Course', 
         completed: false, 
         tier: 'Plebdev', 
         courseId: 'aa3b1641-ad2b-4ef4-9f0f-38951ae307b7',
@@ -142,7 +142,7 @@ const UserProgress = () => {
                                                 <div className="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center mr-3">
                                                     <i className="pi pi-info-circle text-white text-2xl"></i>
                                                 </div>
-                                                <div className="flex items-center justify-between w-[160px] max-mob:w-[100px]">
+                                                <div className="flex items-center justify-between w-[150px]">
                                                     <span className="text-lg text-gray-400">{task.status}</span>
                                                     <i className={`pi pi-chevron-down text-gray-400 ml-2 transition-transform duration-300 ${expandedItems[index] ? 'rotate-180' : ''}`} />
                                                 </div>
