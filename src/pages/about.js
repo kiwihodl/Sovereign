@@ -87,7 +87,7 @@ const AboutPage = () => {
                     <div className="flex items-start">
                         <i className="pi pi-users text-2xl text-primary mr-2 text-purple-400 mt-1"></i>
                         <div>
-                            <h3 className="text-lg font-semibold">:</h3>
+                            <h3 className="text-lg font-semibold">Feeds:</h3>
                             <p className='text-lg'>All of the current PlebDevs Community channels.</p>
                             <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
                                 <li><span className="text-lg font-semibold">Nostr:</span> Public plebdevs nostr chat (Read / Write) <br /> <span className="pl-4">* this is the only feed that you can write to from the plebdevs platform currently.</span></li>

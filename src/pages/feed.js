@@ -78,9 +78,11 @@ const Feed = () => {
                     />
                 </div>
                 <Divider />
-                <MessageInput 
-                    collapsed={false}
-                />
+                {selectedTopic === 'nostr' && (
+                    <MessageInput
+                        collapsed={false}
+                    />
+                )}
             </div>
             <div className="min-bottom-bar:hidden">
                 <CommunityMenuTab

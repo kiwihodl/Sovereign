@@ -24,12 +24,12 @@ const headerTemplate = (options, windowWidth, platform, id) => {
         <div className="flex flex-row justify-between items-end mb-2">
             <GenericButton outlined severity="primary" size="small" className="py-0" onClick={options.onTogglerClick} icon={options.collapsed ? 'pi pi-chevron-down' : 'pi pi-chevron-up'} tooltip={windowWidth <= 768 ? null : 'comments'} tooltipOptions={{ position: 'right' }} />
             <GenericButton
-                label={windowWidth > 768 ? `View in ${platform}` : null}
+                label={windowWidth > 768 ? `View ${platform === 'nostr' ? 'on' : 'in'} ${platform}` : null}
                 icon="pi pi-external-link"
                 outlined
                 size="small"
                 onClick={() => window.open(getPlatformLink(platform, id), '_blank')}
-                tooltip={windowWidth < 768 ? `View in ${platform}` : null}
+                tooltip={windowWidth < 768 ? `View ${platform === 'nostr' ? 'on' : 'in'} ${platform}` : null}
                 tooltipOptions={{ position: 'left' }}
             />
         </div>
