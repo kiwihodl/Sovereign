@@ -9,6 +9,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import axios from 'axios';
 import GenericButton from '@/components/buttons/GenericButton';
 import { useRouter } from 'next/router';
+import useWindowWidth from '@/hooks/useWindowWidth';
 
 const Payment = dynamic(
     () => import('@getalby/bitcoin-connect-react').then((mod) => mod.Payment),
@@ -22,6 +23,8 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
     const { data: session, status } = useSession();
     const [dialogVisible, setDialogVisible] = useState(false);
     const router = useRouter();
+    const windowWidth = useWindowWidth();
+    const isMobile = windowWidth < 768;
 
     useEffect(() => {
         let intervalId;
@@ -121,7 +124,7 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
                 visible={dialogVisible}
                 onHide={() => setDialogVisible(false)}
                 header="Make Payment"
-                style={{ width: '50vw' }}
+                style={{ width: isMobile ? '90vw' : '50vw' }}
             >
                 {invoice ? (
                     <Payment

@@ -187,6 +187,35 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                 </div>
                 <div className="w-full flex flex-row justify-end mt-4">
                     {renderPaymentMessage()}
+                    {authorView ? (
+                            <div className='flex space-x-2 mt-4 sm:mt-0'>
+                                <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
+                                <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
+                                <GenericButton
+                                    tooltip={isMobileView ? null : "View Nostr Note"}
+                                    tooltipOptions={{ position: 'left' }}
+                                    icon="pi pi-external-link"
+                                    outlined
+                                    onClick={() => {
+                                        window.open(`https://nostr.com/${nAddress}`, '_blank');
+                                    }}
+                                />
+                            </div>
+                        ) : (
+                            <div className="w-full flex flex-row justify-end gap-2">
+                                {course && <GenericButton size={isMobileView ? 'small' : 'large'} outlined icon="pi pi-external-link" onClick={() => window.open(`/course/${course}`, '_blank')} label={isMobileView ? "Course" : "Open Course"} tooltip="This is a lesson in a course" tooltipOptions={{ position: 'top' }} />}
+                                <GenericButton
+                                    size={isMobileView ? 'small' : 'large'}
+                                    tooltip={isMobileView ? null : "View Nostr Note"}
+                                    tooltipOptions={{ position: 'left' }}
+                                    icon="pi pi-external-link"
+                                    outlined
+                                    onClick={() => {
+                                        window.open(`https://nostr.com/${nAddress}`, '_blank');
+                                    }}
+                                />
+                            </div>
+                        )}
                 </div>
             </div>
         </div>

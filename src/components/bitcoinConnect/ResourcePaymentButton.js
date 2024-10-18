@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import axios from 'axios';
 import GenericButton from '@/components/buttons/GenericButton';
+import useWindowWidth from '@/hooks/useWindowWidth';
 import { useRouter } from 'next/router';
 
 const Payment = dynamic(
@@ -22,6 +23,8 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
   const { data: session, status } = useSession();
   const [dialogVisible, setDialogVisible] = useState(false);
   const router = useRouter();
+  const windowWidth = useWindowWidth();
+  const isMobile = windowWidth < 768;
 
   useEffect(() => {
     let intervalId;
@@ -118,7 +121,7 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
         visible={dialogVisible}
         onHide={() => setDialogVisible(false)}
         header="Make Payment"
-        style={{ width: '50vw' }}
+        style={{ width: isMobile ? '90vw' : '50vw' }}
       >
         {invoice ? (
           <Payment
