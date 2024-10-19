@@ -4,7 +4,6 @@ import { useImageProxy } from "@/hooks/useImageProxy";
 import { formatUnixTimestamp } from "@/utils/time";
 import GenericButton from "@/components/buttons/GenericButton";
 const SelectedContentItem = ({ content, onRemove }) => {
-    console.log('content:', content);
     const { returnImageProxy } = useImageProxy();
 
     return (
