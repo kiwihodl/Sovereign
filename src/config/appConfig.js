@@ -1,14 +1,14 @@
 const appConfig = {
     defaultRelayUrls: [
-      "wss://nos.lol/",
-      "wss://relay.damus.io/",
-      "wss://relay.snort.social/",
-      "wss://relay.nostr.band/",
-      "wss://relay.mutinywallet.com/",
-      "wss://relay.primal.net/",
-      "wss://nostr21.com/",
-      "wss://nostrue.com/",
-      "wss://purplerelay.com/",
+      // "wss://nos.lol/",
+      // "wss://relay.damus.io/",
+      // "wss://relay.snort.social/",
+      // "wss://relay.nostr.band/",
+      // "wss://relay.mutinywallet.com/",
+      // "wss://relay.primal.net/",
+      // "wss://nostr21.com/",
+      // "wss://nostrue.com/",
+      // "wss://purplerelay.com/",
       "wss://relay.devs.tools/"
     ],
     authorPubkeys: ["8cb60e215678879cda0bef4d5b3fc1a5c5925d2adb5d8c4fa7b7d03b5f2deaea", "676c02247668d5b18479be3d1a80933044256f3fbd03640a8c234684e641b6d6", "f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741", "c67cd3e1a83daa56cff16f635db2fdb9ed9619300298d4701a58e68e84098345"],
