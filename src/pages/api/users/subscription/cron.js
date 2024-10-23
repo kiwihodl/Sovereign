@@ -10,7 +10,7 @@ export default async function handler(req, res) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    if (req.method === 'POST') {
+    if (req.method === 'GET') {
         try {
             const expiredSubscriptions = await findExpiredSubscriptions();
             const stillExpired = [];
