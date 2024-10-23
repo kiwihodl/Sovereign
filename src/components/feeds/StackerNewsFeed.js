@@ -45,7 +45,7 @@ const StackerNewsFeed = ({ searchQuery }) => {
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     return (
-        <div className="bg-gray-900 h-full w-full min-bottom-bar:w-[86vw]">
+        <div className="h-full w-full min-bottom-bar:w-[86vw]">
             <div className="mx-4 mt-4">
                 {filteredItems && filteredItems.length > 0 ? (
                     filteredItems.map(item => (

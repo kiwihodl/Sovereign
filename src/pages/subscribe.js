@@ -147,11 +147,18 @@ const Subscribe = () => {
             <div className="mb-4 p-4 bg-gray-800 rounded-lg w-fit">
                 {session && session?.user ? (
                     <>
-                        {subscribed && (
+                        {subscribed && !user?.role?.nwc && (
                             <div className="flex flex-col">
                                 <Message className="w-fit" severity="success" text="Subscribed!" />
                                 <p className="mt-4">Thank you for your support 🎉</p>
                                 <p className="text-sm text-gray-400">Pay-as-you-go subscription must be manually renewed on {subscribedUntil.toLocaleDateString()}</p>
+                            </div>
+                        )}
+                        {subscribed && user?.role?.nwc && (
+                            <div className="flex flex-col">
+                                <Message className="w-fit" severity="success" text="Subscribed!" />
+                                <p className="mt-4">Thank you for your support 🎉</p>
+                                <p className="text-sm text-gray-400">Recurring subscription will AUTO renew on {subscribedUntil.toLocaleDateString()}</p>
                             </div>
                         )}
                         {(!subscribed && !subscriptionExpiredAt) && (

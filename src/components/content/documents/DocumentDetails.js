@@ -151,12 +151,22 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                         <div className="my-4">
                             <p>Additional Links:</p>
                             {processedEvent.additionalLinks.map((link, index) => (
-                                <React.Fragment key={index}>
-                                    <a className="text-blue-500 hover:underline hover:text-blue-600" href={link} target="_blank" rel="noopener noreferrer">
+                                <div key={index} className="mb-2">
+                                    <a 
+                                        className="text-blue-500 hover:underline hover:text-blue-600 break-words"
+                                        href={link} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        style={{ 
+                                            wordBreak: 'break-word', 
+                                            overflowWrap: 'break-word',
+                                            display: 'inline-block',
+                                            maxWidth: '100%'
+                                        }}
+                                    >
                                         {link}
                                     </a>
-                                    <br />
-                                </React.Fragment>
+                                </div>
                             ))}
                         </div>
                     )}

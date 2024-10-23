@@ -5,45 +5,36 @@ import { useSession } from 'next-auth/react';
 import { findKind0Fields } from '@/utils/nostr';
 import NostrIcon from '../../../public/images/nostr.png';
 import Image from 'next/image';
-import { useImageProxy } from '@/hooks/useImageProxy';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import { nip19 } from 'nostr-tools';
 import { useCommunityNotes } from '@/hooks/nostr/useCommunityNotes';
 import CommunityMessage from '@/components/feeds/messages/CommunityMessage';
-import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 
 const NostrFeed = ({ searchQuery }) => {
     const { communityNotes, isLoading, error } = useCommunityNotes();
     const { ndk } = useNDKContext();
-    const { returnImageProxy } = useImageProxy();
     const { data: session } = useSession();
     const [authorData, setAuthorData] = useState({});
-    const [npub, setNpub] = useState(null);
 
     const windowWidth = useWindowWidth();
 
     useEffect(() => {
         const fetchAuthors = async () => {
-            const authorDataMap = {};
             for (const message of communityNotes) {
-                if (!authorDataMap[message.pubkey]) {
+                if (!authorData[message.pubkey]) {
                     const author = await fetchAuthor(message.pubkey);
-                    authorDataMap[message.pubkey] = author;
+                    setAuthorData(prevData => ({
+                        ...prevData,
+                        [message.pubkey]: author
+                    }));
                 }
             }
-            setAuthorData(authorDataMap);
         };
 
         if (communityNotes && communityNotes.length > 0) {
             fetchAuthors();
         }
-    }, [communityNotes]);
-
-    useEffect(() => {
-        if (session?.user?.pubkey) {
-            setNpub(nip19.npubEncode(session.user.pubkey));
-        }
-    }, [session]);
+    }, [communityNotes, authorData]);
 
     const fetchAuthor = async (pubkey) => {
         try {
@@ -86,7 +77,7 @@ const NostrFeed = ({ searchQuery }) => {
         .sort((a, b) => b.created_at - a.created_at);
 
     return (
-        <div className="bg-gray-900 h-full w-full min-bottom-bar:w-[86vw]">
+        <div className="h-full w-full min-bottom-bar:w-[86vw]">
             <div className="mx-4 mt-4">
                 {filteredNotes.length > 0 ? (
                     filteredNotes.map(message => (
@@ -95,7 +86,7 @@ const NostrFeed = ({ searchQuery }) => {
                             message={{
                                 id: message.id,
                                 author: authorData[message.pubkey]?.username || message.pubkey.substring(0, 12) + '...',
-                                avatar: authorData[message.pubkey]?.avatar ? returnImageProxy(authorData[message.pubkey]?.avatar) : null,
+                                avatar: authorData[message.pubkey]?.avatar,
                                 content: message.content,
                                 timestamp: message.created_at * 1000,
                                 channel: "plebdevs"

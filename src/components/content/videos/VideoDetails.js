@@ -126,6 +126,35 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
         return null;
     }
 
+    const renderAdditionalLinks = () => {
+        if (processedEvent?.additionalLinks && processedEvent.additionalLinks.length > 0) {
+            return (
+                <div className="my-4">
+                    <p>Additional Links:</p>
+                    {processedEvent.additionalLinks.map((link, index) => (
+                        <div key={index} className="mb-2">
+                            <a 
+                                className="text-blue-500 hover:underline hover:text-blue-600 break-words"
+                                href={link} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                style={{ 
+                                    wordBreak: 'break-word', 
+                                    overflowWrap: 'break-word',
+                                    display: 'inline-block',
+                                    maxWidth: '100%'
+                                }}
+                            >
+                                {link}
+                            </a>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+        return null;
+    };
+
     return (
         <div className="w-full">
             {renderContent()}
@@ -154,19 +183,7 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                             {(summary)?.split('\n').map((line, index) => (
                                 <p key={index}>{line}</p>
                             ))}
-                            {processedEvent?.additionalLinks && processedEvent?.additionalLinks.length > 0 && (
-                                <div className="my-4">
-                                    <p>Additional Links:</p>
-                                    {processedEvent.additionalLinks.map((link, index) => (
-                                        <React.Fragment key={index}>
-                                            <a className="text-blue-500 hover:underline hover:text-blue-600" href={link} target="_blank" rel="noopener noreferrer">
-                                                {link}
-                                            </a>
-                                            <br />
-                                        </React.Fragment>
-                                    ))}
-                                </div>
-                            )}
+                            {renderAdditionalLinks()}
                         </div>
                     </div>
                     <div className='flex items-center'>

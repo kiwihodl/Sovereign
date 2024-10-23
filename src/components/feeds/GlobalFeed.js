@@ -108,7 +108,7 @@ const GlobalFeed = ({searchQuery}) => {
     });
 
     return (
-        <div className="bg-gray-900 h-full w-full min-bottom-bar:w-[86vw]">
+        <div className="h-full w-full min-bottom-bar:w-[86vw]">
             <div className="mx-4 mt-4">
             {combinedFeed.length > 0 ? (
                 combinedFeed.map(item => (

@@ -101,11 +101,18 @@ const UserSubscription = () => {
                 <h1 className="text-3xl font-bold mb-6">Subscription Management</h1>
             )}
             <div className="mb-4 p-4 bg-gray-800 rounded-lg w-fit">
-                {subscribed && (
+                {subscribed && !user?.role?.nwc && (
                     <div className="flex flex-col">
                         <Message className="w-fit" severity="success" text="Subscribed!" />
                         <p className="mt-4">Thank you for your support 🎉</p>
-                        <p className="text-sm text-gray-400">Pay-as-you-go subscription will renew on {subscribedUntil.toLocaleDateString()}</p>
+                        <p className="text-sm text-gray-400">Pay-as-you-go subscription requires manual renewal on {subscribedUntil.toLocaleDateString()}</p>
+                    </div>
+                )}
+                {subscribed && user?.role?.nwc && (
+                    <div className="flex flex-col">
+                        <Message className="w-fit" severity="success" text="Subscribed!" />
+                        <p className="mt-4">Thank you for your support 🎉</p>
+                        <p className="text-sm text-gray-400">Recurring subscription will AUTO renew on {subscribedUntil.toLocaleDateString()}</p>
                     </div>
                 )}
                 {(!subscribed && !subscriptionExpiredAt) && (

@@ -33,7 +33,7 @@ const DiscordFeed = ({ searchQuery }) => {
     }
 
     return (
-        <div className="bg-gray-900 h-full w-full min-bottom-bar:w-[86vw]">
+        <div className="h-full w-full min-bottom-bar:w-[86vw]">
             <div className="mx-4">
             {filteredData.length > 0 ? (
                 filteredData.map(message => (

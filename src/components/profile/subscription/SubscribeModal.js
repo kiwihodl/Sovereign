@@ -149,11 +149,18 @@ const SubscribeModal = ({ user }) => {
     return (
         <>
             <Card title={subscriptionCardTitle} className="w-fit m-4 mx-auto">
-                {subscribed && (
+                {subscribed && !user?.role?.nwc && (
                     <div className="flex flex-col">
                         <Message className="w-fit" severity="success" text="Subscribed!" />
                         <p className="mt-4">Thank you for your support 🎉</p>
                         <p className="text-sm text-gray-400">Pay-as-you-go subscription will renew on {subscribedUntil.toLocaleDateString()}</p>
+                    </div>
+                )}
+                {subscribed && user?.role?.nwc && (
+                    <div className="flex flex-col">
+                        <Message className="w-fit" severity="success" text="Subscribed!" />
+                        <p className="mt-4">Thank you for your support 🎉</p>
+                        <p className="text-sm text-gray-400">Recurring subscription will AUTO renew on {subscribedUntil.toLocaleDateString()}</p>
                     </div>
                 )}
                 {(!subscribed && !subscriptionExpiredAt) && (

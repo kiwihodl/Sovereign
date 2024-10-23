@@ -113,6 +113,35 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
         return null;
     };
 
+    const renderAdditionalLinks = () => {
+        if (processedEvent?.additionalLinks && processedEvent.additionalLinks.length > 0) {
+            return (
+                <div className="my-4">
+                    <p>Additional Links:</p>
+                    {processedEvent.additionalLinks.map((link, index) => (
+                        <div key={index} className="mb-2">
+                            <a 
+                                className="text-blue-500 hover:underline hover:text-blue-600 break-words"
+                                href={link} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                style={{ 
+                                    wordBreak: 'break-word', 
+                                    overflowWrap: 'break-word',
+                                    display: 'inline-block',
+                                    maxWidth: '100%'
+                                }}
+                            >
+                                {link}
+                            </a>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+        return null;
+    };
+
     if (!processedEvent || !author) {
         return <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>;
     }
@@ -183,6 +212,7 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
                                 <GenericButton className='my-2' outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={isMobileView ? null : "View Nostr Event"} tooltipOptions={{ position: paidCourse ? 'left' : 'right' }} />
                             </div>
                         )}
+                        {renderAdditionalLinks()}
                     </div>
                 </div>
             </div>
