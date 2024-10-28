@@ -151,72 +151,84 @@ export const deleteUser = async (id) => {
 };
 
 export const updateUserSubscription = async (userId, isSubscribed, nwc) => {
-  const now = new Date();
-  return await prisma.user.update({
-    where: { id: userId },
-    data: {
-      role: {
-        upsert: {
-          create: {
-            subscribed: isSubscribed,
-            subscriptionStartDate: isSubscribed ? now : null,
-            lastPaymentAt: isSubscribed ? now : null,
-            nwc: nwc ? nwc : null,
-            subscriptionExpiredAt: null,
-          },
-          update: {
-            subscribed: isSubscribed,
-            subscriptionStartDate: isSubscribed ? { set: now } : { set: null },
-            lastPaymentAt: isSubscribed ? now : { set: null },
-            nwc: nwc ? nwc : null,
-            subscriptionExpiredAt: null,
+  try {
+    const now = new Date();
+    return await prisma.user.update({
+      where: { id: userId },
+      data: {
+        role: {
+          upsert: {
+            create: {
+              subscribed: isSubscribed,
+              subscriptionStartDate: isSubscribed ? now : null,
+              lastPaymentAt: isSubscribed ? now : null,
+              nwc: nwc ? nwc : null,
+              subscriptionExpiredAt: null,
+            },
+            update: {
+              subscribed: isSubscribed,
+              subscriptionStartDate: isSubscribed ? { set: now } : { set: null },
+              lastPaymentAt: isSubscribed ? now : { set: null },
+              nwc: nwc ? nwc : null,
+              subscriptionExpiredAt: null,
+            },
           },
         },
       },
-    },
-    include: {
-      role: true,
-    },
-  });
+      include: {
+        role: true,
+      },
+    });
+  } finally {
+    await prisma.$disconnect();
+  }
 };
 
 export const findExpiredSubscriptions = async () => {
-  const now = new Date();
-  // const thirtyOneDaysAgo = new Date(now.getTime() - 31 * 24 * 60 * 60 * 1000);
-  const oneDayAndOneHourAgo = new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000 - 1 * 60 * 60 * 1000);
+  try {
+    const now = new Date();
+    const oneDayAndOneHourAgo = new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000 - 1 * 60 * 60 * 1000);
 
-  return await prisma.role.findMany({
-    where: {
-      subscribed: true,
-      lastPaymentAt: {
-        // lt: thirtyOneDaysAgo
-        lt: oneDayAndOneHourAgo
+    const result = await prisma.role.findMany({
+      where: {
+        subscribed: true,
+        lastPaymentAt: {
+          lt: oneDayAndOneHourAgo
+        }
+      },
+      select: {
+        userId: true,
+        nwc: true
       }
-    },
-    select: {
-      userId: true,
-      nwc: true
-    }
-  });
+    });
+
+    return result;
+  } finally {
+    await prisma.$disconnect();
+  }
 };
 
 export const expireUserSubscriptions = async (userIds) => {
-  const now = new Date();
-  const updatePromises = userIds.map((userId) =>
-    prisma.role.update({
-      where: { userId },
-      data: {
-        subscribed: false,
-        subscriptionStartDate: null,
-        lastPaymentAt: null,
-        nwc: null,
-        subscriptionExpiredAt: now,
-      }
-    })
-  );
+  try {
+    const now = new Date();
+    const updatePromises = userIds.map((userId) =>
+      prisma.role.update({
+        where: { userId },
+        data: {
+          subscribed: false,
+          subscriptionStartDate: null,
+          lastPaymentAt: null,
+          nwc: null,
+          subscriptionExpiredAt: now,
+        }
+      })
+    );
 
-  await prisma.$transaction(updatePromises);
-  return userIds.length;
+    await prisma.$transaction(updatePromises);
+    return userIds.length;
+  } finally {
+    await prisma.$disconnect();
+  }
 };
 
 export const getUserByEmail = async (email) => {

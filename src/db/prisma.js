@@ -7,7 +7,21 @@ let prisma;
 // If not, create a new instance of PrismaClient and attach it to the global object.
 // This ensures that the same instance of PrismaClient is reused across multiple invocations.
 if (!global.prisma) {
-    global.prisma = new PrismaClient();
+    global.prisma = new PrismaClient({
+        datasources: {
+            db: {
+                url: process.env.POSTGRES_PRISMA_URL
+            }
+        },
+        // Add connection pool configuration
+        connection: {
+            pool: {
+                min: 0,
+                max: 1,
+                idleTimeoutMillis: 5000
+            }
+        }
+    });
 }
 
 // Assign the global PrismaClient instance to the prisma variable.
