@@ -13,6 +13,7 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
         try {
             const expiredSubscriptions = await findExpiredSubscriptions();
+            console.log("expiredSubscriptions", expiredSubscriptions);
             const stillExpired = [];
 
             for (const { userId, nwc } of expiredSubscriptions) {

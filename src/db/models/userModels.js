@@ -198,7 +198,10 @@ export const findExpiredSubscriptions = async () => {
       },
       select: {
         userId: true,
-        nwc: true
+        nwc: true,
+        subscriptionExpiredAt: true,
+        subscriptionStartDate: true,
+        admin: true,
       }
     });
 
