@@ -204,7 +204,7 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                                     icon="pi pi-external-link"
                                     outlined
                                     onClick={() => {
-                                        window.open(`https://habla.news/${nAddress}`, '_blank');
+                                        window.open(`https://habla.news/a/${nAddress}`, '_blank');
                                     }}
                                 />
                             </div>
@@ -218,7 +218,7 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                                     icon="pi pi-external-link"
                                     outlined
                                     onClick={() => {
-                                        window.open(`https://habla.news/${nAddress}`, '_blank');
+                                        window.open(`https://habla.news/a/${nAddress}`, '_blank');
                                     }}
                                 />
                             </div>
