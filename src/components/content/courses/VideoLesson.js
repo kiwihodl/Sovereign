@@ -212,7 +212,7 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
                             icon="pi pi-external-link"
                             outlined
                             onClick={() => {
-                                window.open(`https://nostr.com/${nAddress}`, '_blank');
+                                window.open(`https://habla.news/${nAddress}`, '_blank');
                             }}
                         />
                     </div>
