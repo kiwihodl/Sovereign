@@ -60,7 +60,7 @@ const HeroBanner = () => {
                 alt="Banner"
                 quality={100}
                 fill
-                style={{ objectFit: 'cover', transform: 'scaleX(-1)' }}
+                style={{ objectFit: 'cover', transform: 'scaleX(-1)', filter: 'blur(4px)' }}
                 className='opacity-100 rounded-lg'
             />
             <div className="absolute inset-0 bg-gradient-to-br from-black via-black/20 to-transparent rounded-lg" />
