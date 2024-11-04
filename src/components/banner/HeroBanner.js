@@ -84,11 +84,10 @@ const HeroBanner = () => {
                 <h1 className={`text-4xl sm:text-4xl lg:text-6xl font-bold leading-tight mb-6 ${isTabView ? 'px-4' : 'max-w-[50%]'}`}>
                     <span className="block">Learn to code</span>
                     <span className="block">
-                        Build{' '}
+                        Build on{' '}
                         <span className={`${getColorClass(currentTech)} transition-opacity duration-500 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
                             {currentTech}
                         </span>
-                        {' '}apps
                     </span>
                     <span className="block">Become a dev</span>
                 </h1>
