@@ -60,8 +60,8 @@ const HeroBanner = () => {
                 alt="Banner"
                 quality={100}
                 fill
-                style={{ objectFit: 'cover', transform: 'scaleX(-1)', filter: 'blur(2px)' }}
-                className='opacity-100 rounded-lg'
+                style={{ objectFit: 'cover', transform: 'scaleX(-1)', filter: isTabView ? 'blur(1px)' : 'blur(3px)' }}
+                className='opacity-90 rounded-lg'
             />
             <div className="absolute inset-0 bg-gradient-to-br from-black via-black/20 to-transparent rounded-lg" />
 
