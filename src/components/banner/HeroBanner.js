@@ -83,9 +83,9 @@ const HeroBanner = () => {
             <div className={`absolute inset-0 flex flex-col justify-center ${isTabView ? 'items-center text-center' : 'items-start pl-8'}`}>
                 <h1 className={`text-4xl sm:text-4xl lg:text-6xl font-bold leading-tight mb-6 ${isTabView ? 'px-4' : 'max-w-[50%]'}`}>
                     <span className="block">Learn to code</span>
-                    <span className="block">
+                    <span className={`block ${isTabView ? `transition-opacity duration-500 ${isAnimating ? 'opacity-0' : 'opacity-100'}` : ''}`}>
                         Build on{' '}
-                        <span className={`${getColorClass(currentTech)} transition-opacity duration-500 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
+                        <span className={`${getColorClass(currentTech)} ${!isTabView ? `transition-opacity duration-500 ${isAnimating ? 'opacity-0' : 'opacity-100'}` : ''}`}>
                             {currentTech}
                         </span>
                     </span>
