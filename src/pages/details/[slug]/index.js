@@ -121,11 +121,9 @@ const Details = () => {
         fetchAndProcessEvent();
     }, [router.isReady, router.query, ndk, session, decryptContent, fetchAuthor, showToast]);
 
-    const handlePaymentSuccess = async (response, newResource) => {
+    const handlePaymentSuccess = (response) => {
         if (response && response?.preimage) {
-            console.log("newResource", newResource);
-            const updated = await update();
-            console.log("session after update", updated);
+            update();
         } else {
             showToast('error', 'Error', 'Failed to purchase resource. Please try again.');
         }
