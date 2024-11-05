@@ -210,7 +210,7 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                             </div>
                         ) : (
                             <div className="w-full flex flex-row justify-end gap-2">
-                                {course && <GenericButton size={isMobileView ? 'small' : 'large'} outlined icon="pi pi-external-link" onClick={() => window.open(`/course/${course}`, '_blank')} label={isMobileView ? "Course" : "Open Course"} tooltip="This is a lesson in a course" tooltipOptions={{ position: 'top' }} />}
+                                {course && <GenericButton size={isMobileView ? 'small' : null} outlined icon="pi pi-external-link" onClick={() => window.open(`/course/${course}`, '_blank')} label={isMobileView ? "Course" : "Open Course"} tooltip="This is a lesson in a course" tooltipOptions={{ position: 'top' }} />}
                                 <GenericButton
                                     size={isMobileView ? 'small' : 'large'}
                                     tooltip={isMobileView ? null : "View Nostr Note"}

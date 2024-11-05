@@ -30,8 +30,9 @@ const Details = () => {
     useEffect(() => {
         axios.get('/api/lessons').then(res => {
             if (res.data) {
+                console.log("res.data", res.data);
                 res.data.forEach(lesson => {
-                    setLessons(prev => [...prev, lesson?.resourceId]);
+                    setLessons(prev => [...prev, { resourceId: lesson?.resourceId, courseId: lesson?.courseId || null }]);
                 });
             }
         }).catch(err => {
@@ -102,7 +103,8 @@ const Details = () => {
                     if (parsedEvent.price || (isAuthor && event.kind === 30402)) {
                         const shouldDecrypt = isAuthor ||
                             session?.user?.role?.subscribed ||
-                            session?.user?.purchased?.some(purchase => purchase.resourceId === parsedEvent.d);
+                            session?.user?.purchased?.some(purchase => purchase.resourceId === parsedEvent.d) ||
+                            lessons.some(lesson => lesson.resourceId === parsedEvent.d && session?.user?.purchased?.some(purchase => purchase.courseId === lesson.courseId));
 
                         if (shouldDecrypt) {
                             const decrypted = await decryptContent(event.content);
@@ -152,7 +154,7 @@ const Details = () => {
                 price={event.price}
                 author={author}
                 paidResource={!!event.price}
-                isLesson={lessons.includes(event.d)}
+                isLesson={lessons.some(lesson => lesson.resourceId === event.d)}
                 nAddress={nAddress}
                 decryptedContent={decryptedContent}
                 handlePaymentSuccess={handlePaymentSuccess}
