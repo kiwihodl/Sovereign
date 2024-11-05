@@ -21,7 +21,7 @@ const Details = () => {
     const [authorView, setAuthorView] = useState(false);
     const [loading, setLoading] = useState(true);
     const [lessons, setLessons] = useState([]);
-    const { data: session } = useSession();
+    const { data: session, update } = useSession();
     const { ndk } = useNDKContext();
     const { decryptContent } = useDecryptContent();
     const router = useRouter();
