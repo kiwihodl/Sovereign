@@ -102,7 +102,7 @@ const Details = () => {
                     if (parsedEvent.price || (isAuthor && event.kind === 30402)) {
                         const shouldDecrypt = isAuthor ||
                             session?.user?.role?.subscribed ||
-                            session?.user?.purchased?.some(purchase => purchase.resourceId === event.d);
+                            session?.user?.purchased?.some(purchase => purchase.resourceId === parsedEvent.d);
 
                         if (shouldDecrypt) {
                             const decrypted = await decryptContent(event.content);
