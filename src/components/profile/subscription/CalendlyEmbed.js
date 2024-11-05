@@ -3,7 +3,7 @@ import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import useWindowWidth from '@/hooks/useWindowWidth';
 
-const CalendlyEmbed = ({ visible, onHide }) => {
+const CalendlyEmbed = ({ visible, onHide, userId, userEmail, userName }) => {
     const windowWidth = useWindowWidth();
     useEffect(() => {
         if (visible) {
@@ -34,7 +34,7 @@ const CalendlyEmbed = ({ visible, onHide }) => {
         >
             <div 
                 className="calendly-inline-widget" 
-                data-url="https://calendly.com/plebdevs/30min?hide_event_type_details=1&hide_gdpr_banner=1" 
+                data-url={`https://calendly.com/plebdevs/30min?hide_event_type_details=1&hide_gdpr_banner=1&email=${encodeURIComponent(userEmail)}&name=${encodeURIComponent(userName)}&custom_data=${encodeURIComponent(JSON.stringify({ user_id: userId }))}`}
                 style={{ minWidth: '320px', height: '700px' }}
             />
         </Dialog>

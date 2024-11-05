@@ -33,6 +33,8 @@ export default async function handler(req, res) {
                         if (response && response?.preimage) {
                             await updateUserSubscription(userId, true, nwc);
                             continue; // Skip adding to stillExpired list
+                        } else {
+                            console.log(`Payment failed for user ${userId}: (stillExpired)`, response);
                         }
                     } catch (error) {
                         console.error(`Payment failed for user ${userId}:`, error);

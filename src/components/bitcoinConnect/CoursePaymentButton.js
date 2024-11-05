@@ -80,7 +80,7 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
             const result = await axios.post('/api/purchase/course', purchaseData);
 
             if (result.status === 200) {
-                track('Course Payment', { courseId: courseId });
+                track('Course Payment', { courseId: courseId, userId: session?.user?.id });
                 if (onSuccess) onSuccess(response);
             } else {
                 throw new Error('Failed to update user purchases');

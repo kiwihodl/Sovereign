@@ -235,6 +235,9 @@ const SubscribeModal = ({ user }) => {
             <CalendlyEmbed
                 visible={calendlyVisible}
                 onHide={() => setCalendlyVisible(false)}
+                userId={session?.user?.id}
+                userName={session?.user?.name || user?.kind0?.username}
+                userEmail={session?.user?.email}
             />
             <CancelSubscription
                 visible={cancelSubscriptionVisible}

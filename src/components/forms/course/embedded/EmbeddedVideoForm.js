@@ -144,7 +144,7 @@ const EmbeddedVideoForm = ({ draft = null, onSave, isPaid }) => {
                 <span className="pl-1 flex items-center">
                     External Links
                     <i className="pi pi-info-circle ml-2 cursor-pointer" 
-                       data-pr-tooltip="Add any relevant external links that pair with this content"
+                       data-pr-tooltip="Add any relevant external links that pair with this content (these links are currently not encrypted for 'paid' content)"
                        data-pr-position="right"
                        data-pr-at="right+5 top"
                        data-pr-my="left center-2"

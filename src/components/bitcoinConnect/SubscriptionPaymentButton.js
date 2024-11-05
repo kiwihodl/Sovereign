@@ -73,7 +73,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
 
     const handlePaymentSuccess = async (response) => {
         console.log('Payment successful', response);
-        track('Subscription Payment', { method: "pay_as_you_go" });
+        track('Subscription Payment', { method: "pay_as_you_go", userId: session?.user?.id });
         showToast('success', 'Payment Successful', 'Your payment has been processed successfully.');
         if (onSuccess) onSuccess(response);
     };
@@ -131,7 +131,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
                 });
 
                 if (subscriptionResponse.status === 200) {
-                    track('Subscription Payment', { method: "recurring" });
+                    track('Subscription Payment', { method: "recurring", userId: session?.user?.id });
                     showToast('success', 'Subscription Setup', 'Recurring subscription setup successful!');
                     if (onRecurringSubscriptionSuccess) onRecurringSubscriptionSuccess();
                 } else {
@@ -185,7 +185,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
                 });
 
                 if (subscriptionResponse.status === 200) {
-                    track('Subscription Payment', { method: "recurring-manual" });
+                    track('Subscription Payment', { method: "recurring-manual", userId: session?.user?.id });
                     showToast('success', 'NWC', 'Subscription setup successful!');
                     if (onRecurringSubscriptionSuccess) onRecurringSubscriptionSuccess();
                 } else {
