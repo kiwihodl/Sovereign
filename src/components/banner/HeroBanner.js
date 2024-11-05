@@ -100,7 +100,10 @@ const HeroBanner = () => {
                         A one of a kind developer education, content, and community platform built on Nostr and fully Lightning integrated.
                     </h2>
                 )}
-                <div className="mb-8 flex flex-row">
+                <div 
+                    className="mb-8 flex flex-row hover:opacity-70 cursor-pointer"
+                    onClick={() => window.open('https://www.udemy.com/user/austin-james-kelsay/', '_blank')}
+                >
                     <AvatarGroup>
                         <Avatar image={"https://pbs.twimg.com/profile_images/1674493492519751680/wxuiYCJA_400x400.jpg"} size={isMobile ? "normal" : "large"} shape="circle" />
                         <Avatar image={"https://cdn.discordapp.com/avatars/823623334582681610/a19c596166584d2f51e444103255336d.png?size=1024"} size={isMobile ? "normal" : "large"} shape="circle" />
