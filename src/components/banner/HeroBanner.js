@@ -102,7 +102,8 @@ const HeroBanner = () => {
                 )}
                 <div 
                     className="mb-8 flex flex-row hover:opacity-70 cursor-pointer"
-                    onClick={() => window.open('https://www.udemy.com/user/austin-james-kelsay/', '_blank')}
+                    onClick={() => !isMobile && window.open('https://www.udemy.com/user/austin-james-kelsay/', '_blank')}
+                    style={{ cursor: isMobile ? 'default' : 'pointer' }}
                 >
                     <AvatarGroup>
                         <Avatar image={"https://pbs.twimg.com/profile_images/1674493492519751680/wxuiYCJA_400x400.jpg"} size={isMobile ? "normal" : "large"} shape="circle" />

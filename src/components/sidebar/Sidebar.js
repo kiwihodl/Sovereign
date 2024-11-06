@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Accordion, AccordionTab } from 'primereact/accordion';
 import { useRouter } from 'next/router';
 import { useSession, signOut } from 'next-auth/react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
@@ -20,6 +19,12 @@ const Sidebar = ({ course = false }) => {
 
     // Helper function to determine if the path matches the current route
     const isActive = (path) => {
+        if (path === '/content') {
+            return router.pathname === '/content';
+        }
+        if (path === '/feed') {
+            return router.pathname === '/feed';
+        }
         return router.asPath === path;
     };
 
@@ -121,30 +126,9 @@ const Sidebar = ({ course = false }) => {
                         <div onClick={() => router.push('/')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/') ? 'bg-gray-700' : ''}`}>
                             <i className="pi pi-home pl-5" /> <p className="pl-2 rounded-md font-bold text-lg">Home</p>
                         </div>
-                        <Accordion className={styles['p-accordion']} style={{ marginBottom: '0px', paddingBottom: '0px' }}>
-                            <AccordionTab
-                                pt={{
-                                    headerAction: ({ context }) => ({
-                                        className: `hover:bg-gray-700 rounded-lg ${isActive('/content') || router.pathname === '/content' ? 'bg-gray-700' : ''} ${styles['p-accordion-header-link']}`
-                                    }),
-                                    content: styles['p-accordion-content'],
-                                    header: 'text-lg'
-                                }}
-                                header={'Content'}>
-                                <div onClick={() => router.push('/content?tag=all')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content?tag=all') ? 'bg-gray-700' : ''}`}>
-                                    <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-eye text-sm pr-1"></i> All</p>
-                                </div>
-                                <div onClick={() => router.push('/content?tag=courses')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content?tag=courses') ? 'bg-gray-700' : ''}`}>
-                                    <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-desktop text-sm pr-1"></i> Courses</p>
-                                </div>
-                                <div onClick={() => router.push('/content?tag=videos')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content?tag=videos') ? 'bg-gray-700' : ''}`}>
-                                    <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-video text-sm pr-1"></i> Videos</p>
-                                </div>
-                                <div onClick={() => router.push('/content?tag=documents')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content?tag=documents') ? 'bg-gray-700' : ''}`}>
-                                    <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-file text-sm pr-1"></i> Documents</p>
-                                </div>
-                            </AccordionTab>
-                        </Accordion>
+                        <div onClick={() => router.push('/content')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content') || router.pathname === '/content' ? 'bg-gray-700' : ''}`}>
+                            <i className="pi pi-play-circle pl-5" /> <p className="pl-2 rounded-md font-bold text-lg">Content</p>
+                        </div>
                         {isAdmin && (
                             <div onClick={() => router.push('/create')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/create') ? 'bg-gray-700' : ''}`}>
                                 <i className="pi pi-plus pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Create</p>
@@ -153,40 +137,19 @@ const Sidebar = ({ course = false }) => {
                         <div onClick={() => session ? router.push('/profile?tab=subscribe') : router.push('/subscribe')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/profile?tab=subscribe') || isActive('/subscribe') ? 'bg-gray-700' : ''}`}>
                             <i className="pi pi-star pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Subscribe</p>
                         </div>
-                        <Accordion className={styles['p-accordion']}>
-                            <AccordionTab
-                                pt={{
-                                    headerAction: ({ context }) => ({
-                                        className: `hover:bg-gray-700 rounded-lg ${isActive('/feed') ? 'bg-gray-700' : ''} ${styles['p-accordion-header-link']}`
-                                    }),
-                                    content: styles['p-accordion-content'],
-                                    header: 'text-lg'
-                                }}
-                                header={"Feeds"}>
-                                <div onClick={() => router.push('/feed?channel=global')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/feed?channel=global') ? 'bg-gray-700' : ''}`}>
-                                    <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-hashtag text-sm pr-1"></i> global</p>
-                                </div>
-                                <div onClick={() => router.push('/feed?channel=nostr')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/feed?channel=nostr') ? 'bg-gray-700' : ''}`}>
-                                    <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-hashtag text-sm pr-1"></i> nostr</p>
-                                </div>
-                                <div onClick={() => router.push('/feed?channel=discord')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/feed?channel=discord') ? 'bg-gray-700' : ''}`}>
-                                    <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-hashtag text-sm pr-1"></i> discord</p>
-                                </div>
-                                <div onClick={() => router.push('/feed?channel=stackernews')} className={`w-full cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/feed?channel=stackernews') ? 'bg-gray-700' : ''}`}>
-                                    <p className="pl-3 rounded-md font-bold text-lg"><i className="pi pi-hashtag text-sm pr-1"></i> stackernews</p>
-                                </div>
-                            </AccordionTab>
-                        </Accordion>
+                        <div onClick={() => router.push('/feed?channel=global')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/feed') ? 'bg-gray-700' : ''}`}>
+                            <i className="pi pi-comments pl-5" /> <p className="pl-2 rounded-md font-bold text-lg">Feeds</p>
+                        </div>
                     </div>
                 ) : (
                     // Collapsed sidebar content (icons only)
                     !course && (
                         <div className="flex flex-col items-center">
                             <i className="pi pi-home my-4 cursor-pointer" onClick={() => router.push('/')} />
-                            <i className="pi pi-list my-4 cursor-pointer" onClick={() => router.push('/content')} />
+                            <i className="pi pi-play-circle my-4 cursor-pointer" onClick={() => router.push('/content')} />
                             <i className="pi pi-plus my-4 cursor-pointer" onClick={() => router.push('/create')} />
                             <i className="pi pi-star my-4 cursor-pointer" onClick={() => session ? router.push('/profile?tab=subscribe') : router.push('/auth/signin')} />
-                            <i className="pi pi-users my-4 cursor-pointer" onClick={() => router.push('/feed')} />
+                            <i className="pi pi-comments my-4 cursor-pointer" onClick={() => router.push('/feed?channel=global')} />
                         </div>
                     )
                 )}

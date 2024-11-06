@@ -137,13 +137,13 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                     <p>Additional Links:</p>
                     {processedEvent.additionalLinks.map((link, index) => (
                         <div key={index} className="mb-2">
-                            <a 
+                            <a
                                 className="text-blue-500 hover:underline hover:text-blue-600 break-words"
-                                href={link} 
-                                target="_blank" 
+                                href={link}
+                                target="_blank"
                                 rel="noopener noreferrer"
-                                style={{ 
-                                    wordBreak: 'break-word', 
+                                style={{
+                                    wordBreak: 'break-word',
                                     overflowWrap: 'break-word',
                                     display: 'inline-block',
                                     maxWidth: '100%'
@@ -207,9 +207,10 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                     </div>
                 </div>
                 <div className="w-full flex flex-row justify-end mt-4">
-                    {renderPaymentMessage()}
                     {authorView ? (
-                            <div className='flex space-x-2 mt-4 sm:mt-0'>
+                        <div className='flex space-x-2 mt-4 sm:mt-0'>
+                            {renderPaymentMessage()}
+                            <div className="flex flex-row justify-end">
                                 <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
                                 <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
                                 <GenericButton
@@ -222,8 +223,11 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                                     }}
                                 />
                             </div>
-                        ) : (
-                            <div className="w-full flex flex-row justify-end gap-2">
+                        </div>
+                    ) : (
+                        <div className="w-full flex flex-row justify-between">
+                            {renderPaymentMessage()}
+                            <div className="flex flex-row justify-end">
                                 {course && <GenericButton size={isMobileView ? 'small' : null} outlined icon="pi pi-external-link" onClick={() => window.open(`/course/${course}`, '_blank')} label={isMobileView ? "Course" : "Open Course"} tooltip="This is a lesson in a course" tooltipOptions={{ position: 'top' }} />}
                                 <GenericButton
                                     size={isMobileView ? 'small' : null}
@@ -236,7 +240,8 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                                     }}
                                 />
                             </div>
-                        )}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

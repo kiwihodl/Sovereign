@@ -157,13 +157,13 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                             <p>Additional Links:</p>
                             {processedEvent.additionalLinks.map((link, index) => (
                                 <div key={index} className="mb-2">
-                                    <a 
+                                    <a
                                         className="text-blue-500 hover:underline hover:text-blue-600 break-words"
-                                        href={link} 
-                                        target="_blank" 
+                                        href={link}
+                                        target="_blank"
                                         rel="noopener noreferrer"
-                                        style={{ 
-                                            wordBreak: 'break-word', 
+                                        style={{
+                                            wordBreak: 'break-word',
                                             overflowWrap: 'break-word',
                                             display: 'inline-block',
                                             maxWidth: '100%'
@@ -198,34 +198,39 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                         />
                     </div>
                     <div className='w-full mt-8 flex flex-wrap justify-between items-center'>
-                        {renderPaymentMessage()}
                         {authorView ? (
                             <div className='flex space-x-2 mt-4 sm:mt-0'>
-                                <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
-                                <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
-                                <GenericButton
-                                    tooltip={isMobileView ? null : "View Nostr Note"}
-                                    tooltipOptions={{ position: 'left' }}
-                                    icon="pi pi-external-link"
-                                    outlined
-                                    onClick={() => {
-                                        window.open(`https://habla.news/a/${nAddress}`, '_blank');
-                                    }}
-                                />
+                                {renderPaymentMessage()}
+                                <div className="flex flex-row gap-2">
+                                    <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
+                                    <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
+                                    <GenericButton
+                                        tooltip={isMobileView ? null : "View Nostr Note"}
+                                        tooltipOptions={{ position: 'left' }}
+                                        icon="pi pi-external-link"
+                                        outlined
+                                        onClick={() => {
+                                            window.open(`https://habla.news/a/${nAddress}`, '_blank');
+                                        }}
+                                    />
+                                </div>
                             </div>
                         ) : (
-                            <div className="w-full flex flex-row justify-end gap-2">
-                                {course && <GenericButton size={isMobileView ? 'small' : null} outlined icon="pi pi-external-link" onClick={() => window.open(`/course/${course}`, '_blank')} label={isMobileView ? "Course" : "Open Course"} tooltip="This is a lesson in a course" tooltipOptions={{ position: 'top' }} />}
-                                <GenericButton
-                                    size={isMobileView ? 'small' : null}
-                                    tooltip={isMobileView ? null : "View Nostr Note"}
-                                    tooltipOptions={{ position: 'left' }}
-                                    icon="pi pi-external-link"
-                                    outlined
-                                    onClick={() => {
-                                        window.open(`https://habla.news/a/${nAddress}`, '_blank');
-                                    }}
-                                />
+                            <div className="w-full flex flex-row justify-between gap-2">
+                                {renderPaymentMessage()}
+                                <div className="flex flex-row justify-end gap-2">
+                                    {course && <GenericButton size={isMobileView ? 'small' : null} outlined icon="pi pi-external-link" onClick={() => window.open(`/course/${course}`, '_blank')} label={isMobileView ? "Course" : "Open Course"} tooltip="This is a lesson in a course" tooltipOptions={{ position: 'top' }} />}
+                                    <GenericButton
+                                        size={isMobileView ? 'small' : null}
+                                        tooltip={isMobileView ? null : "View Nostr Note"}
+                                        tooltipOptions={{ position: 'left' }}
+                                        icon="pi pi-external-link"
+                                        outlined
+                                        onClick={() => {
+                                            window.open(`https://habla.news/a/${nAddress}`, '_blank');
+                                        }}
+                                    />
+                                </div>
                             </div>
                         )}
                     </div>

@@ -84,14 +84,12 @@ const Feed = () => {
                     />
                 )}
             </div>
-            <div className="min-bottom-bar:hidden">
-                <CommunityMenuTab
-                    items={allTopics}
-                    selectedTopic={selectedTopic}
-                    onTabChange={handleTopicChange}
-                    className="max-w-[90%] mx-auto"
-                />
-            </div>
+            <CommunityMenuTab
+                items={allTopics}
+                selectedTopic={selectedTopic}
+                onTabChange={handleTopicChange}
+                className="max-w-[90%] mx-auto"
+            />
             {
                 selectedTopic === 'global' && <GlobalFeed searchQuery={searchQuery} />
             }
