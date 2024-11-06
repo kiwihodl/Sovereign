@@ -7,7 +7,7 @@
     }
   ],
   "functions": {
-    "api/lightning-address/lnd": {
+    "src/pages/api/lightning-address/lnd.js": {
       "maxDuration": 300
     }
   }
