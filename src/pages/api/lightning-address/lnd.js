@@ -59,6 +59,7 @@ export default async function handler(req, res) {
 
         const invoice = response.data.payment_request;
         const paymentHash = response.data.r_hash;
+        const paymentHashHex = paymentHash.toString('hex');
 
         // If this is a zap, publish a zap receipt
         if (zap_request && foundAddress.allowsNostr) {
@@ -85,7 +86,7 @@ export default async function handler(req, res) {
             console.log("ZAP RECEIPT PUBLISHED", signedZapReceipt);
         }
 
-        res.status(200).json({ invoice, payment_hash: paymentHash });
+        res.status(200).json({ invoice, payment_hash: paymentHashHex });
     } catch (error) {
         console.error('Error (server) fetching data from LND:', error.message);
         res.status(500).json({ message: 'Error fetching data' });
