@@ -17,12 +17,12 @@ export default async function handler(req, res) {
         }
 
         if (!foundAddress) {
-            res.status(404).json({ error: 'Lightning address not found' });
+            res.status(200).json({ 
+                status: "ERROR",
+                reason: "Lightning address not found"
+            });
             return;
         }
-
-        console.log("FOUND ADDRESS", foundAddress);
-        console.log("SLUG", slug);
 
         // Call LND to check payment status
         const response = await axios.get(
@@ -34,21 +34,30 @@ export default async function handler(req, res) {
             }
         );
 
-        // According to LNURL-pay spec, we should return { status: "OK" } if paid
-        // or { status: "ERROR", reason: "error message" } if not paid or error
-        if (response.data.state === 'SETTLED') {
-            res.status(200).json({ status: "OK" });
+        // According to LUD-21 spec, we should return:
+        // - { status: "OK", settled: true, preimage: "123456...", pr: "lnbc10..." }
+        // - { status: "OK", settled: false, preimage: null, pr: "lnbc10..." }
+        // - { status: "ERROR", reason: "error message" }
+        if (response.data) {
+            res.status(200).json({
+                status: "OK",
+                settled: response.data.state === "SETTLED",
+                preimage: response.data.r_preimage ? 
+                    Buffer.from(response.data.r_preimage, 'base64').toString('hex') : 
+                    null,
+                pr: response.data.payment_request
+            });
         } else {
             res.status(200).json({ 
-                status: "ERROR", 
-                reason: "Invoice not paid" 
+                status: "ERROR",
+                reason: "Invoice not found"
             });
         }
 
     } catch (error) {
         console.error('Error verifying payment:', error.message);
         res.status(200).json({ 
-            status: "ERROR", 
+            status: "ERROR",
             reason: error.message || "Error verifying payment"
         });
     }
