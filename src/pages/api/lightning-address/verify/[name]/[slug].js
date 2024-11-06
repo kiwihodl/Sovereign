@@ -39,10 +39,11 @@ export default async function handler(req, res) {
         // - { status: "OK", settled: false, preimage: null, pr: "lnbc10..." }
         // - { status: "ERROR", reason: "error message" }
         if (response.data) {
+            const isSettled = response.data.state === "SETTLED";
             res.status(200).json({
                 status: "OK",
-                settled: response.data.state === "SETTLED",
-                preimage: response.data.r_preimage ? 
+                settled: isSettled,
+                preimage: isSettled && response.data.r_preimage ? 
                     Buffer.from(response.data.r_preimage, 'base64').toString('hex') : 
                     null,
                 pr: response.data.payment_request
