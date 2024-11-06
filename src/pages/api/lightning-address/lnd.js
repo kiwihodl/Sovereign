@@ -81,6 +81,7 @@ export default async function handler(req, res) {
             const pool = new SimplePool();
             const relays = foundAddress.defaultRelays || appConfig.defaultRelayUrls || [];
             await Promise.any(pool.publish(relays, signedZapReceipt));
+            console.log("ZAP RECEIPT PUBLISHED", signedZapReceipt);
         }
 
         res.status(200).json(invoice);
