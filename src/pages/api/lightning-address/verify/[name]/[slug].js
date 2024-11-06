@@ -21,13 +21,9 @@ export default async function handler(req, res) {
             return;
         }
 
-        // Convert hex payment hash to base64
-        const paymentHashBuffer = Buffer.from(slug, 'hex');
-        const paymentHashBase64 = paymentHashBuffer.toString('base64');
-
         // Call LND to check payment status
         const response = await axios.get(
-            `https://${foundAddress.lndHost}/v1/invoice/${paymentHashBase64}`,
+            `https://${foundAddress.lndHost}/v1/invoice/${slug}`,
             {
                 headers: {
                     'Grpc-Metadata-macaroon': foundAddress.invoiceMacaroon,
