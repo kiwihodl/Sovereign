@@ -26,7 +26,7 @@ export default async function handler(req, res) {
 
         // Call LND to check payment status
         const response = await axios.get(
-            `https://${foundAddress.lndHost}/v1/invoice/${slug}`,
+            `https://${foundAddress.lndHost}:${foundAddress.lndPort}/v1/invoice/${slug}`,
             {
                 headers: {
                     'Grpc-Metadata-macaroon': foundAddress.invoiceMacaroon,
