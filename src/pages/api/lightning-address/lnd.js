@@ -48,7 +48,7 @@ export default async function handler(req, res) {
             return;
         }
 
-        const response = await axios.post(`https://${foundAddress.lndHost}/v1/invoices`, {
+        const response = await axios.post(`https://${foundAddress.lndHost}:${foundAddress.lndPort}/v1/invoices`, {
             value_msat: amount,
             description_hash: description_hash
         }, {
