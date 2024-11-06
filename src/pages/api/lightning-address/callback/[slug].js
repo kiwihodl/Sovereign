@@ -76,7 +76,7 @@ export default async function handler(req, res) {
                             'Authorization': PLEBDEVS_API_KEY
                         }
                     });
-                    res.status(200).json({ pr: response.data });
+                    res.status(200).json({ pr: response.data, verify: `${BACKEND_URL}/api/lightning-address/verify/${slug}/${response.data.payment_hash}` });
                 } catch (error) {
                     console.error(error);
                     res.status(500).json({ error: 'Failed to generate invoice' });
