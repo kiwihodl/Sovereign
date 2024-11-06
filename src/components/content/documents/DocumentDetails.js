@@ -75,6 +75,11 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
             return <GenericButton tooltipOptions={{ position: 'top' }} tooltip={`You are subscribed so you can access all paid content`} icon="pi pi-check" label="Subscribed" severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
         }
 
+        // if the user paid for the course that this lesson is in, show a message that says you have this lesson through the course and show how much you paid for the course
+        if (isLesson && course && session?.user?.purchased?.some(purchase => purchase.courseId === course)) {
+            return <GenericButton tooltipOptions={{ position: 'top' }} tooltip={`You have this lesson through purchasing the course it belongs to. You paid ${session?.user?.purchased?.find(purchase => purchase.courseId === course)?.course?.price} sats for the course.`} icon="pi pi-check" label={`Paid ${session?.user?.purchased?.find(purchase => purchase.courseId === course)?.course?.price} sats`} severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
+        }
+
         if (paidResource && decryptedContent && author && processedEvent?.pubkey !== session?.user?.pubkey && !session?.user?.role?.subscribed) {
             return <GenericButton icon="pi pi-check" label={`Paid ${processedEvent.price} sats`} severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
         }
