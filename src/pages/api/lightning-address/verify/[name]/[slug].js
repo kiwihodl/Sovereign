@@ -21,6 +21,9 @@ export default async function handler(req, res) {
             return;
         }
 
+        console.log("FOUND ADDRESS", foundAddress);
+        console.log("SLUG", slug);
+
         // Call LND to check payment status
         const response = await axios.get(
             `https://${foundAddress.lndHost}/v1/invoice/${slug}`,
