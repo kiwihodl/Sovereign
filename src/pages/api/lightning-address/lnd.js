@@ -6,6 +6,24 @@ import { getLightningAddressByName } from "@/db/models/lightningAddressModels";
 
 const ZAP_PRIVKEY = process.env.ZAP_PRIVKEY;
 const PLEBDEVS_API_KEY = process.env.PLEBDEVS_API_KEY;
+const BACKEND_URL = process.env.BACKEND_URL;
+
+async function pollPaymentStatus(baseUrl, name, paymentHash, maxAttempts = 300, interval = 1000) {
+    for (let i = 0; i < maxAttempts; i++) {
+        try {
+            const response = await axios.get(`${baseUrl}/api/lightning-address/verify/${name}/${paymentHash}`);
+            
+            if (response.data.status === "OK" && response.data.settled) {
+                return true;
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, interval));
+        } catch (error) {
+            console.error('Error polling payment status:', error.message);
+        }
+    }
+    return false;
+}
 
 export default async function handler(req, res) {
     // make sure api key is in authorization header
@@ -61,9 +79,9 @@ export default async function handler(req, res) {
         const paymentHash = Buffer.from(response.data.r_hash, 'base64');
         const paymentHashHex = paymentHash.toString('hex');
 
-        // If this is a zap, publish a zap receipt
+        // If this is a zap, wait for payment and then publish a zap receipt
         if (zap_request && foundAddress.allowsNostr) {
-            console.log("ZAP REQUEST", zap_request)
+            console.log("ZAP REQUEST", zap_request);
             const zapRequest = JSON.parse(zap_request);
             const zapReceipt = {
                 kind: 9735,
@@ -77,15 +95,30 @@ export default async function handler(req, res) {
                 ]
             };
 
-            const signedZapReceipt = finalizeEvent(zapReceipt, foundAddress.relayPrivkey || ZAP_PRIVKEY);
+            // Start payment polling in the background
+            const pollPromise = pollPaymentStatus(BACKEND_URL, name, paymentHashHex);
 
-            // Publish zap receipt to relays
-            const pool = new SimplePool();
-            const relays = foundAddress.defaultRelays || appConfig.defaultRelayUrls || [];
-            await Promise.any(pool.publish(relays, signedZapReceipt));
-            console.log("ZAP RECEIPT PUBLISHED", signedZapReceipt);
+            // Send the response immediately
+            res.status(200).json({ invoice, payment_hash: paymentHashHex });
+
+            // Wait for payment to settle
+            const isSettled = await pollPromise;
+
+            if (isSettled) {
+                const signedZapReceipt = finalizeEvent(zapReceipt, foundAddress.relayPrivkey || ZAP_PRIVKEY);
+
+                // Publish zap receipt to relays
+                const pool = new SimplePool();
+                const relays = foundAddress.defaultRelays || appConfig.defaultRelayUrls || [];
+                await Promise.any(pool.publish(relays, signedZapReceipt));
+                console.log("ZAP RECEIPT PUBLISHED", signedZapReceipt);
+            } else {
+                console.log("Payment not settled after 60 seconds, skipping zap receipt");
+            }
+            return;
         }
 
+        // For non-zap requests, send response immediately
         res.status(200).json({ invoice, payment_hash: paymentHashHex });
     } catch (error) {
         console.error('Error (server) fetching data from LND:', error.message);
