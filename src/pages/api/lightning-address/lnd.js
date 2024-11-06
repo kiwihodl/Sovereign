@@ -60,6 +60,7 @@ export default async function handler(req, res) {
         const invoice = response.data.payment_request;
         const paymentHash = response.data.r_hash;
         const paymentHashHex = paymentHash.toString('hex');
+        console.log("PAYMENT HASH HEX", paymentHashHex);
 
         // If this is a zap, publish a zap receipt
         if (zap_request && foundAddress.allowsNostr) {
