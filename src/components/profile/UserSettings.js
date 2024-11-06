@@ -196,82 +196,24 @@ const UserSettings = () => {
                             <span className="font-bold">NIP-05:</span> {user.nip05.name}@plebdevs.com <i className="pi pi-copy cursor-pointer hover:text-gray-400" onClick={() => copyToClipboard(user.nip05.name + "@plebdevs.com")} />
                         </h3>
                     )}
-                    <div className="flex flex-col w-1/2 mx-auto justify-between items-center max-mob:w-full max-tab:w-full">
-                        <h3 className="text-xl my-2 max-mob:text-base max-tab:text-base">Connect Your Lightning Wallet for easier zaps and payments</h3>
-                        <BitcoinConnectButton />
+                    <div className="bg-gray-800 rounded-lg p-6 shadow-lg w-1/4 mx-auto my-4 max-mob:w-full max-tab:w-full">
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="flex items-center gap-2">
+                                <i className="pi pi-bolt text-yellow-500 text-2xl"></i>
+                                <h3 className="text-xl font-semibold max-mob:text-base max-tab:text-base">
+                                    Lightning Wallet Connection
+                                </h3>
+                            </div>
+                            <p>
+                                Connect your Lightning wallet for easier zaps and payments across the platform
+                            </p>
+                            <BitcoinConnectButton />
+                        </div>
                     </div>
                     {user && (
                         <SubscribeModal user={user} />
                     )}
                 </div>
-                {/* {!session || !session?.user || !ndk ? (
-                    <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
-                ) : (
-                    <div className="flex justify-between" style={{ flexDirection: windowWidth < 768 ? "column" : "row", gap: "1rem" }}>
-                        <div className="flex flex-col" style={{ width: windowWidth < 768 ? "100%" : "49%" }}>
-                        <Panel
-                            headerTemplate={PanelHeader}
-                            toggleable
-                            collapsed={collapsed}
-                            onToggle={(e) => setCollapsed(e.value)}
-                        >
-                            <div className="flex flex-row justify-between">
-                                <InputText
-                                    placeholder="Relay URL"
-                                    value={newRelayUrl}
-                                    onChange={(e) => setNewRelayUrl(e.target.value)}
-                                />
-                                <GenericButton
-                                    label="Add"
-                                    severity="success"
-                                    className='w-fit px-4'
-                                    outlined
-                                    onClick={addRelay}
-                                />
-                            </div>
-                        </Panel>
-                        <DataTable value={userRelays}
-                            pt={{
-                                wrapper: {
-                                    className: "rounded-lg rounded-t-none"
-                                },
-                                header: {
-                                    className: "rounded-t-lg"
-                                }
-                            }}
-                            onValueChange={() => setUpdateTrigger(prev => prev + 1)} // Trigger update when table value changes
-                        >
-                            <Column field={(url) => url} header="Relay URL"></Column>
-                            <Column body={relayStatusBody} header="Status"></Column>
-                                <Column body={relayActionsBody} header="Actions"></Column>
-                            </DataTable>
-                        </div>
-                    <DataTable
-                        emptyMessage="No purchases"
-                        value={session.user?.purchased}
-                        header={header}
-                        style={{ width: windowWidth < 768 ? "100%" : "49%", borderRadius: "10px" }}
-                        pt={{
-                            wrapper: {
-                                className: "rounded-lg rounded-t-none"
-                            },
-                            header: {
-                                className: "rounded-t-lg"
-                            }
-                        }}
-                    >
-                        <Column field="amountPaid" header="Cost"></Column>
-                        <Column
-                            body={(rowData) => {
-                                return <PurchasedListItem eventId={rowData?.resource?.noteId || rowData?.course?.noteId} category={rowData?.course ? "courses" : "resources"} />
-                            }}
-                            header="Name"
-                        ></Column>
-                        <Column body={session.user?.purchased?.some((item) => item.courseId) ? "course" : "resource"} header="Category"></Column>
-                        <Column body={rowData => formatDateTime(rowData?.createdAt)} header="Date"></Column>
-                    </DataTable>
-                    </div>
-                )} */}
                 <div>
                     <Panel
                         headerTemplate={PanelHeader}
