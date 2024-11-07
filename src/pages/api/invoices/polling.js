@@ -83,9 +83,8 @@ export default async function handler(req, res) {
                             tags: [
                                 ["p", parsedZapRequest.tags.find(t => t[0] === "p")[1]],
                                 ["bolt11", response.data.payment_request],
-                                ["description", parsedZapRequest.content],
+                                ["description", JSON.stringify(parsedZapRequest)],
                                 ["preimage", preimage],
-                                ["request", JSON.stringify(parsedZapRequest)]
                             ]
                         };
 
