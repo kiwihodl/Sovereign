@@ -10,9 +10,9 @@ const BACKEND_URL = process.env.BACKEND_URL;
 
 async function pollPaymentStatus(baseUrl, name, paymentHash, maxAttempts = 300, interval = 1000) {
     for (let i = 0; i < maxAttempts; i++) {
-        console.log(`Polling payment status for ${name}... (${i}/${maxAttempts})`);
         try {
             const response = await axios.get(`${baseUrl}/api/lightning-address/verify/${name}/${paymentHash}`);
+            console.log(`Polling payment status for ${name}... (${i}/${maxAttempts}), response:`, response.data);
             
             if (response.data.status === "OK" && response.data.settled) {
                 return true;
