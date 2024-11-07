@@ -1,30 +1,10 @@
 import axios from "axios";
-import { finalizeEvent } from 'nostr-tools/pure';
-import { SimplePool } from 'nostr-tools/pool';
 import appConfig from "@/config/appConfig";
 import { getLightningAddressByName } from "@/db/models/lightningAddressModels";
+import { kv } from '@vercel/kv';
 
-const ZAP_PRIVKEY = process.env.ZAP_PRIVKEY;
 const PLEBDEVS_API_KEY = process.env.PLEBDEVS_API_KEY;
 const BACKEND_URL = process.env.BACKEND_URL;
-
-async function pollPaymentStatus(baseUrl, name, paymentHash, maxAttempts = 300, interval = 1000) {
-    for (let i = 0; i < maxAttempts; i++) {
-        try {
-            const response = await axios.get(`${baseUrl}/api/lightning-address/verify/${name}/${paymentHash}`);
-            console.log(`Polling payment status for ${name}... (${i}/${maxAttempts}), response:`, response.data);
-            
-            if (response.data.status === "OK" && response.data.settled) {
-                return true;
-            }
-            
-            await new Promise(resolve => setTimeout(resolve, interval));
-        } catch (error) {
-            console.error('Error polling payment status:', error.message);
-        }
-    }
-    return false;
-}
 
 export default async function handler(req, res) {
     // make sure api key is in authorization header
@@ -77,45 +57,30 @@ export default async function handler(req, res) {
         });
 
         const invoice = response.data.payment_request;
+        const expiry = response.data.expiry;
         const paymentHash = Buffer.from(response.data.r_hash, 'base64');
         const paymentHashHex = paymentHash.toString('hex');
 
-        // If this is a zap, wait for payment and then publish a zap receipt
+        // If this is a zap, store verification URL and zap request in Redis
         if (zap_request && foundAddress.allowsNostr) {
             const zapRequest = JSON.parse(zap_request);
-            const zapReceipt = {
-                kind: 9735,
-                created_at: Math.floor(Date.now() / 1000),
-                content: foundAddress.zapMessage || appConfig.defaultZapMessage || '',
-                tags: [
-                    ['p', zapRequest.pubkey],
-                    ['e', zapRequest.id],
-                    ['bolt11', invoice],
-                    ['description', JSON.stringify(zapRequest)]
-                ]
-            };
+            const verifyUrl = `${BACKEND_URL}/api/lightning-address/verify/${name}/${paymentHashHex}`;
+            
+            // Store in Redis with 24-hour expiration
+            await kv.set(`invoice:${paymentHashHex}`, {
+                verifyUrl,
+                zapRequest,
+                name,
+                invoice,
+                foundAddress,
+                settled: false
+            }, { ex: expiry || 86400 }); // expiry matches invoice expiry
 
-            // Start payment polling in the background
-            const pollPromise = pollPaymentStatus(BACKEND_URL, name, paymentHashHex);
-
-            // Send the response immediately
-            res.status(200).json({ invoice, payment_hash: paymentHashHex });
-
-            // Wait for payment to settle
-            const isSettled = await pollPromise;
-            console.log("Payment settled??", isSettled);
-
-            if (isSettled) {
-                const signedZapReceipt = finalizeEvent(zapReceipt, foundAddress.relayPrivkey || ZAP_PRIVKEY);
-
-                // Publish zap receipt to relays
-                const pool = new SimplePool();
-                const relays = foundAddress.defaultRelays || appConfig.defaultRelayUrls || [];
-                await Promise.any(pool.publish(relays, signedZapReceipt));
-                console.log("ZAP RECEIPT PUBLISHED", signedZapReceipt);
-            } else {
-                console.log("Payment not settled after 60 seconds, skipping zap receipt");
-            }
+            res.status(200).json({ 
+                invoice, 
+                payment_hash: paymentHashHex,
+                verify_url: verifyUrl 
+            });
             return;
         }
 
