@@ -1,6 +1,8 @@
 import axios from "axios";
 import { kv } from '@vercel/kv';
-import { broadcastToRelays } from "@/utils/nostr";
+import { finalizeEvent } from 'nostr-tools/pure';
+import { SimplePool } from 'nostr-tools/pool';
+import appConfig from '@/config/appConfig';
 
 const PLEBDEVS_API_KEY = process.env.PLEBDEVS_API_KEY;
 
@@ -86,8 +88,11 @@ export default async function handler(req, res) {
                             ]
                         };
 
-                        // Broadcast zap receipt to relays
-                        await broadcastToRelays(zapReceipt, foundAddress.nostrPrivateKey);
+                        const signedZapReceipt = finalizeEvent(zapReceipt, foundAddress.relayPrivkey || ZAP_PRIVKEY);
+                        // Publish zap receipt to relays
+                        const pool = new SimplePool();
+                        const relays = foundAddress.defaultRelays || appConfig.defaultRelayUrls || [];
+                        await Promise.any(pool.publish(relays, signedZapReceipt));
 
                         console.log(`Broadcasted zap receipt for ${name} (${paymentHash})`, zapReceipt);
                         
