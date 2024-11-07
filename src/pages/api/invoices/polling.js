@@ -4,6 +4,7 @@ import { finalizeEvent } from 'nostr-tools/pure';
 import { SimplePool } from 'nostr-tools/pool';
 import appConfig from '@/config/appConfig';
 
+const ZAP_PRIVKEY = process.env.ZAP_PRIVKEY;
 const PLEBDEVS_API_KEY = process.env.PLEBDEVS_API_KEY;
 
 export default async function handler(req, res) {
