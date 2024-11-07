@@ -10,6 +10,7 @@ const BACKEND_URL = process.env.BACKEND_URL;
 
 async function pollPaymentStatus(baseUrl, name, paymentHash, maxAttempts = 300, interval = 1000) {
     for (let i = 0; i < maxAttempts; i++) {
+        console.log(`Polling payment status for ${name}... (${i}/${maxAttempts})`);
         try {
             const response = await axios.get(`${baseUrl}/api/lightning-address/verify/${name}/${paymentHash}`);
             
@@ -81,7 +82,6 @@ export default async function handler(req, res) {
 
         // If this is a zap, wait for payment and then publish a zap receipt
         if (zap_request && foundAddress.allowsNostr) {
-            console.log("ZAP REQUEST", zap_request);
             const zapRequest = JSON.parse(zap_request);
             const zapReceipt = {
                 kind: 9735,
@@ -103,6 +103,7 @@ export default async function handler(req, res) {
 
             // Wait for payment to settle
             const isSettled = await pollPromise;
+            console.log("Payment settled??", isSettled);
 
             if (isSettled) {
                 const signedZapReceipt = finalizeEvent(zapReceipt, foundAddress.relayPrivkey || ZAP_PRIVKEY);
