@@ -72,7 +72,7 @@ export default async function handler(req, res) {
                         const preimage = Buffer.from(response.data.r_preimage, 'base64').toString('hex');
                         
                         // Parse and prepare zap receipt
-                        const parsedZapRequest = JSON.parse(zapRequest);
+                        const parsedZapRequest = zapRequest;
                         const zapReceipt = {
                             kind: 9735,
                             created_at: Math.floor(Date.now() / 1000),
