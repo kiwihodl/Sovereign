@@ -3,16 +3,13 @@
   "crons": [
     {
       "path": "/api/users/subscription/cron",
-      "schedule": "0 0 * * *"
+      "schedule": "0 0 * * *",
+      "authorization": "@CRON_SECRET"
     },
     {
       "path": "/api/invoices/polling",
-      "schedule": "*/10 * * * *"
+      "schedule": "*/3 * * * *",
+      "authorization": "@PLEBDEVS_API_KEY"
     }
-  ],
-  "functions": {
-    "src/pages/api/invoices/short-poll.js": {
-      "maxDuration": 60
-    }
-  }
+  ]
 }

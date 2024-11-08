@@ -78,15 +78,6 @@ export default async function handler(req, res) {
                 settled: false
             }, { ex: expiry || 86400 });
 
-            // Trigger the polling endpoint without waiting for it
-            fetch(`${BACKEND_URL}/api/lightning-address/short-poll`, {
-                headers: {
-                    'Authorization': PLEBDEVS_API_KEY
-                }
-            }).catch(error => {
-                console.error('Error triggering polling:', error);
-            });
-
             // Return response immediately
             res.status(200).json({ 
                 invoice, 

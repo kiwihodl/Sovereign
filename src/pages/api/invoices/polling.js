@@ -16,8 +16,20 @@ export default async function handler(req, res) {
     }
 
     try {
+        // Add execution time limit protection
+        const startTime = Date.now();
+        const TIMEOUT_MS = 8000; // Vercel timeout is 10s, give ourselves margin
+        
         // Get all invoice keys from Redis
         const keys = await kv.keys('invoice:*');
+
+        // Add batch size limit
+        const BATCH_LIMIT = 500;
+        if (keys.length > BATCH_LIMIT) {
+            console.warn(`Large number of invoices: ${keys.length}. Processing first ${BATCH_LIMIT} only.`);
+            keys.length = BATCH_LIMIT;
+        }
+
         const results = {
             processed: 0,
             settled: 0,
@@ -28,6 +40,10 @@ export default async function handler(req, res) {
 
         // Process each invoice
         for (const key of keys) {
+            if (Date.now() - startTime > TIMEOUT_MS) {
+                console.warn('Approaching timeout, stopping processing');
+                break;
+            }
             try {
                 const invoiceData = await kv.get(key);
                 if (!invoiceData) continue;
