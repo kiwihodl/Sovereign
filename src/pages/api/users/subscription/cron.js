@@ -31,6 +31,7 @@ export default async function handler(req, res) {
                         const response = await nwcProvider.sendPayment(newInvoice?.paymentRequest);
 
                         if (response && response?.preimage) {
+                            console.log(`SUBSCRIPTION AUTO-RENEWED`, response);
                             await updateUserSubscription(userId, true, nwc);
                             continue; // Skip adding to stillExpired list
                         } else {
