@@ -11,7 +11,7 @@
     }
   ],
   "functions": {
-    "src/pages/api/invoices/polling.js": {
+    "src/pages/api/invoices/short-poll.js": {
       "maxDuration": 120
     }
   }
