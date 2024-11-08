@@ -3,13 +3,11 @@
   "crons": [
     {
       "path": "/api/users/subscription/cron",
-      "schedule": "0 0 * * *",
-      "authorization": "@CRON_SECRET"
+      "schedule": "0 0 * * *"
     },
     {
       "path": "/api/invoices/polling",
-      "schedule": "*/3 * * * *",
-      "authorization": "@PLEBDEVS_API_KEY"
+      "schedule": "*/3 * * * *"
     }
   ]
 }
