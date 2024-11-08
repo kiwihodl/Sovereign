@@ -54,10 +54,23 @@ export function VideoTemplate({ video, isLesson, showMetaTags }) {
 
     return (
         <Card className="overflow-hidden group hover:shadow-xl transition-all duration-300 bg-gray-800 m-2 border-none">
-            <div
-                className="relative w-full h-0"
-                style={{ paddingBottom: "56.25%" }}
-            >
+            {/* Header with title and price */}
+            <CardHeader className="flex justify-between items-center p-4 border-b border-gray-700">
+                <div className="flex items-center gap-4">
+                    <i className="pi pi-video text-2xl text-[#f8f8ff]"></i>
+                    <CardTitle className="text-xl sm:text-2xl">{video.title}</CardTitle>
+                </div>
+                <div>
+                    {video?.price && video?.price > 0 ? (
+                        <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock" severity="info" text={`${video.price} sats`} />
+                    ) : (
+                        <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock-open" severity="success" text="Free" />
+                    )}
+                </div>
+            </CardHeader>
+
+            {/* Image section */}
+            <div className="relative w-full h-0" style={{ paddingBottom: "56.25%" }}>
                 <Image
                     alt="video thumbnail"
                     src={returnImageProxy(video.image)}
@@ -70,15 +83,9 @@ export function VideoTemplate({ video, isLesson, showMetaTags }) {
                 <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/50 text-white px-3 py-1 rounded-full">
                     <ZapDisplay zapAmount={zapAmount} event={video} zapsLoading={zapsLoading && zapAmount === 0} />
                 </div>
-                <CardHeader className="absolute bottom-[-8px] left-0 right-0 text-white bg-gray-800/70 w-fit rounded-lg rounded-bl-none rounded-tl-none rounded-br-none p-4 max-w-[70%] max-h-[60%]">
-                    <div className="flex items-center justify-center gap-4">
-                        <i className="pi pi-video text-2xl text-[#f8f8ff]"></i>
-                        <div>
-                            <CardTitle className="text-xl sm:text-2xl mb-2">{video.title}</CardTitle>
-                        </div>
-                    </div>
-                </CardHeader>
             </div>
+
+            {/* Content section with tags and duration */}
             <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-start`}>
                 <div className="flex flex-wrap gap-2 max-w-[65%]">
                     {video?.topics?.map((topic, index) => (
@@ -88,21 +95,11 @@ export function VideoTemplate({ video, isLesson, showMetaTags }) {
                             </Tag>
                         )
                     ))}
-                    {isLesson && showMetaTags && <Tag size="small" className="px-3 py-1 text-sm text-[#f8f8ff]" value="lesson" />}
+                    {isLesson && showMetaTags && <Tag size="small" className="px-2 py-1 text-sm text-[#f8f8ff]" value="lesson" />}
                 </div>
-                <div className="flex flex-col items-end">
-                    <p className="font-bold text-gray-300">{video?.duration || "5 min"} watch</p>
-                    <div className="flex flex-col items-end">
-                        {
-                            video?.price && video?.price > 0 ? (
-                                <Message className={`${isMobile ? "text-xs" : "text-base"} py-1 whitespace-nowrap`} icon="pi pi-lock" severity="info" text={`${video.price} sats`} />
-                            ) : (
-                                <Message className={`${isMobile ? "text-xs" : "text-base"} py-1 whitespace-nowrap`} icon="pi pi-lock-open" severity="success" text="Free" />
-                            )
-                        }
-                    </div>
-                </div>
+                <p className="font-bold text-gray-300">{video?.duration || "5 min"} watch</p>
             </CardContent>
+
             <CardDescription className={`${isMobile ? "w-full p-3" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center max-w-[100%]`}
                 style={{
                     overflow: "hidden",
