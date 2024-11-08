@@ -67,7 +67,7 @@ export function DocumentTemplate({ document, isLesson, showMetaTags }) {
                     <ZapDisplay zapAmount={zapAmount} event={document} zapsLoading={zapsLoading && zapAmount === 0} />
                 </div>
             </div>
-            <CardHeader className="flex flex-row justify-between items-center p-4">
+            <CardHeader className="flex flex-row justify-between items-center p-4 border-b border-gray-700">
                 <div className="flex items-center gap-4">
                     <CardTitle className="text-xl sm:text-2xl text-[#f8f8ff]">{document.title}</CardTitle>
                 </div>
