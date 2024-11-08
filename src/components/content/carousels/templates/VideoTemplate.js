@@ -54,22 +54,6 @@ export function VideoTemplate({ video, isLesson, showMetaTags }) {
 
     return (
         <Card className="overflow-hidden group hover:shadow-xl transition-all duration-300 bg-gray-800 m-2 border-none">
-            {/* Header with title and price */}
-            <CardHeader className="flex justify-between items-center p-4 border-b border-gray-700">
-                <div className="flex items-center gap-4">
-                    <i className="pi pi-video text-2xl text-[#f8f8ff]"></i>
-                    <CardTitle className="text-xl sm:text-2xl">{video.title}</CardTitle>
-                </div>
-                <div>
-                    {video?.price && video?.price > 0 ? (
-                        <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock" severity="info" text={`${video.price} sats`} />
-                    ) : (
-                        <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock-open" severity="success" text="Free" />
-                    )}
-                </div>
-            </CardHeader>
-
-            {/* Image section */}
             <div className="relative w-full h-0" style={{ paddingBottom: "56.25%" }}>
                 <Image
                     alt="video thumbnail"
@@ -84,8 +68,19 @@ export function VideoTemplate({ video, isLesson, showMetaTags }) {
                     <ZapDisplay zapAmount={zapAmount} event={video} zapsLoading={zapsLoading && zapAmount === 0} />
                 </div>
             </div>
-
-            {/* Content section with tags and duration */}
+            <CardHeader className="flex flex-row justify-between items-center p-4">
+                <div className="flex items-center gap-4">
+                    <i className="pi pi-video text-2xl text-[#f8f8ff] max-mob:hidden max-tab:hidden"></i>
+                    <CardTitle className="text-xl sm:text-2xl text-[#f8f8ff]">{video.title}</CardTitle>
+                </div>
+                <div>
+                    {video?.price && video?.price > 0 ? (
+                        <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock" severity="info" text={`${video.price} sats`} />
+                    ) : (
+                        <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock-open" severity="success" text="Free" />
+                    )}
+                </div>
+            </CardHeader>
             <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-start`}>
                 <div className="flex flex-wrap gap-2 max-w-[65%]">
                     {video?.topics?.map((topic, index) => (
