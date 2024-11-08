@@ -4,10 +4,14 @@
     {
       "path": "/api/users/subscription/cron",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/invoices/polling",
+      "schedule": "*/10 * * * *"
     }
   ],
   "functions": {
-    "src/pages/api/lightning-address/lnd.js": {
+    "src/pages/api/invoices/polling.js": {
       "maxDuration": 120
     }
   }
