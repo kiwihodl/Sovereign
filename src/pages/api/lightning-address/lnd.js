@@ -80,6 +80,7 @@ export default async function handler(req, res) {
             let attempts = 0;
             const pollInterval = setInterval(async () => {
                 try {
+                    console.log('Polling for invoice', attempts);
                     const pollResponse = await axios.get(`${BACKEND_URL}/api/invoices/polling`, {
                         headers: {
                             'Authorization': PLEBDEVS_API_KEY
