@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     try {
         // Poll for 120 seconds maximum
         const startTime = Date.now();
-        const timeoutDuration = 120000; // 120 seconds in milliseconds
+        const timeoutDuration = 30000; // 30 seconds in milliseconds
 
         while (Date.now() - startTime < timeoutDuration) {
             const pollResponse = await axios.get(`${BACKEND_URL}/api/invoices/polling`, {

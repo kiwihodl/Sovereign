@@ -12,7 +12,7 @@
   ],
   "functions": {
     "src/pages/api/invoices/short-poll.js": {
-      "maxDuration": 120
+      "maxDuration": 60
     }
   }
 }
