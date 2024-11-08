@@ -69,7 +69,6 @@ export function DocumentTemplate({ document, isLesson, showMetaTags }) {
             </div>
             <CardHeader className="flex flex-row justify-between items-center p-4">
                 <div className="flex items-center gap-4">
-                    <i className="pi pi-file text-2xl text-[#f8f8ff] max-mob:hidden max-tab:hidden"></i>
                     <CardTitle className="text-xl sm:text-2xl text-[#f8f8ff]">{document.title}</CardTitle>
                 </div>
                 <div>
