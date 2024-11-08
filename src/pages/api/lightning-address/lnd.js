@@ -63,10 +63,12 @@ export default async function handler(req, res) {
 
         // If this is a zap, store verification URL and zap request in Redis
         if (zap_request && foundAddress.allowsNostr) {
+            console.log('Storing zap request in Redis');
             const zapRequest = JSON.parse(zap_request);
             const verifyUrl = `${BACKEND_URL}/api/lightning-address/verify/${name}/${paymentHashHex}`;
+            console.log('Verify URL', verifyUrl);
             
-            // Store in Redis with 24-hour expiration
+            // Store in Redis
             await kv.set(`invoice:${paymentHashHex}`, {
                 verifyUrl,
                 zapRequest,
@@ -74,10 +76,11 @@ export default async function handler(req, res) {
                 invoice,
                 foundAddress,
                 settled: false
-            }, { ex: expiry || 86400 }); // expiry matches invoice expiry
+            }, { ex: expiry || 86400 });
 
             // Start polling for this zap request
             let attempts = 0;
+            console.log('Starting polling interval', attempts);
             const pollInterval = setInterval(async () => {
                 console.log('Polling for invoice', attempts);
                 try {
