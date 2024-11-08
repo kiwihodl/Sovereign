@@ -76,6 +76,28 @@ export default async function handler(req, res) {
                 settled: false
             }, { ex: expiry || 86400 }); // expiry matches invoice expiry
 
+            // Start polling for this zap request
+            let attempts = 0;
+            const pollInterval = setInterval(async () => {
+                try {
+                    const pollResponse = await axios.get(`${BACKEND_URL}/api/invoices/polling`, {
+                        headers: {
+                            'Authorization': PLEBDEVS_API_KEY
+                        }
+                    });
+
+                    // If no pending invoices or we've reached max attempts, stop polling
+                    if (pollResponse.data.pending === 0 || attempts >= 120) {
+                        clearInterval(pollInterval);
+                    }
+                    
+                    attempts++;
+                } catch (error) {
+                    console.error('Polling error:', error);
+                    clearInterval(pollInterval);
+                }
+            }, 1000); // Poll every second
+
             res.status(200).json({ 
                 invoice, 
                 payment_hash: paymentHashHex,
