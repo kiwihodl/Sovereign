@@ -53,6 +53,26 @@ const UserProfile = () => {
         </div>
     );
 
+    const menuItems = [
+        ...(user?.privkey ? [{
+            label: 'Copy nsec',
+            icon: 'pi pi-key',
+            command: () => {
+                const privkeyBuffer = Buffer.from(user.privkey, 'hex');
+                copyToClipboard(nip19.nsecEncode(privkeyBuffer));
+            }
+        }] : []),
+        {
+            label: 'Copy npub',
+            icon: 'pi pi-user',
+            command: () => {
+                if (user.pubkey) {
+                    copyToClipboard(nip19.npubEncode(user?.pubkey));
+                }
+            }
+        }
+    ];
+
     return (
         user && (
             <div className="p-4">
@@ -70,7 +90,20 @@ const UserProfile = () => {
                             height={100}
                             className="rounded-full my-4"
                         />
+                        <div className="absolute top-8 right-80 max-tab:right-20 max-mob:left-0">
+                            <i 
+                                className="pi pi-ellipsis-h text-2xl cursor-pointer"
+                                onClick={(e) => menu.current.toggle(e)}
+                            />
+                            <Menu 
+                                model={menuItems} 
+                                popup 
+                                ref={menu} 
+                                id="profile-options-menu"
+                            />
+                        </div>
                     </div>
+
 
                     <h1 className="text-center text-2xl my-2">
                         {user.username || user?.email || "Anon"}

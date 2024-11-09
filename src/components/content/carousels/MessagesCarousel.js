@@ -64,15 +64,6 @@ const MessageCarousel = ({ copyToClipboard }) => {
 
     const messages = [
         {
-            title: "Welcome to the PlebDevs Platform testing phase! 👋",
-            description: "During this testing phase all prices will be reduced by 10x but all purchases, subscriptions, and progress will be reset on launch, cheers!",
-            showGithub: false,
-            showX: false,
-            showNostr: false,
-            showDonate: false,
-            showFeedback: true,
-        },
-        {
             title: "PlebDevs 🤝👨‍💻🤝👩‍💻🤝🧑‍💻🤝",
             description: "Plebdevs is open source software and is still in early development. If you have any questions drop an issue on the Github repo, or reach out to me in the Community feed.",
             showGithub: true,

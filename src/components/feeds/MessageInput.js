@@ -4,15 +4,28 @@ import GenericButton from '@/components/buttons/GenericButton';
 import { Panel } from 'primereact/panel';
 import { useNDKContext } from "@/context/NDKContext";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
+import { finalizeEvent, verifyEvent } from 'nostr-tools/pure'
+import { SimplePool } from 'nostr-tools/pool'
+import appConfig from '@/config/appConfig';
 import { useToast } from '@/hooks/useToast';
+import { useSession } from 'next-auth/react';
 
 const MessageInput = () => {
     const [message, setMessage] = useState('');
     const [collapsed, setCollapsed] = useState(true);
     const { ndk, addSigner } = useNDKContext();
     const { showToast } = useToast();
+    const { data: session } = useSession();
 
     const handleSubmit = async () => {
+        if (session && session?.user && session.user?.privkey) {
+            handleManualSubmit(session.user.privkey);
+        } else {
+            handleExtensionSubmit();
+        }
+    }
+
+    const handleExtensionSubmit = async () => {
         if (!message.trim() || !ndk) return;
 
         try {
@@ -32,6 +45,37 @@ const MessageInput = () => {
             showToast('error', 'Error', 'There was an error sending your message. Please try again.');
         }
     };
+
+    const handleManualSubmit = async (privkey) => {
+        try {
+            let event = finalizeEvent({
+                kind: 1,
+                created_at: Math.floor(Date.now() / 1000),
+                tags: [
+                    ['t', 'plebdevs']
+                ],
+                content: message,
+              }, privkey)
+              
+            let isGood = verifyEvent(event);
+
+            if (isGood) {
+                const pool = new SimplePool();
+                const published = await pool.publish(appConfig.defaultRelayUrls, event);
+                if (published) {
+                    showToast('success', 'Message Sent', 'Your message has been sent to the PlebDevs community.');
+                    setMessage('');
+                } else {
+                    showToast('error', 'Error', 'There was an error sending your message. Please try again.');
+                }
+            } else {
+                showToast('error', 'Error', 'There was an error sending your message. Please try again.');
+            }
+        } catch (error) {
+            console.error("Error finalizing event:", error);
+            showToast('error', 'Error', 'There was an error sending your message. Please try again.');
+        }
+    }
 
     const headerTemplate = (options) => {
         return (

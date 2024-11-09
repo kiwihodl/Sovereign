@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import GenericButton from "@/components/buttons/GenericButton";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import { Menu } from "primereact/menu";
 import { useImageProxy } from "@/hooks/useImageProxy";
 import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from "primereact/progressspinner";
@@ -25,6 +26,7 @@ const UserSettings = () => {
     const { ndk, userRelays, setUserRelays, reInitializeNDK } = useNDKContext();
     const { data: session } = useSession();
     const { returnImageProxy } = useImageProxy();
+    const menu = useRef(null);
     const windowWidth = useWindowWidth();
     const [newRelayUrl, setNewRelayUrl] = useState("");
     const { showToast } = useToast();
@@ -160,6 +162,24 @@ const UserSettings = () => {
         </div>
     );
 
+    const menuItems = [
+        ...(user?.privkey ? [{
+            label: 'Copy nsec',
+            icon: 'pi pi-key',
+            command: () => {
+                const privkeyBuffer = Buffer.from(user.privkey, 'hex');
+                copyToClipboard(nip19.nsecEncode(privkeyBuffer));
+            }
+        }] : []),
+        {
+            label: 'Copy npub',
+            icon: 'pi pi-user',
+            command: () => {
+                copyToClipboard(nip19.npubEncode(user?.pubkey));
+            }
+        }
+    ];
+
     return (
         user && (
             <div className="p-4">
@@ -177,6 +197,18 @@ const UserSettings = () => {
                             height={100}
                             className="rounded-full my-4"
                         />
+                        <div className="absolute top-8 right-80 max-tab:right-20 max-mob:left-0">
+                            <i
+                                className="pi pi-ellipsis-h text-2xl cursor-pointer user-menu-trigger"
+                                onClick={(e) => menu.current.toggle(e)}
+                            />
+                            <Menu
+                                model={menuItems}
+                                popup
+                                ref={menu}
+                                id="profile-options-menu"
+                            />
+                        </div>
                     </div>
 
                     <h1 className="text-center text-2xl my-2">
