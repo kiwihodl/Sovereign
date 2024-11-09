@@ -37,6 +37,7 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
             const total = getTotalFromZaps(zaps, processedEvent);
             setZapAmount(total);
         }
+        console.log('processedEvent', processedEvent);
     }, [zaps, processedEvent]);
 
     useEffect(() => {
