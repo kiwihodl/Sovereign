@@ -39,7 +39,7 @@ const promotions = [
     title: "Lightning and Nostr integrated platform",
     description: "All content is published to and pulled from nostr relays and is fully interoperable with comments, zaps, and other nostr clients. Premium content is available for sale with lightning or by subscribing to plebdevs via a lightning subscription.",
     icon: "pi pi-bolt",
-    image: "https://www.financemagnates.com/wp-content/uploads/2016/05/Bicoin-lightning.jpg",
+    video: "https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-lightning-nostr-montage.mp4",
   },
 ]
 
