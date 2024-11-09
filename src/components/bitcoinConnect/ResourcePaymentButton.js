@@ -77,7 +77,7 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
       const result = await axios.post('/api/purchase/resource', purchaseData);
 
       if (result.status === 200) {
-        track('Resource Payment', { resourceId: resourceId, userId: session?.user?.id });
+        track('Resource Payment', { resourceId: resourceId, userId: session?.user?.id, invoice: invoice.paymentRequest });
         if (onSuccess) onSuccess(response);
       } else {
         throw new Error('Failed to update user purchases');

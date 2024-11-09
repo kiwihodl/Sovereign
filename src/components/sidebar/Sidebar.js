@@ -126,7 +126,7 @@ const Sidebar = ({ course = false }) => {
                         <div onClick={() => router.push('/')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/') ? 'bg-gray-700' : ''}`}>
                             <i className="pi pi-home pl-5" /> <p className="pl-2 rounded-md font-bold text-lg">Home</p>
                         </div>
-                        <div onClick={() => router.push('/content')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content') || router.pathname === '/content' ? 'bg-gray-700' : ''}`}>
+                        <div onClick={() => router.push('/content?tag=all')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content') || router.pathname === '/content' ? 'bg-gray-700' : ''}`}>
                             <i className="pi pi-play-circle pl-5" /> <p className="pl-2 rounded-md font-bold text-lg">Content</p>
                         </div>
                         {isAdmin && (
@@ -146,7 +146,7 @@ const Sidebar = ({ course = false }) => {
                     !course && (
                         <div className="flex flex-col items-center">
                             <i className="pi pi-home my-4 cursor-pointer" onClick={() => router.push('/')} />
-                            <i className="pi pi-play-circle my-4 cursor-pointer" onClick={() => router.push('/content')} />
+                            <i className="pi pi-play-circle my-4 cursor-pointer" onClick={() => router.push('/content?tag=all')} />
                             <i className="pi pi-plus my-4 cursor-pointer" onClick={() => router.push('/create')} />
                             <i className="pi pi-star my-4 cursor-pointer" onClick={() => session ? router.push('/profile?tab=subscribe') : router.push('/auth/signin')} />
                             <i className="pi pi-comments my-4 cursor-pointer" onClick={() => router.push('/feed?channel=global')} />

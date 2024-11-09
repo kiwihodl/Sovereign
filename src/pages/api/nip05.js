@@ -1,6 +1,8 @@
 import { getNip05ByName } from "@/db/models/nip05Models";
+import { runMiddleware, corsMiddleware } from "@/utils/corsMiddleware";
 
 export default async function Nip05(req, res) {
+    await runMiddleware(req, res, corsMiddleware);
     const name = req.query.name;
     if (!name) {
         return res.status(400).json({ error: "Name is required" });
