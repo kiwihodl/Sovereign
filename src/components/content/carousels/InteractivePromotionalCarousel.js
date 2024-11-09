@@ -23,7 +23,7 @@ const promotions = [
     title: "Comprehensive Learning Resources",
     description: "Access the PlebDevs library of courses, videos, and documents.",
     icon: "pi pi-book",
-    image: "https://media.istockphoto.com/id/1224500457/photo/programming-code-abstract-technology-background-of-software-developer-and-computer-script.jpg?s=612x612&w=0&k=20&c=nHMypkMTU1HUUW85Zt0Ff7MDbq17n0eVeXaoM9Knt4Q=",
+    video: "https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-content-montage.mp4",
   },
   {
     id: 3,
@@ -31,7 +31,7 @@ const promotions = [
     title: "Join Our Community of learners / hackers",
     description: "Learn and connect with other developers, share your projects, and level up together.",
     icon: "pi pi-users",
-    image: "https://pikwizard.com/pw/medium/50238b1cad4ff412fdafc1325efa1c9f.jpg",
+    video: "https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-community-montage.mp4",
   },
   {
     id: 4,
