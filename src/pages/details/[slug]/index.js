@@ -172,11 +172,11 @@ const Details = () => {
                 handlePaymentError={handlePaymentError}
                 authorView={authorView}
             />
-            {typeof window !== 'undefined' && nAddress !== null && session?.user?.pubkey && (
+            {nAddress !== null && (nsec || npub) && (
                 <div className='px-4'>
                     <ZapThreadsWrapper
                         anchor={nAddress}
-                        user={session?.user?.pubkey || null}
+                        user={nsec || npub || null}
                         relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.mutinywallet.com/, wss://relay.primal.net/"
                         disable="zaps"
                     />
