@@ -260,7 +260,7 @@ const Subscribe = () => {
             )}
 
             <Card title="Frequently Asked Questions" className="mb-6">
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 max-w-[80%]">
                     <div>
                         <h3 className="text-lg font-semibold">How does the subscription work?</h3>
                         <p>Think of the subscriptions as a Patreon-type model. You pay a monthly fee and in return you get access to premium features and all of the paid content. You can cancel at any time.</p>

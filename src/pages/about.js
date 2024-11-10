@@ -35,7 +35,7 @@ const AboutPage = () => {
         <div className={`${isTabView ? 'w-full' : 'w-[83vw]'} ${isMobile ? 'p-0' : 'p-4'} mx-auto`}>
             <InteractivePromotionalCarousel />
             <Card title="Key Features" className={`mb-4 ${isMobile ? 'm-2' : null}`}>
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 max-w-[80%]">
                     <div className="flex flex-col items-start justify-center">
                         <div className='flex items-start'>
                             <i className="pi pi-cloud text-2xl text-primary mr-2 text-blue-400"></i>
