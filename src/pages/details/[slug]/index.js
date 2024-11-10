@@ -21,6 +21,8 @@ const Details = () => {
     const [authorView, setAuthorView] = useState(false);
     const [loading, setLoading] = useState(true);
     const [lessons, setLessons] = useState([]);
+    const [npub, setNpub] = useState(null);
+    const [nsec, setNsec] = useState(null);
     const { data: session, update } = useSession();
     const { ndk } = useNDKContext();
     const { decryptContent } = useDecryptContent();
@@ -67,6 +69,15 @@ const Details = () => {
             fetchAuthor(event?.pubkey);
         }
     }, [author, event, fetchAuthor]);
+
+    useEffect(() => {
+        if (session?.user?.privkey) {
+            const privkeyBuffer = Buffer.from(session.user.privkey, 'hex');
+            setNsec(nip19.nsecEncode(privkeyBuffer));
+        } else if (session?.user?.pubkey) {
+            setNpub(nip19.npubEncode(session.user.pubkey));
+        }
+    }, [session]);
 
     useEffect(() => {
         const fetchAndProcessEvent = async () => {

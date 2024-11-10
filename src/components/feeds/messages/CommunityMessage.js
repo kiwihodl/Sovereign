@@ -10,7 +10,6 @@ import NostrIcon from '../../../../public/images/nostr.png';
 import Image from 'next/image';
 import { nip19 } from 'nostr-tools';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
-import useWindowWidth from '@/hooks/useWindowWidth';
 
 const StackerNewsIconComponent = () => (
     <svg width="16" height="16" className='mr-2' viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -38,13 +37,19 @@ const headerTemplate = (options, windowWidth, platform, id) => {
 
 const CommunityMessage = ({ message, searchQuery, windowWidth, platform }) => {
     const [npub, setNpub] = useState(null);
+    const [nsec, setNsec] = useState(null);
     const [collapsed, setCollapsed] = useState(true);
     const { data: session } = useSession();
-    const isMobileView = windowWidth <= 768;
 
     useEffect(() => {
-        if (session?.user?.pubkey) {
-            setNpub(nip19.npubEncode(session.user.pubkey));
+        if (session?.user?.pubkey || session?.user?.privkey) {
+            let privkeyBuffer;
+            if (session.user.privkey) {
+                privkeyBuffer = Buffer.from(session.user.privkey, 'hex');
+                setNsec(nip19.nsecEncode(privkeyBuffer));
+            } else {
+                setNpub(nip19.npubEncode(session.user.pubkey));
+            }
         }
     }, [session]);
 
@@ -83,12 +88,14 @@ const CommunityMessage = ({ message, searchQuery, windowWidth, platform }) => {
                             className="w-full"
                         >
                             <div className="max-w-[100vw]">
-                                <ZapThreadsWrapper
-                                    anchor={nip19.noteEncode(message.id)}
-                                    user={npub || null}
-                                    relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.mutinywallet.com/, wss://relay.primal.net/"
-                                    disable="zaps"
-                                />
+                                {nsec || npub ? (
+                                    <ZapThreadsWrapper
+                                        anchor={nip19.noteEncode(message.id)}
+                                        user={nsec || npub || null}
+                                        relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.mutinywallet.com/, wss://relay.primal.net/"
+                                        disable={nsec ? "zaps,login" : "zaps"}
+                                    />
+                                ) : null}
                             </div>
                         </Panel>
                     ) : (
