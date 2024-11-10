@@ -72,7 +72,23 @@ const InteractivePromotionalCarousel = () => {
 
   useEffect(() => {
     if (videoRef.current && selectedPromotion.video) {
-      videoRef.current.play();
+      const playVideo = async () => {
+        try {
+          videoRef.current.load();
+          await videoRef.current.play();
+        } catch (error) {
+          console.warn('Video playback failed:', error);
+          setTimeout(async () => {
+            try {
+              await videoRef.current?.play();
+            } catch (retryError) {
+              console.warn('Video retry failed:', retryError);
+            }
+          }, 100);
+        }
+      };
+      
+      playVideo();
     }
   }, [selectedPromotion]);
 
@@ -87,6 +103,7 @@ const InteractivePromotionalCarousel = () => {
             loop
             muted
             playsInline
+            onError={(e) => console.warn('Video error:', e)}
           />
         ) : (
           <Image
@@ -141,7 +158,7 @@ const InteractivePromotionalCarousel = () => {
         ) : (
           <>
             <div className="absolute inset-0 from-black via-black/70 to-transparent rounded-lg" />
-            <div className={`bg-gray-800/90 rounded-tr-lg absolute bottom-0 left-0 p-4 space-y-2 ${isTabView ? 'pb-16' : 'max-w-[80%]'}`}>
+            <div className={`bg-gray-800/90 rounded-tr-lg absolute bottom-0 left-0 p-4 space-y-2 rounded-bl-lg ${isTabView ? 'pb-16' : 'max-w-[80%]'}`}>
               <div className="uppercase text-sm font-bold text-[#f8f8ff]">{selectedPromotion.category}</div>
               <h2 className="font-bold leading-tight text-white drop-shadow-lg">
                 {selectedPromotion.title}
