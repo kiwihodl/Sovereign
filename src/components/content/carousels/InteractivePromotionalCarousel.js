@@ -98,14 +98,14 @@ const InteractivePromotionalCarousel = () => {
         {selectedPromotion.video ? (
           <video
             ref={videoRef}
-            src={selectedPromotion.video}
             className={`object-cover w-full ${isTabView ? 'h-[300px] rounded-lg' : 'h-full rounded-tr-none rounded-br-none'} rounded-lg opacity-100`}
             loop
             muted
             playsInline
-            crossOrigin="anonymous"
-            onError={(e) => console.warn('Video error:', e)}
-          />
+            autoPlay
+          >
+            <source src={selectedPromotion.video} type="video/mp4" />
+          </video>
         ) : (
           <Image
             src={returnImageProxy(selectedPromotion.image)}
