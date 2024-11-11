@@ -103,6 +103,7 @@ const InteractivePromotionalCarousel = () => {
             loop
             muted
             playsInline
+            crossOrigin="anonymous"
             onError={(e) => console.warn('Video error:', e)}
           />
         ) : (
