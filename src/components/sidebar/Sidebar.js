@@ -129,6 +129,9 @@ const Sidebar = ({ course = false }) => {
                         <div onClick={() => router.push('/content?tag=all')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/content') || router.pathname === '/content' ? 'bg-gray-700' : ''}`}>
                             <i className="pi pi-play-circle pl-5" /> <p className="pl-2 rounded-md font-bold text-lg">Content</p>
                         </div>
+                        <div onClick={() => router.push('/feed?channel=global')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/feed') ? 'bg-gray-700' : ''}`}>
+                            <i className="pi pi-comments pl-5" /> <p className="pl-2 rounded-md font-bold text-lg">Feeds</p>
+                        </div>
                         {isAdmin && (
                             <div onClick={() => router.push('/create')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/create') ? 'bg-gray-700' : ''}`}>
                                 <i className="pi pi-plus pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Create</p>
@@ -136,9 +139,6 @@ const Sidebar = ({ course = false }) => {
                         )}
                         <div onClick={() => session ? router.push('/profile?tab=subscribe') : router.push('/subscribe')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/profile?tab=subscribe') || isActive('/subscribe') ? 'bg-gray-700' : ''}`}>
                             <i className="pi pi-star pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Subscribe</p>
-                        </div>
-                        <div onClick={() => router.push('/feed?channel=global')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/feed') ? 'bg-gray-700' : ''}`}>
-                            <i className="pi pi-comments pl-5" /> <p className="pl-2 rounded-md font-bold text-lg">Feeds</p>
                         </div>
                     </div>
                 ) : (
