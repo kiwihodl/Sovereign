@@ -46,7 +46,6 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
             
             try {
                 const data = JSON.parse(event.data);
-                console.log('youtube data', data);
                 if (data.event === "onReady") {
                     event.source.postMessage('{"event":"listening"}', "https://www.youtube.com");
                 } else if (data.event === "infoDelivery" && data?.info && data?.info?.currentTime) {
@@ -65,18 +64,6 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
             window.removeEventListener("message", handleYouTubeMessage);
         };
     }, []);
-
-    useEffect(() => {
-        if (videoDuration && videoPlayed) {
-            console.log('videoDuration and videoPlayed', videoDuration, videoPlayed);
-        }
-    }, [videoDuration, videoPlayed]);
-
-    useEffect(() => {
-        if (videoPlayed) {
-            console.log('videoPlayed', videoPlayed);
-        }
-    }, [videoPlayed]);
 
     const checkDuration = useCallback(() => {
         const videoElement = mdDisplayRef.current?.querySelector('video');

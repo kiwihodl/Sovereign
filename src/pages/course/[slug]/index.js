@@ -73,7 +73,6 @@ const useCourseData = (ndk, fetchAuthor, router) => {
         const initializeCourse = async () => {
             setLoading(true);
             id = await fetchCourseId();
-            console.log('id', id);
             if (!id) {
                 setLoading(false);
                 return;
@@ -131,10 +130,6 @@ const useLessons = (ndk, fetchAuthor, lessonIds, pubkey) => {
         setUniqueLessons(newUniqueLessons);
     }, [lessons]);
 
-    useEffect(() => {
-        console.log('uniqueLessons', uniqueLessons);
-    }, [uniqueLessons]);
-
     return { lessons, uniqueLessons, setLessons };
 };
 
@@ -183,7 +178,6 @@ const Course = () => {
     const [completedLessons, setCompletedLessons] = useState([]);
 
     const setCompleted = useCallback((lessonId) => {
-        console.log('setting completed', lessonId);
         setCompletedLessons(prev => [...prev, lessonId]);
     }, []);
 
@@ -197,10 +191,6 @@ const Course = () => {
     const { course, lessonIds, paidCourse, loading: courseLoading } = useCourseData(ndk, fetchAuthor, router);
     const { lessons, uniqueLessons, setLessons } = useLessons(ndk, fetchAuthor, lessonIds, course?.pubkey);
     const { decryptionPerformed, loading: decryptionLoading } = useDecryption(session, paidCourse, course, lessons, setLessons);
-
-    useEffect(() => {
-        console.log('lessonIds', lessonIds);
-    }, [lessonIds]);
 
     useEffect(() => {
         if (router.isReady) {
@@ -225,10 +215,8 @@ const Course = () => {
     };
 
     const handlePaymentSuccess = async (response) => {
-        console.log("response in handlePaymentSuccess", response);
         if (response && response?.preimage) {
             const updated = await update();
-            console.log("session after update", updated);
             showToast('success', 'Payment Success', 'You have successfully purchased this course');
         } else {
             showToast('error', 'Error', 'Failed to purchase course. Please try again.');

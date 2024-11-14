@@ -52,7 +52,6 @@ export function useCommunityNotes() {
                 });
 
                 subscription.on('eose', () => {
-                    console.log("eose in useCommunityNotes");
                     setIsLoading(false);
                 });
 

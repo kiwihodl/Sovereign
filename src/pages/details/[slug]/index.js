@@ -32,13 +32,12 @@ const Details = () => {
     useEffect(() => {
         axios.get('/api/lessons').then(res => {
             if (res.data) {
-                console.log("res.data", res.data);
                 res.data.forEach(lesson => {
                     setLessons(prev => [...prev, { resourceId: lesson?.resourceId, courseId: lesson?.courseId || null }]);
                 });
             }
         }).catch(err => {
-            console.log('err', err);
+            console.error('err', err);
         });
     }, []);
 

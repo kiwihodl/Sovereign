@@ -35,8 +35,6 @@ export default async function handler(req, res) {
                 // This is a zap request
                 const zapRequest = JSON.parse(decodeURIComponent(queryParams.nostr));
 
-                console.log("ZAP REQUEST", zapRequest)
-
                 // Verify the zap request
                 if (!verifyEvent(zapRequest)) {
                     res.status(400).json({ error: 'Invalid zap request' });

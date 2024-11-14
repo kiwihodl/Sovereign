@@ -12,7 +12,6 @@ export function useAllContentQuery({ids}) {
 
 const fetchAllContentFromNDK = async (ids) => {
   try {
-      console.log('Fetching all content from NDK');
       await ndk.connect();
 
       const filter = { ids: ids };

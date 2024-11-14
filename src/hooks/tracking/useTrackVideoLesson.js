@@ -80,7 +80,6 @@ const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed, pa
 
       const alreadyCompleted = await checkOrCreateUserLesson();
       if (!alreadyCompleted && videoDuration && !completedRef.current && videoPlayed && (paidCourse === false || (paidCourse && decryptionPerformed))) {
-        console.log(`Tracking started for lesson ${lessonId}, video duration: ${videoDuration} seconds, video played: ${videoPlayed}`);
         setIsTracking(true);
         timerRef.current = setInterval(() => {
           setTimeSpent(prevTime => prevTime + 1);

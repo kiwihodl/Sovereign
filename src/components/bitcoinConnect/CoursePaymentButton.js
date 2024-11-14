@@ -39,7 +39,7 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
                 }
             }, 2000);
         } else {
-            console.log('no invoice');
+            console.error('no invoice');
         }
     
         return () => {
@@ -64,10 +64,6 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
         }
         setIsLoading(false);
     };
-
-    useEffect(() => {
-        console.log('invoice', invoice);
-    }, [invoice]);
 
     const handlePaymentSuccess = async (response) => {
         try {

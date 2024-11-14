@@ -46,7 +46,7 @@ export default function VideosCarousel() {
                 });
             }
         }).catch(err => {
-            console.log('err', err);
+            console.error('err', err);
         });
     }, []);
 

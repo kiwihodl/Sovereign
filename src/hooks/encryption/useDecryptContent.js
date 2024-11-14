@@ -11,7 +11,6 @@ export const useDecryptContent = () => {
 
     try {
       const response = await axios.post('/api/decrypt', { encryptedContent });
-      console.log('response', response);
 
       if (response.status !== 200) {
         throw new Error('Failed to decrypt content');

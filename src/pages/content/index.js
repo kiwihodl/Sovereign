@@ -134,8 +134,6 @@ const ContentPage = () => {
 
     const filterContent = (topic, content) => {
         let filtered = content;
-        console.log('topic', topic);
-        console.log('content', content);
         if (topic !== 'All') {
             const topicLower = topic.toLowerCase();
             if (['courses', 'videos', 'documents'].includes(topicLower)) {

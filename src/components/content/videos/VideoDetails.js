@@ -39,7 +39,7 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                     setCourse(res.data.lessons[0]?.courseId);
                 }
             }).catch(err => {
-                console.log('err', err);
+                console.error('err', err);
             });
         }
     }, [processedEvent.d, isLesson]);

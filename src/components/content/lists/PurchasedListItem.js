@@ -29,7 +29,6 @@ const PurchasedListItem = ({ eventId, category }) => {
 
     useEffect(() => {
         if (event) {
-            console.log("event", event);
             encodeNaddr();
         }
     }, [event]);

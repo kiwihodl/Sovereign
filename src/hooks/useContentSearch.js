@@ -32,7 +32,7 @@ export const useContentSearch = () => {
             });
             setAllContent(parsedEvents);
         } catch (error) {
-            console.log('error', error)
+            console.error('error', error)
         }
     }
 

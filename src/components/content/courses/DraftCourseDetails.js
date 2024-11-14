@@ -51,10 +51,6 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
     }, [ndk]);
 
     useEffect(() => {
-        console.log('lessons in comp', lessons);
-    }, [lessons]);
-
-    useEffect(() => {
         if (processedEvent) {
             fetchAuthor(processedEvent?.user?.pubkey);
         }
@@ -78,7 +74,6 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
     }
 
     const handlePostLesson = async (lesson) => {
-        console.log('lesson in handlePostLesson', lesson);
         let payload;
 
 
@@ -99,7 +94,6 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
     }
 
     const handlePostResource = async (resource) => {
-        console.log('resourceeeeee:', resource.tags);
         const dTag = resource.tags.find(tag => tag[0] === 'd')[1];
         let price
 
@@ -184,8 +178,6 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
                 }
             }
 
-            console.log('createdLessons', createdLessons);
-
             // Step 2: Create and publish course
             const courseEvent = createCourseEvent(newCourseId, processedEvent.title, processedEvent.summary, processedEvent.image, processedLessons, processedEvent.price);
             const published = await courseEvent.publish();
@@ -254,8 +246,6 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
             const event = new NDKEvent(ndk);
             let type;
             let encryptedContent;
-
-            console.log('Draft:', draft);
 
             switch (draft?.type) {
                 case 'document':
@@ -359,10 +349,6 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
             });
         }
     }, [lessons, user, author, ndk]);
-
-    useEffect(() => {
-        console.log('processedLessons', processedLessons);
-    }, [processedLessons]);
 
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>

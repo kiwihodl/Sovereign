@@ -41,11 +41,6 @@ const DocumentForm = ({ draft = null, isPublished = false }) => {
     const { ndk, addSigner } = useNDKContext();
 
     useEffect(() => {
-        console.log('isPublished', isPublished);
-        console.log('draft', draft);
-    }, [isPublished, draft]);
-
-    useEffect(() => {
         if (session) {
             setUser(session.user);
         }
@@ -109,11 +104,7 @@ const DocumentForm = ({ draft = null, isPublished = false }) => {
             additionalLinks: additionalLinks.filter(link => link.trim() !== '')
         }
 
-        console.log('handlePublishedResource', updatedDraft);
-
         const event = await buildEvent(updatedDraft);
-
-        console.log('event', event);
 
         try {
             if (!ndk.signer) {
@@ -127,7 +118,6 @@ const DocumentForm = ({ draft = null, isPublished = false }) => {
             if (published) {
                 // update the resource with new noteId
                 const response = await axios.put(`/api/resources/${draft.d}`, { noteId: event.id });
-                console.log('response', response);
                 showToast('success', 'Success', 'Document published successfully.');
                 router.push(`/details/${event.id}`);
             } else {

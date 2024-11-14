@@ -37,7 +37,6 @@ const MessageDropdownItem = ({ message, onSelect }) => {
                     const author = await ndk.getUser({ pubkey: message.pubkey });
                     if (author && author?.content) {
                         const authorFields = findKind0Fields(JSON.parse(author.content));
-                        console.log("authorFields", authorFields);
                         if (authorFields) {
                             setAuthor(authorFields);
                         }

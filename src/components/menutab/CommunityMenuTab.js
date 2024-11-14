@@ -8,10 +8,6 @@ import NostrIcon from '../../../public/images/nostr.png';
 const CommunityMenuTab = ({ selectedTopic, onTabChange }) => {
     const allItems = ['global', 'nostr', 'discord', 'stackernews'];
 
-    useEffect(() => {
-        console.log(selectedTopic);
-    }, [selectedTopic]);
-
     const menuItems = allItems.map((item, index) => {
         let icon;
         switch (item) {

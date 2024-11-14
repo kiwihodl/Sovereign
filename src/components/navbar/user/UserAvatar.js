@@ -26,7 +26,6 @@ const UserAvatar = () => {
 
     useEffect(() => {
         if (session) {
-            console.log(session);
             setUser(session.user);
         }
     }, [session]);

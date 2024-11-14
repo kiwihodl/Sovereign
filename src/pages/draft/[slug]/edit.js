@@ -24,7 +24,6 @@ const Edit = () => {
 
             axios.get(`/api/drafts/${slug}`)
                 .then(res => {
-                    console.log('res:', res.data);
                     setDraft(res.data);
                 })
                 .catch(err => {

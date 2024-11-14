@@ -28,7 +28,6 @@ export function useVideos() {
         setVideosError(null);
         try {
             if (!contentIds || contentIds.length === 0) {
-                console.log('No content IDs found');
                 setVideosLoading(false);
                 return []; // Return early if no content IDs are found
             }

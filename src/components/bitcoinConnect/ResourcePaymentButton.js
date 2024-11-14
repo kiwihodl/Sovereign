@@ -39,7 +39,7 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
             }
         }, 2000);
     } else {
-        console.log('no invoice');
+        console.error('no invoice');
     }
 
     return () => {
@@ -66,7 +66,6 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
   };
 
   const handlePaymentSuccess = async (response) => {
-    console.log('handlePaymentSuccess', response);
     try {
       const purchaseData = {
         userId: session.user.id,

@@ -24,7 +24,6 @@ export function useVideosQuery() {
             const contentIds = response.data;
 
             if (!contentIds || contentIds.length === 0) {
-                console.log('No content IDs found');
                 return []; // Return early if no content IDs are found
             }
 

@@ -27,7 +27,6 @@ export function useCourses() {
         setCoursesError(null);
         try {
             if (!contentIds || contentIds.length === 0) {
-                console.log('No content IDs found');
                 setCoursesLoading(false);
                 return []; // Return early if no content IDs are found
             }

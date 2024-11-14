@@ -46,7 +46,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
                 }
             }, 1000);
         } else {
-            console.log('no invoice');
+            console.error('no invoice');
         }
 
         return () => {
@@ -61,7 +61,6 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
             const ln = new LightningAddress(lnAddress);
             await ln.fetch();
             const newInvoice = await ln.requestInvoice({ satoshi: amount });
-            console.log('newInvoice', newInvoice);
             return newInvoice;
         } catch (error) {
             console.error('Error fetching invoice:', error);
@@ -72,7 +71,6 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
     };
 
     const handlePaymentSuccess = async (response) => {
-        console.log('Payment successful', response);
         track('Subscription Payment', { method: "pay_as_you_go", userId: session?.user?.id });
         showToast('success', 'Payment Successful', 'Your payment has been processed successfully.');
         if (onSuccess) onSuccess(response);

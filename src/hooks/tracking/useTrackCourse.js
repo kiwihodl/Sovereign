@@ -17,9 +17,7 @@ const useTrackCourse = ({courseId, paidCourse, decryptionPerformed}) => {
         completedRef.current = true;
       } else if (response.status === 204) {
         // Only create a new UserCourse entry if it's a free course or if decryption has been performed for a paid course
-        console.log("about to create new UserCourse entry", paidCourse, decryptionPerformed);
         if (paidCourse === false || (paidCourse && decryptionPerformed)) {
-          console.log("creating new UserCourse entry");
           await axios.post(`/api/users/${session.user.id}/courses?courseSlug=${courseId}`, {
             completed: false,
             started: true,

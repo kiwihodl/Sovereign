@@ -17,7 +17,6 @@ const ContentListItem = (content) => {
     const isDraft = !content?.kind && !content?.draftLessons;
 
     const handleClick = () => {
-        console.log(content, "isDraftCourse", isDraftCourse, "isDraft", isDraft, "isResource", isResource, "isPublishedCourse", isPublishedCourse);
         let nAddress;
         if (isPublishedCourse) {
             nAddress = nip19.naddrEncode({

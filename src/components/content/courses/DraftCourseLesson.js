@@ -23,7 +23,6 @@ const DraftCourseLesson = ({ lesson, course }) => {
 
     useEffect(() => {
         if (lesson?.kind) {
-            console.log(lesson);
             setIsPublished(true);
         } else {
             setIsPublished(false);

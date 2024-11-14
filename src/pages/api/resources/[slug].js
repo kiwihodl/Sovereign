@@ -24,8 +24,6 @@ export default async function handler(req, res) {
     }
 
     try {
-      console.log('req.body:', req.body);
-      console.log('slug:', slug);
       const resource = await getResourceById(slug);
 
       if (!resource) {

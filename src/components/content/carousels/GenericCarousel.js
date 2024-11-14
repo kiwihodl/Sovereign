@@ -36,7 +36,7 @@ export default function GenericCarousel({items, selectedTopic, title}) {
                 });
             }
         }).catch(err => {
-            console.log('err', err);
+            console.error('err', err);
         });
     }, []);
 

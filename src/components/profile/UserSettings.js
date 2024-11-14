@@ -66,7 +66,6 @@ const UserSettings = () => {
         //     AUTHENTICATED, // 8
         // }
         if (ndk) {
-            console.log("Updating relay statuses");
             const statuses = {};
             ndk.pool.relays.forEach((relay, url) => {
                 statuses[url] = relay.connectivity.status === 5;

@@ -12,10 +12,6 @@ export default function SignIn() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  useEffect(() => {
-    console.log("session", session)
-  }, [session])
-
   const handleEmailSignIn = async (e) => {
     e.preventDefault()
     await signIn("email", { email, callbackUrl: '/' })
@@ -54,7 +50,6 @@ export default function SignIn() {
       if (session?.pubkey && session?.privkey) {
         localStorage.setItem('anonymousPubkey', session.pubkey)
         localStorage.setItem('anonymousPrivkey', session.privkey)
-        console.log("Anonymous login successful. Pubkey:", session.pubkey)
         router.push('/')
       } else {
         console.error("Pubkey or privkey not found in session")

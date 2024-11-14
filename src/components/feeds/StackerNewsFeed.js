@@ -21,10 +21,6 @@ const StackerNewsFeed = ({ searchQuery }) => {
     const { data: items, isLoading, error } = useQuery({queryKey: ['stackerNews'], queryFn: fetchStackerNews});
     const windowWidth = useWindowWidth();
 
-    useEffect(() => {
-        console.log("ot", items);
-    }, [items]);
-
     if (isLoading) {
         return (
             <div className="h-[100vh] min-bottom-bar:w-[86vw] max-sidebar:w-[100vw]">

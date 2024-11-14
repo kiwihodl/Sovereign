@@ -63,10 +63,8 @@ export default async function handler(req, res) {
 
         // If this is a zap, store verification URL and zap request in Redis
         if (zap_request && foundAddress.allowsNostr) {
-            console.log('Storing zap request in Redis');
             const zapRequest = JSON.parse(zap_request);
             const verifyUrl = `${BACKEND_URL}/api/lightning-address/verify/${name}/${paymentHashHex}`;
-            console.log('Verify URL', verifyUrl);
             
             // Store in Redis
             await kv.set(`invoice:${paymentHashHex}`, {

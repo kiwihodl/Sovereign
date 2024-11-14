@@ -23,7 +23,6 @@ export function useCoursesQuery() {
             const contentIds = response.data;
 
             if (!contentIds || contentIds.length === 0) {
-                console.log('No content IDs found');
                 return []; // Return early if no content IDs are found
             }
 
@@ -31,8 +30,6 @@ export function useCoursesQuery() {
 
             const filter = { kinds: [30004], authors: appConfig.authorPubkeys };
             const events = await ndk.fetchEvents(filter);
-
-            console.log('events', events);
 
             if (events && events.size > 0) {
                 const eventsArray = Array.from(events);

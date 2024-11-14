@@ -48,7 +48,6 @@ const Nip05Form = ({ visible, onHide }) => {
                 update();
                 onHide();
             } else {
-                console.log("RESPONSE", response);
                 showToast('error', 'Error updating NIP-05', response.data.error);
             }
         } catch (error) {

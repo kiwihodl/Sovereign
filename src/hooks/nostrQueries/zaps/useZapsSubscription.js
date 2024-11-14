@@ -48,7 +48,6 @@ export function useZapsSubscription({ event }) {
         })
 
         subscription.on('eose', () => {
-          console.log("eose in hook")
           setZapsLoading(false);
         });
 

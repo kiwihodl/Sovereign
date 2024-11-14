@@ -68,8 +68,6 @@ const UserContent = () => {
                 events.forEach(event => {
                     uniqueEvents.add(event);
                 });
-
-                console.log('uniqueEvents', uniqueEvents)
                 return Array.from(uniqueEvents);
             } catch (error) {
                 console.error('Error fetching videos from NDK:', error);

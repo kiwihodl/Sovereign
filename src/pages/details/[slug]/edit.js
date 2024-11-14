@@ -25,7 +25,6 @@ export default function Edit() {
 
                 if (fetchedEvent) {
                     const parsedEvent = parseEvent(fetchedEvent);
-                    console.log('parsedEvent:', parsedEvent);
                     setEvent(parsedEvent);
                 } else {
                     showToast('error', 'Error', 'Event not found.');
