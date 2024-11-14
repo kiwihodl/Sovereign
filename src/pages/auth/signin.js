@@ -83,13 +83,6 @@ export default function SignIn() {
         rounded
         onClick={() => setShowEmailInput(!showEmailInput)}
       />
-      <GenericButton
-        label={"login anonymously"}
-        icon="pi pi-eye-slash"
-        className="text-[#f8f8ff] w-[250px] my-4 mx-auto"
-        rounded
-        onClick={handleAnonymousSignIn}
-      />
       {showEmailInput && (
         <form onSubmit={handleEmailSignIn} className="flex flex-col items-center bg-gray-700 w-fit mx-auto p-4 rounded-lg">
           <InputText
@@ -108,6 +101,13 @@ export default function SignIn() {
           />
         </form>
       )}
+      <GenericButton
+        label={"login anonymously"}
+        icon="pi pi-eye-slash"
+        className="text-[#f8f8ff] w-[250px] my-4 mx-auto"
+        rounded
+        onClick={handleAnonymousSignIn}
+      />
     </div>
   )
 }

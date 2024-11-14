@@ -260,10 +260,18 @@ const Subscribe = () => {
             )}
 
             <Card title="Frequently Asked Questions" className="mb-6">
-                <div className="flex flex-col gap-4 max-w-[80%]">
+                <div className="flex flex-col gap-4 max-w-[80%] max-mob:max-w-full">
                     <div>
                         <h3 className="text-lg font-semibold">How does the subscription work?</h3>
                         <p>Think of the subscriptions as a Patreon-type model. You pay a monthly fee and in return you get access to premium features and all of the paid content. You can cancel at any time.</p>
+                    </div>
+                    <div className='flex flex-col gap-2'>
+                        <h3 className="text-lg font-semibold">What are the benefits of a subscription?</h3>
+                        <p>The subscription gives you access to all of the premium features and all of the paid content. You can cancel at any time.</p>
+                    </div>
+                    <div className='flex flex-col gap-2'>
+                        <h3 className="text-lg font-semibold">How much does the subscription cost?</h3>
+                        <p>The subscription is 70,000 sats per month.</p>
                     </div>
                     <div>
                         <h3 className="text-lg font-semibold">How do I Subscribe? (Pay as you go)</h3>
@@ -280,6 +288,10 @@ const Subscribe = () => {
                     <div>
                         <h3 className="text-lg font-semibold">What happens if I don&apos;t renew my subscription?</h3>
                         <p>If you don&apos;t renew your subscription, your access to 1:1 calendar and paid content will be removed. However, you will still have access to your PlebDevs Lightning Address, NIP-05, and any content that you paid for.</p>
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-semibold">What is Nostr Wallet Connect?</h3>
+                        <p>Nostr Wallet Connect is a Nostr-based authentication method that allows you to connect your Nostr wallet to the PlebDevs platform. This will allow you to subscribe to the platform in an auto recurring manner which still gives you full control over your wallet and the ability to cancel at any time from your wallet.</p>
                     </div>
                 </div>
             </Card>

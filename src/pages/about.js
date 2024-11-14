@@ -35,17 +35,17 @@ const AboutPage = () => {
         <div className={`${isTabView ? 'w-full' : 'w-[83vw]'} ${isMobile ? 'p-0' : 'p-4'} mx-auto`}>
             <InteractivePromotionalCarousel />
             <Card title="Key Features" className={`mb-4 ${isMobile ? 'm-2' : null}`}>
-                <div className="flex flex-col gap-4 max-w-[80%]">
+                <div className="flex flex-col gap-4 max-w-[80%] max-mob:max-w-full">
                     <div className="flex flex-col items-start justify-center">
                         <div className='flex items-start'>
                             <i className="pi pi-cloud text-2xl text-primary mr-2 text-blue-400"></i>
                             <div>
                                 <h3 className='text-lg font-semibold'>Content Distribution:</h3>
-                                <p className='text-lg'>All educational content is published to Nostr and actively pulled from Nostr relays, ensuring distributed and up-to-date information.</p>
+                                <p className='text-lg'>All content is published to Nostr and actively pulled from Nostr relays</p>
                                 <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
-                                    <li><span className="text-lg font-semibold">Nostr:</span> Content is published to Nostr and pulled from Nostr relays. A database is used for storing metadata about events but the actual content only exists on nostr relays.</li>
-                                    <li><span className="text-lg font-semibold">Zaps:</span> Zaps are currently initated through Zapper - <a href="https://zapper.nostrapps.org" target="_blank" rel="noopener noreferrer" className="text-blue-400">https://zapper.nostrapps.org</a> <br /> <span className="pl-4">* Zaps are pulled from Nostr using our own NDK integration.</span></li>
-                                    <li><span className="text-lg font-semibold">Comments:</span> For comments we are leveraging ZapThreads - <a href="https://zapthreads.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400">https://zapthreads.com</a> <br /> <span className="pl-4">* Comments are enabled on all content but for Community feeds they are only enabled on the nostr feed.</span></li>
+                                    <li><span className="text-lg font-semibold">Nostr:</span> Content is stored on and read from Nostr relays however a database is used for storing metadata and filtering content.</li>
+                                    <li><span className="text-lg font-semibold">Zaps:</span> Zaps are currently initated through Zapper - <a href="https://zapper.nostrapps.org" target="_blank" rel="noopener noreferrer" className="text-blue-400">https://zapper.nostrapps.org</a></li>
+                                    <li><span className="text-lg font-semibold">Comments:</span> For comments we are leveraging ZapThreads - <a href="https://zapthreads.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400">https://zapthreads.com</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -54,10 +54,10 @@ const AboutPage = () => {
                         <i className="pi pi-file-edit text-2xl text-primary mr-2 text-green-400 mt-1"></i>
                         <div>
                             <h3 className="text-lg font-semibold">Content Types:</h3>
-                            <p className='text-lg'>high signal, Bitcoin, Lightning, Nostr educational content.</p>
+                            <p className='text-lg'>High signal, Bitcoin, Lightning, and Nostr educational content.</p>
                             <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
                                 <li><span className="text-lg font-semibold">Documents:</span> Markdown documents posted as NIP-23 long-form events on Nostr.</li>
-                                <li><span className="text-lg font-semibold">Videos:</span> Enhanced markdown files with rich media support, including embedded videos, also saved as NIP-23 events.</li>
+                                <li><span className="text-lg font-semibold">Videos:</span> Formatted markdown documents with rich media support, including embedded videos, also saved as NIP-23 events.</li>
                                 <li><span className="text-lg font-semibold">Courses:</span> Nostr lists (NIP-51) that combines multiple documents and videos into a structured learning path.</li>
                             </ul>
                         </div>
@@ -94,6 +94,40 @@ const AboutPage = () => {
                                 <li><span className="text-lg font-semibold">Nostr:</span> Public plebdevs nostr chat (Read / Write) <br /> <span className="pl-4">* this is the only feed that you can write to from the plebdevs platform currently.</span></li>
                                 <li><span className="text-lg font-semibold">Discord:</span> PlebDevs Discord server (Read Only) <br /> <span className="pl-4">* discord was the original home of the PlebDevs community, look at us now!</span></li>
                                 <li><span className="text-lg font-semibold">StackerNews:</span> StackerNews ~devs territory (Read Only) <br /> <span className="pl-4">* a territory is like a &apos;subreddit&apos; on stackernews, plebdevs owns the ~devs territory.</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    {/* techstack */}
+                    <div className="flex items-start">
+                        <i className="pi pi-cog text-2xl text-primary mr-2 text-gray-400 mt-1"></i>
+                        <div>
+                            <h3 className="text-lg font-semibold">Tech Stack:</h3>
+                            <h4 className='text-lg font-semibold'>Frontend:</h4>
+                            <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
+                                <li><span className="text-lg font-semibold">Next.js:</span> A React framework for building server-side rendered (SSR) web applications.</li>
+                                <li><span className="text-lg font-semibold">Tailwind CSS:</span> A utility-first CSS framework for rapidly building custom designs.</li>
+                                <li><span className="text-lg font-semibold">PrimeReact:</span> A React UI library for building modern, responsive web applications.</li>
+                            </ul>
+                            <h4 className='text-lg font-semibold'>Backend:</h4>
+                            <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
+                                <li><span className="text-lg font-semibold">Prisma:</span> A database toolkit for Node.js and TypeScript.</li>
+                                <li><span className="text-lg font-semibold">PostgreSQL:</span> A powerful, open source object-relational database system.</li>
+                                <li><span className="text-lg font-semibold">Redis:</span> An in-memory data structure store, used as a database, cache, and message broker.</li>
+                            </ul>
+                            <h4 className='text-lg font-semibold'>Infrastructure:</h4>
+                            <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
+                                <li><span className="text-lg font-semibold">Vercel:</span> A cloud platform for building modern web applications.</li>
+                                <li><span className="text-lg font-semibold">Docker:</span> A platform for building, shipping, and running distributed applications.</li>
+                                <li><span className="text-lg font-semibold">Digital Ocean (CDN):</span> A cloud platform for building modern web applications.</li>
+                            </ul>
+                            <h4 className='text-lg font-semibold'>Open Source Tools:</h4>
+                            <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
+                                <li><span className="text-lg font-semibold">NDK:</span> Nostr Development Kit - <a href="https://github.com/nostr-dev-kit/ndk" target="_blank" rel="noopener noreferrer" className="text-blue-400">https://github.com/nostr-dev-kit/ndk</a></li>
+                                <li><span className="text-lg font-semibold">nostr-tools:</span> React framework for building Nostr applications - <a href="https://github.com/fiatjaf/nostr-tools" target="_blank" rel="noopener noreferrer" className="text-blue-400">https://github.com/fiatjaf/nostr-tools</a></li>
+                                <li><span className="text-lg font-semibold">Bitcoin Connect:</span> A simple open source tool for connecting to Lightning wallets and facilitating payments - <a href="https://github.com/getAlby/bitcoin-connect" target="_blank" rel="noopener noreferrer" className="text-blue-400">https://github.com/getAlby/bitcoin-connect</a></li>
+                                <li><span className="text-lg font-semibold">Alby JS SDK:</span> JavaScript SDK for the Alby OAuth2 Wallet API and the Nostr Wallet Connect API.  - <a href="https://github.com/getAlby/js-sdk" target="_blank" rel="noopener noreferrer" className="text-blue-400">https://github.com/getAlby/js-sdk</a></li>
+                                <li><span className="text-lg font-semibold">Zapthreads:</span> A Nostr-based commenting system - <a href="https://github.com/franzaps/zapthreads" target="_blank" rel="noopener noreferrer" className="text-blue-400">https://github.com/franzaps/zapthreads</a></li>
+                                <li><span className="text-lg font-semibold">Zapper:</span> A Nostr-based tipping platform - <a href="https://github.com/nostrband/zapper" target="_blank" rel="noopener noreferrer" className="text-blue-400">https://github.com/nostrband/zapper</a></li>
                             </ul>
                         </div>
                     </div>

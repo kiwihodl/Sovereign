@@ -9,6 +9,17 @@ const MessageCarousel = ({ copyToClipboard }) => {
         <div className="flex flex-col justify-between bg-gray-800 p-3 rounded-lg shadow-lg min-h-[182px]">
             <p className="text-[#f8f8ff] text-[18px] font-semibold">{title}</p>
             <p className="text-[#f8f8ff] mt-1">{description}</p>
+            <div className='flex justify-center my-1 mt-2'>
+            {showFeedback && (
+                    <GenericButton
+                        label="Feedback"
+                        size="small"
+                        className="py-2"
+                        outlined
+                        onClick={() => window.open('https://docs.google.com/forms/d/e/1FAIpQLSd8PDBQ8PksBzO8zsMA-Gy6tdZtKWk10Ixa0EXgeTBOyjohpA/viewform?usp=sf_link', '_blank')}
+                    />
+                )}
+            </div>
             <div className="flex flex-wrap gap-4 justify-center mt-2">
                 {showGithub && (
                     <i
@@ -49,15 +60,6 @@ const MessageCarousel = ({ copyToClipboard }) => {
                         title="Donate"
                     />
                 )}
-                {showFeedback && (
-                    <GenericButton
-                        label="Feedback"
-                        size="small"
-                        className="py-2"
-                        outlined
-                        onClick={() => window.open('https://docs.google.com/forms/d/e/1FAIpQLSd8PDBQ8PksBzO8zsMA-Gy6tdZtKWk10Ixa0EXgeTBOyjohpA/viewform?usp=sf_link', '_blank')}
-                    />
-                )}
             </div>
         </div>
     );
@@ -65,13 +67,13 @@ const MessageCarousel = ({ copyToClipboard }) => {
     const messages = [
         {
             title: "PlebDevs 🤝👨‍💻🤝👩‍💻🤝🧑‍💻🤝",
-            description: "Plebdevs is open source software and is still in early development. If you have any questions drop an issue on the Github repo, or reach out to me in the Community feed.",
+            description: "Plebdevs is open source software and is still in early development. If you have any questions or bugs, drop an issue on the Github repo, or leave feedback below.",
             showGithub: true,
             showX: true,
             showNostr: true,
             showYoutube: true,
             showDonate: true,
-            showFeedback: false,
+            showFeedback: true,
         },
         {
             title: "More content coming soon 📺",
@@ -81,7 +83,7 @@ const MessageCarousel = ({ copyToClipboard }) => {
             showNostr: true,
             showYoutube: true,
             showDonate: true,
-            showFeedback: false,
+            showFeedback: true,
         }
         // todo add donate message
     ];
