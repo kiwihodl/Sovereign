@@ -27,7 +27,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
     const router = useRouter();
 
     const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
-    const amount = 25;
+    const amount = 70000;
 
     useEffect(() => {
         initializeBitcoinConnect();
@@ -94,9 +94,9 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
             const initNwcOptions = {
                 name: "plebdevs.com",
                 requestMethods: ['pay_invoice'],
-                maxAmount: 25,
+                maxAmount: 70000,
                 editable: false,
-                budgetRenewal: 'daily',
+                budgetRenewal: 'monthly',
                 expiresAt: yearFromNow,
             };
             await newNwc.initNWC(initNwcOptions);
@@ -259,7 +259,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
                         <AlbyButton handleSubmit={handleRecurringSubscription} />
                         <span className='my-4 text-lg font-bold'>or</span>
                         <p className='text-lg font-bold'>Manually enter NWC URL</p>
-                        <span className='text-sm text-gray-500'>*make sure you set a budget of at least 25000 sats and set  budget renewal to monthly</span>
+                        <span className='text-sm text-gray-500'>*make sure you set a budget of at least 70000 sats and set budget renewal to monthly</span>
                         <input
                             type="text"
                             value={nwcInput}

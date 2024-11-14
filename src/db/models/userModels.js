@@ -187,13 +187,13 @@ export const updateUserSubscription = async (userId, isSubscribed, nwc) => {
 export const findExpiredSubscriptions = async () => {
   try {
     const now = new Date();
-    const oneDayAndOneHourAgo = new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000 - 1 * 60 * 60 * 1000);
+    const oneMonthAndOneHourAgo = new Date(now.getTime() - 1 * 30 * 24 * 60 * 60 * 1000 - 1 * 60 * 60 * 1000);
 
     const result = await prisma.role.findMany({
       where: {
         subscribed: true,
         lastPaymentAt: {
-          lt: oneDayAndOneHourAgo
+          lt: oneMonthAndOneHourAgo
         }
       },
       select: {
