@@ -169,6 +169,23 @@ export const authOptions = {
                 token.user = newUser;
             }
 
+            // if we sign up with email and we don't have a pubkey or privkey, we need to generate them
+            if (trigger === "signUp" && account?.provider === "email" && !user.pubkey && !user.privkey) {
+                const sk = generateSecretKey();
+                const pubkey = getPublicKey(sk);
+                const privkey = bytesToHex(sk);
+                
+                // Update the user in the database
+                await prisma.user.update({
+                    where: { id: user.id },
+                    data: { pubkey, privkey }
+                });
+                
+                // Update the user object
+                user.pubkey = pubkey;
+                user.privkey = privkey;
+            }
+
             if (user) {
                 token.user = user;
                 if (user.pubkey && user.privkey) {

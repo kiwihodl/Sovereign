@@ -85,7 +85,7 @@ const UserProfile = () => {
                     <div className="relative flex w-full items-center justify-center">
                         <Image
                             alt="user's avatar"
-                            src={returnImageProxy(user.avatar, user.pubkey)}
+                            src={returnImageProxy(user.avatar, user?.pubkey || "")}
                             width={100}
                             height={100}
                             className="rounded-full my-4"
@@ -108,10 +108,12 @@ const UserProfile = () => {
                     <h1 className="text-center text-2xl my-2">
                         {user.username || user?.email || "Anon"}
                     </h1>
-                    <h2 className="text-center text-xl my-2 truncate max-tab:px-4 max-mob:px-4">
-                        <Tooltip target=".pubkey-tooltip" content={"this is your nostr npub"} />
-                        {nip19.npubEncode(user.pubkey)} <i className="pi pi-question-circle text-xl pubkey-tooltip" />
-                    </h2>
+                    {user.pubkey && (
+                        <h2 className="text-center text-xl my-2 truncate max-tab:px-4 max-mob:px-4">
+                            <Tooltip target=".pubkey-tooltip" content={"this is your nostr npub"} />
+                            {nip19.npubEncode(user.pubkey)} <i className="pi pi-question-circle text-xl pubkey-tooltip" />
+                        </h2>
+                    )}
                     {user?.lightningAddress && (
                         <h3 className="w-fit mx-auto text-center text-xl my-2 bg-gray-800 rounded-lg p-4">
                             <span className="font-bold">Lightning Address:</span> {user.lightningAddress.name}@plebdevs.com <i className="pi pi-copy cursor-pointer hover:text-gray-400" onClick={() => copyToClipboard(user.lightningAddress.name + "@plebdevs.com")} />
