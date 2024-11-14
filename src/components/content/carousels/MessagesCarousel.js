@@ -16,7 +16,7 @@ const MessageCarousel = ({ copyToClipboard }) => {
                         size="small"
                         className="py-2"
                         outlined
-                        onClick={() => window.open('https://docs.google.com/forms/d/e/1FAIpQLSd8PDBQ8PksBzO8zsMA-Gy6tdZtKWk10Ixa0EXgeTBOyjohpA/viewform?usp=sf_link', '_blank')}
+                        onClick={() => window.open('https://docs.google.com/forms/d/e/1FAIpQLSdgyYV2gjsCxO4GC993eEzmJoBQA1lAOqPml35sDGVHDdlFgw/viewform?usp=sf_link', '_blank')}
                     />
                 )}
             </div>
