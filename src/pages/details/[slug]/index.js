@@ -30,21 +30,15 @@ const Details = () => {
     const { showToast } = useToast();
 
     useEffect(() => {
-        const fetchLessons = async () => {
-            try {
-                const res = await axios.get('/api/lessons');
-                if (res.data) {
-                    const lessonData = res.data.map(lesson => ({
-                        resourceId: lesson?.resourceId,
-                        courseId: lesson?.courseId || null
-                    }));
-                    setLessons(lessonData);
-                }
-            } catch (err) {
-                console.error('err', err);
+        axios.get('/api/lessons').then(res => {
+            if (res.data) {
+                res.data.forEach(lesson => {
+                    setLessons(prev => [...prev, { resourceId: lesson?.resourceId, courseId: lesson?.courseId || null }]);
+                });
             }
-        };
-        fetchLessons();
+        }).catch(err => {
+            console.error('err', err);
+        });
     }, []);
 
     const fetchAuthor = useCallback(async (pubkey) => {
@@ -112,7 +106,21 @@ const Details = () => {
                     const parsedEvent = parseEvent(event);
                     setEvent(parsedEvent);
                     await fetchAuthor(event.pubkey);
-                    setAuthorView(session?.user?.pubkey === event.pubkey);
+
+                    const isAuthor = session?.user?.pubkey === event.pubkey;
+                    setAuthorView(isAuthor);
+
+                    if (parsedEvent.price || (isAuthor && event.kind === 30402)) {
+                        const shouldDecrypt = isAuthor ||
+                            session?.user?.role?.subscribed ||
+                            session?.user?.purchased?.some(purchase => purchase.resourceId === parsedEvent.d) ||
+                            lessons.some(lesson => lesson.resourceId === parsedEvent.d && session?.user?.purchased?.some(purchase => purchase.courseId === lesson.courseId));
+
+                        if (shouldDecrypt && !decryptedContent) {
+                            const decrypted = await decryptContent(event.content);
+                            setDecryptedContent(decrypted);
+                        }
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching event:', error);
@@ -123,34 +131,7 @@ const Details = () => {
         };
 
         fetchAndProcessEvent();
-    }, [router.isReady, router.query, ndk, session?.user?.pubkey, fetchAuthor, showToast]);
-
-    useEffect(() => {
-        const handleDecryption = async () => {
-            if (!event || !session || !lessons.length) return;
-
-            const isAuthor = session?.user?.pubkey === event.pubkey;
-            
-            if (event.price || (isAuthor && event.kind === 30402)) {
-                const shouldDecrypt = isAuthor ||
-                    session?.user?.role?.subscribed ||
-                    session?.user?.purchased?.some(purchase => purchase.resourceId === event.d) ||
-                    lessons.some(lesson => 
-                        lesson.resourceId === event.d && 
-                        session?.user?.purchased?.some(purchase => 
-                            purchase.courseId === lesson.courseId
-                        )
-                    );
-
-                if (shouldDecrypt) {
-                    const decrypted = await decryptContent(event.content);
-                    setDecryptedContent(decrypted);
-                }
-            }
-        };
-
-        handleDecryption();
-    }, [event, session, lessons, decryptContent]);
+    }, [router.isReady, router.query, ndk, session, decryptContent, fetchAuthor, showToast]);
 
     const handlePaymentSuccess = (response) => {
         if (response && response?.preimage) {
