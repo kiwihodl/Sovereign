@@ -1,8 +1,10 @@
 import axios from "axios";
 import { getLightningAddressByName } from "@/db/models/lightningAddressModels";
 import appConfig from "@/config/appConfig";
+import { runMiddleware, corsMiddleware } from "@/utils/corsMiddleware";
 
 export default async function handler(req, res) {
+    await runMiddleware(req, res, corsMiddleware);
     try {
         const { name, slug } = req.query;
 
