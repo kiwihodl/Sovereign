@@ -44,28 +44,50 @@ const ratelimit = process.env.NODE_ENV === 'production'
 
 // Define which routes you want to rate limit
 export const config = {
-  matcher: '/api/:path*',
+  matcher: [
+    // Exclude .well-known routes from middleware
+    '/((?!.well-known).*)',
+  ]
 };
 
 export default async function middleware(request) {
-  const ip = request.ip ?? '127.0.0.1';
-  const { success, limit, remaining, reset } = await ratelimit.limit(
-    `ratelimit_middleware_${ip}`
-  );
-
-  if (!success) {
-    return new NextResponse('Too Many Requests', {
-      status: 429,
-      headers: {
-        'Retry-After': Math.ceil((reset - Date.now()) / 1000).toString(),
-      },
+  // Add CORS headers for all responses
+  const response = NextResponse.next();
+  
+  // Add CORS headers
+  response.headers.set('Access-Control-Allow-Origin', '*');
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  // Handle OPTIONS request
+  if (request.method === 'OPTIONS') {
+    return new NextResponse(null, { 
+      status: 200,
+      headers: response.headers
     });
   }
 
-  const response = NextResponse.next();
-  response.headers.set('X-RateLimit-Limit', limit.toString());
-  response.headers.set('X-RateLimit-Remaining', remaining.toString());
-  response.headers.set('X-RateLimit-Reset', reset.toString());
+  // Only apply rate limiting to API routes
+  if (request.nextUrl.pathname.startsWith('/api')) {
+    const ip = request.ip ?? '127.0.0.1';
+    const { success, limit, remaining, reset } = await ratelimit.limit(
+      `ratelimit_middleware_${ip}`
+    );
+
+    if (!success) {
+      return new NextResponse('Too Many Requests', {
+        status: 429,
+        headers: {
+          'Retry-After': Math.ceil((reset - Date.now()) / 1000).toString(),
+          'Access-Control-Allow-Origin': '*',
+        },
+      });
+    }
+
+    response.headers.set('X-RateLimit-Limit', limit.toString());
+    response.headers.set('X-RateLimit-Remaining', remaining.toString());
+    response.headers.set('X-RateLimit-Reset', reset.toString());
+  }
 
   return response;
 }
