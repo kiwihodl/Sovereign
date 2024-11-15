@@ -92,7 +92,7 @@ const CommunityMessage = ({ message, searchQuery, windowWidth, platform }) => {
                                     <ZapThreadsWrapper
                                         anchor={nip19.noteEncode(message.id)}
                                         user={nsec || npub || null}
-                                        relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.mutinywallet.com/, wss://relay.primal.net/, wss://relay.devs.tools/"
+                                        relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.mutinywallet.com/, wss://relay.primal.net/, wss://nostr21.com/, wss://nostrue.com/, wss://purplerelay.com/, wss://relay.devs.tools/"
                                     />
                                 ) : null}
                             </div>
