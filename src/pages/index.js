@@ -5,7 +5,6 @@ import VideosCarousel from '@/components/content/carousels/VideosCarousel';
 import DocumentsCarousel from '@/components/content/carousels/DocumentsCarousel';
 import HeroBanner from '@/components/banner/HeroBanner';
 
-// todo: make paid course video and document lessons not appear in carousels
 export default function Home() {
   return (
     <>

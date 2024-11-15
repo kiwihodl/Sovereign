@@ -12,9 +12,8 @@ import { updateUser, getUserByPubkey, createUser, getUserByEmail } from "@/db/mo
 import { createRole } from "@/db/models/roleModels";
 import appConfig from "@/config/appConfig";
 
-// todo update EMAIL_FROM to be a plebdevs email
 const ndk = new NDK({
-    explicitRelayUrls: [...appConfig.defaultRelayUrls, "wss://relay.primal.net/", "wss://relay.damus.io/"]
+    explicitRelayUrls: [...appConfig.defaultRelayUrls]
 });
 
 const authorize = async (pubkey) => {

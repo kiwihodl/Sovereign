@@ -1,14 +1,14 @@
 const appConfig = {
     defaultRelayUrls: [
-      // "wss://nos.lol/",
-      // "wss://relay.damus.io/",
-      // "wss://relay.snort.social/",
-      // "wss://relay.nostr.band/",
-      // "wss://relay.mutinywallet.com/",
-      // "wss://relay.primal.net/",
-      // "wss://nostr21.com/",
-      // "wss://nostrue.com/",
-      // "wss://purplerelay.com/",
+      "wss://nos.lol/",
+      "wss://relay.damus.io/",
+      "wss://relay.snort.social/",
+      "wss://relay.nostr.band/",
+      "wss://relay.mutinywallet.com/",
+      "wss://relay.primal.net/",
+      "wss://nostr21.com/",
+      "wss://nostrue.com/",
+      "wss://purplerelay.com/",
       "wss://relay.devs.tools/"
     ],
     // ganon "468f729dd409053dac5e7470622c3996aad88db6ed1de9165cb1921b5ab4fd5e",
