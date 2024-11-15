@@ -27,7 +27,7 @@ module.exports = removeImports({
   async headers() {
     return [
       {
-        source: "/api/:path*",
+        source: "/api/:slug*",
         headers: [
           {
             key: "Access-Control-Allow-Origin",
@@ -62,11 +62,15 @@ module.exports = removeImports({
             value: "max-age=31536000; includeSubDomains; preload"
           },
         ],
-        source: "/api/.well-known/:path*",
+        source: "/api/.well-known/:slug*",
         headers: [
           {
             key: "Access-Control-Allow-Origin",
             value: "*"
+          },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET, POST, PUT, DELETE, OPTIONS",
           },
           {
             key: 'Cache-Control',
