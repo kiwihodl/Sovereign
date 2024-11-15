@@ -62,6 +62,17 @@ module.exports = removeImports({
             value: "max-age=31536000; includeSubDomains; preload"
           },
         ],
+        source: "/api/.well-known/:path*",
+        headers: [
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "*"
+          },
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, max-age=0, must-revalidate'
+          }
+        ],
       },
     ];
   },
