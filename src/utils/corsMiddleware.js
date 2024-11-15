@@ -2,8 +2,11 @@ import Cors from 'cors';
 
 // Initialize the cors middleware
 export const corsMiddleware = Cors({
-   methods: ['GET', 'HEAD', 'POST'],
+   methods: ['GET', 'HEAD', 'POST', 'OPTIONS'],
    origin: '*',
+   credentials: true,
+   optionsSuccessStatus: 200,
+   allowedHeaders: ['Content-Type', 'Authorization'],
 });
 
 
