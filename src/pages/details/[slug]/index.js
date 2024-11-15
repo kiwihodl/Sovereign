@@ -11,7 +11,7 @@ import { useRouter } from "next/router";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import axios from 'axios';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
-import { appConfig } from "@/config/appConfig";
+import appConfig from "@/config/appConfig";
 
 const Details = () => {
     const [event, setEvent] = useState(null);

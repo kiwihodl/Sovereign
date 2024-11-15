@@ -12,6 +12,8 @@ import { updateUser, getUserByPubkey, createUser, getUserByEmail } from "@/db/mo
 import { createRole } from "@/db/models/roleModels";
 import appConfig from "@/config/appConfig";
 
+// todo: currently email accounts ephemeral privkey gets saved to db but not anon user, is this required at all given the newer auth setup?
+
 const ndk = new NDK({
     explicitRelayUrls: [...appConfig.defaultRelayUrls]
 });
