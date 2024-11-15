@@ -9,7 +9,7 @@ const allTasks = [
         status: 'PlebDevs Starter',
         completed: false,
         tier: 'New Dev',
-        courseId: null,
+        courseId: "123",
         subTasks: [
             { status: 'Connect GitHub', completed: false },
             { status: 'Create First GitHub Repo', completed: false },
@@ -20,7 +20,7 @@ const allTasks = [
         status: 'Frontend Course', 
         completed: false, 
         tier: 'Junior Dev', 
-        courseId: 'd20e2e9b-5123-4a91-b27f-d75ea1d5811e',
+        courseId: 'abc',
         subTasks: [
             { status: 'Complete the course', completed: false },
             { status: 'Submit Link to completed project', completed: false },
@@ -30,7 +30,7 @@ const allTasks = [
         status: 'Backend Course', 
         completed: false, 
         tier: 'Plebdev', 
-        courseId: 'aa3b1641-ad2b-4ef4-9f0f-38951ae307b7',
+        courseId: 'xyz',
         subTasks: [
             {status: 'Complete the course', completed: false},
             { status: 'Submit Link to completed project', completed: false },
@@ -121,78 +121,23 @@ const UserProgress = () => {
             <ul className="space-y-4 mb-6">
                 {tasks.map((task, index) => (
                     <li key={index}>
-                        {task.subTasks ? (
-                            <Accordion 
-                                className="border-none" 
-                                onTabChange={(e) => handleAccordionChange(index, e.index === 0)}
-                                activeIndex={expandedItems[index] ? 0 : null}
-                            >
-                                <AccordionTab
-                                    pt={{
-                                        root: { className: 'border-none p-0' },
-                                        header: { className: 'border-none p-0' },
-                                        headerAction: { className: 'border-none p-0' },
-                                        content: { className: 'border-none rounded-lg mt-2 py-1' },
-                                        accordiontab: { className: 'border-none p-0' },
-                                        headerIcon: { className: 'hidden' },
-                                    }}
-                                    header={
-                                        <div className="bg-gray-800 flex items-center justify-between w-full font-normal">
-                                            <div className="flex items-center">
-                                                <div className="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center mr-3">
-                                                    <i className="pi pi-info-circle text-white text-2xl"></i>
-                                                </div>
-                                                <div className="flex items-center justify-between w-[150px]">
-                                                    <span className="text-lg text-gray-400">{task.status}</span>
-                                                    <i className={`pi pi-chevron-down text-gray-400 ml-2 transition-transform duration-300 ${expandedItems[index] ? 'rotate-180' : ''}`} />
-                                                </div>
-                                            </div>
-                                            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full w-20 text-center">
-                                                {task.tier}
-                                            </span>
-                                        </div>
-                                    }
-                                    >
-                                    <ul className="space-y-2 mt-2 ml-9 max-mob:mt-0 max-tab:mt-0">
-                                        <span className="text-gray-400 text-xs">(Coming Soon)</span>
-                                        {task.subTasks.map((subTask, subIndex) => (
-                                            <li key={subIndex} className="flex items-center">
-                                                {subTask.completed ? (
-                                                    <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-3">
-                                                        <i className="pi pi-check text-white text-lg"></i>
-                                                    </div>
-                                                ) : (
-                                                    <div className="w-4 h-4 bg-gray-700 rounded-full flex items-center justify-center mr-3">
-                                                        <span className="text-white text-sm">{subIndex + 1}</span>
-                                                    </div>
-                                                )}
-                                                <span className={`text-base ${subTask.completed ? 'text-white' : 'text-gray-400'}`}>
-                                                    {subTask.status}
-                                                </span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </AccordionTab>
-                            </Accordion>
-                        ) : (
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center">
-                                    {task.completed ? (
-                                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mr-3">
-                                            <i className="pi pi-check text-white text-lg"></i>
-                                        </div>
-                                    ) : (
-                                        <div className="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center mr-3">
-                                            <i className="pi pi-info-circle text-white text-lg"></i>
-                                        </div>
-                                    )}
-                                    <span className={`text-lg ${task.completed ? 'text-white' : 'text-gray-400'}`}>{task.status}</span>
-                                </div>
-                                <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full w-20 text-center">
-                                    {task.tier}
-                                </span>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center">
+                                {task.completed ? (
+                                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                                        <i className="pi pi-check text-white text-lg"></i>
+                                    </div>
+                                ) : (
+                                    <div className="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center mr-3">
+                                        <i className="pi pi-info-circle text-white text-lg"></i>
+                                    </div>
+                                )}
+                                <span className={`text-lg ${task.completed ? 'text-white' : 'text-gray-400'}`}>{task.status}</span>
                             </div>
-                        )}
+                            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full w-20 text-center">
+                                {task.tier}
+                            </span>
+                        </div>
                     </li>
                 ))}
             </ul>
