@@ -54,15 +54,19 @@ export default function DocumentsCarousel() {
     useEffect(() => {
         const fetch = async () => {
             try {
-                if (documents && documents.length > 0 && paidLessons.length > 0) {
+                if (documents && documents.length > 0 && paidLessons) {
                     const processedDocuments = documents.map(document => parseEvent(document));
                     // Sort documents by created_at in descending order (most recent first)
                     const sortedDocuments = processedDocuments.sort((a, b) => b.created_at - a.created_at);
 
-                    // filter out documents that are in the paid lessons array
-                    const filteredDocuments = sortedDocuments.filter(document => !paidLessons.includes(document?.d));
+                    if (paidLessons && paidLessons.length > 0) {
+                        // filter out documents that are in the paid lessons array
+                        const filteredDocuments = sortedDocuments.filter(document => !paidLessons.includes(document?.d));
 
-                    setProcessedDocuments(filteredDocuments);
+                        setProcessedDocuments(filteredDocuments);
+                    } else {
+                        setProcessedDocuments(sortedDocuments);
+                    }
                 } else {
                     console.log('No documents fetched or empty array returned');
                 }

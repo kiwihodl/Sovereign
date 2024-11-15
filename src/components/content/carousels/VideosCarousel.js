@@ -35,6 +35,10 @@ export default function VideosCarousel() {
     const isMobileView = windowWidth <= 450;
 
     useEffect(() => {
+        console.log('videos', videos);
+    }, [videos]);
+
+    useEffect(() => {
         axios.get('/api/lessons').then(res => {
             if (res.data) {
                 res.data.forEach(lesson => {
@@ -53,15 +57,19 @@ export default function VideosCarousel() {
     useEffect(() => {
         const fetch = async () => {
             try {
-                if (videos && videos.length > 0 && paidLessons.length > 0) {
+                if (videos && videos.length > 0 && paidLessons) {
                     const processedVideos = videos.map(video => parseEvent(video));
                     
                     const sortedVideos = processedVideos.sort((a, b) => b.created_at - a.created_at);
 
-                    // filter out videos that are in the paid lessons array
-                    const filteredVideos = sortedVideos.filter(video => !paidLessons.includes(video?.d));
+                    if (paidLessons && paidLessons.length > 0) {
+                        // filter out videos that are in the paid lessons array
+                        const filteredVideos = sortedVideos.filter(video => !paidLessons.includes(video?.d));
 
-                    setProcessedVideos(filteredVideos);
+                        setProcessedVideos(filteredVideos);
+                    } else {
+                        setProcessedVideos(sortedVideos);
+                    }
                 } else {
                     console.log('No videos fetched or empty array returned');
                 }
