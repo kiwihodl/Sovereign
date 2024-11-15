@@ -27,6 +27,23 @@ module.exports = removeImports({
   async headers() {
     return [
       {
+        source: "/.well-known/:slug*",
+        headers: [
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "*"
+          },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET, POST, OPTIONS"
+          },
+          {
+            key: "Access-Control-Allow-Headers",
+            value: "Content-Type, Authorization"
+          }
+        ]
+      },
+      {
         source: "/api/:slug*",
         headers: [
           {
@@ -61,21 +78,6 @@ module.exports = removeImports({
             key: "Strict-Transport-Security",
             value: "max-age=31536000; includeSubDomains; preload"
           },
-        ],
-        source: "/api/.well-known/:slug*",
-        headers: [
-          {
-            key: "Access-Control-Allow-Origin",
-            value: "*"
-          },
-          {
-            key: "Access-Control-Allow-Methods",
-            value: "GET, POST, PUT, DELETE, OPTIONS",
-          },
-          {
-            key: 'Cache-Control',
-            value: 'no-cache, max-age=0, must-revalidate'
-          }
         ],
       },
     ];
