@@ -31,7 +31,7 @@ module.exports = removeImports({
         headers: [
           {
             key: "Access-Control-Allow-Origin",
-            value: process.env.BACKEND_URL
+            value: "*"
           },
           {
             key: "Access-Control-Allow-Methods",
