@@ -28,7 +28,7 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 768;
     // todo implement real read time needs to be on form
-    const readTime = 30;
+    const readTime = 120;
 
     const { isCompleted, isTracking } = useTrackDocumentLesson({
         lessonId: lesson?.d,
