@@ -112,7 +112,7 @@ export default async function handler(req, res) {
                         const signedZapReceipt = finalizeEvent(zapReceipt, foundAddress.relayPrivkey || ZAP_PRIVKEY);
                         // Publish zap receipt to relays
                         const pool = new SimplePool();
-                        const relays = foundAddress.defaultRelays || appConfig.defaultRelayUrls || [];
+                        const relays = appConfig.defaultRelayUrls || [];
                         await Promise.any(pool.publish(relays, signedZapReceipt));
                         
                         // Delete from Redis after successful broadcast
