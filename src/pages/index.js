@@ -10,7 +10,7 @@ export default function Home() {
     <>
       <Head>
         <title>PlebDevs</title>
-        <meta name="description" content="Learn to code" />
+        <meta name="description" content="Build on Bitcoin" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

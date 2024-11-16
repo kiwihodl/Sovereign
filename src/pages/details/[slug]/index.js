@@ -13,6 +13,8 @@ import axios from 'axios';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import appConfig from "@/config/appConfig";
 
+// todo: /decrypt is still being called way too much on this page, need to clean up state management
+
 const Details = () => {
     const [event, setEvent] = useState(null);
     const [author, setAuthor] = useState(null);
