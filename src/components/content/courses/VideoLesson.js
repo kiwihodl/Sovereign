@@ -94,7 +94,7 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
             pubkey: lesson.pubkey,
             kind: lesson.kind,
             identifier: lesson.d,
-            relayUrls: appConfig.defaultRelayUrls
+            relays: appConfig.defaultRelayUrls
         });
         setNAddress(addr);
     }, [lesson]);

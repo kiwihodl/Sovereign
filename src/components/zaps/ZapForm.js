@@ -7,7 +7,7 @@ const ZapForm = ({ event }) => {
         kind: event?.kind,
         pubkey: event?.pubkey,
         identifier: event.d,
-        relays: [...appConfig.defaultRelayUrls]
+        relays: appConfig.defaultRelayUrls
     });
 
     return (

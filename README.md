@@ -1,3 +1,3 @@
 # Plebdevs
 
-still in development
+plebdevs.com

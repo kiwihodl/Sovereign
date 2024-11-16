@@ -25,12 +25,11 @@ export function VideoTemplate({ video, isLesson, showMetaTags }) {
     const isMobile = windowWidth < 768;
 
     useEffect(() => {
-        if (video && video?.id) {
+        if (video && video?.d) {
             const nAddress = nip19.naddrEncode({
                 pubkey: video.pubkey,
                 kind: video.kind,
-                identifier: video.id,
-                relayUrls: appConfig.defaultRelayUrls
+                identifier: video.d
             });
             setNAddress(nAddress);
         }

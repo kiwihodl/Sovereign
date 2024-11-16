@@ -11,7 +11,6 @@ import { useRouter } from "next/router";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import axios from 'axios';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
-import appConfig from "@/config/appConfig";
 
 // todo: /decrypt is still being called way too much on this page, need to clean up state management
 
@@ -58,8 +57,7 @@ const Details = () => {
             const naddr = nip19.naddrEncode({
                 pubkey: event.pubkey,
                 kind: event.kind,
-                identifier: event.d,
-                relayUrls: appConfig.defaultRelayUrls
+                identifier: event.d
             });
             setNAddress(naddr);
         }
@@ -94,7 +92,7 @@ const Details = () => {
                     setLoading(false);
                     return;
                 }
-                id = data?.identifier;
+                id = null;
                 setNAddress(slug);
             } else {
                 id = slug;
@@ -102,7 +100,14 @@ const Details = () => {
 
             try {
                 await ndk.connect();
-                const event = await ndk.fetchEvent({ ids: [id] });
+                let filter;
+                if (id) {
+                    filter = { ids: [id] };
+                } else {
+                    const decoded = nip19.decode(slug);
+                    filter = { "#d": [decoded?.data?.identifier] };
+                }
+                const event = await ndk.fetchEvent(filter);
 
                 if (event) {
                     const parsedEvent = parseEvent(event);

@@ -40,12 +40,12 @@ export function CourseTemplate({ course, showMetaTags = true }) {
   }, [course]);
 
   useEffect(() => {
-    if (course && course?.id) {
+    if (course && course?.d) {
       const nAddress = nip19.naddrEncode({
         pubkey: course.pubkey,
         kind: course.kind,
-        identifier: course.id,
-        relayUrls: appConfig.defaultRelayUrls
+        identifier: course.d,
+        relays: appConfig.defaultRelayUrls
       });
       setNAddress(nAddress);
     }

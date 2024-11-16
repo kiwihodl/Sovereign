@@ -50,7 +50,7 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
                 pubkey: lesson.pubkey,
                 kind: lesson.kind,
                 identifier: lesson.d,
-                relayUrls: appConfig.defaultRelayUrls
+                relays: appConfig.defaultRelayUrls
             })
             setNAddress(addr);
         }

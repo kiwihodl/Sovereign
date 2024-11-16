@@ -38,23 +38,15 @@ const useCourseData = (ndk, fetchAuthor, router) => {
                     return null;
                 }
                 return data.identifier;
-            } else if (slug.includes("-")) {
-                try {
-                    const res = await axios.get(`/api/courses/${slug}`);
-                    return res.data?.noteId;
-                } catch (err) {
-                    console.error('Error fetching course:', err);
-                    showToast('error', 'Error', 'Course not found');
-                    return null;
-                }
+            } else {
+                return slug;
             }
-            return slug;
         };
 
         const fetchCourse = async (courseId) => {
             try {
                 await ndk.connect();
-                const event = await ndk.fetchEvent({ ids: [courseId] });
+                const event = await ndk.fetchEvent({ "#d": [courseId] });
                 if (!event) return null;
 
                 const author = await fetchAuthor(event.pubkey);

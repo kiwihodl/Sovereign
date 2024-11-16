@@ -20,20 +20,20 @@ const ContentListItem = (content) => {
         let nAddress;
         if (isPublishedCourse) {
             nAddress = nip19.naddrEncode({
-                identifier: content.id,
+                identifier: content?.d || content.id,
                 kind: content.kind,
                 pubkey: content.pubkey,
-                relayUrls: appConfig.defaultRelayUrls
+                relays: appConfig.defaultRelayUrls
             });
             router.push(`/course/${nAddress}`);
         } else if (isDraftCourse) {
             router.push(`/course/${content.id}/draft`);
         } else if (isResource) {
             nAddress = nip19.naddrEncode({
-                identifier: content.id,
+                identifier: content.d,
                 kind: content.kind,
                 pubkey: content.pubkey,
-                relayUrls: appConfig.defaultRelayUrls
+                relays: appConfig.defaultRelayUrls
             });
             router.push(`/details/${nAddress}`);
         } else if (isDraft) {

@@ -54,7 +54,7 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
                 pubkey: processedEvent.pubkey,
                 kind: processedEvent.kind,
                 identifier: processedEvent.d,
-                relayUrls: appConfig.defaultRelayUrls
+                relays: appConfig.defaultRelayUrls
             });
             setNAddress(naddr);
         }

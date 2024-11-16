@@ -24,12 +24,11 @@ export function DocumentTemplate({ document, isLesson, showMetaTags }) {
     const isMobile = windowWidth < 768;
 
     useEffect(() => {
-        if (document && document?.id) {
+        if (document && document?.d) {
             const nAddress = nip19.naddrEncode({
                 pubkey: document.pubkey,
                 kind: document.kind,
-                identifier: document.id,
-                relayUrls: appConfig.defaultRelayUrls
+                identifier: document.d
             });
             setNAddress(nAddress);
         }

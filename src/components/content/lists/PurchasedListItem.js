@@ -36,9 +36,9 @@ const PurchasedListItem = ({ eventId, category }) => {
     const encodeNaddr = () => {
         setNaddr(nip19.naddrEncode({
             pubkey: event.pubkey,
-            identifier: event.id,
+            identifier: event.d,
             kind: event.kind,
-            relayUrls: appConfig.defaultRelayUrls
+            relays: appConfig.defaultRelayUrls
         }))
     }
 

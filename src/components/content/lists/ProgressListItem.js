@@ -33,9 +33,9 @@ const ProgressListItem = ({ dTag, category }) => {
     const encodeNaddr = () => {
         return nip19.naddrEncode({
             pubkey: event.pubkey,
-            identifier: event.id,
+            identifier: event.d,
             kind: 30004,
-            relayUrls: appConfig.defaultRelayUrls
+            relays: appConfig.defaultRelayUrls
         })
     }
 

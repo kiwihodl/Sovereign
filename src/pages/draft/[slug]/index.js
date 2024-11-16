@@ -128,7 +128,7 @@ export default function Draft() {
             pubkey: resource.pubkey,
             kind: resource.kind,
             identifier: dTag,
-            relayUrls: appConfig.defaultRelayUrls
+            relays: appConfig.defaultRelayUrls
         });
 
         const userResponse = await axios.get(`/api/users/${user.pubkey}`);
