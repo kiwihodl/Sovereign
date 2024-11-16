@@ -58,14 +58,18 @@ export default async function handler(req, res) {
                     continue;
                 }
 
-                // Check payment status
+                // Add axios timeout configuration
+                const axiosConfig = {
+                    timeout: 5000, // 5 second timeout
+                    headers: {
+                        'Grpc-Metadata-macaroon': foundAddress.invoiceMacaroon,
+                    }
+                };
+
+                // Check payment status with timeout handling
                 const response = await axios.get(
                     `https://${foundAddress.lndHost}:${foundAddress.lndPort}/v1/invoice/${paymentHash}`,
-                    {
-                        headers: {
-                            'Grpc-Metadata-macaroon': foundAddress.invoiceMacaroon,
-                        }
-                    }
+                    axiosConfig
                 );
 
                 if (!response.data) {
@@ -124,6 +128,11 @@ export default async function handler(req, res) {
 
                 results.processed++;
             } catch (error) {
+                if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT') {
+                    console.error(`Connection issue with LND node for ${foundAddress.lndHost}: ${error.message}`);
+                    results.errors++;
+                    continue;
+                }
                 console.error('Error processing invoice:', error);
                 results.errors++;
             }
