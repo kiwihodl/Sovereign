@@ -79,8 +79,8 @@ const AboutPage = () => {
                             <h3 className="text-lg font-semibold">Subscriptions:</h3>
                             <p className='text-lg'>The PlebDevs subscription unlocks all paid content, gives access to our 1:1 calendar for tutoring/help, and grants you a plebdevs.com Lightning Address and Nostr NIP-05 identity.</p>
                             <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
-                                <li><span className="text-lg font-semibold">Pay-as-you-go:</span> 21,000 sats - A one-time payment that gives you access to all of the premium features for one month <br /> <span className="pl-4">* you will need to manually renew your subscription every month.</span></li>
-                                <li><span className="text-lg font-semibold">Recurring:</span> 21,000 sats - A subscription option allows you to submit a Nostr Wallet Connect URI that will be used to automatically send the subscription fee every month <br /> <span className="pl-4">* you can cancel at any time.</span></li>
+                                <li><span className="text-lg font-semibold">Pay-as-you-go:</span> 70,000 sats - A one-time payment that gives you access to all of the premium features for one month <br /> <span className="pl-4">* you will need to manually renew your subscription every month.</span></li>
+                                <li><span className="text-lg font-semibold">Recurring:</span> 70,000 sats - A subscription option allows you to submit a Nostr Wallet Connect URI that will be used to automatically send the subscription fee every month <br /> <span className="pl-4">* you can cancel at any time.</span></li>
                             </ul>
                         </div>
                     </div>
