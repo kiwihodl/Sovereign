@@ -11,9 +11,9 @@ PlebDevs is an open-source platform that combines educational content, community
 
 - ☁️ **Content Distribution**: All content is published to Nostr and pulled from Nostr relays
 - 📝 **Content Types**:
-  - Documents (NIP-23 long-form) - Markdown-based educational content
-  - Videos with rich media support - Including embedded video content
-  - Structured courses (NIP-51) - Combining multiple documents and videos into learning paths
+  - Documents: Markdown documents posted as NIP-23 long-form events
+  - Video: Formatted markdown documents with rich media support, including embedded videos, also posted as NIP-23 events
+  - Courses: Nostr lists (NIP-51) that combines multiple documents and videos into a structured learning path.
 - ⚡️ **Monetization**: 
   - Free content available to all (viewable on any Nostr client) and zappable
   - Premium content purchasable with Lightning or through a PlebDevs subscription
