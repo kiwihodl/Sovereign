@@ -238,7 +238,7 @@ const UserSettings = () => {
                                 </h3>
                             </div>
                             <p>
-                                Connect your Lightning wallet for easier zaps and payments across the platform
+                                Connect your Lightning wallet for easier payments across the platform
                             </p>
                             <BitcoinConnectButton />
                         </div>
