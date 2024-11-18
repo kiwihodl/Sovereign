@@ -91,7 +91,7 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
         }
 
         if (paidCourse && decryptionPerformed && author && processedEvent?.pubkey !== session?.user?.pubkey && !session?.user?.role?.subscribed) {
-            return <GenericButton icon="pi pi-check" label={`Paid ${processedEvent.price} sats`} severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
+            return <GenericButton icon="pi pi-check" label={`Paid`} severity="success" outlined size="small" tooltip={`You paid ${processedEvent.price} sats to access this course (or potentially less if a discount was applied)`} tooltipOptions={{ position: 'top' }} className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
         }
 
         if (paidCourse && author && processedEvent?.pubkey === session?.user?.pubkey) {
