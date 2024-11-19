@@ -178,7 +178,7 @@ const Details = () => {
                 handlePaymentError={handlePaymentError}
                 authorView={authorView}
             />
-            {nAddress !== null && (nsec || npub) && (
+            {nAddress !== null && (nsec || npub) ? (
                 <div className='px-4'>
                     <ZapThreadsWrapper
                         anchor={nAddress}
@@ -187,7 +187,16 @@ const Details = () => {
                         disable="zaps"
                     />
                 </div>
-            )}
+            ) : nAddress !== null ? (
+                <div className='px-4'>
+                    <ZapThreadsWrapper
+                        anchor={nAddress}
+                        user={npub}
+                        relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.mutinywallet.com/, wss://relay.primal.net/, wss://nostr21.com/, wss://nostrue.com/, wss://purplerelay.com/, wss://relay.devs.tools/"
+                        disable="zaps"
+                    />
+                </div>
+            ) : null}
         </>
     );
 };
