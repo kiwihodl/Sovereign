@@ -5,6 +5,7 @@ import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateS
 import { VideoTemplate } from '@/components/content/carousels/templates/VideoTemplate';
 import { DocumentTemplate } from '@/components/content/carousels/templates/DocumentTemplate';
 import { CourseTemplate } from '@/components/content/carousels/templates/CourseTemplate';
+import { CombinedTemplate } from '@/components/content/carousels/templates/CombinedTemplate';
 import debounce from 'lodash/debounce';
 
 const responsiveOptions = [
@@ -74,7 +75,9 @@ export default function GenericCarousel({items, selectedTopic, title}) {
                     value={carouselItems}
                     itemTemplate={(item) => {
                         if (carouselItems.length > 0) {
-                            if (item.type === 'document') {
+                            if (item.topics?.includes('video') && item.topics?.includes('document')) {
+                                return <CombinedTemplate key={item.id} resource={item} isLesson={lessons.includes(item?.d)} />;
+                            } else if (item.type === 'document') {
                                 return <DocumentTemplate key={item.id} document={item} isLesson={lessons.includes(item?.d)} />;
                             } else if (item.type === 'video') {
                                 return <VideoTemplate key={item.id} video={item} isLesson={lessons.includes(item?.d)} />;

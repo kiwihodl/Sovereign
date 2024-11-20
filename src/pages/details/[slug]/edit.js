@@ -4,6 +4,7 @@ import { parseEvent } from "@/utils/nostr";
 import DocumentForm from "@/components/forms/DocumentForm";
 import VideoForm from "@/components/forms/VideoForm";
 import CourseForm from "@/components/forms/course/CourseForm";
+import CombinedResourceForm from "@/components/forms/CombinedResourceForm";
 import { useNDKContext } from "@/context/NDKContext";
 import { useToast } from "@/hooks/useToast";
 
@@ -39,8 +40,9 @@ export default function Edit() {
         <div className="w-[80vw] max-w-[80vw] mx-auto my-8 flex flex-col justify-center">
             <h2 className="text-center mb-8">Edit Published Event</h2>
             {event?.topics.includes('course') && <CourseForm draft={event} isPublished />}
-            {!event?.topics.includes('video') && <VideoForm draft={event} isPublished />}
-            {event?.topics.includes('document') && <DocumentForm draft={event} isPublished />}
+            {event?.topics.includes('video') && !event?.topics.includes('document') && <VideoForm draft={event} isPublished />}
+            {event?.topics.includes('document') && !event?.topics.includes('video') && <DocumentForm draft={event} isPublished />}
+            {event?.topics.includes('video') && event?.topics.includes('document') && <CombinedResourceForm draft={event} isPublished />}
         </div>
     );
 }

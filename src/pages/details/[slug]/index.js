@@ -11,6 +11,7 @@ import { useRouter } from "next/router";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import axios from 'axios';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
+import CombinedDetails from "@/components/content/combined/CombinedDetails";
 
 // todo: /decrypt is still being called way too much on this page, need to clean up state management
 
@@ -158,7 +159,14 @@ const Details = () => {
 
     if (!author || !event) return null;
 
-    const DetailComponent = event.type === "document" ? DocumentDetails : VideoDetails;
+    const getDetailComponent = () => {
+        if (event.topics.includes('video') && event.topics.includes('document')) {
+            return CombinedDetails;
+        }
+        return event.type === "document" ? DocumentDetails : VideoDetails;
+    };
+
+    const DetailComponent = getDetailComponent();
 
     return (
         <>

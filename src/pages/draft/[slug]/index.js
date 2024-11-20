@@ -116,8 +116,8 @@ export default function Draft() {
 
     const handlePostResource = async (resource, videoId) => {
         const dTag = resource.tags.find(tag => tag[0] === 'd')[1];
-        let price 
-        
+        let price
+
         try {
             price = resource.tags.find(tag => tag[0] === 'price')[1];
         } catch (err) {
@@ -241,6 +241,33 @@ export default function Draft() {
 
                 type = 'video';
                 break;
+            case 'combined':
+                if (draft?.price) {
+                    encryptedContent = await encryptContent(draft.content);
+                }
+
+                if (draft?.content.includes('?videoKey=')) {
+                    const extractedVideoId = draft.content.split('?videoKey=')[1].split('"')[0];
+                    videoId = extractedVideoId;
+                }
+
+                event.kind = draft?.price ? 30402 : 30023;
+                event.content = draft?.price ? encryptedContent : draft.content;
+                event.created_at = Math.floor(Date.now() / 1000);
+                event.pubkey = user.pubkey;
+                event.tags = [
+                    ['d', NewDTag],
+                    ['title', draft.title],
+                    ['summary', draft.summary],
+                    ['image', draft.image],
+                    ...draft.topics.map(topic => ['t', topic]),
+                    ['published_at', Math.floor(Date.now() / 1000).toString()],
+                    ...(draft?.price ? [['price', draft.price.toString()], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
+                    ...(draft?.additionalLinks ? draft.additionalLinks.filter(link => link !== 'https://plebdevs.com').map(link => ['r', link]) : []),
+                ];
+
+                type = 'combined';
+                break;
             default:
                 return null;
         }
@@ -264,13 +291,13 @@ export default function Draft() {
                         </div>
                         <h1 className='text-4xl mt-4'>{draft?.title}</h1>
                         <p className='text-xl mt-4'>{draft?.summary && (
-                        <div className="text-xl mt-4">
-                            {draft.summary.split('\n').map((line, index) => (
-                                <p key={index}>{line}</p>
-                            ))}
-                        </div>
-                    )}
-                    </p>
+                            <div className="text-xl mt-4">
+                                {draft.summary.split('\n').map((line, index) => (
+                                    <p key={index}>{line}</p>
+                                ))}
+                            </div>
+                        )}
+                        </p>
                         {draft?.price && (
                             <p className='text-lg mt-4'>Price: {draft.price}</p>
                         )}
@@ -305,7 +332,7 @@ export default function Draft() {
                                 </p>
                             )}
                         </div>
-                    <p className="pt-8 text-sm text-gray-400">{draft?.createdAt && formatDateTime(draft?.createdAt)}</p>
+                        <p className="pt-8 text-sm text-gray-400">{draft?.createdAt && formatDateTime(draft?.createdAt)}</p>
                     </div>
                     <div className='flex flex-col max-tab:mt-12 max-mob:mt-12'>
                         {draft && (
