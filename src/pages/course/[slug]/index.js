@@ -4,6 +4,7 @@ import { parseCourseEvent, parseEvent, findKind0Fields } from "@/utils/nostr";
 import CourseDetails from "@/components/content/courses/CourseDetails";
 import VideoLesson from "@/components/content/courses/VideoLesson";
 import DocumentLesson from "@/components/content/courses/DocumentLesson";
+import CombinedLesson from "@/components/content/courses/CombinedLesson";
 import { useNDKContext } from "@/context/NDKContext";
 import { useSession } from 'next-auth/react';
 import axios from "axios";
@@ -225,6 +226,16 @@ const Course = () => {
         );
     }
 
+    const renderLesson = (lesson) => {
+        if (lesson.topics?.includes('video') && lesson.topics?.includes('document')) {
+            return <CombinedLesson lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} setCompleted={setCompleted} />;
+        } else if (lesson.type === 'video' && !lesson.topics?.includes('document')) {
+            return <VideoLesson lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} setCompleted={setCompleted} />;
+        } else if (lesson.type === 'document' && !lesson.topics?.includes('video')) {
+            return <DocumentLesson lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} setCompleted={setCompleted} />;
+        }
+    }
+
     return (
         <>
             {course && paidCourse !== null && (
@@ -260,10 +271,7 @@ const Course = () => {
                         }
                     >
                         <div className="w-full py-4 rounded-b-lg">
-                            {lesson.type === 'video' ?
-                                <VideoLesson lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} setCompleted={setCompleted} /> :
-                                <DocumentLesson lesson={lesson} course={course} decryptionPerformed={decryptionPerformed} isPaid={paidCourse} setCompleted={setCompleted} />
-                            }
+                            {renderLesson(lesson)}
                         </div>
                     </AccordionTab>
                 ))}

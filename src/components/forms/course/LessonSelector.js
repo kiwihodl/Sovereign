@@ -67,6 +67,11 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
             value: content
         }));
 
+        const combinedOptions = filteredContent.filter(content => content?.topics?.includes('video') && content?.topics?.includes('document') && content.kind).map(content => ({
+            label: content.title,
+            value: content
+        }));
+
         setContentOptions([
             {
                 label: 'Draft Documents',
@@ -83,6 +88,10 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
             {
                 label: 'Published Videos',
                 items: videoOptions
+            },
+            {
+                label: 'Published Combined',
+                items: combinedOptions
             }
         ]);
     };
