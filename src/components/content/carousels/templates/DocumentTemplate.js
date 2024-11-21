@@ -52,7 +52,7 @@ export function DocumentTemplate({ document, isLesson, showMetaTags }) {
 
     return (
         <Card className="overflow-hidden group hover:shadow-xl transition-all duration-300 bg-gray-800 m-2 border-none">
-            <div className="relative w-full h-0" style={{ paddingBottom: "56.25%" }}>
+            <div className="relative w-full h-0 hover:opacity-70 cursor-pointer" style={{ paddingBottom: "56.25%" }} onClick={() => router.push(`/details/${nAddress}`)}>
                 <Image
                     alt="document thumbnail"
                     src={returnImageProxy(document.image)}
@@ -62,23 +62,16 @@ export function DocumentTemplate({ document, isLesson, showMetaTags }) {
                     className="rounded-md"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary-foreground/50" />
-                <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/50 text-white px-3 py-1 rounded-full">
-                    <ZapDisplay zapAmount={zapAmount} event={document} zapsLoading={zapsLoading && zapAmount === 0} />
-                </div>
             </div>
             <CardHeader className="flex flex-row justify-between items-center p-4 border-b border-gray-700">
                 <div className="flex items-center gap-4">
                     <CardTitle className="text-xl sm:text-2xl text-[#f8f8ff]">{document.title}</CardTitle>
                 </div>
-                <div>
-                    {document?.price && document?.price > 0 ? (
-                        <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock" severity="info" text={`${document.price} sats`} />
-                    ) : (
-                        <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock-open" severity="success" text="Free" />
-                    )}
+                <div className="text-[#f8f8ff]"> 
+                    <ZapDisplay zapAmount={zapAmount} event={document} zapsLoading={zapsLoading && zapAmount === 0} />
                 </div>
             </CardHeader>
-            <CardContent className={`${isMobile ? "px-3" : ""} pt-6 pb-2 w-full flex flex-row justify-between items-start`}>
+            <CardContent className={`${isMobile ? "px-3" : ""} pt-4 pb-2 w-full flex flex-row justify-between items-center`}>
                 <div className="flex flex-wrap gap-2 max-w-[65%]">
                     {document?.topics?.map((topic, index) => (
                         shouldShowMetaTags(topic) && (
@@ -89,7 +82,11 @@ export function DocumentTemplate({ document, isLesson, showMetaTags }) {
                     ))}
                     {isLesson && showMetaTags && <Tag size="small" className="px-2 py-1 text-sm text-[#f8f8ff]" value="lesson" />}
                 </div>
-                <p className="font-bold text-gray-300">{document?.readTime || "5 min"} read</p>
+                    {document?.price && document?.price > 0 ? (
+                        <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock" severity="info" text={`${document.price} sats`} />
+                    ) : (
+                        <Message className={`${isMobile ? "py-1 text-xs" : "py-2"} whitespace-nowrap`} icon="pi pi-lock-open" severity="success" text="Free" />
+                    )}
             </CardContent>
             <CardDescription className={`${isMobile ? "w-full p-3" : "p-6"} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center max-w-[100%]`}
                 style={{
