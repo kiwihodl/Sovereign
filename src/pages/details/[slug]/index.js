@@ -139,7 +139,7 @@ const Details = () => {
         };
 
         fetchAndProcessEvent();
-    }, [router.isReady, router.query, ndk, session, decryptContent, fetchAuthor, showToast]);
+    }, [router.isReady, router.query, ndk, session]);
 
     const handlePaymentSuccess = (response) => {
         if (response && response?.preimage) {
