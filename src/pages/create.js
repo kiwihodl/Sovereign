@@ -3,6 +3,7 @@ import MenuTab from "@/components/menutab/MenuTab";
 import DocumentForm from "@/components/forms/DocumentForm";
 import VideoForm from "@/components/forms/VideoForm";
 import CourseForm from "@/components/forms/course/CourseForm";
+import CombinedResourceForm from "@/components/forms/CombinedResourceForm";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useRouter } from "next/router";
 import { ProgressSpinner } from "primereact/progressspinner";
@@ -14,6 +15,7 @@ const Create = () => {
     const homeItems = [
         { label: 'Document', icon: 'pi pi-file' },
         { label: 'Video', icon: 'pi pi-video' },
+        { label: 'Combined', icon: 'pi pi-clone' },
         { label: 'Course', icon: 'pi pi-desktop' }
     ];
 
@@ -34,8 +36,10 @@ const Create = () => {
                 return <VideoForm />;
             case 'Document':
                 return <DocumentForm />;
+            case 'Combined':
+                return <CombinedResourceForm />;
             default:
-                return null; // or a default component
+                return null;
         }
     };
 

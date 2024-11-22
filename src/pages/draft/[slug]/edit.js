@@ -4,6 +4,7 @@ import axios from "axios";
 import DocumentForm from "@/components/forms/DocumentForm";
 import VideoForm from "@/components/forms/VideoForm";
 import CourseForm from "@/components/forms/course/CourseForm";
+import CombinedResourceForm from "@/components/forms/CombinedResourceForm";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const Edit = () => {
@@ -38,6 +39,7 @@ const Edit = () => {
             {draft?.type === 'course' && <CourseForm draft={draft} />}
             {draft?.type === 'video' && <VideoForm draft={draft} />}
             {draft?.type === 'document' && <DocumentForm draft={draft} />}
+            {draft?.type === 'combined' && <CombinedResourceForm draft={draft} />}
         </div>
     );
 };

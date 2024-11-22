@@ -59,14 +59,13 @@ export default function DocumentsCarousel() {
                     // Sort documents by created_at in descending order (most recent first)
                     const sortedDocuments = processedDocuments.sort((a, b) => b.created_at - a.created_at);
 
-                    if (paidLessons && paidLessons.length > 0) {
-                        // filter out documents that are in the paid lessons array
-                        const filteredDocuments = sortedDocuments.filter(document => !paidLessons.includes(document?.d));
+                    // Filter out documents that are in paid lessons and combined resources
+                    const filteredDocuments = sortedDocuments.filter(document => 
+                        !paidLessons.includes(document?.d) && 
+                        !(document.topics?.includes('video') && document.topics?.includes('document'))
+                    );
 
-                        setProcessedDocuments(filteredDocuments);
-                    } else {
-                        setProcessedDocuments(sortedDocuments);
-                    }
+                    setProcessedDocuments(filteredDocuments);
                 } else {
                     console.log('No documents fetched or empty array returned');
                 }

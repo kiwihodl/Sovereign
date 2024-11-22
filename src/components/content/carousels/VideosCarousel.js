@@ -62,14 +62,13 @@ export default function VideosCarousel() {
                     
                     const sortedVideos = processedVideos.sort((a, b) => b.created_at - a.created_at);
 
-                    if (paidLessons && paidLessons.length > 0) {
-                        // filter out videos that are in the paid lessons array
-                        const filteredVideos = sortedVideos.filter(video => !paidLessons.includes(video?.d));
+                    // Filter out videos that are in paid lessons and combined resources
+                    const filteredVideos = sortedVideos.filter(video => 
+                        !paidLessons.includes(video?.d) && 
+                        !(video.topics?.includes('video') && video.topics?.includes('document'))
+                    );
 
-                        setProcessedVideos(filteredVideos);
-                    } else {
-                        setProcessedVideos(sortedVideos);
-                    }
+                    setProcessedVideos(filteredVideos);
                 } else {
                     console.log('No videos fetched or empty array returned');
                 }
