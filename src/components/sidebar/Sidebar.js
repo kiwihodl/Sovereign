@@ -139,13 +139,15 @@ const Sidebar = ({ course = false }) => {
             </div>
             <Divider className='pt-0 mt-0' />
             <div className='mt-auto'>
-                <div className='mt-auto'>
-                    <div onClick={() => router.push('/profile?tab=settings')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/profile?tab=settings') ? 'bg-gray-700' : ''}`}>
-                        <i className="pi pi-cog pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Settings</p>
-                    </div>
-                    <div onClick={() => session ? signOut() : router.push('/auth/signin')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/auth/signin') ? 'bg-gray-700' : ''}`}>
-                        <i className={`pi ${session ? 'pi-sign-out' : 'pi-sign-in'} pl-5 text-sm`} /> <p className="pl-2 rounded-md font-bold text-lg">{session ? 'Logout' : 'Login'}</p>
-                    </div>
+                <div onClick={() => router.push('/profile?tab=settings')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/profile?tab=settings') ? 'bg-gray-700' : ''}`}>
+                    <i className="pi pi-cog pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Settings</p>
+                </div>
+                <div onClick={() => session ? signOut() : router.push('/auth/signin')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/auth/signin') ? 'bg-gray-700' : ''}`}>
+                    <i className={`pi ${session ? 'pi-sign-out' : 'pi-sign-in'} pl-5 text-sm`} /> <p className="pl-2 rounded-md font-bold text-lg">{session ? 'Logout' : 'Login'}</p>
+                </div>
+                {/* todo: have to add this extra button to push the sidebar to the right space but it doesnt seem to cause any negative side effects? */}
+                <div onClick={signOut} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg`}>
+                    <i className="pi pi-sign-out pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Logout</p>
                 </div>
             </div>
         </div>
