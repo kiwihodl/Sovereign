@@ -33,20 +33,6 @@ export default function MyApp({
         setIsCourseView(router.pathname.includes('course') && !router.pathname.includes('draft'));
     }, [router.pathname]);
 
-    // const [sidebarExpanded, setSidebarExpanded] = useState(true);
-
-    // useEffect(() => {
-    //     const handleSidebarToggle = (event) => {
-    //         setSidebarExpanded(event.detail.isExpanded);
-    //     };
-
-    //     window.addEventListener('sidebarToggle', handleSidebarToggle);
-
-    //     return () => {
-    //         window.removeEventListener('sidebarToggle', handleSidebarToggle);
-    //     };
-    // }, []);
-
     return (
         <PrimeReactProvider>
             <SessionProvider session={session}>

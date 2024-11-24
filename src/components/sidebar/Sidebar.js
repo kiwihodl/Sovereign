@@ -10,7 +10,6 @@ import styles from "./sidebar.module.css";
 import { Divider } from 'primereact/divider';
 
 const Sidebar = ({ course = false }) => {
-    const [isExpanded, setIsExpanded] = useState(true);
     const { isAdmin } = useIsAdmin();
     const [lessons, setLessons] = useState([]);
     const router = useRouter();
@@ -29,17 +28,6 @@ const Sidebar = ({ course = false }) => {
     };
 
     const { data: session } = useSession();
-
-    useEffect(() => {
-        // Notify parent component about sidebar state change
-        if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('sidebarToggle', { detail: { isExpanded } }));
-        }
-    }, [isExpanded]);
-
-    const toggleSidebar = () => {
-        setIsExpanded(!isExpanded);
-    };
 
     useEffect(() => {
         console.log("less", lessons);
@@ -106,11 +94,11 @@ const Sidebar = ({ course = false }) => {
     }, [router.isReady, router.query.active, scrollToLesson]);
 
     return (
-        <div className={`max-sidebar:hidden bg-gray-800 p-2 fixed h-[100%] flex flex-col transition-all duration-300 ease-in-out ${isExpanded ? 'w-[14vw]' : 'w-[50px]'}`}>
+        <div className="max-sidebar:hidden bg-gray-800 p-2 fixed h-[100%] flex flex-col w-[14vw]">
             <div className="flex-grow overflow-y-auto">
                 {course && lessons.length > 0 && (
                     <div className="flex-grow overflow-y-auto">
-                        <div onClick={() => router.push('/')} className={"w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg"}>
+                        <div onClick={() => router.push('/')} className="w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg">
                             <i className="pi pi-arrow-left pl-5" /> <p className="pl-2 rounded-md font-bold text-lg">Home</p>
                         </div>
                         {lessons.map((lesson, index) => (
@@ -127,7 +115,7 @@ const Sidebar = ({ course = false }) => {
                         ))}
                     </div>
                 )}
-                {isExpanded && !course ? (
+                {!course && (
                     <div className="flex-grow overflow-y-auto">
                         <div onClick={() => router.push('/')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/') ? 'bg-gray-700' : ''}`}>
                             <i className="pi pi-home pl-5" /> <p className="pl-2 rounded-md font-bold text-lg">Home</p>
@@ -147,46 +135,18 @@ const Sidebar = ({ course = false }) => {
                             <i className="pi pi-star pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Subscribe</p>
                         </div>
                     </div>
-                ) : (
-                    // Collapsed sidebar content (icons only)
-                    !course && (
-                        <div className="flex flex-col items-center">
-                            <i className="pi pi-home my-4 cursor-pointer" onClick={() => router.push('/')} />
-                            <i className="pi pi-play-circle my-4 cursor-pointer" onClick={() => router.push('/content?tag=all')} />
-                            <i className="pi pi-plus my-4 cursor-pointer" onClick={() => router.push('/create')} />
-                            <i className="pi pi-star my-4 cursor-pointer" onClick={() => session ? router.push('/profile?tab=subscribe') : router.push('/auth/signin')} />
-                            <i className="pi pi-comments my-4 cursor-pointer" onClick={() => router.push('/feed?channel=global')} />
-                        </div>
-                    )
                 )}
             </div>
             <Divider className='pt-0 mt-0' />
             <div className='mt-auto'>
-                {isExpanded ? (
-                    <div className='mt-auto'>
-                        <div onClick={() => router.push('/profile?tab=settings')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/profile?tab=settings') ? 'bg-gray-700' : ''}`}>
-                            <i className="pi pi-cog pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Settings</p>
-                        </div>
-                        <div onClick={() => session ? signOut() : router.push('/auth/signin')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/auth/signin') ? 'bg-gray-700' : ''}`}>
-                            <i className={`pi ${session ? 'pi-sign-out' : 'pi-sign-in'} pl-5 text-sm`} /> <p className="pl-2 rounded-md font-bold text-lg">{session ? 'Logout' : 'Login'}</p>
-                        </div>
-                        {/* todo sidebar expand / contract */}
-                        {/* <div onClick={toggleSidebar} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg`}>
-                            <i className={`pi pi-chevron-left pl-5 text-sm`} /> <p className="pl-2 rounded-md font-bold text-lg">{isExpanded ? 'close' : 'open'}</p>
-                        </div> */}
-                        {/* todo: have to add this extra button to push the sidebar to the right space but it doesnt seem to cause any negative side effects? */}
-                        <div onClick={signOut} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg`}>
-                            <i className="pi pi-sign-out pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Logout</p>
-                        </div>
+                <div className='mt-auto'>
+                    <div onClick={() => router.push('/profile?tab=settings')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/profile?tab=settings') ? 'bg-gray-700' : ''}`}>
+                        <i className="pi pi-cog pl-5 text-sm" /> <p className="pl-2 rounded-md font-bold text-lg">Settings</p>
                     </div>
-                ) : (
-                    <div className="flex flex-col items-center">
-                        <i className="pi pi-cog my-4 cursor-pointer" onClick={() => router.push('/profile?tab=settings')} />
-                        <i className={`pi ${session ? 'pi-sign-out' : 'pi-sign-in'} my-4 cursor-pointer`} onClick={() => session ? signOut() : router.push('/auth/signin')} />
-                        <i className="pi pi-chevron-right my-4 cursor-pointer" onClick={toggleSidebar} />
-                        <i className={`pi ${session ? 'pi-sign-out' : 'pi-sign-in'} my-4 cursor-pointer`} onClick={() => session ? signOut() : router.push('/auth/signin')} />
+                    <div onClick={() => session ? signOut() : router.push('/auth/signin')} className={`w-full flex flex-row items-center cursor-pointer py-2 my-2 hover:bg-gray-700 rounded-lg ${isActive('/auth/signin') ? 'bg-gray-700' : ''}`}>
+                        <i className={`pi ${session ? 'pi-sign-out' : 'pi-sign-in'} pl-5 text-sm`} /> <p className="pl-2 rounded-md font-bold text-lg">{session ? 'Logout' : 'Login'}</p>
                     </div>
-                )}
+                </div>
             </div>
         </div>
     );
