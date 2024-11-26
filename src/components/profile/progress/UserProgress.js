@@ -9,7 +9,7 @@ const allTasks = [
         status: 'PlebDevs Starter',
         completed: false,
         tier: 'New Dev',
-        courseId: "123",
+        courseId: "f538f5c5-1a72-4804-8eb1-3f05cea64874",
         subTasks: [
             { status: 'Connect GitHub', completed: false },
             { status: 'Create First GitHub Repo', completed: false },
@@ -20,7 +20,7 @@ const allTasks = [
         status: 'Frontend Course', 
         completed: false, 
         tier: 'Junior Dev', 
-        courseId: 'abc',
+        courseId: 'f73c37f4-df2e-4f7d-a838-dce568c76136',
         subTasks: [
             { status: 'Complete the course', completed: false },
             { status: 'Submit Link to completed project', completed: false },
@@ -30,7 +30,7 @@ const allTasks = [
         status: 'Backend Course', 
         completed: false, 
         tier: 'Plebdev', 
-        courseId: 'xyz',
+        courseId: 'f6825391-831c-44da-904a-9ac3d149b7be',
         subTasks: [
             {status: 'Complete the course', completed: false},
             { status: 'Submit Link to completed project', completed: false },
@@ -100,7 +100,7 @@ const UserProgress = () => {
 
     return (
         <div className="bg-gray-800 rounded-3xl p-6 w-[500px] max-mob:w-full max-tab:w-full mx-auto my-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Dev Journey (Coming Soon)</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">Dev Journey</h1>
             <p className="text-gray-400 mb-4">Track your progress from Pleb to Plebdev</p>
 
             <div className="flex justify-between items-center mb-2">
