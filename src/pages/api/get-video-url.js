@@ -60,8 +60,6 @@ export default async function handler(req, res) {
       expiresIn: 3600, // URL expires in 1 hour
     })
 
-    console.log("signedUrl", signedUrl)
-
     res.redirect(signedUrl)
   } catch (error) {
     console.error("Error in get-video-url handler:", error)

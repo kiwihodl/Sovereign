@@ -30,10 +30,6 @@ const Sidebar = ({ course = false }) => {
     const { data: session } = useSession();
 
     useEffect(() => {
-        console.log("less", lessons);
-    }, [lessons])
-
-    useEffect(() => {
         if (router.isReady) {
             const { slug } = router.query;
 
@@ -58,11 +54,9 @@ const Sidebar = ({ course = false }) => {
                             const event = await ndk.fetchEvent(filter);
 
                             if (event) {
-                                console.log("event", event);
                                 // all a tags are lessons
                                 const lessons = event.tags.filter(tag => tag[0] === 'a');
                                 const uniqueLessons = [...new Set(lessons.map(lesson => lesson[1]))];
-                                console.log("uniqueLessons", uniqueLessons);
                                 setLessons(uniqueLessons);
                             }
                         } catch (error) {

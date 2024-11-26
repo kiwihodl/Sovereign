@@ -37,13 +37,7 @@ const EmbeddedDocumentForm = ({ draft = null, isPublished = false, onSave, isPai
     const { ndk, addSigner } = useNDKContext();
 
     useEffect(() => {
-        console.log('isPublished', isPublished);
-        console.log('draft', draft);
-    }, [isPublished, draft]);
-
-    useEffect(() => {
         if (session) {
-            console.log('session', session.user);
             setUser(session.user);
         }
     }, [session]);

@@ -17,7 +17,6 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
 
     useEffect(() => {
         updateContentOptions();
-        console.log("lessons", lessons);
     }, [allContent, isPaidCourse, lessons]);
 
     useEffect(() => {
@@ -44,8 +43,6 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
                     return content;
                 }
             });
-
-        console.log('filtered content', filteredContent)
 
         const draftDocumentOptions = filteredContent.filter(content => content?.topics.includes('document') && !content.kind).map(content => ({
             label: content.title,
@@ -95,10 +92,6 @@ const LessonSelector = ({ isPaidCourse, lessons, setLessons, allContent, onNewRe
             }
         ]);
     };
-
-    useEffect(() => {
-        console.log("contentOptions", contentOptions);
-    }, [contentOptions]);
 
     const handleContentSelect = (selectedContent, index) => {
         if (selectedContent) {
