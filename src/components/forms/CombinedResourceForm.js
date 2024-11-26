@@ -59,7 +59,7 @@ const CombinedResourceForm = ({ draft = null, isPublished = false }) => {
         } else if (url.includes('vimeo.com')) {
             const videoId = url.split('/').pop();
             embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://player.vimeo.com/video/${videoId}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
-        } else if (price && !price > 0 && (url.includes('.mp4') || url.includes('.mov') || url.includes('.avi') || url.includes('.wmv') || url.includes('.flv') || url.includes('.webm'))) {
+        } else if (!price || !price > 0 && (url.includes('.mp4') || url.includes('.mov') || url.includes('.avi') || url.includes('.wmv') || url.includes('.flv') || url.includes('.webm'))) {
             embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><video src="${CDN_ENDPOINT}/${url}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" controls></video></div>`;
         } else if (url.includes('.mp4') || url.includes('.mov') || url.includes('.avi') || url.includes('.wmv') || url.includes('.flv') || url.includes('.webm')) {
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
