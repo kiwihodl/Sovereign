@@ -52,10 +52,14 @@ const UserProgress = () => {
             const user = session.user;
             const ids = user?.userCourses?.map(course => course?.completed ? course.courseId : null).filter(id => id !== null);
             if (ids && ids.length > 0) {
-            setCompletedCourses(ids);
-            generateTasks(ids);
+                setCompletedCourses(ids);
+                generateTasks(ids);
+                calculateProgress(ids);
+                calculateCurrentTier(ids);
             } else {
                 generateTasks([]);
+                calculateProgress([]);
+                calculateCurrentTier([]);
             }
         }
     }, [session]);
@@ -73,23 +77,34 @@ const UserProgress = () => {
         setTasks(updatedTasks);
     };
 
-    const getProgress = async () => {
-        return 10;
+    const calculateProgress = (completedCourseIds) => {
+        let progressValue = 25;
+        
+        const remainingTasks = allTasks.slice(1);
+        remainingTasks.forEach(task => {
+            if (completedCourseIds.includes(task.courseId)) {
+                progressValue += 25;
+            }
+        });
+
+        setProgress(progressValue);
     };
 
-    const getCurrentTier = async () => {
-        return 'Pleb';
+    const calculateCurrentTier = (completedCourseIds) => {
+        let tier = 'Pleb';
+        
+        if (completedCourseIds.includes("f538f5c5-1a72-4804-8eb1-3f05cea64874")) {
+            tier = 'New Dev';
+        }
+        if (completedCourseIds.includes("f73c37f4-df2e-4f7d-a838-dce568c76136")) {
+            tier = 'Junior Dev';
+        }
+        if (completedCourseIds.includes("f6825391-831c-44da-904a-9ac3d149b7be")) {
+            tier = 'Plebdev';
+        }
+        
+        setCurrentTier(tier);
     };
-    useEffect(() => {
-        const fetchProgress = async () => {
-            const progress = await getProgress();
-            const currentTier = await getCurrentTier();
-            setProgress(progress);
-            setCurrentTier(currentTier);
-        };
-
-        fetchProgress();
-    }, []);
 
     const handleAccordionChange = (index, isExpanded) => {
         setExpandedItems(prev => ({
