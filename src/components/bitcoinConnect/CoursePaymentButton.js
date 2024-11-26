@@ -104,6 +104,16 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
         setDialogVisible(false);
     };
 
+    const handleDiscountCode = (value) => {
+        setDiscountCode(value);
+        if (value.toLowerCase() === DISCOUNT_CODE.toLowerCase()) {
+            setDiscountApplied(true);
+            showToast('success', 'Discount Applied', `${calculateDiscount(amount).savedPercentage}% discount applied!`);
+        } else if (value && value.toLowerCase() !== DISCOUNT_CODE.toLowerCase()) {
+            setDiscountApplied(false);
+        }
+    };
+
     return (
         <div className="flex flex-col gap-2">
             {!showDiscountInput ? (
@@ -120,10 +130,7 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
                         <div className="relative flex-1">
                             <InputText 
                                 value={discountCode}
-                                onChange={(e) => {
-                                    setDiscountCode(e.target.value);
-                                    setDiscountApplied(e.target.value === DISCOUNT_CODE);
-                                }}
+                                onChange={(e) => handleDiscountCode(e.target.value)}
                                 placeholder="Enter discount code"
                                 className="text-sm w-full p-2"
                             />
