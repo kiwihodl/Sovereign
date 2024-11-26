@@ -158,7 +158,7 @@ const CombinedLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
         if (lesson?.content) {
             return (
                 <div ref={mdDisplayRef}>
-                    <MDDisplay className={`${isVideo ? 'p-0' : 'p-2'} rounded-lg w-full`} source={lesson.content} />
+                    <MDDisplay className={'p-2 rounded-lg w-full'} source={lesson.content} />
                 </div>
             );
         }
