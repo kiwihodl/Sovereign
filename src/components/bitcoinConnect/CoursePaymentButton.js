@@ -37,7 +37,7 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
         if (invoice) {
             intervalId = setInterval(async () => {
                 const paid = await invoice.verifyPayment();
-    
+
                 if (paid && invoice.preimage) {
                     clearInterval(intervalId);
                     // handle success
@@ -47,7 +47,7 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
         } else {
             console.error('no invoice');
         }
-    
+
         return () => {
             if (intervalId) {
                 clearInterval(intervalId);
@@ -117,7 +117,7 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
     return (
         <div className="flex flex-col gap-2">
             {!showDiscountInput ? (
-                <button 
+                <button
                     onClick={() => setShowDiscountInput(true)}
                     className="text-sm text-blue-500 hover:text-blue-700 underline self-start flex items-center gap-1"
                 >
@@ -128,13 +128,16 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
                 <div className="flex flex-col gap-2 w-full">
                     <div className="flex gap-2 items-center">
                         <div className="relative flex-1">
-                            <InputText 
+                            <InputText
                                 value={discountCode}
-                                onChange={(e) => handleDiscountCode(e.target.value)}
+                                onChange={(e) => {
+                                    setDiscountCode(e.target.value);
+                                    setDiscountApplied(e.target.value === DISCOUNT_CODE);
+                                }}
                                 placeholder="Enter discount code"
                                 className="text-sm w-full p-2"
                             />
-                            <button 
+                            <button
                                 onClick={() => {
                                     setShowDiscountInput(false);
                                     setDiscountCode('');
