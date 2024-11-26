@@ -77,11 +77,11 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
 
         // if the user paid for the course that this lesson is in, show a message that says you have this lesson through the course and show how much you paid for the course
         if (isLesson && course && session?.user?.purchased?.some(purchase => purchase.courseId === course)) {
-            return <GenericButton tooltipOptions={{ position: 'top' }} tooltip={`You have this lesson through purchasing the course it belongs to. You paid ${session?.user?.purchased?.find(purchase => purchase.courseId === course)?.course?.price} sats for the course.`} icon="pi pi-check" label={`Paid ${session?.user?.purchased?.find(purchase => purchase.courseId === course)?.course?.price} sats`} severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
+            return <GenericButton tooltipOptions={{ position: 'top' }} tooltip={`You have this lesson through purchasing the course it belongs to. You paid ${session?.user?.purchased?.find(purchase => purchase.courseId === course)?.course?.price} sats for the course.`} icon="pi pi-check" label={`Paid`} severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
         }
 
         if (paidResource && decryptedContent && author && processedEvent?.pubkey !== session?.user?.pubkey && !session?.user?.role?.subscribed) {
-            return <GenericButton icon="pi pi-check" label={`Paid ${processedEvent.price} sats`} severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
+            return <GenericButton icon="pi pi-check" label={`Paid`} severity="success" outlined size="small" tooltip={`You paid ${processedEvent.price} sats to access this content (or potentially less if a discount was applied)`} tooltipOptions={{ position: 'top' }} className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
         }
 
         if (paidResource && author && processedEvent?.pubkey === session?.user?.pubkey) {
