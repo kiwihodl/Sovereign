@@ -77,7 +77,7 @@ export function CourseTemplate({ course, showMetaTags = true }) {
       </div>
       <CardHeader className="flex flex-row justify-between items-center p-4 border-b border-gray-700">
         <div className="flex items-center gap-4">
-          <CardTitle className="text-xl sm:text-2xl text-[#f8f8ff]">{course.name}</CardTitle>
+          {course?.id === "f538f5c5-1a72-4804-8eb1-3f05cea64874" ? (<CardTitle className="text-xl sm:text-2xl text-[#f8f8ff]">PlebDevs Starter Course</CardTitle>) : (<CardTitle className="text-xl sm:text-2xl text-[#f8f8ff]">{course.name}</CardTitle>)}
         </div>
         <div className="text-[#f8f8ff]">
           <ZapDisplay zapAmount={zapAmount} event={course} zapsLoading={zapsLoading && zapAmount === 0} />
