@@ -115,7 +115,7 @@ const UserProgress = () => {
 
     return (
         <div className="bg-gray-800 rounded-3xl p-6 w-[500px] max-mob:w-full max-tab:w-full mx-auto my-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Dev Journey</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">Dev Journey (coming soon)</h1>
             <p className="text-gray-400 mb-4">Track your progress from Pleb to Plebdev</p>
 
             <div className="flex justify-between items-center mb-2">
