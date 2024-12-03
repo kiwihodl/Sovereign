@@ -203,7 +203,7 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
                         {renderPaymentMessage()}
                         {processedEvent?.pubkey === session?.user?.pubkey ? (
                             <div className='flex space-x-2 mt-4 sm:mt-0'>
-                                <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
+                                <GenericButton onClick={() => router.push(`/course/${processedEvent.d}/edit`)} label="Edit" severity='warning' outlined />
                                 <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
                                 <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={isMobileView ? null : "View Nostr Event"} tooltipOptions={{ position: paidCourse ? 'left' : 'right' }} />
                             </div>

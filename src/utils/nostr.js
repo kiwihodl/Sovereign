@@ -163,6 +163,9 @@ export const parseCourseEvent = (event) => {
             case 'description':
                 eventData.description = tag[1];
                 break;
+            case 'about':
+                eventData.description = tag[1];
+                break;
             case 'image':
                 eventData.image = tag[1];
                 break;

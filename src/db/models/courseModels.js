@@ -62,8 +62,8 @@ export const updateCourse = async (id, data) => {
             lessons: {
                 deleteMany: {},
                 create: lessons.map((lesson, index) => ({
-                    resourceId: lesson.resourceId,
-                    draftId: lesson.draftId,
+                    resourceId: lesson.resourceId || lesson.d,
+                    draftId: lesson.draftId || null,
                     index: index
                 }))
             }
