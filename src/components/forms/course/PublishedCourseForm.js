@@ -20,7 +20,7 @@ const PublishedCourseForm = ({ course }) => {
     const [title, setTitle] = useState(course?.name || '');
     const [summary, setSummary] = useState(course?.description || '');
     const [content, setContent] = useState(course?.content || '');
-    const [isPaidCourse, setIsPaidCourse] = useState(course?.price ? true : false);
+    const [isPaidCourse, setIsPaidCourse] = useState(course?.price && course?.price > 0 ? true : false);
     const [price, setPrice] = useState(course?.price || 0);
     const [coverImage, setCoverImage] = useState(course?.image || '');
     const [topics, setTopics] = useState(course?.topics || ['']);
@@ -163,7 +163,7 @@ const PublishedCourseForm = ({ course }) => {
                 <p className="py-2">Paid Course</p>
                 <InputSwitch 
                     checked={isPaidCourse} 
-                    onChange={(e) => setIsPaidResource(e.value)} 
+                    onChange={(e) => setIsPaidCourse(e.value)} 
                 />
                 {isPaidCourse && (
                     <div className="p-inputgroup flex-1 py-4">
