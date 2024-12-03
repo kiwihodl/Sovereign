@@ -18,8 +18,8 @@ PlebDevs is an open-source platform that combines educational content, community
   - Free content available to all (viewable on any Nostr client) and zappable
   - Premium content purchasable with Lightning or through a PlebDevs subscription
   - Subscription options:
-    - Pay-as-you-go: 70,000 sats - One-time payment for one month of access
-    - Recurring: 70,000 sats/month - Automatic renewal via Nostr Wallet Connect
+    - Pay-as-you-go: 50,000 sats - One-time payment for one month of access
+    - Recurring: 50,000 sats/month - Automatic renewal via Nostr Wallet Connect
 - ⭐️ **Subscription Benefits**:
   - Full access to all paid content
   - 1:1 calendar for tutoring/help

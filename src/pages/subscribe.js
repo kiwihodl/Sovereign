@@ -271,7 +271,7 @@ const Subscribe = () => {
                     </div>
                     <div className='flex flex-col gap-2'>
                         <h3 className="text-lg font-semibold">How much does the subscription cost?</h3>
-                        <p>The subscription is 70,000 sats per month.</p>
+                        <p>The subscription is 50,000 sats per month.</p>
                     </div>
                     <div>
                         <h3 className="text-lg font-semibold">How do I Subscribe? (Pay as you go)</h3>

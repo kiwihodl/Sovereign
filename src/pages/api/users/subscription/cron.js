@@ -3,7 +3,7 @@ import { webln } from "@getalby/sdk";
 import { LightningAddress } from '@getalby/lightning-tools';
 
 const lnAddress = process.env.LIGHTNING_ADDRESS;
-const amount = 70000; // Set the subscription amount in satoshis
+const amount = 50000; // Set the subscription amount in satoshis
 
 export default async function handler(req, res) {
     // if (req.headers.authorization !== process.env.CRON_SECRET) {
