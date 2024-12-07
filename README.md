@@ -61,7 +61,7 @@ Contributions are welcome! Whether you're fixing bugs, improving documentation, 
 
 ## Running Locally
 
-Coming soon...
+Coming soon?
 
 ## License
 
