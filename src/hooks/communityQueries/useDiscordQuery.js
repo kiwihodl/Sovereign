@@ -12,8 +12,8 @@ export function useDiscordQuery({page}) {
     const { data, error, isLoading } = useQuery({
         queryKey: ['discordMessages', page],
         queryFn: fetchDiscordMessages,
-        staleTime: 60000, // 1 minute
-        refetchInterval: 60000, // Refetch every minute
+        staleTime: 300000, // 5 minutes
+        refetchInterval: 300000 // 5 minutes
     });
 
     return { data, error, isLoading };
