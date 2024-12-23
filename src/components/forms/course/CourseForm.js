@@ -80,8 +80,6 @@ const CourseForm = ({ draft = null }) => {
                 topics,
             };
 
-            console.log('courseDraftData', courseDraftData);
-
             const courseDraftResponse = await axios.post('/api/courses/drafts', courseDraftData);
             const createdCourseDraft = courseDraftResponse.data;
 

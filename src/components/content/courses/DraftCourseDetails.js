@@ -239,7 +239,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
     useEffect(() => {
         async function buildEvent(draft) {
             if (!draft) {
-                console.error('Draft is null or undefined');
+                .error('Draft is null or undefined');
                 return null;
             }
 
