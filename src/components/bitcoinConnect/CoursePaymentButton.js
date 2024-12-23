@@ -112,9 +112,21 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
         setDiscountCode(value);
         if (value.toLowerCase() === DISCOUNT_CODE.toLowerCase()) {
             setDiscountApplied(true);
+            track('Discount Applied', {
+                code: DISCOUNT_CODE,
+                courseId,
+                userId: session?.user?.id,
+                discountAmount: calculateDiscount(amount).savedPercentage
+            });
             showToast('success', 'Discount Applied', `${calculateDiscount(amount).savedPercentage}% discount applied!`);
         } else if (value.toLowerCase() === COURSE_PASS.toLowerCase()) {
             setDiscountApplied(true);
+            track('Discount Applied', {
+                code: 'COURSE_PASS',
+                courseId,
+                userId: session?.user?.id,
+                discountAmount: 100
+            });
             showToast('success', 'Course Pass Applied', '100% discount applied!');
         } else if (value) {
             setDiscountApplied(false);
@@ -165,7 +177,7 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
                     {discountApplied && (
                         <div className="text-xs text-gray-500 flex items-center gap-1">
                             <span className="line-through">{amount} sats</span>
-                            <span className="text-green-500 font-semibold">→ {calculateDiscount(amount).discountedAmount} sats</span>
+                            <span className="text-green-500 font-semibold">��� {calculateDiscount(amount).discountedAmount} sats</span>
                         </div>
                     )}
                 </div>
