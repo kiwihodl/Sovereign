@@ -18,6 +18,7 @@ const Payment = dynamic(
 );
 
 const DISCOUNT_CODE = process.env.NEXT_PUBLIC_DISCOUNT_CODE;
+const COURSE_PASS = process.env.NEXT_PUBLIC_COURSE_PASS;
 
 const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }) => {
     const [invoice, setInvoice] = useState(null);
@@ -56,6 +57,9 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
     }, [invoice]);
 
     const calculateDiscount = (originalAmount) => {
+        if (discountCode === COURSE_PASS) {
+            return { discountedAmount: 0, savedPercentage: 100 };
+        }
         if (discountCode === DISCOUNT_CODE) {
             const discountedAmount = 21000;
             const savedPercentage = Math.round(((originalAmount - discountedAmount) / originalAmount) * 100);
@@ -109,7 +113,10 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
         if (value.toLowerCase() === DISCOUNT_CODE.toLowerCase()) {
             setDiscountApplied(true);
             showToast('success', 'Discount Applied', `${calculateDiscount(amount).savedPercentage}% discount applied!`);
-        } else if (value && value.toLowerCase() !== DISCOUNT_CODE.toLowerCase()) {
+        } else if (value.toLowerCase() === COURSE_PASS.toLowerCase()) {
+            setDiscountApplied(true);
+            showToast('success', 'Course Pass Applied', '100% discount applied!');
+        } else if (value) {
             setDiscountApplied(false);
         }
     };
