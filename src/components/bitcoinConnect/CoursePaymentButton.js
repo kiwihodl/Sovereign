@@ -71,9 +71,16 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
     const fetchInvoice = async () => {
         setIsLoading(true);
         try {
+            if (discountApplied && calculateDiscount(amount).discountedAmount === 0) {
+                handlePaymentSuccess({ paid: true, preimage: 'course_pass' });
+                return;
+            }
+
             const ln = new LightningAddress(lnAddress);
             await ln.fetch();
-            const invoice = await ln.requestInvoice({ satoshi: discountApplied ? calculateDiscount(amount).discountedAmount : amount });
+            const invoice = await ln.requestInvoice({ 
+                satoshi: discountApplied ? calculateDiscount(amount).discountedAmount : amount 
+            });
             setInvoice(invoice);
             setDialogVisible(true);
         } catch (error) {
@@ -176,7 +183,7 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
                     {discountApplied && (
                         <div className="text-xs text-gray-500 flex items-center gap-1">
                             <span className="line-through">{amount} sats</span>
-                            <span className="text-green-500 font-semibold">��� {calculateDiscount(amount).discountedAmount} sats</span>
+                            <span className="text-green-500 font-semibold">{calculateDiscount(amount).discountedAmount} sats</span>
                         </div>
                     )}
                 </div>
