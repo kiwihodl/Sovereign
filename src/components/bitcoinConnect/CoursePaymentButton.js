@@ -150,8 +150,7 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
                             <InputText
                                 value={discountCode}
                                 onChange={(e) => {
-                                    setDiscountCode(e.target.value);
-                                    setDiscountApplied(e.target.value === DISCOUNT_CODE);
+                                    handleDiscountCode(e.target.value);
                                 }}
                                 placeholder="Enter discount code"
                                 className="text-sm w-full p-2"
