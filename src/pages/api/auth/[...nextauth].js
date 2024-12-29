@@ -232,7 +232,8 @@ export const authOptions = {
                     nip05: fullUser.nip05,
                     lightningAddress: fullUser.lightningAddress,
                     githubUsername: token.githubUsername,
-                    createdAt: fullUser.createdAt
+                    createdAt: fullUser.createdAt,
+                    userBadges: fullUser.userBadges
                 };
 
                 // Add GitHub account info to session if it exists

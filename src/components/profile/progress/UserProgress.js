@@ -3,6 +3,7 @@ import { ProgressBar } from 'primereact/progressbar';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { useSession, signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import { useBadge } from '@/hooks/badges/useBadge';
 import GenericButton from '@/components/buttons/GenericButton';
 import UserProgressFlow from './UserProgressFlow';
 import { Tooltip } from 'primereact/tooltip';
@@ -59,7 +60,8 @@ const UserProgress = () => {
 
     const router = useRouter();
     const { data: session, update } = useSession();
-
+    useBadge();
+    
     useEffect(() => {
         if (session?.user) {
             setIsLoading(true);

@@ -46,12 +46,17 @@ export const createBadge = async (data) => {
         data: {
             name: data.name,
             noteId: data.noteId,
-            course: {
+            course: data.courseId ? {
                 connect: { id: data.courseId }
-            }
+            } : undefined
         },
         include: {
-            course: true
+            course: true,
+            userBadges: {
+                include: {
+                    user: true
+                }
+            }
         }
     });
 };

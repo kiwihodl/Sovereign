@@ -67,15 +67,11 @@ const CombinedContributionChart = ({ session }) => {
             }
         });
 
-        console.log('All Learning Activities:', allActivities);
-        console.log('Activities by Date:', activityData);
-
         return activityData;
     }, [session]);
 
     const handleNewCommit = useCallback(({ contributionData, totalCommits }) => {
         const activityData = prepareProgressData();
-        console.log("GitHub Contribution Data:", contributionData);
 
         // Create a new object with GitHub commits
         const combinedData = { ...contributionData };
@@ -85,7 +81,6 @@ const CombinedContributionChart = ({ session }) => {
             combinedData[date] = (combinedData[date] || 0) + count;
         });
 
-        console.log("Combined Data:", combinedData);
         setContributionData(combinedData);
         setTotalContributions(totalCommits + Object.values(activityData).reduce((a, b) => a + b, 0));
     }, [prepareProgressData]);
