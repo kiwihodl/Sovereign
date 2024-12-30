@@ -21,7 +21,7 @@ const UserBadges = ({ visible, onHide }) => {
             // Fetch badge definitions (kind 30009)
             const badgeDefinitions = await ndk.fetchEvents({
                 // todo: add the plebdevs hardcoded badge ids (probably in config?)
-                ids: ["97777aaccfb409ab973d30fc3a27de5ca64080c13a0bca6c2c261105ae545118"]
+                ids: ["4054a68f028edf38cd1d71cc4693d4ff5c9c54b0b44532361fe6abb29530cbf6", "5d38fea9a3c1fb4c55c9635c3132d34608c91de640f772438faa1942677087a8", "3ba20936d66523adb6d71793649bc77f3cea34f50c21ec7bb2c041f936022214", "41edee5af6d4e833d11f9411c2c27cc48c14d2a3c7966ae7648568e825eda1ed"]
             });
 
             console.log("Badge Definitions: ", badgeDefinitions);
@@ -30,7 +30,7 @@ const UserBadges = ({ visible, onHide }) => {
             const badgeAwards = await ndk.fetchEvents({
                 kinds: [8],
                 // todo: add the plebdevs author pubkey
-                authors: ["62bad2c804210b9ccd8b3d6b49da7333185bae17c12b6d7a8ed5865642e82b1e"],
+                authors: ["f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741"],
                 "#p": [session.user.pubkey]
             });
 

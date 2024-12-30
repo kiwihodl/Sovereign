@@ -12,7 +12,7 @@ export const useBadge = () => {
     const queryClient = useQueryClient();
 
     useEffect(() => {
-        if (!session?.user || isProcessing || !completedCourses) return;
+        if (!session?.user || isProcessing) return;
 
         const checkForBadgeEligibility = async () => {
             setIsProcessing(true);
@@ -22,6 +22,29 @@ export const useBadge = () => {
                 const { userBadges } = session.user;
                 let badgesAwarded = false;
 
+                // Check for GitHub connection badge
+                if (session?.account?.provider === 'github') {
+                    const hasPlebBadge = userBadges?.some(
+                        userBadge => userBadge.badge?.id === '3664e78f-b618-420d-a7cc-f3393b0211df'
+                    );
+
+                    if (!hasPlebBadge) {
+                        try {
+                            const response = await axios.post('/api/badges/issue', {
+                                badgeId: '3664e78f-b618-420d-a7cc-f3393b0211df',
+                                userId: session.user.id,
+                            });
+
+                            if (response.data.success) {
+                                badgesAwarded = true;
+                            }
+                        } catch (error) {
+                            console.error('Error issuing Pleb badge:', error);
+                        }
+                    }
+                }
+
+                // Check for course-related badges
                 const eligibleCourses = completedCourses?.filter(userCourse => {
                     const isCompleted = userCourse.completed;
                     const hasNoBadge = !userBadges?.some(
@@ -35,7 +58,7 @@ export const useBadge = () => {
                 for (const course of eligibleCourses || []) {
                     try {
                         const response = await axios.post('/api/badges/issue', {
-                            courseId: course.courseId,
+                            courseId: course?.courseId,
                             userId: session.user.id,
                         });
 

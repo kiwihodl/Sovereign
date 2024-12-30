@@ -26,50 +26,68 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { courseId, userId } = req.body;
+    const { courseId, badgeId, userId } = req.body;
 
-    // Verify course completion and get badge details
-    const userCourse = await prisma.userCourse.findFirst({
-      where: {
-        userId,
-        courseId,
-        completed: true,
-      },
-      include: {
-        course: {
-          include: {
-            badge: true,
-          },
+    let badge;
+    if (courseId && courseId !== null && courseId !== undefined) {
+      // Existing course badge logic
+      const userCourse = await prisma.userCourse.findFirst({
+        where: {
+          userId,
+          courseId,
+          completed: true,
         },
-        user: true, // Include user to get pubkey
-      },
-    });
+        include: {
+          course: {
+            include: {
+              badge: true,
+            },
+          },
+          user: true,
+        },
+      });
 
-    if (!userCourse) {
-      return res.status(400).json({ error: 'Course not completed' });
-    }
+      if (!userCourse) {
+        return res.status(400).json({ error: 'Course not completed' });
+      }
 
-    if (!userCourse.course.badge) {
-      return res.status(400).json({ error: 'No badge defined for this course' });
-    }
+      badge = userCourse.course.badge;
+    } else if (badgeId) {
+      // Direct badge lookup for non-course badges
+      badge = await prisma.badge.findUnique({
+        where: { id: badgeId },
+        include: { userBadges: true },
+      });
 
-    let noteId = userCourse.course.badge.noteId;
-
-    if (noteId && noteId.startsWith("naddr")) {
-      const naddr = nip19.decode(noteId);
-      noteId = `${naddr.data.kind}:${naddr.data.pubkey}:${naddr.data.identifier}`;
+      if (!badge) {
+        return res.status(400).json({ error: 'Badge not found' });
+      }
+    } else {
+      return res.status(400).json({ error: 'Either courseId or badgeId is required' });
     }
 
     // Check if badge already exists
     const existingBadge = await prisma.userBadge.findFirst({
       where: {
         userId,
-        badgeId: userCourse.course.badge.id,
+        badgeId: badge.id,
       },
     });
 
     if (existingBadge) {
       return res.status(400).json({ error: 'Badge already awarded' });
+    }
+
+    // Get user for pubkey
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    let noteId = badge.noteId;
+
+    if (noteId && noteId.startsWith("naddr")) {
+      const naddr = nip19.decode(noteId);
+      noteId = `${naddr.data.kind}:${naddr.data.pubkey}:${naddr.data.identifier}`;
     }
 
     // Get the signing key from environment and convert to bytes
@@ -84,21 +102,15 @@ export default async function handler(req, res) {
       kind: BADGE_AWARD_KIND,
       created_at: Math.floor(Date.now() / 1000),
       tags: [
-        ['p', userCourse.user.pubkey],
+        ['p', user.pubkey],
         ['a', noteId],
-        ['d', `course-completion-${userCourse.course.id}`],
+        ['d', `plebdevs-badge-award-${session.user.id}`],
       ],
-      content: JSON.stringify({
-        name: userCourse.course.badge.name,
-        description: `Completed ${userCourse.course.id}`,
-        image: userCourse.course.badge.noteId,
-        course: courseId,
-        awardedAt: new Date().toISOString(),
-      })
+      content: ""
     };
 
     // Add validation for required fields
-    if (!userCourse.user.pubkey || !noteId) {
+    if (!user.pubkey || !noteId) {
       return res.status(400).json({ 
         error: 'Missing required fields',
         message: 'Pubkey and noteId are required' 
@@ -107,6 +119,8 @@ export default async function handler(req, res) {
 
     // Finalize (sign) the event
     const signedEvent = finalizeEvent(eventTemplate, signingKeyBytes);
+
+    console.log("Signed Event: ", signedEvent);
 
     // Verify the event
     const isValid = verifyEvent(signedEvent);
@@ -136,7 +150,7 @@ export default async function handler(req, res) {
     const userBadge = await prisma.userBadge.create({
       data: {
         userId,
-        badgeId: userCourse.course.badge.id,
+        badgeId: badge.id,
         awardedAt: new Date(),
       },
       include: {
