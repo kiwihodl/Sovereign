@@ -22,8 +22,8 @@ const allTasks = [
         status: 'PlebDevs Starter',
         completed: false,
         tier: 'Plebdev',
-        // courseId: "f538f5c5-1a72-4804-8eb1-3f05cea64874",
-        courseId: "5664e78f-c618-410d-a7cc-f3393b021fdf",
+        courseId: "f538f5c5-1a72-4804-8eb1-3f05cea64874",
+        // courseId: "5664e78f-c618-410d-a7cc-f3393b021fdf",
         subTasks: [
             { status: 'Complete the course', completed: false },
         ]

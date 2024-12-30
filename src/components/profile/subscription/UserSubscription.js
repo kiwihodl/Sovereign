@@ -101,7 +101,7 @@ const UserSubscription = () => {
             <div className="w-full flex flex-row max-lap:flex-col">
                 {/* Left Column - 22% */}
                 <div className="w-[21%] h-full max-lap:w-full">
-                    <div className="p-4 bg-gray-800 rounded-lg">
+                    <div className="p-4 bg-gray-800 rounded-lg max-lap:mb-4">
                         {/* Subscription Status Messages */}
                         {subscribed && !user?.role?.nwc && (
                             <div className="flex flex-col">
