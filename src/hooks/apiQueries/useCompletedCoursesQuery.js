@@ -1,9 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 
 export function useCompletedCoursesQuery() {
   const { data: session } = useSession();
+  const [retryCount, setRetryCount] = useState(0);
 
   const fetchCompletedCourses = async () => {
     if (!session?.user?.id) return [];
@@ -17,7 +19,7 @@ export function useCompletedCoursesQuery() {
       return response.data;
     } catch (error) {
       console.error('Error fetching completed courses:', error);
-      return [];
+      throw error; // Let React Query handle the retry
     }
   };
 
@@ -29,5 +31,7 @@ export function useCompletedCoursesQuery() {
     cacheTime: 1000 * 60 * 30, // 30 minutes
     refetchOnWindowFocus: false,
     refetchOnMount: false,
+    retry: 3,
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 }

@@ -48,10 +48,21 @@ export const useBadge = () => {
                 }
 
                 if (badgesAwarded) {
-                    // Update session silently
-                    await update({ revalidate: false });
-                    // Invalidate the completed courses query to trigger a clean refetch
+                    // First invalidate the queries
                     await queryClient.invalidateQueries(['completedCourses']);
+                    await queryClient.invalidateQueries(['githubCommits']);
+                    
+                    // Wait a brief moment before updating session
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                    // Update session last
+                    await update({ revalidate: false });
+                    
+                    // Force a refetch of the invalidated queries
+                    await Promise.all([
+                        queryClient.refetchQueries(['completedCourses']),
+                        queryClient.refetchQueries(['githubCommits'])
+                    ]);
                 }
             } catch (error) {
                 console.error('Error checking badge eligibility:', error);
@@ -62,7 +73,8 @@ export const useBadge = () => {
         };
 
         const timeoutId = setTimeout(checkForBadgeEligibility, 0);
-        const interval = setInterval(checkForBadgeEligibility, 300000);
+        // Reduce the frequency of checks to avoid potential race conditions
+        const interval = setInterval(checkForBadgeEligibility, 600000); // 10 minutes
 
         return () => {
             clearTimeout(timeoutId);

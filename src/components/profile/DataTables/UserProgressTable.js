@@ -5,14 +5,28 @@ import useWindowWidth from "@/hooks/useWindowWidth";
 import ProgressListItem from "@/components/content/lists/ProgressListItem";
 import { formatDateTime } from "@/utils/time";
 import { ProgressSpinner } from "primereact/progressspinner";
+import Link from 'next/link';
 
 const UserProgressTable = ({ session, ndk }) => {
-    const windowWidth = useWindowWidth();
     const prepareProgressData = () => {
         if (!session?.user?.userCourses) return [];
         
         const progressData = [];
         
+        // Add badge awards
+        session.user.userBadges?.forEach(userBadge => {
+            progressData.push({
+                id: `badge-${userBadge.id}`,
+                type: 'badge',
+                name: userBadge.badge?.name,
+                eventType: 'awarded',
+                date: userBadge.awardedAt,
+                courseId: userBadge.badge?.courseId,
+                badgeId: userBadge.badgeId,
+                noteId: userBadge.badge?.noteId
+            });
+        });
+
         session.user.userCourses.forEach(courseProgress => {
             // Add course start entry
             if (courseProgress.started) {
@@ -86,25 +100,45 @@ const UserProgressTable = ({ session, ndk }) => {
 
     const typeTemplate = (rowData) => (
         <div className="flex items-center gap-2">
-            <i className={`pi ${rowData.type === 'course' ? 'pi-book' : 'pi-file'} text-lg`}></i>
+            <i className={`pi ${
+                rowData.type === 'course' ? 'pi-book' : 
+                rowData.type === 'lesson' ? 'pi-file' :
+                'pi-star'  // Badge icon
+            } text-lg`}></i>
             <span className="capitalize">{rowData.type}</span>
         </div>
     );
 
     const eventTemplate = (rowData) => (
         <div className="flex items-center gap-2">
-            <i className={`pi ${rowData.eventType === 'started' ? 'pi-play' : 'pi-check-circle'} 
-                ${rowData.eventType === 'started' ? 'text-blue-500' : 'text-green-500'} text-lg`}></i>
+            <i className={`pi ${
+                rowData.eventType === 'started' ? 'pi-play' : 
+                rowData.eventType === 'completed' ? 'pi-check-circle' :
+                'pi-trophy'  // Badge award icon
+            } ${
+                rowData.eventType === 'started' ? 'text-blue-500' : 
+                rowData.eventType === 'completed' ? 'text-green-500' :
+                'text-yellow-500'  // Badge award color
+            } text-lg`}></i>
             <span className="capitalize">{rowData.eventType}</span>
         </div>
     );
 
     const nameTemplate = (rowData) => (
         <div className="flex items-center">
-            {rowData.type === 'course' 
-                ? <ProgressListItem dTag={rowData.courseId} category="name" type="course" />
-                : <ProgressListItem dTag={rowData.resourceId} category="name" type="lesson" />
-            }
+            {rowData.type === 'badge' ? (
+                <Link 
+                    href={`https://badges.page/a/${rowData.noteId}`} 
+                    target="_blank"
+                    className="text-purple-400 hover:text-purple-300 transition-colors"
+                >
+                    {rowData.name}
+                </Link>
+            ) : rowData.type === 'course' ? (
+                <ProgressListItem dTag={rowData.courseId} category="name" type="course" />
+            ) : (
+                <ProgressListItem dTag={rowData.resourceId} category="name" type="lesson" />
+            )}
         </div>
     );
 

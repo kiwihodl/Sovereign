@@ -8,6 +8,7 @@ const CombinedContributionChart = ({ session }) => {
     const [contributionData, setContributionData] = useState({});
     const [totalContributions, setTotalContributions] = useState(0);
     const windowWidth = useWindowWidth();
+    const [retryCount, setRetryCount] = useState(0);
 
     const prepareProgressData = useCallback(() => {
         if (!session?.user?.userCourses) return {};
@@ -85,7 +86,45 @@ const CombinedContributionChart = ({ session }) => {
         setTotalContributions(totalCommits + Object.values(activityData).reduce((a, b) => a + b, 0));
     }, [prepareProgressData]);
 
-    const { data, isLoading, isFetching } = useFetchGithubCommits(session, handleNewCommit);
+    const { 
+        data, 
+        isLoading, 
+        isFetching,
+        error,
+        refetch 
+    } = useFetchGithubCommits(session, handleNewCommit);
+
+    // Add recovery logic
+    useEffect(() => {
+        if (error && retryCount < 3) {
+            const timer = setTimeout(() => {
+                setRetryCount(prev => prev + 1);
+                refetch();
+            }, 1000 * (retryCount + 1)); // Exponential backoff
+
+            return () => clearTimeout(timer);
+        }
+    }, [error, retryCount, refetch]);
+
+    // Reset retry count on successful data fetch
+    useEffect(() => {
+        if (data) {
+            setRetryCount(0);
+        }
+    }, [data]);
+
+    // Add loading state check
+    useEffect(() => {
+        if (isLoading || isFetching) {
+            const loadingTimeout = setTimeout(() => {
+                if (!data) {
+                    refetch();
+                }
+            }, 5000); // Timeout after 5 seconds
+
+            return () => clearTimeout(loadingTimeout);
+        }
+    }, [isLoading, isFetching, data, refetch]);
 
     // Initialize from cached data if available
     useEffect(() => {
@@ -256,6 +295,16 @@ const CombinedContributionChart = ({ session }) => {
                         </div>
                         <span className="ml-2">More</span>
                     </div>
+                    {error && retryCount >= 3 && (
+                        <div className="text-red-400 text-sm px-4">
+                            Error loading data. <button onClick={() => {
+                                setRetryCount(0);
+                                refetch();
+                            }} className="text-blue-400 hover:text-blue-300">
+                                Try again
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
