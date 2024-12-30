@@ -15,7 +15,7 @@ const allTasks = [
         tier: 'Pleb', 
         courseId: null,
         subTasks: [
-            { status: 'Create Your First GitHub Repo', completed: false },
+            { status: 'Connect your GitHub account', completed: false },
         ]
     },
     {
@@ -35,7 +35,7 @@ const allTasks = [
         courseId: 'f73c37f4-df2e-4f7d-a838-dce568c76136',
         subTasks: [
             { status: 'Complete the course', completed: false },
-            { status: 'Select your completed project', completed: false },
+            // { status: 'Select your completed project', completed: false },
         ]
     },
     {
@@ -45,7 +45,7 @@ const allTasks = [
         courseId: 'f6825391-831c-44da-904a-9ac3d149b7be',
         subTasks: [
             { status: 'Complete the course', completed: false },
-            { status: 'Select your completed project', completed: false },
+            // { status: 'Select your completed project', completed: false },
         ]
     },
 ];
