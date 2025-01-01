@@ -51,6 +51,14 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Course not completed' });
       }
 
+      // Check if course requires repo submission
+      if (userCourse.course.submissionRequired && !userCourse.submittedRepoLink) {
+        return res.status(400).json({ 
+          error: 'Repository submission required',
+          message: 'You must submit a project repository to earn this badge'
+        });
+      }
+
       badge = userCourse.course.badge;
     } else if (badgeId) {
       // Direct badge lookup for non-course badges

@@ -65,6 +65,20 @@ export const deleteUserCourse = async (userId, courseId) => {
   });
 };
 
+export const submitCourseRepo = async (userId, courseSlug, repoLink) => {
+  return await prisma.userCourse.update({
+    where: {
+      userId_courseId: {
+        userId,
+        courseId: courseSlug
+      }
+    },
+    data: {
+      submittedRepoLink: repoLink
+    }
+  });
+};
+
 export const checkCourseCompletion = async (userId, courseId) => {
   const course = await prisma.course.findUnique({
     where: { id: courseId },

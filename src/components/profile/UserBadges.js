@@ -61,6 +61,8 @@ const UserBadges = ({ visible, onHide }) => {
                         })
                     };
 
+                    console.log("Current Badge: ", currentBadge);
+
                     // Only update if this is the first instance or if it's newer than the existing one
                     if (!latestBadgeMap.has(defId) || 
                         new Date(currentBadge.awardedOn) > new Date(latestBadgeMap.get(defId).awardedOn)) {
@@ -118,7 +120,7 @@ const UserBadges = ({ visible, onHide }) => {
                             >
                                 <div className="relative w-32 h-32 mb-4">
                                     <Image 
-                                        src={badge.thumbnail} 
+                                        src={badge.thumbnail || badge.image} 
                                         alt={badge.name}
                                         layout="fill"
                                         objectFit="contain"

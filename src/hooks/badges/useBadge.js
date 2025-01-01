@@ -25,13 +25,13 @@ export const useBadge = () => {
                 // Check for GitHub connection badge
                 if (session?.account?.provider === 'github') {
                     const hasPlebBadge = userBadges?.some(
-                        userBadge => userBadge.badge?.id === '3664e78f-b618-420d-a7cc-f3393b0211df'
+                        userBadge => userBadge.badge?.id === '4664e73f-c618-41dd-a7cc-f3393b031fdf'
                     );
 
                     if (!hasPlebBadge) {
                         try {
                             const response = await axios.post('/api/badges/issue', {
-                                badgeId: '3664e78f-b618-420d-a7cc-f3393b0211df',
+                                badgeId: '4664e73f-c618-41dd-a7cc-f3393b031fdf',
                                 userId: session.user.id,
                             });
 
@@ -51,8 +51,12 @@ export const useBadge = () => {
                         userBadge => userBadge.badge?.courseId === userCourse.courseId
                     );
                     const hasBadgeDefined = !!userCourse.course?.badge;
+                    
+                    // Check if course requires repo submission
+                    const requiresRepo = userCourse.course?.submissionRequired ?? false;
+                    const hasRepoIfRequired = requiresRepo ? !!userCourse.submittedRepoLink : true;
 
-                    return isCompleted && hasNoBadge && hasBadgeDefined;
+                    return isCompleted && hasNoBadge && hasBadgeDefined && hasRepoIfRequired;
                 });
 
                 for (const course of eligibleCourses || []) {

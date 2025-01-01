@@ -1,13 +1,13 @@
-// datasource db {
-//     provider = "postgresql"
-//     url      = env("DATABASE_URL")
-// }
-
 datasource db {
-  provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
+
+// datasource db {
+//   provider = "postgresql"
+//   url = env("POSTGRES_PRISMA_URL")
+//   directUrl = env("POSTGRES_URL_NON_POOLING")
+// }
 
 generator client {
     provider = "prisma-client-js"
@@ -130,6 +130,7 @@ model Course {
     lessons     Lesson[]
     purchases   Purchase[]
     noteId      String?      @unique
+    submissionRequired Boolean @default(false)
     createdAt   DateTime     @default(now())
     updatedAt   DateTime     @updatedAt
     userCourses UserCourse[]
@@ -218,6 +219,7 @@ model UserCourse {
     completed   Boolean   @default(false)
     startedAt   DateTime?
     completedAt DateTime?
+    submittedRepoLink String?
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @updatedAt
 

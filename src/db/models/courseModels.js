@@ -44,6 +44,7 @@ export const createCourse = async (data) => {
             id: courseData.id,
             noteId: courseData.noteId,
             price: courseData.price,
+            submissionRequired: courseData.submissionRequired || false,
             user: { connect: { id: courseData.user.connect.id } },
             lessons: {
                 connect: courseData.lessons.connect
@@ -71,6 +72,7 @@ export const updateCourse = async (id, data) => {
         where: { id },
         data: {
             ...otherData,
+            submissionRequired: otherData.submissionRequired || false,
             lessons: {
                 deleteMany: {},
                 create: lessons.map((lesson, index) => ({

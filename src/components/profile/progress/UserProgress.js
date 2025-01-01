@@ -7,6 +7,7 @@ import { useBadge } from '@/hooks/badges/useBadge';
 import GenericButton from '@/components/buttons/GenericButton';
 import UserProgressFlow from './UserProgressFlow';
 import { Tooltip } from 'primereact/tooltip';
+import RepoSelector from '@/components/profile/RepoSelector';
 
 const allTasks = [
     {
@@ -32,10 +33,11 @@ const allTasks = [
         status: 'Frontend Course',
         completed: false,
         tier: 'Frontend Dev',
-        courseId: 'f73c37f4-df2e-4f7d-a838-dce568c76136',
+        // courseId: 'f73c37f4-df2e-4f7d-a838-dce568c76136',
+        courseId: 'af98e096-3136-4d8b-aafe-17677f0266d0',
         subTasks: [
             { status: 'Complete the course', completed: false },
-            // { status: 'Select your completed project', completed: false },
+            { status: 'Submit your project repository', completed: false },
         ]
     },
     {
@@ -45,7 +47,7 @@ const allTasks = [
         courseId: 'f6825391-831c-44da-904a-9ac3d149b7be',
         subTasks: [
             { status: 'Complete the course', completed: false },
-            // { status: 'Select your completed project', completed: false },
+            { status: 'Submit your project repository', completed: false },
         ]
     },
 ];
@@ -87,20 +89,28 @@ const UserProgress = () => {
                 return {
                     ...task,
                     completed: session?.account?.provider === 'github' ? true : false,
-                    subTasks: task.subTasks ? task.subTasks.map(subTask => ({
+                    subTasks: task.subTasks.map(subTask => ({
                         ...subTask,
                         completed: session?.account?.provider === 'github' ? true : false
-                    })) : undefined
+                    }))
                 };
             }
-            
+
+            const userCourse = session?.user?.userCourses?.find(uc => uc.courseId === task.courseId);
+            const courseCompleted = completedCourseIds.includes(task.courseId);
+            const repoSubmitted = userCourse?.submittedRepoLink ? true : false;
+
             return {
                 ...task,
-                completed: task.courseId === null || completedCourseIds.includes(task.courseId),
-                subTasks: task.subTasks ? task.subTasks.map(subTask => ({
+                completed: courseCompleted && (task.courseId === null || repoSubmitted),
+                subTasks: task.subTasks.map(subTask => ({
                     ...subTask,
-                    completed: completedCourseIds.includes(task.courseId)
-                })) : undefined
+                    completed: subTask.status.includes('Complete') 
+                        ? courseCompleted 
+                        : subTask.status.includes('repository') 
+                            ? repoSubmitted 
+                            : false
+                }))
             };
         });
 
@@ -164,7 +174,7 @@ const UserProgress = () => {
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 const updatedSession = await getSession();
                 if (updatedSession?.account?.provider === 'github') {
-                  router.push('/'); // Accounts linked successfully
+                  router.push('/profile'); // Accounts linked successfully
                 }
               }
             } else {
@@ -253,19 +263,42 @@ const UserProgress = () => {
                                         {task.subTasks && (
                                             <ul className="space-y-2">
                                                 {task.subTasks.map((subTask, subIndex) => (
-                                                    <li key={subIndex} className="flex items-center pl-[28px]">
-                                                        {subTask.completed ? (
-                                                            <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-3">
-                                                                <i className="pi pi-check text-white text-sm"></i>
-                                                            </div>
-                                                        ) : (
-                                                            <div className="w-4 h-4 bg-gray-700 rounded-full flex items-center justify-center mr-3">
-                                                                <i className="pi pi-info-circle text-white text-sm"></i>
-                                                            </div>
+                                                    <li key={subIndex}>
+                                                        <div className="flex items-center pl-[28px]">
+                                                            {subTask.completed ? (
+                                                                <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                                                                    <i className="pi pi-check text-white text-sm"></i>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="w-4 h-4 bg-gray-700 rounded-full flex items-center justify-center mr-3">
+                                                                    <i className="pi pi-info-circle text-white text-sm"></i>
+                                                                </div>
+                                                            )}
+                                                            <span className={`${subTask.completed ? 'text-white' : 'text-gray-400'}`}>
+                                                                {subTask.status}
+                                                            </span>
+                                                        </div>
+                                                        {subTask.status.includes('repository') && !subTask.completed && (
+                                                            <RepoSelector 
+                                                                courseId={task.courseId}
+                                                                onSubmit={() => {
+                                                                    const updatedTasks = tasks.map(t => 
+                                                                        t.courseId === task.courseId 
+                                                                            ? {
+                                                                                ...t,
+                                                                                subTasks: t.subTasks.map(st => 
+                                                                                    st.status === subTask.status 
+                                                                                        ? { ...st, completed: true }
+                                                                                        : st
+                                                                                )
+                                                                            }
+                                                                            : t
+                                                                    );
+                                                                    setTasks(updatedTasks);
+                                                                    router.push('/profile');
+                                                                }}
+                                                            />
                                                         )}
-                                                        <span className={`${subTask.completed ? 'text-white' : 'text-gray-400'}`}>
-                                                            {subTask.status}
-                                                        </span>
                                                     </li>
                                                 ))}
                                             </ul>
