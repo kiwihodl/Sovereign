@@ -25,6 +25,7 @@ const allTasks = [
         tier: 'Plebdev',
         // courseId: "f538f5c5-1a72-4804-8eb1-3f05cea64874",
         courseId: "5664e78f-c618-410d-a7cc-f3393b021fdf",
+        courseNAddress: "naddr1...",
         subTasks: [
             { status: 'Complete the course', completed: false },
         ]
@@ -35,6 +36,7 @@ const allTasks = [
         tier: 'Frontend Dev',
         // courseId: 'f73c37f4-df2e-4f7d-a838-dce568c76136',
         courseId: 'af98e096-3136-4d8b-aafe-17677f0266d0',
+        courseNAddress: "naddr1qvzqqqr4xspzq350w2wagzg98kk9uarsvgkrn942mzxmdmgaayt9evvjrddtfl27qy88wumn8ghj7mn0wvhxcmmv9uq32amnwvaz7tmjv4kxz7fwv3sk6atn9e5k7tcpr9mhxue69uhhyetvv9ujuumwdae8gtnnda3kjctv9uq3wamnwvaz7tmjv4kxz7fwdehhxarj9e3xzmny9uq36amnwvaz7tmjv4kxz7fwd46hg6tw09mkzmrvv46zucm0d5hsz9mhwden5te0wfjkccte9ec8y6tdv9kzumn9wshszynhwden5te0dehhxarjxgcjucm0d5hszynhwden5te0dehhxarjw4jjucm0d5hsz9nhwden5te0wp6hyurvv4ex2mrp0yhxxmmd9uq3wamnwvaz7tmjv4kxz7fwv3jhvueww3hk7mrn9uqzgctx8yux2vpexcknxvfnxckngepcvgkkzctxv5knzdekxumkvvpjxcmxgvqqwsdzj",
         subTasks: [
             { status: 'Complete the course', completed: false },
             { status: 'Submit your project repository', completed: false },
@@ -45,6 +47,7 @@ const allTasks = [
         completed: false,
         tier: 'Backend Dev',
         courseId: 'f6825391-831c-44da-904a-9ac3d149b7be',
+        courseNAddress: "naddr1....",
         subTasks: [
             { status: 'Complete the course', completed: false },
             { status: 'Submit your project repository', completed: false },
@@ -191,10 +194,10 @@ const UserProgress = () => {
             <div className="flex flex-row justify-between items-center">
                 <h1 className="text-3xl font-bold text-white mb-2">Dev Journey</h1>
                 <i className="pi pi-question-circle text-2xl cursor-pointer text-gray-200"
-                    data-pr-tooltip="Track your progress from Pleb to Plebdev" />
+                    data-pr-tooltip="Track your progress through all courses, showcase your GitHub contributions, submit projects, and earn badges!" />
                 <Tooltip target=".pi-question-circle" position="left" />
             </div>
-            <p className="text-gray-400 mb-4">Track your progress from Pleb to Plebdev</p>
+            <p className="text-gray-400 mb-4">Track your progress through all courses, showcase your GitHub contributions, submit projects, and earn badges!</p>
 
             <div className="flex justify-between items-center mb-2">
                 <span className="text-gray-300">Progress</span>
@@ -303,11 +306,11 @@ const UserProgress = () => {
                                                 ))}
                                             </ul>
                                         )}
-                                        {task.courseId && (
+                                        {task.courseNAddress && (
                                             <div className="mt-2 flex justify-end">
                                                 <GenericButton 
                                                     icon="pi pi-external-link"
-                                                    onClick={() => router.push(`/courses/${task.courseId}`)}
+                                                    onClick={() => router.push(`/course/${task.courseNAddress}`)}
                                                     tooltip="View Course"
                                                     tooltipOptions={{
                                                         position: "top"
