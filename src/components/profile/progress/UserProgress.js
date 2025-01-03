@@ -194,10 +194,10 @@ const UserProgress = () => {
             <div className="flex flex-row justify-between items-center">
                 <h1 className="text-3xl font-bold text-white mb-2">Dev Journey</h1>
                 <i className="pi pi-question-circle text-2xl cursor-pointer text-gray-200"
-                    data-pr-tooltip="Track your progress through all courses, showcase your GitHub contributions, submit projects, and earn badges!" />
+                    data-pr-tooltip="Track your progress through the courses, showcase your GitHub contributions, submit projects, and earn badges!" />
                 <Tooltip target=".pi-question-circle" position="left" />
             </div>
-            <p className="text-gray-400 mb-4">Track your progress through all courses, showcase your GitHub contributions, submit projects, and earn badges!</p>
+            <p className="text-gray-400 mb-4">Track your progress through the courses, showcase your GitHub contributions, submit projects, and earn badges!</p>
 
             <div className="flex justify-between items-center mb-2">
                 <span className="text-gray-300">Progress</span>
