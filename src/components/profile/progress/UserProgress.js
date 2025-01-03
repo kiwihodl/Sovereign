@@ -193,9 +193,8 @@ const UserProgress = () => {
         <div className="bg-gray-800 rounded-lg p-4 pb-0 m-2 w-full border border-gray-700 shadow-md max-lap:mx-0">
             <div className="flex flex-row justify-between items-center">
                 <h1 className="text-3xl font-bold text-white mb-2">Dev Journey</h1>
-                <i className="pi pi-question-circle text-2xl cursor-pointer text-gray-200"
-                    data-pr-tooltip="Track your progress through the courses, showcase your GitHub contributions, submit projects, and earn badges!" />
-                <Tooltip target=".pi-question-circle" position="left" />
+                    <i className="pi pi-question-circle journey-tooltip text-2xl cursor-pointer text-gray-200" />
+                    <Tooltip target=".journey-tooltip" position="left" className="w-[300px]" content="This is an optional Dev Journey that will walk you through the primary course materials and help you learn how to code, gain the required experience to Build Bitcoin/Lightning/Nostr Apps, and set you up to go through the rest of the free workshops and other content on the platform." />
             </div>
             <p className="text-gray-400 mb-4">Track your progress through the courses, showcase your GitHub contributions, submit projects, and earn badges!</p>
 
@@ -280,6 +279,13 @@ const UserProgress = () => {
                                                             <span className={`${subTask.completed ? 'text-white' : 'text-gray-400'}`}>
                                                                 {subTask.status}
                                                             </span>
+                                                            {subTask.status === 'Connect your GitHub account' && (
+                                                                <>
+                                                                    <i className="pi pi-question-circle github-tooltip ml-2 text-sm cursor-pointer text-gray-200"
+                                                                        data-pr-tooltip="Connect your GitHub account to track your progress and submit projects" />
+                                                                    <Tooltip target=".github-tooltip" position="right" />
+                                                                </>
+                                                            )}
                                                         </div>
                                                         {subTask.status.includes('repository') && !subTask.completed && (
                                                             <RepoSelector 
@@ -310,11 +316,8 @@ const UserProgress = () => {
                                             <div className="mt-2 flex justify-end">
                                                 <GenericButton 
                                                     icon="pi pi-external-link"
+                                                    label="View Course"
                                                     onClick={() => router.push(`/course/${task.courseNAddress}`)}
-                                                    tooltip="View Course"
-                                                    tooltipOptions={{
-                                                        position: "top"
-                                                    }}
                                                     outlined
                                                     size="small"
                                                 />

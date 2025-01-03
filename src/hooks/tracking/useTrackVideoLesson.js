@@ -103,7 +103,7 @@ const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed, pa
     if (isAdmin) return;
 
     if (videoDuration && timeSpent >= Math.round(videoDuration * 0.8) && !completedRef.current) {
-      console.log('🎯 Video reached 90% threshold - Marking as completed');
+      console.log('🎯 Video reached 80% threshold - Marking as completed');
       markLessonAsCompleted();
     }
   }, [timeSpent, videoDuration, markLessonAsCompleted, isAdmin]);
