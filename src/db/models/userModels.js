@@ -20,6 +20,11 @@ export const getAllUsers = async () => {
           lesson: true,
         },
       },
+      userBadges: {
+        include: {
+          badge: true
+        }
+      }
     },
   });
 };
@@ -47,6 +52,11 @@ export const getUserById = async (id) => {
       },
       nip05: true,
       lightningAddress: true,
+      userBadges: {
+        include: {
+          badge: true
+        }
+      }
     },
   });
 };
@@ -74,6 +84,11 @@ export const getUserByPubkey = async (pubkey) => {
       },
       nip05: true,
       lightningAddress: true,
+      userBadges: {
+        include: {
+          badge: true
+        }
+      }
     },
   });
 }
@@ -235,28 +250,45 @@ export const expireUserSubscriptions = async (userIds) => {
 };
 
 export const getUserByEmail = async (email) => {
-  return await prisma.user.findUnique({
-    where: { email },
-    include: {
-      role: true,
-      purchased: {
-        include: {
-          course: true,
-          resource: true,
-        },
-      },
-      userCourses: {
-        include: {
-          course: true,
-        },
-      },
-      userLessons: {
-        include: {
-          lesson: true,
-        },
-      },
-      nip05: true,
-      lightningAddress: true,
-    },
-  });
+    if (!email || typeof email !== 'string') {
+        console.error('Invalid email parameter:', email);
+        return null;
+    }
+
+    try {
+        return await prisma.user.findUnique({
+            where: { 
+                email: email.toLowerCase().trim() 
+            },
+            include: {
+                role: true,
+                purchased: {
+                    include: {
+                        course: true,
+                        resource: true,
+                    },
+                },
+                userCourses: {
+                    include: {
+                        course: true,
+                    },
+                },
+                userLessons: {
+                    include: {
+                        lesson: true,
+                    },
+                },
+                nip05: true,
+                lightningAddress: true,
+                userBadges: {
+                    include: {
+                        badge: true
+                    }
+                }
+            },
+        });
+    } catch (error) {
+        console.error('Error in getUserByEmail:', error);
+        return null;
+    }
 };

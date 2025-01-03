@@ -17,6 +17,7 @@ import { useNDKContext } from "@/context/NDKContext";
 import { findKind0Fields } from '@/utils/nostr';
 import appConfig from "@/config/appConfig";
 import useTrackCourse from '@/hooks/tracking/useTrackCourse';
+import WelcomeModal from '@/components/onboarding/WelcomeModal';
 import { ProgressSpinner } from 'primereact/progressspinner';
 
 export default function CourseDetails({ processedEvent, paidCourse, lessons, decryptionPerformed, handlePaymentSuccess, handlePaymentError }) {
@@ -148,6 +149,7 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
 
     return (
         <div className="w-full">
+                  <WelcomeModal />
             <div className="relative w-full h-[400px] mb-8">
                 <Image
                     alt="course image"
