@@ -30,7 +30,7 @@ const useTrackCourse = ({courseId, paidCourse, decryptionPerformed}) => {
           decryptionPerformed
         });
         
-        if (paidCourse === false || (paidCourse && decryptionPerformed)) {
+        if (!paidCourse || (paidCourse && decryptionPerformed)) {
           console.log('📝 [useTrackCourse] Creating new course entry');
           await axios.post(`/api/users/${session.user.id}/courses?courseSlug=${courseId}`, {
             completed: false,
