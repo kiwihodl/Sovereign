@@ -41,7 +41,7 @@ const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed, pa
           decryptionPerformed
         });
         
-        if (paidCourse === false || (paidCourse && decryptionPerformed)) {
+        if (!paidCourse || (paidCourse && decryptionPerformed)) {
           console.log('📝 [useTrackVideoLesson] Creating new lesson entry');
           await axios.post(`/api/users/${session.user.id}/lessons?courseId=${courseId}`, {
             resourceId: lessonId,
