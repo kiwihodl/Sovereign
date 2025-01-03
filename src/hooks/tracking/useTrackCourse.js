@@ -8,39 +8,53 @@ const useTrackCourse = ({courseId, paidCourse, decryptionPerformed}) => {
   const completedRef = useRef(false);
 
   const checkOrCreateUserCourse = useCallback(async () => {
-    if (!session?.user || !courseId) return false;
+    if (!session?.user || !courseId) {
+      console.log('📝 [useTrackCourse] Missing required data:', { 
+        hasUser: !!session?.user, 
+        courseId 
+      });
+      return false;
+    }
+    
     try {
+      console.log('📝 [useTrackCourse] Checking course status:', { courseId });
       const response = await axios.get(`/api/users/${session.user.id}/courses/${courseId}`);
-      // fix this condition?
+      
       if (response.status === 200 && response?.data) {
+        console.log('✅ [useTrackCourse] Course already exists:', response.data);
         setIsCompleted(true);
         completedRef.current = true;
       } else if (response.status === 204) {
-        // Only create a new UserCourse entry if it's a free course or if decryption has been performed for a paid course
+        console.log('📝 [useTrackCourse] No existing course found, checking if should create:', {
+          paidCourse,
+          decryptionPerformed
+        });
+        
         if (paidCourse === false || (paidCourse && decryptionPerformed)) {
+          console.log('📝 [useTrackCourse] Creating new course entry');
           await axios.post(`/api/users/${session.user.id}/courses?courseSlug=${courseId}`, {
             completed: false,
             started: true,
             startedAt: new Date().toISOString(),
           });
-          // Call session update after creating a new UserCourse entry
+          console.log('✨ [useTrackCourse] New course entry created');
           await update();
         }
-
         setIsCompleted(false);
-        return false;
-      } else {
-        console.error('Error checking or creating UserCourse:', response.statusText);
         return false;
       }
     } catch (error) {
-      console.error('Error checking or creating UserCourse:', error);
+      console.error('❌ [useTrackCourse] Error in checkOrCreateUserCourse:', error);
       return false;
     }
   }, [courseId, paidCourse, decryptionPerformed]);
 
   useEffect(() => {
     if (!completedRef.current && courseId && session?.user) {
+      console.log('📝 [useTrackCourse] Initializing course tracking:', { 
+        courseId,
+        userId: session?.user?.id 
+      });
       checkOrCreateUserCourse();
     }
   }, [courseId]);
