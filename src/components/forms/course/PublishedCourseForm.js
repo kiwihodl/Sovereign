@@ -77,7 +77,6 @@ const PublishedCourseForm = ({ course }) => {
             if (!ndk.signer) {
                 await addSigner();
             }
-            console.log('lessons', lessons);
 
             const event = new NDKEvent(ndk);
             event.kind = course.kind;

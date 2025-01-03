@@ -128,8 +128,6 @@ export default async function handler(req, res) {
     // Finalize (sign) the event
     const signedEvent = finalizeEvent(eventTemplate, signingKeyBytes);
 
-    console.log("Signed Event: ", signedEvent);
-
     // Verify the event
     const isValid = verifyEvent(signedEvent);
     if (!isValid) {
@@ -143,7 +141,6 @@ export default async function handler(req, res) {
     try {
       await Promise.any(pool.publish(appConfig.defaultRelayUrls, signedEvent));
       published = true;
-      console.log('Event published to at least one relay');
     } catch (error) {
       throw new Error('Failed to publish to any relay');
     } finally {

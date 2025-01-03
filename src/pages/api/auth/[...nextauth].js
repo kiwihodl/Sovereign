@@ -188,7 +188,6 @@ export const authOptions = {
                         
                         // Update the user with the new keypair
                         const createdUser = await createUser(newUser);
-                        console.log("Created user", createdUser);
                         return createdUser;
                     } else {
                         console.log("User already exists", existingUser);
@@ -277,7 +276,6 @@ export const authOptions = {
 
             // nostr login (we have no privkey)
             if (account?.provider === "github" && user?.id && user?.pubkey) {
-                console.log("GITHUB LOGIN");
                 try {
                     // First check if there's already a GitHub account linked
                     const existingGithubAccount = await prisma.account.findFirst({
@@ -291,7 +289,6 @@ export const authOptions = {
                     token.githubUsername = profile?.login || profile?.name;
 
                     if (!existingGithubAccount) {
-                        console.log("No existing GitHub account found");
                         // Update user profile with GitHub info
                         const updatedUser = await updateUser(user.id, {
                             name: profile?.login || profile?.name,

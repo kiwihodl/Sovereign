@@ -23,8 +23,6 @@ const UserBadges = ({ visible, onHide }) => {
                 // todo: add the plebdevs hardcoded badge ids (probably in config?)
                 ids: ["4054a68f028edf38cd1d71cc4693d4ff5c9c54b0b44532361fe6abb29530cbf6", "5d38fea9a3c1fb4c55c9635c3132d34608c91de640f772438faa1942677087a8", "3ba20936d66523adb6d71793649bc77f3cea34f50c21ec7bb2c041f936022214", "41edee5af6d4e833d11f9411c2c27cc48c14d2a3c7966ae7648568e825eda1ed"]
             });
-
-            console.log("Badge Definitions: ", badgeDefinitions);
             
             // Fetch badge awards (kind 8) using fetchEvents instead of subscribe
             const badgeAwards = await ndk.fetchEvents({
@@ -60,8 +58,6 @@ const UserBadges = ({ visible, onHide }) => {
                             identifier: definition.tags.find(t => t[0] === 'd')?.[1]
                         })
                     };
-
-                    console.log("Current Badge: ", currentBadge);
 
                     // Only update if this is the first instance or if it's newer than the existing one
                     if (!latestBadgeMap.has(defId) || 

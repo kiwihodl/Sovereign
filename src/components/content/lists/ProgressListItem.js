@@ -20,9 +20,7 @@ const ProgressListItem = ({ dTag, category, type = 'course' }) => {
                     authors: appConfig.authorPubkeys,
                     "#d": [dTag],
                 }
-                console.log("filter", filter);
                 const event = await ndk.fetchEvent(filter);
-                console.log("event", event);
                 if (event) {
                     setEvent(type === 'course' ? parseCourseEvent(event) : parseEvent(event));
                 }
