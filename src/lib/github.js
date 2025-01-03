@@ -4,7 +4,7 @@ import { throttling } from "@octokit/plugin-throttling";
 const ThrottledOctokit = Octokit.plugin(throttling);
 
 const octokit = new ThrottledOctokit({
-  auth: process.env.NEXT_PUBLIC_GITHUB_ACCESS_KEY,
+  auth: process.env.NEXT_PUBLIC_GITHUB_API,
   throttle: {
     onRateLimit: (retryAfter, options, octokit, retryCount) => {
       octokit.log.warn(`Request quota exhausted for request ${options.method} ${options.url}`);
@@ -21,7 +21,7 @@ const octokit = new ThrottledOctokit({
 });
 
 export async function* getAllCommits(accessToken, since) {
-    const auth = accessToken || process.env.NEXT_PUBLIC_GITHUB_ACCESS_KEY;
+    const auth = accessToken || process.env.NEXT_PUBLIC_GITHUB_API;
     
     const octokit = new ThrottledOctokit({
         auth,
