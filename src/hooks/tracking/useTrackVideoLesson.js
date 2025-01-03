@@ -18,41 +18,57 @@ const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed, pa
   }, [session]);
 
   const checkOrCreateUserLesson = useCallback(async () => {
-    if (!session?.user) return false;
+    if (!session?.user) {
+      console.log('📝 [useTrackVideoLesson] No user session found');
+      return false;
+    }
     try {
+      console.log('📝 [useTrackVideoLesson] Checking lesson status:', { lessonId, courseId });
       const response = await axios.get(`/api/users/${session.user.id}/lessons/${lessonId}?courseId=${courseId}`);
+      
       if (response.status === 200 && response?.data) {
+        console.log('📝 [useTrackVideoLesson] Existing lesson found:', response.data);
         if (response?.data?.completed) {
+          console.log('✅ [useTrackVideoLesson] Lesson already completed');
           setIsCompleted(true);
           completedRef.current = true;
           return true;
-        } else {
-          return false;
         }
+        return false;
       } else if (response.status === 204) {
-        // Only create a new UserLesson entry if it's a free course or if decryption has been performed for a paid course
+        console.log('📝 [useTrackVideoLesson] No existing lesson found, checking if should create:', {
+          paidCourse,
+          decryptionPerformed
+        });
+        
         if (paidCourse === false || (paidCourse && decryptionPerformed)) {
+          console.log('📝 [useTrackVideoLesson] Creating new lesson entry');
           await axios.post(`/api/users/${session.user.id}/lessons?courseId=${courseId}`, {
             resourceId: lessonId,
             opened: true,
             openedAt: new Date().toISOString(),
           });
-          // Call session update after creating a new UserLesson entry
+          console.log('✨ [useTrackVideoLesson] New lesson entry created');
           await update();
         }
         return false;
-      } else {
-        console.error('Error checking or creating UserLesson:', response.statusText);
-        return false;
       }
     } catch (error) {
-      console.error('Error checking or creating UserLesson:', error);
+      console.error('❌ [useTrackVideoLesson] Error in checkOrCreateUserLesson:', error);
       return false;
     }
   }, [session, lessonId, courseId, update, paidCourse, decryptionPerformed]);
 
   const markLessonAsCompleted = useCallback(async () => {
-    if (!session?.user || completedRef.current) return;
+    if (!session?.user || completedRef.current) {
+      console.log('📝 [useTrackVideoLesson] Skipping completion:', { 
+        hasUser: !!session?.user, 
+        alreadyCompleted: completedRef.current 
+      });
+      return;
+    }
+    
+    console.log('📝 [useTrackVideoLesson] Marking lesson as completed:', { lessonId, courseId });
     completedRef.current = true;
     
     try {
@@ -64,22 +80,32 @@ const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed, pa
       if (response.status === 200) {
         setIsCompleted(true);
         setIsTracking(false);
-        // Call session update after marking the lesson as completed
+        console.log('✅ [useTrackVideoLesson] Lesson marked as completed successfully');
         await update();
       } else {
         console.error('Failed to mark lesson as completed:', response.statusText);
       }
     } catch (error) {
-      console.error('Error marking lesson as completed:', error);
+      console.error('❌ [useTrackVideoLesson] Error marking lesson as completed:', error);
     }
   }, [lessonId, courseId, session, update]);
 
   useEffect(() => {
     const initializeTracking = async () => {
-      if (isAdmin) return;
+      if (isAdmin) {
+        console.log('👑 [useTrackVideoLesson] Admin user - skipping tracking');
+        return;
+      }
 
+      console.log('📝 [useTrackVideoLesson] Initializing tracking:', {
+        videoDuration,
+        videoPlayed,
+        paidCourse,
+        decryptionPerformed
+      });
+      
       const alreadyCompleted = await checkOrCreateUserLesson();
-      if (!alreadyCompleted && videoDuration && !completedRef.current && videoPlayed && (paidCourse === false || (paidCourse && decryptionPerformed))) {
+      if (!alreadyCompleted && videoDuration && !completedRef.current && videoPlayed && (!paidCourse || (paidCourse && decryptionPerformed))) {
         setIsTracking(true);
         timerRef.current = setInterval(() => {
           setTimeSpent(prevTime => {
