@@ -25,13 +25,13 @@ export const useBadge = () => {
                 // Check for GitHub connection badge
                 if (session?.account?.provider === 'github') {
                     const hasPlebBadge = userBadges?.some(
-                        userBadge => userBadge.badge?.id === '4664e73f-c618-41dd-a7cc-f3393b031fdf'
+                        userBadge => userBadge.badge?.id === 'd055608f-1bbb-43fc-bddd-c207e5b20d61'
                     );
 
                     if (!hasPlebBadge) {
                         try {
                             const response = await axios.post('/api/badges/issue', {
-                                badgeId: '4664e73f-c618-41dd-a7cc-f3393b031fdf',
+                                badgeId: 'd055608f-1bbb-43fc-bddd-c207e5b20d61',
                                 userId: session.user.id,
                             });
 
