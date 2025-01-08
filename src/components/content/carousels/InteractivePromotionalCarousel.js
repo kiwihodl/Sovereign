@@ -15,7 +15,10 @@ const promotions = [
     title: "Content and Community platform",
     description: "Content, and community platform built on Nostr and fully Lightning integrated.",
     icon: "pi pi-code",
-    video: "https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-montage.mp4",
+    video: {
+      mp4: "https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-montage.mp4",
+      webm: "https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-montage.webm"
+    },
   },
   {
     id: 2,
@@ -23,7 +26,10 @@ const promotions = [
     title: "Comprehensive Learning Resources",
     description: "Access the PlebDevs library of courses, videos, and documents.",
     icon: "pi pi-book",
-    video: "https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-content-montage.mp4",
+    video: {
+      mp4: "https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-content-montage.mp4",
+      webm: "https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-content-montage.webm"
+    },
   },
   {
     id: 3,
@@ -31,7 +37,10 @@ const promotions = [
     title: "Join Our Community of learners / hackers",
     description: "Learn and connect with other devs, share your projects, and level up together.",
     icon: "pi pi-users",
-    video: "https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-community-montage.mp4",
+    video: {
+      mp4: "https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-community-montage.mp4",
+      webm: "https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-community-montage.webm"
+    },
   },
   {
     id: 4,
@@ -39,7 +48,10 @@ const promotions = [
     title: "Lightning and Nostr integrated platform",
     description: "All content is published to Nostr and actively pulled from Nostr relays. It is interoperable with comments, zaps, and other nostr clients. Premium content is available for sale with lightning or by subscribing to plebdevs via a lightning subscription.",
     icon: "pi pi-bolt",
-    video: "https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-lightning-nostr-montage.mp4",
+    video: {
+      mp4: "https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-lightning-nostr-montage.mp4",
+      webm: "https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-lightning-nostr-montage.webm"
+    },
   },
 ]
 
@@ -104,7 +116,8 @@ const InteractivePromotionalCarousel = () => {
             playsInline
             autoPlay
           >
-            <source src={selectedPromotion.video} type="video/mp4" />
+            <source src={selectedPromotion.video.mp4} type="video/mp4" />
+            <source src={selectedPromotion.video.webm} type="video/webm" />
           </video>
         ) : (
           <Image
