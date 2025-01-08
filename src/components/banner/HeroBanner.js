@@ -76,6 +76,7 @@ const HeroBanner = () => {
                         playsInline
                     >
                         <source src="https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-montage.mp4" type="video/mp4" />
+                        <source src="https://plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com/plebdevs-montage.webm" type="video/webm" />
                         Your browser does not support the video tag.
                     </video>
                 </div>
