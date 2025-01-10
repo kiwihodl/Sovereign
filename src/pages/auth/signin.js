@@ -7,7 +7,9 @@ import { InputText } from 'primereact/inputtext';
 
 export default function SignIn() {
   const [email, setEmail] = useState("")
+  const [nsec, setNsec] = useState("")
   const [showEmailInput, setShowEmailInput] = useState(false)
+  const [showRecoveryInput, setShowRecoveryInput] = useState(false)
   const {ndk, addSigner} = useNDKContext();
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -68,6 +70,25 @@ export default function SignIn() {
     }
   };
 
+  const handleRecoverySignIn = async (e) => {
+    e.preventDefault()
+    try {
+      const result = await signIn("recovery", { 
+        nsec,
+        redirect: false,
+        callbackUrl: '/'
+      });
+
+      if (result?.ok) {
+        router.push('/');
+      } else {
+        console.error("Recovery login failed:", result?.error);
+      }
+    } catch (error) {
+      console.error("Recovery sign in error:", error);
+    }
+  }
+
   useEffect(() => {
     // Redirect if already signed in
     if (session?.user) {
@@ -124,6 +145,45 @@ export default function SignIn() {
         rounded
         onClick={handleAnonymousSignIn}
       />
+      <GenericButton
+        label={"recover account"}
+        icon="pi pi-key"
+        className="text-[#f8f8ff] w-[250px] my-4 mx-auto"
+        rounded
+        onClick={() => setShowRecoveryInput(!showRecoveryInput)}
+      />
+      {showRecoveryInput && (
+        <form onSubmit={handleRecoverySignIn} className="flex flex-col items-center bg-gray-700 w-fit mx-auto p-4 rounded-lg">
+          <div className="text-center mb-4 max-w-[350px]">
+            <p className="text-yellow-400 mb-2">⚠️ Recovery Notice</p>
+            <p className="text-gray-200 mb-2">
+              🔑 This recovery option is only for accounts created through:
+            </p>
+            <ul className="text-gray-300 mb-2 text-left list-none">
+              <li>📧 Email Login</li>
+              <li>👤 Anonymous Login</li>
+              <li>🐙 GitHub Login</li>
+            </ul>
+            <p className="text-red-400 text-sm">
+              ⛔ Do NOT enter your personal Nostr nsec here! Only use the recovery key provided by PlebDevs (available on your profile page).
+            </p>
+          </div>
+          <InputText
+            type="password"
+            value={nsec}
+            onChange={(e) => setNsec(e.target.value)}
+            placeholder="Enter recovery key (nsec or hex)"
+            className="w-[250px] my-4"
+          />
+          <GenericButton
+            type="submit"
+            label={"Recover Account"}
+            icon="pi pi-lock-open"
+            className="text-[#f8f8ff] w-fit my-4"
+            rounded
+          />
+        </form>
+      )}
     </div>
   )
 }

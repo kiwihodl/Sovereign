@@ -48,7 +48,7 @@ const UserProfileCard = ({ user }) => {
     const MobileProfileCard = () => (
         <div className="w-full bg-gray-800 rounded-lg p-2 py-1 border border-gray-700 shadow-md h-[420px] flex flex-col justify-center items-start">
             <div className="flex flex-col gap-2 pt-4 w-full relative">
-                <div className="absolute top-8 right-[10px]">
+                <div className="absolute top-8 right-[14px]">
                     <i
                         className="pi pi-ellipsis-h text-2xl cursor-pointer"
                         onClick={(e) => menu.current.toggle(e)}
@@ -145,7 +145,7 @@ const UserProfileCard = ({ user }) => {
                     className="rounded-full my-4"
                 />
                 <div className="flex flex-col gap-2 pt-4 w-fit relative">
-                    <div className="absolute top-[-4px] right-[-30px]">
+                    <div className="absolute top-[-1px] right-[-24px]">
                         <i
                             className="pi pi-ellipsis-h text-2xl cursor-pointer"
                             onClick={(e) => menu.current.toggle(e)}

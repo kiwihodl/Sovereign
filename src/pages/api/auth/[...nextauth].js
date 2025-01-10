@@ -12,6 +12,7 @@ import { updateUser, getUserByPubkey, createUser, getUserById, getUserByEmail } 
 import { createRole } from "@/db/models/roleModels";
 import appConfig from "@/config/appConfig";
 import NDK from "@nostr-dev-kit/ndk";
+import { nip19 } from 'nostr-tools';
 
 // Initialize NDK for Nostr interactions
 const ndk = new NDK({
@@ -161,6 +162,55 @@ export const authOptions = {
                     email: profile.email,
                     avatar: profile.avatar_url
                 };
+            }
+        }),
+        // Recovery provider
+        CredentialsProvider({
+            id: "recovery",
+            name: "Recovery",
+            credentials: {
+                nsec: { label: "Recovery Key (nsec or hex)", type: "text" }
+            },
+            authorize: async (credentials) => {
+                if (!credentials?.nsec) return null;
+                
+                try {
+                    // Convert nsec to hex if needed
+                    let privkeyHex = credentials.nsec;
+                    if (credentials.nsec.startsWith('nsec')) {
+                        try {
+                            const { data: decodedPrivkey } = nip19.decode(credentials.nsec);
+                            privkeyHex = Buffer.from(decodedPrivkey).toString('hex');
+                        } catch (error) {
+                            console.error("Invalid nsec format:", error);
+                            return null;
+                        }
+                    }
+
+                    // Find user with matching privkey
+                    const user = await prisma.user.findFirst({
+                        where: { privkey: privkeyHex },
+                        include: {
+                            role: true,
+                            purchased: true,
+                            userCourses: true,
+                            userLessons: true,
+                            nip05: true,
+                            lightningAddress: true,
+                            userBadges: true
+                        }
+                    });
+
+                    if (!user) {
+                        console.error("No user found with provided recovery key");
+                        return null;
+                    }
+
+                    return user;
+                } catch (error) {
+                    console.error("Recovery authorization error:", error);
+                    return null;
+                }
             }
         })
     ],
