@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import Image from 'next/image';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { useRouter } from 'next/router';
 import { Avatar } from 'primereact/avatar';
@@ -17,6 +17,7 @@ const HeroBanner = () => {
     const windowWidth = useWindowWidth();
     const router = useRouter();
     const { returnImageProxy } = useImageProxy();
+    const { data: session } = useSession();
     
     const isTabView = windowWidth <= 1360;
     const isMobile = windowWidth <= 800;
@@ -52,6 +53,40 @@ const HeroBanner = () => {
         if (isWideScreen) return 'h-[700px]';
         if (isMobile) return 'h-[450px]';
         return 'h-[600px]';
+    };
+
+    const handleLearnToCode = async () => {
+        const starterCourseUrl = '/course/naddr1qvzqqqr4xspzpueu32tp0jc47uzlcuxdgcw06m40ytu7ynpna2adnqty3e0vda6pqy88wumn8ghj7mn0wvhxcmmv9uq32amnwvaz7tmjv4kxz7fwv3sk6atn9e5k7tcpr9mhxue69uhhyetvv9ujuumwdae8gtnnda3kjctv9uq3wamnwvaz7tmjv4kxz7fwdehhxarj9e3xzmny9uq36amnwvaz7tmjv4kxz7fwd46hg6tw09mkzmrvv46zucm0d5hsz9mhwden5te0wfjkccte9ec8y6tdv9kzumn9wshszynhwden5te0dehhxarjxgcjucm0d5hszynhwden5te0dehhxarjw4jjucm0d5hsz9nhwden5te0wp6hyurvv4ex2mrp0yhxxmmd9uq3wamnwvaz7tmjv4kxz7fwv3jhvueww3hk7mrn9uqzge34xvuxvdtrx5knzcfhxgkngwpsxsknsetzxyknxe3sx43k2cfkxsurwdq68epwa?active=starter';
+
+        // If user is already signed in, redirect directly
+        if (session?.user) {
+            router.push(starterCourseUrl);
+            return;
+        }
+
+        // Check for stored keys
+        const storedPubkey = localStorage.getItem('anonymousPubkey');
+        const storedPrivkey = localStorage.getItem('anonymousPrivkey');
+
+        if (storedPubkey && storedPrivkey) {
+            // Sign in with stored keys
+            const result = await signIn('anonymous', {
+                pubkey: storedPubkey,
+                privkey: storedPrivkey,
+                redirect: false,
+                callbackUrl: starterCourseUrl
+            });
+
+            if (result?.ok) {
+                router.push(starterCourseUrl);
+            }
+        } else {
+            // Proceed with anonymous sign in
+            signIn('anonymous', { 
+                callbackUrl: starterCourseUrl,
+                redirect: true,
+            });
+        }
     };
 
     return (
@@ -127,17 +162,14 @@ const HeroBanner = () => {
                 </div>
                 <div className="space-x-4">
                     <GenericButton
-                        label="Learn How to Code"
+                        label="Learn To Code"
                         icon={<i className="pi pi-book pr-2 text-2xl" />}
                         rounded
                         severity="info"
                         className="border-2"
                         size={isMobile ? null : "large"}
                         outlined
-                        onClick={() => signIn('anonymous', { 
-                            callbackUrl: '/course/naddr1qvzqqqr4xspzpueu32tp0jc47uzlcuxdgcw06m40ytu7ynpna2adnqty3e0vda6pqy88wumn8ghj7mn0wvhxcmmv9uq32amnwvaz7tmjv4kxz7fwv3sk6atn9e5k7tcpr9mhxue69uhhyetvv9ujuumwdae8gtnnda3kjctv9uq3wamnwvaz7tmjv4kxz7fwdehhxarj9e3xzmny9uq36amnwvaz7tmjv4kxz7fwd46hg6tw09mkzmrvv46zucm0d5hsz9mhwden5te0wfjkccte9ec8y6tdv9kzumn9wshszynhwden5te0dehhxarjxgcjucm0d5hszynhwden5te0dehhxarjw4jjucm0d5hsz9nhwden5te0wp6hyurvv4ex2mrp0yhxxmmd9uq3wamnwvaz7tmjv4kxz7fwv3jhvueww3hk7mrn9uqzge34xvuxvdtrx5knzcfhxgkngwpsxsknsetzxyknxe3sx43k2cfkxsurwdq68epwa?active=starter',
-                            redirect: true,
-                        })}
+                        onClick={handleLearnToCode}
                     />
                     <GenericButton
                         label="Level Up"
