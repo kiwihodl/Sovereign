@@ -185,7 +185,6 @@ const InteractivePromotionalCarousel = () => {
                       case "PLEBDEVS":
                         return (
                           <div className="flex flex-row gap-4 mt-4">
-                            {/* <GenericButton onClick={() => router.push('/about')} severity="success" icon={<i className="pi pi-question-circle pr-2 pb-[2px]" />} label="About" className="py-2 font-semibold" size="small" outlined /> */}
                             <GenericButton onClick={() => router.push('/subscribe')} severity="warning" icon={<i className="pi pi-star pr-2 pb-1" />} label="Subscribe" className="py-2 font-semibold" size="small" outlined />
                             <GenericButton onClick={() => router.push('/content?tag=all')} severity="primary" icon={<i className="pi pi-eye pr-2" />} label="All content" className="py-2 font-semibold" size="small" outlined />
                             <GenericButton onClick={() => copyToClipboard()} icon={<i className="pi pi-bolt pr-2" />} label="Donate" className={`py-2 font-semibold text-yellow-300 ${yellowFocusOutlineStyle}`} size="small" outlined />

@@ -3,6 +3,7 @@ import { useFetchGithubCommits } from '@/hooks/githubQueries/useFetchGithubCommi
 import { Tooltip } from 'primereact/tooltip';
 import { formatDateTime } from "@/utils/time";
 import useWindowWidth from '@/hooks/useWindowWidth';
+import MoreInfo from '@/components/MoreInfo';
 
 const CombinedContributionChart = ({ session }) => {
     const [contributionData, setContributionData] = useState({});
@@ -226,9 +227,26 @@ const CombinedContributionChart = ({ session }) => {
         <div className="w-full mx-2 bg-gray-800 rounded-lg border border-gray-700 shadow-md h-[330px] max-lap:mx-0 max-lap:mt-2">
             <div className="flex flex-row justify-between items-center p-4">
                 <h1 className="text-2xl font-bold text-gray-200">Activity</h1>
-                <i className="pi pi-question-circle text-2xl cursor-pointer text-gray-200"
-                    data-pr-tooltip="Combined total of GitHub commits and learning activities (starting/completing courses and lessons)" />
-                <Tooltip target=".pi-question-circle" position="left" />
+                <MoreInfo 
+                    tooltip="Combined total of GitHub commits and learning activities"
+                    modalTitle="Activity Tracking"
+                    modalBody={
+                        <div className="space-y-4">
+                            <p>This chart combines two types of activities:</p>
+                            <ul className="list-disc pl-4">
+                                <li>GitHub Commits: Your code contributions on GitHub</li>
+                                <li>Learning Activities:
+                                    <ul className="list-disc pl-4 mt-2">
+                                        <li>Starting and completing courses</li>
+                                        <li>Opening and completing lessons</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                            <p>The darker the green, the more combined activities on that day.</p>
+                        </div>
+                    }
+                    className="text-2xl text-gray-200"
+                />
             </div>
             <div className={`${getScaleClass(windowWidth)}`}>
                 <div className="min-w-[910px] p-4">

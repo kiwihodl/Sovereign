@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Tooltip } from 'primereact/tooltip';
 import useWindowWidth from '@/hooks/useWindowWidth';
+import MoreInfo from '@/components/MoreInfo';
 
 const ActivityContributionChart = ({ session }) => {
     const [contributionData, setContributionData] = useState({});
@@ -167,9 +168,21 @@ const ActivityContributionChart = ({ session }) => {
         <div className="w-full mx-2 bg-gray-800 rounded-lg border border-gray-700 shadow-md h-[330px] max-lap:mx-0 max-lap:mt-2">
             <div className="flex flex-row justify-between items-center p-4">
                 <h1 className="text-2xl font-bold text-gray-200">Activity</h1>
-                <i className="pi pi-question-circle text-2xl cursor-pointer text-gray-200"
-                    data-pr-tooltip="Total number of learning activities on the platform" />
-                <Tooltip target=".pi-question-circle" position="left" />
+                <MoreInfo 
+                    tooltip="Total number of learning activities on the platform"
+                    modalTitle="Learning Activities"
+                    modalBody={
+                        <div className="space-y-4">
+                            <p>This chart shows your learning activities over the past year, including:</p>
+                            <ul className="list-disc pl-4">
+                                <li>Courses started and completed</li>
+                                <li>Lessons opened and completed</li>
+                            </ul>
+                            <p>The darker the green, the more activities completed on that day.</p>
+                        </div>
+                    }
+                    className="text-2xl text-gray-200"
+                />
             </div>
             <div className={`${getScaleClass(windowWidth)}`}>
                 <div className="min-w-[910px] p-4">

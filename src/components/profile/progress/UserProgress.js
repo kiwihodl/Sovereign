@@ -8,6 +8,7 @@ import GenericButton from '@/components/buttons/GenericButton';
 import UserProgressFlow from './UserProgressFlow';
 import { Tooltip } from 'primereact/tooltip';
 import RepoSelector from '@/components/profile/RepoSelector';
+import MoreInfo from '@/components/MoreInfo';
 
 const allTasks = [
     {
@@ -191,8 +192,12 @@ const UserProgress = () => {
         <div className="bg-gray-800 rounded-lg p-4 pb-0 m-2 w-full border border-gray-700 shadow-md max-lap:mx-0">
             <div className="flex flex-row justify-between items-center">
                 <h1 className="text-3xl font-bold text-white mb-2">Dev Journey</h1>
-                    <i className="pi pi-question-circle journey-tooltip text-2xl cursor-pointer text-gray-200" />
-                    <Tooltip target=".journey-tooltip" position="left" className="w-[300px]" content="This is an optional Dev Journey that will walk you through the primary course materials and help you learn how to code, gain the required experience to Build Bitcoin/Lightning/Nostr Apps, and set you up to go through the rest of the free workshops and other content on the platform." />
+                <MoreInfo 
+                    tooltip="Learn about the Dev Journey"
+                    modalTitle="Dev Journey"
+                    modalBody="This is an optional Dev Journey that will walk you through the primary course materials and help you learn how to code, gain the required experience to Build Bitcoin/Lightning/Nostr Apps, and set you up to go through the rest of the free workshops and other content on the platform."
+                    className="text-2xl text-gray-200"
+                />
             </div>
             <p className="text-gray-400 mb-4">Track your progress through the courses, showcase your GitHub contributions, submit projects, and earn badges!</p>
 
@@ -278,11 +283,12 @@ const UserProgress = () => {
                                                                 {subTask.status}
                                                             </span>
                                                             {subTask.status === 'Connect your GitHub account' && (
-                                                                <>
-                                                                    <i className="pi pi-question-circle github-tooltip ml-2 text-sm cursor-pointer text-gray-200"
-                                                                        data-pr-tooltip="Connect your GitHub account to track your progress and submit projects" />
-                                                                    <Tooltip target=".github-tooltip" position="right" />
-                                                                </>
+                                                                <MoreInfo 
+                                                                    tooltip="GitHub Connection Info"
+                                                                    modalTitle="Connect GitHub Account"
+                                                                    modalBody="Connect your GitHub account to track your progress and submit projects. This allows us to verify your project submissions and track your development journey."
+                                                                    className="ml-2 text-sm text-gray-200"
+                                                                />
                                                             )}
                                                         </div>
                                                         {subTask.status.includes('repository') && !subTask.completed && (

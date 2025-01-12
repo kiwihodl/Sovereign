@@ -7,6 +7,7 @@ import { useImageProxy } from '@/hooks/useImageProxy';
 import { useToast } from '@/hooks/useToast';
 import UserBadges from '@/components/profile/UserBadges';
 import useWindowWidth from '@/hooks/useWindowWidth';
+import MoreInfo from '@/components/MoreInfo';
 
 const UserProfileCard = ({ user }) => {
     const [showBadges, setShowBadges] = useState(false);
@@ -80,8 +81,12 @@ const UserProfileCard = ({ user }) => {
                                     {nip19.npubEncode(user.pubkey)}
                                 </p>
                             </div>
-                            <Tooltip target=".pubkey-tooltip" content={"this is your account pubkey"} />
-                            <i className="pi pi-question-circle pubkey-tooltip text-xs cursor-pointer shrink-0" />
+                            <MoreInfo 
+                                tooltip="Your Nostr Public Key"
+                                modalTitle="Public Key Information"
+                                modalBody="Your public key is a unique identifier for your Nostr account. If you logged in with email, anon, or github this was generated for you by plebdevs and is used to link your account to the wider Nostr network."
+                                className="text-xs shrink-0"
+                            />
                         </div>
                     )
                 }
@@ -102,9 +107,12 @@ const UserProfileCard = ({ user }) => {
                             <h4 >
                                 <span className="font-bold">Lightning Address:</span> None
                             </h4>
-                            {/* todo: add tooltip */}
-                            <Tooltip target=".lightning-address-tooltip" content={"this is your account lightning address"} />
-                            <i className="pi pi-question-circle lightning-address-tooltip text-xs cursor-pointer" />
+                            <MoreInfo 
+                                tooltip="PlebDevs Lightning Address Info"
+                                modalTitle="PlebDevs Lightning Address"
+                                modalBody="This is a placeholder for your PlebDevs issued Lightning Address (claimable through subscription). A lightning address is a way to receive Bitcoin payments through the Lightning Network. It works similar to an email address but for receiving Bitcoin payments."
+                                className="text-xs"
+                            />
                         </div>
                     )}
                     {user?.nip05 ? (
@@ -116,9 +124,12 @@ const UserProfileCard = ({ user }) => {
                             <h4>
                                 <span className="font-bold">NIP-05:</span> None
                             </h4>
-                            {/* todo: add tooltip */}
-                            <Tooltip target=".nip05-tooltip" content={"this is your account nip05"} />
-                            <i className="pi pi-question-circle nip05-tooltip text-xs cursor-pointer" />
+                            <MoreInfo 
+                                tooltip="NIP-05 Info"
+                                modalTitle="What is NIP-05?"
+                                modalBody="This is a placeholder for your NIP-05 (claimable through subscription). NIP-05 is a a vanity name and verification standard in Nostr that links your identity to a domain name, similar to how Twitter verifies accounts. It helps prove ownership of your identity."
+                                className="text-xs"
+                            />
                         </div>
                     )}
                 <div className="flex flex-col justify-center min-w-[140px] px-2">
@@ -166,8 +177,12 @@ const UserProfileCard = ({ user }) => {
                                 <p className="truncate">
                                     {nip19.npubEncode(user.pubkey).slice(0, 12)}...
                                 </p>
-                                <Tooltip target=".pubkey-tooltip" content={"this is your account pubkey"} />
-                                <i className="pi pi-question-circle pubkey-tooltip text-xs cursor-pointer" />
+                                <MoreInfo 
+                                    tooltip="Your Nostr Public Key"
+                                    modalTitle="Public Key Information"
+                                    modalBody="Your public key is a unique identifier for your Nostr account. If you logged in with email, anon, or github this was generated for you by plebdevs and is used to link your account to the wider Nostr network."
+                                    className="text-xs shrink-0"
+                                />
                             </div>
                         )
                     }
@@ -188,9 +203,12 @@ const UserProfileCard = ({ user }) => {
                         <h4 >
                             <span className="font-bold">Lightning Address:</span> None
                         </h4>
-                        {/* todo: add tooltip */}
-                        <Tooltip target=".lightning-address-tooltip" content={"this is your account lightning address"} />
-                        <i className="pi pi-question-circle lightning-address-tooltip text-xs cursor-pointer" />
+                        <MoreInfo 
+                            tooltip="Lightning Address Info"
+                            modalTitle="Lightning Address"
+                            modalBody="A Lightning address allows you to receive Bitcoin payments through the Lightning Network. It works similar to an email address but for Bitcoin transactions."
+                            className="text-xs"
+                        />
                     </div>
                 )}
                 {user?.nip05 ? (
@@ -202,9 +220,12 @@ const UserProfileCard = ({ user }) => {
                         <h4>
                             <span className="font-bold">NIP-05:</span> None
                         </h4>
-                        {/* todo: add tooltip */}
-                        <Tooltip target=".nip05-tooltip" content={"this is your account nip05"} />
-                        <i className="pi pi-question-circle nip05-tooltip text-xs cursor-pointer" />
+                        <MoreInfo 
+                            tooltip="NIP-05 Info"
+                            modalTitle="What is NIP-05?"
+                            modalBody="NIP-05 is a verification standard in Nostr that links your identity to a domain name, similar to how Twitter verifies accounts. It helps prove ownership of your identity."
+                            className="text-xs"
+                        />
                     </div>
                 )}
                 <button
