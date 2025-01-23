@@ -5,7 +5,40 @@ A one-of-a-kind developer education, content, and community platform built on No
 
 ## Overview
 
-PlebDevs is an open-source platform that combines educational content, community interaction, and Bitcoin/Lightning integration. The platform publishes content to Nostr and actively pulls from Nostr relays, creating a distributed, interoperable, trail of Documents, Videos, and Courses.
+PlebDevs is an open-source platform that combines educational content, community interaction, and Bitcoin/Lightning integration. The platform publishes content to Nostr and actively pulls from Nostr relays, creating a distributed, interoperable trail of Documents, Videos, and Courses.
+
+## Technical Implementation
+
+### Nostr Integration
+- **Content Distribution**: Implements NIP-23 for rich multimedia content embedding
+- **Content Encryption**: Paid content bodies are encrypted while maintaining metadata visibility
+- **Authentication**: 
+  - Multi-method signup (NIP-07, Email, GitHub, Anonymous)
+  - Ephemeral keypair generation for non-Nostr users
+  - Account linking and recovery system
+- **Lists & Courses**: NIP-51 implementation for structured content organization
+- **Monetization**: NIP-99 for digital content sales
+- **Automated Subscriptions**: NIP-47 (Nostr Wallet Connect) for recurring payments
+- **Badge System**: NIP-58 for automated achievement rewards
+- **Identity**: NIP-05 for custom platform identities
+- **Additional NIPs**: Implements NIP-01, NIP-19, NIP-39, NIP-57
+
+### Platform Architecture
+- **Content Management**:
+  - Draft system with preview capabilities
+  - Parameterized replaceable events
+  - Multi-format support (Markdown, Video, Mixed Media)
+  - Course builder with drag-and-drop ordering
+- **User Management**:
+  - Profile synchronization with Nostr
+  - Activity tracking and progress monitoring
+  - Custom relay configuration
+  - Wallet connection management
+- **Admin Features**:
+  - Protected admin routes based on pubkey configuration
+  - Content creation and management interface
+  - Draft/publish workflow
+  - Course assembly tools
 
 ## Key Features
 
@@ -55,13 +88,25 @@ PlebDevs is an open-source platform that combines educational content, community
 - [ZapThreads](https://github.com/franzaps/zapthreads)
 - [Zapper](https://github.com/nostrband/zapper)
 
+## Deployment Options
+
+### Self-Hosting Requirements
+- Docker environment
+- PostgreSQL database
+- Redis instance
+- Lightning node (optional)
+- Nostr relay (optional for improved performance)
+
+### Configuration (still in development)
+- Customizable platform branding
+- Configurable subscription tiers
+- Custom relay preferences
+- Admin pubkey management
+- Content pricing controls
+
 ## Contributing
 
 Contributions are welcome! Whether you're fixing bugs, improving documentation, or proposing new features, please feel free to open an issue or submit a PR.
-
-## Running Locally
-
-Coming soon?
 
 ## License
 
