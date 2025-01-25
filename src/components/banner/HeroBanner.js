@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import Image from 'next/image';
-import { signIn, useSession } from 'next-auth/react';
+import { getSession, signIn, useSession } from 'next-auth/react';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { useRouter } from 'next/router';
 import { Avatar } from 'primereact/avatar';
@@ -82,10 +82,26 @@ const HeroBanner = () => {
             }
         } else {
             // Proceed with anonymous sign in
-            signIn('anonymous', { 
+            const result = await signIn('anonymous', { 
                 callbackUrl: starterCourseUrl,
-                redirect: true,
+                redirect: false,
             });
+
+            if (result?.ok) {
+                // Wait a moment for the session to be updated
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Fetch the session
+                const session = await getSession();
+                
+                if (session?.user?.pubkey && session?.user?.privkey) {
+                    localStorage.setItem('anonymousPubkey', session.user.pubkey);
+                    localStorage.setItem('anonymousPrivkey', session.user.privkey);
+                    router.push('/');
+                } else {
+                    console.error("Session data incomplete:", session);
+                }
+            }
         }
     };
 
