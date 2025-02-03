@@ -155,7 +155,7 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
                     alt="course image"
                     src={returnImageProxy(processedEvent.image)}
                     fill
-                    className="object-cover"
+                    className="object-cover rounded-b-lg"
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-20"></div>
             </div>

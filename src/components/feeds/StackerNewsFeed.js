@@ -54,7 +54,7 @@ const StackerNewsFeed = ({ searchQuery }) => {
                                 content: item.title,
                                 timestamp: item.createdAt,
                                 channel: "~devs",
-                                additionalContent: `Comments: ${item.comments.length} | Sats: ${item.sats}`
+                                additionalContent: `Sats: ${item.sats}`
                             }}
                             searchQuery={searchQuery}
                             windowWidth={windowWidth}

@@ -18,15 +18,6 @@ export default async function handler(req, res) {
                 name
               }
               sats
-              comments {
-                id
-                text
-                createdAt
-                user {
-                  name
-                }
-                sats
-              }
             }
           }
         }

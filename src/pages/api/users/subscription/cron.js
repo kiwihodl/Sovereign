@@ -6,10 +6,6 @@ const lnAddress = process.env.LIGHTNING_ADDRESS;
 const amount = 50000; // Set the subscription amount in satoshis
 
 export default async function handler(req, res) {
-    // if (req.headers.authorization !== process.env.CRON_SECRET) {
-    //     return res.status(401).json({ error: 'Unauthorized' });
-    // }
-
     if (req.method === 'GET') {
         try {
             const expiredSubscriptions = await findExpiredSubscriptions();

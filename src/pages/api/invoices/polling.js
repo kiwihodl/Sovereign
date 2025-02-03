@@ -5,17 +5,8 @@ import { SimplePool } from 'nostr-tools/pool';
 import appConfig from '@/config/appConfig';
 
 const ZAP_PRIVKEY = process.env.ZAP_PRIVKEY;
-const PLEBDEVS_API_KEY = process.env.PLEBDEVS_API_KEY;
 
-// todo use cron secret????
 export default async function handler(req, res) {
-    // Verify API key
-    // const apiKey = req.headers['authorization'];
-    // if (!apiKey || apiKey !== PLEBDEVS_API_KEY) {
-    //     res.status(401).json({ error: 'Unauthorized' });
-    //     return;
-    // }
-
     try {
         // Add execution time limit protection
         const startTime = Date.now();
