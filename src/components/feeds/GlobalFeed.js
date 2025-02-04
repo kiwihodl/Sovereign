@@ -137,7 +137,7 @@ const GlobalFeed = ({searchQuery}) => {
                         platformLink={item.type === 'discord' ? `https://discord.com/channels/${item.channelId}/${item.id}` :
                                       item.type === 'stackernews' ? `https://stacker.news/items/${item.id}` :
                                       `https://nostr.band/${nip19.noteEncode(item.id)}`}
-                        additionalContent={item.type === 'stackernews' ? `Comments: ${item.comments.length} | Sats: ${item.sats}` : null}
+                        additionalContent={item.type === 'stackernews' ? `Sats: ${item.sats}` : null}
                     />
                 ))
             ) : (
