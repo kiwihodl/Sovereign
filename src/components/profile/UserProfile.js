@@ -7,6 +7,7 @@ import ActivityContributionChart from "@/components/charts/ActivityContributionC
 import useCheckCourseProgress from "@/hooks/tracking/useCheckCourseProgress";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import UserProgress from "@/components/profile/progress/UserProgress";
+import UserAccountLinking from "@/components/profile/UserAccountLinking";
 import UserProgressTable from '@/components/profile/DataTables/UserProgressTable';
 import UserPurchaseTable from '@/components/profile/DataTables/UserPurchaseTable';
 
@@ -40,6 +41,7 @@ const UserProfile = () => {
                 <div className="w-full flex flex-row max-lap:flex-col">
                     <div className="w-[22%] h-full max-lap:w-full">
                         {user && <UserProfileCard user={user} />}
+                        {user && <UserAccountLinking session={session} />}
                     </div>
 
                     <div className="w-[78%] flex flex-col justify-center mx-auto max-lap:w-full">
