@@ -274,6 +274,7 @@ export const authOptions = {
                     username: fullUser.username,
                     avatar: fullUser.avatar,
                     name: fullUser.name,
+                    email: fullUser.email,
                     userCourses: fullUser.userCourses,
                     userLessons: fullUser.userLessons,
                     purchased: fullUser.purchased,

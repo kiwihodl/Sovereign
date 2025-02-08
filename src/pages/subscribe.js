@@ -225,10 +225,6 @@ const Subscribe = () => {
                                 <Image src={NostrIcon} alt="Nostr" width={25} height={25} className='mr-2' />
                                 <span>Claim your own personal plebdevs.com Nostr NIP-05 identity</span>
                             </div>
-                            <div className="flex items-center">
-                                <i className="pi pi-star text-2xl text-primary mr-2 text-yellow-500"></i>
-                                <span>I WILL MAKE SURE YOU WIN HARD AND LEVEL UP AS A DEV!</span>
-                            </div>
                         </div>
                         <SubscriptionPaymentButtons
                             onSuccess={handleSubscriptionSuccess}

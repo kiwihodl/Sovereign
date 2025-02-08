@@ -5,9 +5,10 @@ import { useToast } from '@/hooks/useToast';
 import axios from 'axios';
 import { Card } from 'primereact/card';
 import useWindowWidth from '@/hooks/useWindowWidth';
-import { Message } from "primereact/message";
+import SubscribeModal from '@/components/profile/subscription/SubscribeModal';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import SubscriptionPaymentButtons from '@/components/bitcoinConnect/SubscriptionPaymentButton';
+import UserProfileCard from '@/components/profile/UserProfileCard';
 import Image from 'next/image';
 import NostrIcon from '../../../../public/images/nostr.png';
 import GenericButton from '@/components/buttons/GenericButton';
@@ -28,6 +29,7 @@ const UserSubscription = () => {
     const [subscribed, setSubscribed] = useState(false);
     const [subscribedUntil, setSubscribedUntil] = useState(null);
     const [subscriptionExpiredAt, setSubscriptionExpiredAt] = useState(null);
+    const [subscribeModalVisible, setSubscribeModalVisible] = useState(false);
     const [calendlyVisible, setCalendlyVisible] = useState(false);
     const [lightningAddressVisible, setLightningAddressVisible] = useState(false);
     const [nip05Visible, setNip05Visible] = useState(false);
@@ -101,39 +103,28 @@ const UserSubscription = () => {
             <div className="w-full flex flex-row max-lap:flex-col">
                 {/* Left Column - 22% */}
                 <div className="w-[21%] h-full max-lap:w-full">
-                    <div className="p-4 bg-gray-800 rounded-lg max-lap:mb-4">
-                        {/* Subscription Status Messages */}
-                        {subscribed && !user?.role?.nwc && (
-                            <div className="flex flex-col">
-                                <Message className="w-fit" severity="success" text="Subscribed!" />
-                                <p className="mt-4">Thank you for your support 🎉</p>
-                                <p className="text-sm text-gray-400">Pay-as-you-go subscription requires manual renewal on {subscribedUntil.toLocaleDateString()}</p>
-                            </div>
-                        )}
-                        {subscribed && user?.role?.nwc && (
-                            <div className="flex flex-col">
-                                <Message className="w-fit" severity="success" text="Subscribed!" />
-                                <p className="mt-4">Thank you for your support 🎉</p>
-                                <p className="text-sm text-gray-400">Recurring subscription will AUTO renew on {subscribedUntil.toLocaleDateString()}</p>
-                            </div>
-                        )}
-                        {(!subscribed && !subscriptionExpiredAt) && (
-                            <div className="flex flex-col">
-                                <Message className="w-fit" severity="info" text="You currently have no active subscription" />
-                            </div>
-                        )}
-                        {subscriptionExpiredAt && (
-                            <div className="flex flex-col">
-                                <Message className="w-fit" severity="warn" text={`Your subscription expired on ${subscriptionExpiredAt.toLocaleDateString()}`} />
-                            </div>
-                        )}
-                    </div>
+                    {user && (
+                        <>
+                            <UserProfileCard user={user} />
+                            <SubscribeModal
+                                visible={subscribeModalVisible}
+                                onHide={() => setSubscribeModalVisible(false)}
+                            />
+                        </>
+                    )}
                 </div>
 
                 {/* Right Column - 78% */}
                 <div className="w-[78%] flex flex-col justify-center mx-auto max-lap:w-full">
                     {!subscribed && (
-                        <Card title="Subscribe to PlebDevs" className="mb-4">
+                        <Card 
+                            title="Subscribe to PlebDevs" 
+                            className="mb-2 h-[330px] max-lap:h-auto" 
+                            pt={{
+                                body: { className: 'py-2' },
+                                content: { className: 'pt-0' }
+                            }}
+                        >
                             {isProcessing ? (
                                 <div className="w-full flex flex-col mx-auto justify-center items-center mt-4">
                                     <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
@@ -141,11 +132,10 @@ const UserSubscription = () => {
                                 </div>
                             ) : (
                                 <div className="flex flex-col">
-                                    <div className="mb-4">
-                                        <h2 className="text-2xl font-bold text-primary">Unlock Premium Benefits</h2>
+                                    <div className="mb-2">
                                         <p className="text-gray-400">Subscribe now and elevate your development journey!</p>
                                     </div>
-                                    <div className="flex flex-col gap-4 mb-4">
+                                    <div className="flex flex-col gap-4 mb-2">
                                         <div className="flex items-center">
                                             <i className="pi pi-book text-2xl text-primary mr-2 text-blue-400"></i>
                                             <span>Access ALL current and future PlebDevs content</span>
@@ -162,10 +152,6 @@ const UserSubscription = () => {
                                             <Image src={NostrIcon} alt="Nostr" width={25} height={25} className='mr-2' />
                                             <span>Claim your own personal plebdevs.com Nostr NIP-05 identity</span>
                                         </div>
-                                        <div className="flex items-center">
-                                        <i className="pi pi-star text-2xl text-primary mr-2 text-yellow-500"></i>
-                                        <span>I WILL MAKE SURE YOU WIN HARD AND LEVEL UP AS A DEV!</span>
-                                    </div>
                                     </div>
                                     <SubscriptionPaymentButtons
                                         onSuccess={handleSubscriptionSuccess}
