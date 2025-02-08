@@ -67,7 +67,7 @@ const UserProfileCard = ({ user }) => {
                 src={returnImageProxy(user.avatar, user?.pubkey || "")}
                 width={100}
                 height={100}
-                className="rounded-full m-2 mt-0"
+                className="rounded-full m-2 mt-0 object-cover"
             />
             <h3 className="text-center">
                 {user.username || user?.name || user?.email || "Anon"}
@@ -153,7 +153,7 @@ const UserProfileCard = ({ user }) => {
                     src={returnImageProxy(user.avatar, user?.pubkey || "")}
                     width={100}
                     height={100}
-                    className="rounded-full my-4"
+                    className="rounded-full my-4 object-cover max-w-[100px] max-h-[100px]"
                 />
                 <div className="flex flex-col gap-2 pt-4 w-fit relative">
                     <div className="absolute top-[-1px] right-[-18px]">

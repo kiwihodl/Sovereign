@@ -250,7 +250,12 @@ const CombinedContributionChart = ({ session }) => {
             </div>
             <div className={`${getScaleClass(windowWidth)}`}>
                 <div className="min-w-[910px] p-4">
-                    {(isLoading || isFetching) && <h4 className="text-base font-semibold text-gray-200 mb-3">Loading contribution data... ({totalContributions} total contributions / activities fetched)</h4>}
+                    {(isLoading || isFetching) && (
+                        <h4 className="text-base font-semibold text-gray-200 mb-3 flex items-center gap-2">
+                            Loading contribution data... ({totalContributions} total contributions / activities fetched)
+                            <i className="pi pi-spinner animate-spin" />
+                        </h4>
+                    )}
                     {!isLoading && !isFetching &&
                         <div className="flex justify-between items-center mb-3">
                             <h4 className="text-base font-semibold text-gray-200">
