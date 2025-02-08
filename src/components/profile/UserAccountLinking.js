@@ -11,7 +11,10 @@ import { useSession } from 'next-auth/react';
 import MoreInfo from '@/components/MoreInfo';
 
 const LinkAccountsCard = ({ session }) => {
-    const isNostrLinked = session?.user?.pubkey && !session?.user?.privkey;
+    // nostr is linked if we have the pubkey but not the privkey in the session OR in local storage 
+    const isNostrLinked = session?.user?.pubkey && 
+        (!session?.user?.privkey || session?.user?.privkey === '') && 
+        !localStorage.getItem('anonymousPrivkey');
     const isGithubLinked = session?.account?.provider === 'github';
     const isEmailLinked = Boolean(session?.user?.email);
     const windowWidth = useWindowWidth();
