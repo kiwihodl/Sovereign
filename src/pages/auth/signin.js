@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react"
 import { useNDKContext } from "@/context/NDKContext";
 import GenericButton from "@/components/buttons/GenericButton";
+import Image from "next/image";
 import { InputText } from 'primereact/inputtext';
 
 export default function SignIn() {
@@ -101,7 +102,7 @@ export default function SignIn() {
       <h1 className="text-center mb-8">Sign In</h1>
       <GenericButton
         label={"login with nostr"}
-        icon="pi pi-user"
+        icon={<Image src="/images/nostr-icon-white.png" width={20} height={20} alt="Nostr" className="mr-2" />}
         className="text-[#f8f8ff] w-[250px] my-4 mx-auto"
         rounded
         onClick={handleNostrSignIn}

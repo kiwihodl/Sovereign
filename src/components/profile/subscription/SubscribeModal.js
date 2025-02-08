@@ -148,7 +148,7 @@ const SubscribeModal = ({ user }) => {
 
     return (
         <>
-            <Card title={subscriptionCardTitle} className="w-full m-4 mx-auto border border-gray-700">
+            <Card title={subscriptionCardTitle} className="w-full m-4 mt-2 mx-auto border border-gray-700">
                 {subscribed && !user?.role?.nwc && (
                     <div className="flex flex-col">
                         <Message className="w-fit" severity="success" text="Subscribed!" />
@@ -218,10 +218,6 @@ const SubscribeModal = ({ user }) => {
                                 <Image src={NostrIcon} alt="Nostr" width={26} height={26} className='mr-2' />
                                 <span>Claim your own personal plebdevs.com Nostr NIP-05 identity</span>
                             </div>
-                        </div>
-                        <div className="text-center mb-4 flex flex-row justify-center">
-                            <Badge value="BONUS" severity="success" className="mr-2 text-[#f8f8ff] font-bold"></Badge>
-                            <span className="text-center font-bold">I WILL MAKE SURE YOU WIN HARD AND LEVEL UP AS A DEV!</span>
                         </div>
                         <SubscriptionPaymentButtons
                             onSuccess={handleSubscriptionSuccess}

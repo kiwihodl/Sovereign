@@ -156,7 +156,7 @@ const UserProfileCard = ({ user }) => {
                     className="rounded-full my-4"
                 />
                 <div className="flex flex-col gap-2 pt-4 w-fit relative">
-                    <div className="absolute top-[-1px] right-[-24px]">
+                    <div className="absolute top-[-1px] right-[-18px]">
                         <i
                             className="pi pi-ellipsis-h text-2xl cursor-pointer"
                             onClick={(e) => menu.current.toggle(e)}

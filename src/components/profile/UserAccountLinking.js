@@ -8,6 +8,7 @@ import { useNDKContext } from "@/context/NDKContext";
 import { useToast } from '@/hooks/useToast';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
+import MoreInfo from '@/components/MoreInfo';
 
 const LinkAccountsCard = ({ session }) => {
     const isNostrLinked = session?.user?.pubkey && !session?.user?.privkey;
@@ -120,32 +121,29 @@ const LinkAccountsCard = ({ session }) => {
     };
 
     const MobileCard = () => (
-        <div className="bg-gray-800 rounded-xl p-6 flex flex-col items-start w-full h-[420px] border border-gray-700">
-            <h2 className="text-2xl font-bold mb-6 text-white">Link Accounts</h2>
+        <div className="bg-gray-800 rounded-xl p-6 flex flex-col items-start w-full border border-gray-700 my-2">
+            <div className="flex flex-row justify-between items-center w-full mb-6">
+                <h2 className="text-2xl font-bold text-white">Link Accounts</h2>
+                <MoreInfo title="Link Accounts" description="Link your accounts to your profile. You can link your Github, Nostr, and Email accounts to your profile to ensure you can access your account from any device." />
+            </div>
             
-            <div className="flex flex-col gap-4 w-full">
+            <div className="flex flex-col gap-4">
+                <GenericButton
+                    label={isNostrLinked ? "Nostr Linked" : "Link Nostr"}
+                    icon={<Image src="/images/nostr-icon-white.png" width={20} height={20} alt="Nostr" className="mr-2" />}
+                    onClick={handleNostrLink}
+                    disabled={isNostrLinked}
+                    className={`text-[#f8f8ff] w-[250px] mx-auto flex items-center justify-center`}
+                    rounded
+                />
+
                 <GenericButton
                     label={isGithubLinked ? "Github Linked" : "Link Github"}
                     icon="pi pi-github"
                     onClick={handleGithubLink}
                     disabled={isGithubLinked}
-                    className={`w-full min-w-[240px] border-none ${
-                        isGithubLinked 
-                            ? "bg-gray-600 opacity-70 cursor-not-allowed" 
-                            : "bg-[#24292e] hover:bg-[#2f363d]"
-                    }`}
-                />
-
-                <GenericButton
-                    label={isNostrLinked ? "Nostr Linked" : "Link Nostr"}
-                    icon={<Image src="/images/nostr.png" width={20} height={20} alt="Nostr" className="mr-2" />}
-                    onClick={handleNostrLink}
-                    disabled={isNostrLinked}
-                    className={`w-full min-w-[240px] border-none flex items-center justify-center ${
-                        isNostrLinked 
-                            ? "bg-gray-600 opacity-70 cursor-not-allowed" 
-                            : "bg-[#6B4E71] hover:bg-[#6B4E71]/80"
-                    }`}
+                    className={`text-[#f8f8ff] w-[250px] mx-auto`}
+                    rounded
                 />
 
                 <GenericButton
@@ -153,11 +151,8 @@ const LinkAccountsCard = ({ session }) => {
                     icon="pi pi-envelope"
                     onClick={handleEmailLink}
                     disabled={isEmailLinked}
-                    className={`w-full min-w-[240px] border-none ${
-                        isEmailLinked 
-                            ? "bg-gray-600 opacity-70 cursor-not-allowed" 
-                            : "bg-[#4A5568] hover:bg-[#4A5568]/80"
-                    }`}
+                    className={`text-[#f8f8ff] w-[250px] mx-auto`}
+                    rounded
                 />
             </div>
         </div>
@@ -165,31 +160,27 @@ const LinkAccountsCard = ({ session }) => {
 
     const DesktopCard = () => (
         <div className="bg-gray-800 rounded-xl p-6 flex flex-col items-start w-full max-w-[400px] mt-2 border border-gray-700">
-            <h2 className="text-2xl font-bold mb-6 text-white">Link Accounts</h2>
-            
+            <div className="flex flex-row justify-between items-center w-full mb-6">
+                <h2 className="text-2xl font-bold text-white">Link Accounts</h2>
+                <MoreInfo title="Link Accounts" description="Link your accounts to your profile. You can link your Github, Nostr, and Email accounts to your profile to ensure you can access your account from any device." />
+            </div>
             <div className="flex flex-col gap-4 w-full">
                 <GenericButton
                     label={isGithubLinked ? "Github Linked" : "Link Github"}
                     icon="pi pi-github"
                     onClick={handleGithubLink}
                     disabled={isGithubLinked}
-                    className={`w-full border-none ${
-                        isGithubLinked 
-                            ? "bg-gray-600 opacity-70 cursor-not-allowed" 
-                            : "bg-[#24292e] hover:bg-[#2f363d]"
-                    }`}
+                    className={`text-[#f8f8ff] w-[250px] mx-auto`}
+                    rounded
                 />
 
                 <GenericButton
                     label={isNostrLinked ? "Nostr Linked" : "Link Nostr"}
-                    icon={<Image src="/images/nostr.png" width={20} height={20} alt="Nostr" className="mr-2" />}
+                    icon={<Image src="/images/nostr-icon-white.png" width={20} height={20} alt="Nostr" className="mr-2" />}
                     onClick={handleNostrLink}
                     disabled={isNostrLinked}
-                    className={`w-full border-none flex items-center justify-center ${
-                        isNostrLinked 
-                            ? "bg-gray-600 opacity-70 cursor-not-allowed" 
-                            : "bg-[#6B4E71] hover:bg-[#6B4E71]/80"
-                    }`}
+                    className={`text-[#f8f8ff] w-[250px] mx-auto flex items-center justify-center`}
+                    rounded
                 />
 
                 <GenericButton
@@ -197,11 +188,8 @@ const LinkAccountsCard = ({ session }) => {
                     icon="pi pi-envelope"
                     onClick={handleEmailLink}
                     disabled={isEmailLinked}
-                    className={`w-full border-none ${
-                        isEmailLinked 
-                            ? "bg-gray-600 opacity-70 cursor-not-allowed" 
-                            : "bg-[#4A5568] hover:bg-[#4A5568]/80"
-                    }`}
+                    className={`text-[#f8f8ff] w-[250px] mx-auto`}
+                    rounded
                 />
             </div>
         </div>
