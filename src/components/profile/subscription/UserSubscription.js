@@ -119,7 +119,7 @@ const UserSubscription = () => {
                     {!subscribed && (
                         <Card 
                             title="Subscribe to PlebDevs" 
-                            className="mb-2 h-[330px] max-lap:h-auto" 
+                            className="mb-2 max-lap:h-auto" 
                             pt={{
                                 body: { className: 'py-2' },
                                 content: { className: 'pt-0' }

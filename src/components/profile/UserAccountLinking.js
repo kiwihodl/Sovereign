@@ -127,7 +127,11 @@ const LinkAccountsCard = ({ session }) => {
         <div className="bg-gray-800 rounded-xl p-6 flex flex-col items-start w-full border border-gray-700 my-2">
             <div className="flex flex-row justify-between items-center w-full mb-6">
                 <h2 className="text-2xl font-bold text-white">Link Accounts</h2>
-                <MoreInfo title="Link Accounts" description="Link your accounts to your profile. You can link your Github, Nostr, and Email accounts to your profile to ensure you can access your account from any device." />
+                <MoreInfo 
+                    tooltip="Learn more about account linking"
+                    modalTitle="Link Accounts"
+                    modalBody="Link your accounts to your profile. You can link your Github, Nostr, and Email accounts to your profile to ensure you can access your account from any device."
+                />
             </div>
             
             <div className="flex flex-col gap-4">
@@ -165,7 +169,11 @@ const LinkAccountsCard = ({ session }) => {
         <div className="bg-gray-800 rounded-xl p-6 flex flex-col items-start w-full max-w-[400px] mt-2 border border-gray-700">
             <div className="flex flex-row justify-between items-center w-full mb-6">
                 <h2 className="text-2xl font-bold text-white">Link Accounts</h2>
-                <MoreInfo title="Link Accounts" description="Link your accounts to your profile. You can link your Github, Nostr, and Email accounts to your profile to ensure you can access your account from any device." />
+                <MoreInfo 
+                    tooltip="Learn more about account linking"
+                    modalTitle="Link Accounts"
+                    modalBody="Link your accounts to your profile. You can link your Github, Nostr, and Email accounts to your profile to ensure you can access your account from any device."
+                />
             </div>
             <div className="flex flex-col gap-4 w-full">
                 <GenericButton
