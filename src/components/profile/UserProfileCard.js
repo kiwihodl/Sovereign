@@ -67,7 +67,7 @@ const UserProfileCard = ({ user }) => {
                 src={returnImageProxy(user.avatar, user?.pubkey || "")}
                 width={100}
                 height={100}
-                className="rounded-full m-2 mt-0 object-cover"
+                className="rounded-full m-2 mt-0 object-cover max-w-[100px] max-h-[100px]"
             />
             <h3 className="text-center">
                 {user.username || user?.name || user?.email || "Anon"}
@@ -108,9 +108,9 @@ const UserProfileCard = ({ user }) => {
                                 <span className="font-bold">Lightning Address:</span> None
                             </h4>
                             <MoreInfo 
-                                tooltip="PlebDevs Lightning Address Info"
-                                modalTitle="PlebDevs Lightning Address"
-                                modalBody="This is a placeholder for your PlebDevs issued Lightning Address (claimable through subscription). A lightning address is a way to receive Bitcoin payments through the Lightning Network. It works similar to an email address but for receiving Bitcoin payments."
+                                tooltip="PlebDevs Custom Lightning Address"
+                                modalTitle="PlebDevs Custom Lightning Address"
+                                modalBody="This is a placeholder for your PlebDevs issued Lightning Address (claimable through subscription)"
                                 className="text-xs"
                             />
                         </div>
@@ -125,9 +125,9 @@ const UserProfileCard = ({ user }) => {
                                 <span className="font-bold">NIP-05:</span> None
                             </h4>
                             <MoreInfo 
-                                tooltip="NIP-05 Info"
-                                modalTitle="What is NIP-05?"
-                                modalBody="This is a placeholder for your NIP-05 (claimable through subscription). NIP-05 is a a vanity name and verification standard in Nostr that links your identity to a domain name, similar to how Twitter verifies accounts. It helps prove ownership of your identity."
+                                tooltip="PlebDevs Custom NIP-05"
+                                modalTitle="PlebDevs Custom NIP-05"
+                                modalBody="This is a placeholder for your PlebDevs issued NIP-05 (claimable through subscription)"
                                 className="text-xs"
                             />
                         </div>
