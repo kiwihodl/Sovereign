@@ -148,7 +148,7 @@ const SubscribeModal = ({ user }) => {
 
     return (
         <>
-            <Card title={subscriptionCardTitle} className="w-full m-4 mt-2 mx-auto border border-gray-700">
+            <Card title={subscriptionCardTitle} className="w-full m-2 mx-auto border border-gray-700">
                 {subscribed && !user?.role?.nwc && (
                     <div className="flex flex-col">
                         <Message className="w-fit" severity="success" text="Subscribed!" />

@@ -119,7 +119,7 @@ const UserSubscription = () => {
                     {!subscribed && (
                         <Card 
                             title="Subscribe to PlebDevs" 
-                            className="mb-2 max-lap:h-auto" 
+                            className="mb-2 max-lap:h-auto border border-gray-700" 
                             pt={{
                                 body: { className: 'py-2' },
                                 content: { className: 'pt-0' }
@@ -192,7 +192,7 @@ const UserSubscription = () => {
                         </>
                     )}
 
-                    <Card title="Frequently Asked Questions" className="mb-6">
+                    <Card title="Frequently Asked Questions" className="mb-6 border border-gray-700">
                         <div className="flex flex-col gap-4">
                             <div>
                                 <h3 className="text-lg font-semibold">How does the subscription work?</h3>
