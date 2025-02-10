@@ -109,6 +109,7 @@ const UserSubscription = () => {
                             <SubscribeModal
                                 visible={subscribeModalVisible}
                                 onHide={() => setSubscribeModalVisible(false)}
+                                user={user}
                             />
                         </>
                     )}
@@ -167,7 +168,7 @@ const UserSubscription = () => {
                     
                     {subscribed && (
                         <>
-                            <Card title="Subscription Benefits" className="mb-4">
+                            <Card title="Subscription Benefits" className="h-[330px] border border-gray-700 rounded-lg">
                                 {isProcessing ? (
                                     <div className="w-full flex flex-col mx-auto justify-center items-center mt-4">
                                         <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
@@ -183,7 +184,7 @@ const UserSubscription = () => {
                                     </div>
                                 )}
                             </Card>
-                            <Card title="Manage Subscription" className="mb-4">
+                            <Card title="Manage Subscription" className="mt-2 border border-gray-700 rounded-lg">
                                 <div className='flex flex-col gap-4'>
                                         <GenericButton outlined className="w-fit" label="Renew Subscription" icon="pi pi-sync" onClick={() => setRenewSubscriptionVisible(true)} />
                                         <GenericButton severity="danger" outlined className="w-fit" label="Cancel Subscription" icon="pi pi-trash" onClick={() => setCancelSubscriptionVisible(true)} />
@@ -192,7 +193,7 @@ const UserSubscription = () => {
                         </>
                     )}
 
-                    <Card title="Frequently Asked Questions" className="mb-6 border border-gray-700">
+                    <Card title="Frequently Asked Questions" className="mt-2 border border-gray-700 rounded-lg">
                         <div className="flex flex-col gap-4">
                             <div>
                                 <h3 className="text-lg font-semibold">How does the subscription work?</h3>
