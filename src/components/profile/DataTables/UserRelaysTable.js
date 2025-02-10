@@ -122,7 +122,7 @@ const UserRelaysTable = ({ ndk, userRelays, setUserRelays, reInitializeNDK }) =>
     };
 
     return (
-        <div className="bg-gray-800 rounded-lg border border-gray-700">
+        <div className="bg-gray-800 rounded-lg border border-gray-700 w-full">
             <DataTable
                 value={userRelays}
                 className="border-none"

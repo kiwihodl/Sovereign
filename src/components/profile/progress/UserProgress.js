@@ -189,7 +189,7 @@ const UserProgress = () => {
     };
 
     return (
-        <div className="bg-gray-800 rounded-lg p-4 pb-0 m-2 w-full border border-gray-700 shadow-md max-lap:mx-0">
+        <div className="bg-gray-800 rounded-lg p-4 pb-0 m-2 mb-0 w-full border border-gray-700 shadow-md max-lap:mx-0">
             <div className="flex flex-row justify-between items-center">
                 <h1 className="text-3xl font-bold text-white mb-2">Dev Journey</h1>
                 <MoreInfo 

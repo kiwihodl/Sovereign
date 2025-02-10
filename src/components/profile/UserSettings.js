@@ -30,7 +30,7 @@ const UserSettings = () => {
                         {user && <UserAccountLinking session={session} />}
                     </div>
 
-                    <div className="w-[78%] flex flex-col justify-center mx-auto max-lap:w-full ml-2 max-lap:ml-0">
+                    <div className="w-[78%] flex flex-col justify-center mx-2 max-lap:mx-0 max-lap:w-full">
                         <UserRelaysTable 
                             ndk={ndk}
                             userRelays={userRelays}

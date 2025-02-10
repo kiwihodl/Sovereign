@@ -164,7 +164,7 @@ const UserProgressTable = ({ session, ndk }) => {
             emptyMessage="No Courses or Milestones completed"
             value={prepareProgressData()}
             header={header}
-            className="m-2 max-lap:m-0"
+            className="mt-2 mx-2 max-lap:mx-0"
             style={{ width: "100%", borderRadius: "8px", border: "1px solid #333", boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)" }}
             pt={{
                 wrapper: {

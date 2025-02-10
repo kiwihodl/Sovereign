@@ -115,7 +115,7 @@ const UserSubscription = () => {
                 </div>
 
                 {/* Right Column - 78% */}
-                <div className="w-[78%] flex flex-col justify-center mx-auto max-lap:w-full">
+                <div className="w-[78%] flex flex-col justify-center mx-2 max-lap:mx-0 max-lap:w-full">
                     {!subscribed && (
                         <Card 
                             title="Subscribe to PlebDevs" 
@@ -135,7 +135,7 @@ const UserSubscription = () => {
                                     <div className="mb-2">
                                         <p className="text-gray-400">Subscribe now and elevate your development journey!</p>
                                     </div>
-                                    <div className="flex flex-col gap-4 mb-2">
+                                    <div className="flex flex-col gap-4 mb-1">
                                         <div className="flex items-center">
                                             <i className="pi pi-book text-2xl text-primary mr-2 text-blue-400"></i>
                                             <span>Access ALL current and future PlebDevs content</span>
