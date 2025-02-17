@@ -50,8 +50,8 @@ export const getUserById = async (id) => {
           lesson: true,
         },
       },
-      nip05: true,
-      lightningAddress: true,
+      platformNip05: true,
+      platformLightningAddress: true,
       userBadges: {
         include: {
           badge: true
@@ -82,8 +82,8 @@ export const getUserByPubkey = async (pubkey) => {
           lesson: true,
         },
       },
-      nip05: true,
-      lightningAddress: true,
+      platformNip05: true,
+      platformLightningAddress: true,
       userBadges: {
         include: {
           badge: true
@@ -278,8 +278,8 @@ export const getUserByEmail = async (email) => {
                         lesson: true,
                     },
                 },
-                nip05: true,
-                lightningAddress: true,
+                platformNip05: true,
+                platformLightningAddress: true,
                 userBadges: {
                     include: {
                         badge: true

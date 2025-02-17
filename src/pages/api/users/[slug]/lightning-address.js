@@ -30,9 +30,23 @@ export default async function handler(req, res) {
     case 'POST':
       try {
         const { name, description, maxSendable, minSendable, invoiceMacaroon, lndCert, lndHost, lndPort } = req.body;
-        const lightningAddress = await createLightningAddress(userId, name, description, maxSendable, minSendable, invoiceMacaroon, lndCert, lndHost, lndPort);
+        const lightningAddress = await createLightningAddress(
+          userId, 
+          name, 
+          description, 
+          BigInt(maxSendable), 
+          BigInt(minSendable), 
+          invoiceMacaroon, 
+          lndCert, 
+          lndHost, 
+          lndPort
+        );
 
-        res.status(201).json(lightningAddress);
+        res.status(201).json({
+          ...lightningAddress,
+          maxSendable: lightningAddress.maxSendable.toString(),
+          minSendable: lightningAddress.minSendable.toString()
+        });
       } catch (error) {
         console.error('Error creating Lightning Address:', error);
         res.status(500).json({ error: 'Error creating Lightning Address', errorMessage: error.message });

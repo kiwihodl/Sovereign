@@ -13,15 +13,12 @@ generator client {
     provider = "prisma-client-js"
 }
 
-// todo name and username?
 model User {
     id               String            @id @default(uuid())
     pubkey           String?           @unique
     privkey          String?
-    name             String?
     email            String?           @unique
     emailVerified    DateTime?
-    image            String?
     username         String?           @unique
     avatar           String?
     purchased        Purchase[]
@@ -36,8 +33,10 @@ model User {
     updatedAt        DateTime          @updatedAt
     userLessons      UserLesson[]
     userCourses      UserCourse[]
-    nip05            Nip05?
-    lightningAddress LightningAddress?
+    nip05            String?
+    lud16            String?
+    platformNip05    PlatformNip05?
+    platformLightningAddress PlatformLightningAddress?
     userBadges       UserBadge[]
 }
 
@@ -226,7 +225,7 @@ model UserCourse {
     @@unique([userId, courseId])
 }
 
-model Nip05 {
+model PlatformNip05 {
     id        String   @id @default(uuid())
     userId    String   @unique
     user      User     @relation(fields: [userId], references: [id])
@@ -236,16 +235,15 @@ model Nip05 {
     updatedAt DateTime @updatedAt
 }
 
-model LightningAddress {
+model PlatformLightningAddress {
     id              String  @id @default(uuid())
     userId          String  @unique
     user            User    @relation(fields: [userId], references: [id])
     name            String
     allowsNostr     Boolean @default(true)
     description     String?
-    // todo: change to BigInt to support native millisats
-    maxSendable     Int  @default(10000000)
-    minSendable     Int  @default(1)
+    maxSendable     BigInt  @default(10000000000)
+    minSendable     BigInt  @default(1000)
     invoiceMacaroon String
     lndCert         String?
     lndHost         String

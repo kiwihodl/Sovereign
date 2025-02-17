@@ -101,12 +101,12 @@ const Subscribe = () => {
             command: () => setCalendlyVisible(true),
         },
         {
-            label: session?.user?.lightningAddress ? "Update PlebDevs Lightning Address" : "Claim PlebDevs Lightning Address",
+            label: session?.user?.platformLightningAddress ? "Update PlebDevs Lightning Address" : "Claim PlebDevs Lightning Address",
             icon: "pi pi-bolt",
             command: () => setLightningAddressVisible(true),
         },
         {
-            label: session?.user?.nip05 ? "Update PlebDevs Nostr NIP-05" : "Claim PlebDevs Nostr NIP-05",
+            label: session?.user?.platformNip05?.name ? "Update PlebDevs Nostr NIP-05" : "Claim PlebDevs Nostr NIP-05",
             icon: "pi pi-at",
             command: () => setNip05Visible(true),
         },
@@ -121,23 +121,6 @@ const Subscribe = () => {
             command: () => setCancelSubscriptionVisible(true),
         },
     ];
-
-    const subscriptionCardTitleAndButton = (
-        <div className="w-full flex flex-row justify-between items-center">
-            <span className="text-xl text-900 font-bold text-white">Plebdevs Subscription</span>
-            <i
-                className="pi pi-ellipsis-h text-2xlcursor-pointer hover:opacity-75"
-                onClick={(e) => menu.current.toggle(e)}
-            ></i>
-            <Menu model={menuItems} popup ref={menu} />
-        </div>
-    );
-
-    const subscriptionCardTitle = (
-        <div className="w-full flex flex-row justify-between items-center">
-            <span className="text-xl text-900 font-bold text-white">Plebdevs Subscription</span>
-        </div>
-    );
 
     return (
         <div className="p-4">
@@ -242,8 +225,8 @@ const Subscribe = () => {
                     <Card title="Subscription Benefits" className="mb-4">
                         <div className="flex flex-col gap-4">
                             <GenericButton severity="info" outlined className="w-fit text-start" label="Schedule 1:1" icon="pi pi-calendar" onClick={() => setCalendlyVisible(true)} />
-                            <GenericButton severity="help" outlined className="w-fit text-start" label={session?.user?.nip05 ? "Update Nostr NIP-05" : "Claim PlebDevs Nostr NIP-05"} icon="pi pi-at" onClick={() => setNip05Visible(true)} />
-                            <GenericButton severity="warning" outlined className="w-fit text-start" label={session?.user?.lightningAddress ? "Update Lightning Address" : "Claim PlebDevs Lightning Address"} icon={<i style={{ color: "orange" }} className="pi pi-bolt mr-2"></i>} onClick={() => setLightningAddressVisible(true)} />
+                            <GenericButton severity="help" outlined className="w-fit text-start" label={session?.user?.platformNip05?.name ? "Update Nostr NIP-05" : "Claim PlebDevs Nostr NIP-05"} icon="pi pi-at" onClick={() => setNip05Visible(true)} />
+                            <GenericButton severity="warning" outlined className="w-fit text-start" label={session?.user?.platformLightningAddress ? "Update Lightning Address" : "Claim PlebDevs Lightning Address"} icon={<i style={{ color: "orange" }} className="pi pi-bolt mr-2"></i>} onClick={() => setLightningAddressVisible(true)} />
                         </div>
                     </Card>
                     <Card title="Manage Subscription" className="mb-4">
@@ -296,7 +279,7 @@ const Subscribe = () => {
                 visible={calendlyVisible}
                 onHide={() => setCalendlyVisible(false)}
                 userId={session?.user?.id}
-                userName={session?.user?.name || user?.kind0?.username}
+                userName={session?.user?.username || user?.kind0?.username}
                 userEmail={session?.user?.email}
             />
             <CancelSubscription

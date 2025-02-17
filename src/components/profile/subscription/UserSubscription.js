@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/router';
 import { useToast } from '@/hooks/useToast';
 import axios from 'axios';
 import { Card } from 'primereact/card';
@@ -21,9 +20,7 @@ import RenewSubscription from '@/components/profile/subscription/RenewSubscripti
 const UserSubscription = () => {
     const { data: session, update } = useSession();
     const { showToast } = useToast();
-    const router = useRouter();
     const windowWidth = useWindowWidth();
-    const menu = useRef(null);
     const [user, setUser] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [subscribed, setSubscribed] = useState(false);
@@ -178,8 +175,8 @@ const UserSubscription = () => {
                                     <div className="flex flex-col">
                                         <div className="flex flex-col gap-4">
                                             <GenericButton severity="info" outlined className="w-fit text-start" label="Schedule 1:1" icon="pi pi-calendar" onClick={() => setCalendlyVisible(true)} />
-                                            <GenericButton severity="help" outlined className="w-fit text-start" label={user?.nip05 ? "Update Nostr NIP-05" : "Claim PlebDevs Nostr NIP-05"} icon="pi pi-at" onClick={() => setNip05Visible(true)} />
-                                            <GenericButton severity="warning" outlined className="w-fit text-start" label={user?.lightningAddress ? "Update Lightning Address" : "Claim PlebDevs Lightning Address"} icon={<i style={{ color: "orange" }} className="pi pi-bolt mr-2"></i>} onClick={() => setLightningAddressVisible(true)} />
+                                            <GenericButton severity="help" outlined className="w-fit text-start" label={user?.platformNip05?.name ? "Update Nostr NIP-05" : "Claim PlebDevs Nostr NIP-05"} icon="pi pi-at" onClick={() => setNip05Visible(true)} />
+                                            <GenericButton severity="warning" outlined className="w-fit text-start" label={user?.platformLightningAddress ? "Update Lightning Address" : "Claim PlebDevs Lightning Address"} icon={<i style={{ color: "orange" }} className="pi pi-bolt mr-2"></i>} onClick={() => setLightningAddressVisible(true)} />
                                         </div>
                                     </div>
                                 )}
@@ -225,7 +222,7 @@ const UserSubscription = () => {
                 visible={calendlyVisible}
                 onHide={() => setCalendlyVisible(false)}
                 userId={session?.user?.id}
-                userName={session?.user?.name || user?.kind0?.username}
+                userName={session?.user?.username || user?.kind0?.username}
                 userEmail={session?.user?.email}
             />
             <CancelSubscription

@@ -60,16 +60,21 @@ export default async function handler(req, res) {
                 descriptionHash = Buffer.from(hash, 'hex').toString('base64');
             }
 
-            // Convert amount from millisatoshis to satoshis
-            if (amount < (foundAddress.minSendable)) {
+            // Check amount against BigInt min/max values
+            if (amount < foundAddress.minSendable) {
                 res.status(400).json({ error: 'Amount too low' });
                 return;
-            } else if (amount > (foundAddress.maxSendable || Number.MAX_SAFE_INTEGER)) {
+            } else if (amount > foundAddress.maxSendable) {
                 res.status(400).json({ error: 'Amount too high' });
                 return;
             } else {
                 try {
-                    const response = await axios.post(`${BACKEND_URL}/api/lightning-address/lnd`, { amount: amount, description_hash: descriptionHash, name: slug, zap_request: queryParams?.nostr ? queryParams.nostr : null }, {
+                    const response = await axios.post(`${BACKEND_URL}/api/lightning-address/lnd`, { 
+                        amount: amount, 
+                        description_hash: descriptionHash, 
+                        name: slug, 
+                        zap_request: queryParams?.nostr ? queryParams.nostr : null 
+                    }, {
                         headers: {
                             'Authorization': PLEBDEVS_API_KEY
                         }

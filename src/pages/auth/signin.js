@@ -17,7 +17,7 @@ export default function SignIn() {
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault()
-    await signIn("email", { email, callbackUrl: '/' })
+    await signIn("email", { email, callbackUrl: '/profile' })
   }
 
   const handleNostrSignIn = async (e) => {
@@ -28,7 +28,7 @@ export default function SignIn() {
     try {
       const user = await ndk.signer.user()
       const pubkey = user?._pubkey
-      signIn("nostr", { pubkey })
+      signIn("nostr", { pubkey, callbackUrl: '/profile' })
     } catch (error) {
       console.error("Error signing Nostr event:", error)
     }
@@ -46,7 +46,7 @@ export default function SignIn() {
             pubkey: storedPubkey, 
             privkey: storedPrivkey,
             redirect: false,
-            callbackUrl: '/'
+            callbackUrl: '/profile'
         });
 
         if (result?.ok) {
@@ -59,7 +59,7 @@ export default function SignIn() {
             if (session?.user?.pubkey && session?.user?.privkey) {
                 localStorage.setItem('anonymousPubkey', session.user.pubkey);
                 localStorage.setItem('anonymousPrivkey', session.user.privkey);
-                router.push('/');
+                router.push('/profile');
             } else {
                 console.error("Session data incomplete:", session);
             }
@@ -77,11 +77,11 @@ export default function SignIn() {
       const result = await signIn("recovery", { 
         nsec,
         redirect: false,
-        callbackUrl: '/'
+        callbackUrl: '/profile'
       });
 
       if (result?.ok) {
-        router.push('/');
+        router.push('/profile');
       } else {
         console.error("Recovery login failed:", result?.error);
       }
@@ -93,7 +93,7 @@ export default function SignIn() {
   useEffect(() => {
     // Redirect if already signed in
     if (session?.user) {
-        router.push('/');
+        router.push('/profile');
     }
   }, [session, router]);
 

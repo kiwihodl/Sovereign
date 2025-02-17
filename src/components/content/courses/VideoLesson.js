@@ -189,7 +189,7 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
                             <p className='text-lg text-white'>
                                 Created by{' '}
                                 <a rel='noreferrer noopener' target='_blank' className='text-blue-300 hover:underline'>
-                                    {lesson.author?.username || lesson.author?.name || lesson.author?.pubkey}
+                                    {lesson.author?.username || lesson.author?.pubkey}
                                 </a>
                             </p>
                         </div>

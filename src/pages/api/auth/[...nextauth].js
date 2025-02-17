@@ -33,14 +33,19 @@ const syncNostrProfile = async (pubkey) => {
         let dbUser = await getUserByPubkey(pubkey);
 
         if (dbUser) {
-            // Update existing user if kind0 fields differ
-            if (fields.avatar !== dbUser.avatar || fields.username !== dbUser.username) {
+            // Update existing user if any of the kind0 fields differ
+            if (fields.avatar !== dbUser.avatar || 
+                fields.username !== dbUser.username ||
+                fields.lud16 !== dbUser.lud16 ||
+                fields.nip05 !== dbUser.nip05) {
+                
                 const updates = {
                     ...(fields.avatar !== dbUser.avatar && { avatar: fields.avatar }),
                     ...(fields.username !== dbUser.username && { 
-                        username: fields.username, 
-                        name: fields.username 
-                    })
+                        username: fields.username
+                    }),
+                    ...(fields.lud16 !== dbUser.lud16 && { lud16: fields.lud16 }),
+                    ...(fields.nip05 !== dbUser.nip05 && { nip05: fields.nip05 })
                 };
                 await updateUser(dbUser.id, updates);
                 dbUser = await getUserByPubkey(pubkey);
@@ -48,11 +53,14 @@ const syncNostrProfile = async (pubkey) => {
         } else {
             // Create new user
             const username = fields.username || pubkey.slice(0, 8);
+            const lud16 = fields.lud16 || null;
+            const nip05 = fields.nip05 || null;
             const payload = { 
                 pubkey, 
                 username, 
                 avatar: fields.avatar, 
-                name: username 
+                lud16,
+                nip05
             };
 
             dbUser = await createUser(payload);
@@ -126,8 +134,7 @@ export const authOptions = {
                 if (!user) {
                     user = await createUser({
                         ...keys,
-                        username: `anon-${keys.pubkey.slice(0, 8)}`,
-                        name: `anon-${keys.pubkey.slice(0, 8)}`
+                        username: `anon-${keys.pubkey.slice(0, 8)}`
                     });
                 }
                 return { ...user, privkey: keys.privkey };
@@ -157,7 +164,7 @@ export const authOptions = {
                     id: profile.id.toString(),
                     pubkey: keys.pubkey,
                     privkey: keys.privkey,
-                    name: profile.login,
+                    username: profile.login,
                     email: profile.email,
                     avatar: profile.avatar_url
                 };
@@ -194,8 +201,8 @@ export const authOptions = {
                             purchased: true,
                             userCourses: true,
                             userLessons: true,
-                            nip05: true,
-                            lightningAddress: true,
+                            platformNip05: true,
+                            platformLightningAddress: true,
                             userBadges: true
                         }
                     });
@@ -232,7 +239,6 @@ export const authOptions = {
                             username: user.email.split('@')[0],
                             email: user.email,
                             avatar: user.image,
-                            name: user.email.split('@')[0],
                         }
                         
                         // Update the user with the new keypair
@@ -256,7 +262,15 @@ export const authOptions = {
             
             if (userData) {
                 const fullUser = await getUserById(userData.id);
-                
+                // Convert BigInt values to strings if they exist
+                if (fullUser.platformLightningAddress) {
+                    fullUser.platformLightningAddress = {
+                        ...fullUser.platformLightningAddress,
+                        maxSendable: fullUser.platformLightningAddress.maxSendable?.toString(),
+                        minSendable: fullUser.platformLightningAddress.minSendable?.toString()
+                    };
+                }
+
                 // Get the user's GitHub account if it exists
                 const githubAccount = await prisma.account.findFirst({
                     where: {
@@ -273,13 +287,14 @@ export const authOptions = {
                     role: fullUser.role,
                     username: fullUser.username,
                     avatar: fullUser.avatar,
-                    name: fullUser.name,
                     email: fullUser.email,
                     userCourses: fullUser.userCourses,
                     userLessons: fullUser.userLessons,
                     purchased: fullUser.purchased,
                     nip05: fullUser.nip05,
-                    lightningAddress: fullUser.lightningAddress,
+                    lud16: fullUser.lud16,
+                    platformNip05: fullUser.platformNip05,
+                    platformLightningAddress: fullUser.platformLightningAddress,
                     githubUsername: token.githubUsername,
                     createdAt: fullUser.createdAt,
                     userBadges: fullUser.userBadges
@@ -300,15 +315,22 @@ export const authOptions = {
             return session;
         },
         async jwt({ token, user, account, profile, session }) {
+            // Convert BigInt values to strings if they exist
+            if (user?.platformLightningAddress) {
+                user.platformLightningAddress = {
+                    ...user.platformLightningAddress,
+                    maxSendable: user.platformLightningAddress.maxSendable?.toString(),
+                    minSendable: user.platformLightningAddress.minSendable?.toString()
+                };
+            }
+
             // If we are linking a github account to an existing email or anon account (we have privkey)
             if (account?.provider === "github" && user?.id && user?.pubkey && user?.privkey) {
                 try {
                     // First update the user's profile with GitHub info
                     const updatedUser = await updateUser(user.id, {
-                        name: profile?.login || profile?.name,
                         username: profile?.login || profile?.name,
                         avatar: profile?.avatar_url,
-                        image: profile?.avatar_url,
                     });
 
                     // Get the updated user
@@ -341,10 +363,8 @@ export const authOptions = {
                     if (!existingGithubAccount) {
                         // Update user profile with GitHub info
                         const updatedUser = await updateUser(user.id, {
-                            name: profile?.login || profile?.name,
                             username: profile?.login || profile?.name,
                             avatar: profile?.avatar_url,
-                            image: profile?.avatar_url,
                             email: profile?.email // Add email if user wants it
                         });
 

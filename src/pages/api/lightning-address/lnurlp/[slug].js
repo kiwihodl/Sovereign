@@ -35,8 +35,8 @@ export default async function handler(req, res) {
 
         res.status(200).json({
             callback: `${BACKEND_URL}/api/lightning-address/callback/${foundAddress.name}`,
-            maxSendable: foundAddress.maxSendable || 10000000000,
-            minSendable: foundAddress.minSendable || 1000,
+            maxSendable: parseInt(foundAddress.maxSendable),
+            minSendable: parseInt(foundAddress.minSendable),
             metadata: JSON.stringify(metadata),
             tag: 'payRequest',
             allowsNostr: true,

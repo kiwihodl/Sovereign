@@ -7,7 +7,6 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useToast } from '@/hooks/useToast';
 import { Card } from 'primereact/card';
-import { Badge } from 'primereact/badge';
 import GenericButton from '@/components/buttons/GenericButton';
 import { Menu } from "primereact/menu";
 import { Message } from "primereact/message";
@@ -104,14 +103,14 @@ const SubscribeModal = ({ user }) => {
             },
         },
         {
-            label: session?.user?.lightningAddress ? "Update PlebDevs Lightning Address" : "Claim PlebDevs Lightning Address",
+            label: session?.user?.platformLightningAddress ? "Update PlebDevs Lightning Address" : "Claim PlebDevs Lightning Address",
             icon: "pi pi-bolt",
             command: () => {
                 setLightningAddressVisible(true);
             },
         },
         {
-            label: session?.user?.nip05 ? "Update PlebDevs Nostr NIP-05" : "Claim PlebDevs Nostr NIP-05",
+            label: session?.user?.platformNip05?.name ? "Update PlebDevs Nostr NIP-05" : "Claim PlebDevs Nostr NIP-05",
             icon: "pi pi-at",
             command: () => {
                 setNip05Visible(true);
@@ -152,14 +151,14 @@ const SubscribeModal = ({ user }) => {
                 {subscribed && !user?.role?.nwc && (
                     <div className="flex flex-col">
                         <Message className="w-fit" severity="success" text="Subscribed!" />
-                        <p className="mt-4">Thank you for your support 🎉</p>
+                        <p className="mt-3">Thank you for your support 🎉</p>
                         <p className="text-sm text-gray-400">Pay-as-you-go subscription will renew on {subscribedUntil.toLocaleDateString()}</p>
                     </div>
                 )}
                 {subscribed && user?.role?.nwc && (
                     <div className="flex flex-col">
                         <Message className="w-fit" severity="success" text="Subscribed!" />
-                        <p className="mt-4">Thank you for your support 🎉</p>
+                        <p className="mt-3">Thank you for your support 🎉</p>
                         <p className="text-sm text-gray-400">Recurring subscription will AUTO renew on {subscribedUntil.toLocaleDateString()}</p>
                     </div>
                 )}
@@ -168,7 +167,7 @@ const SubscribeModal = ({ user }) => {
                         <Message className="w-fit" severity="info" text="You currently have no active subscription" />
                         <GenericButton
                             label="Subscribe"
-                            className="w-auto mt-4 text-[#f8f8ff]"
+                            className="w-auto mt-3 text-[#f8f8ff]"
                             onClick={() => setVisible(true)}
                         />
                     </div>
@@ -232,7 +231,7 @@ const SubscribeModal = ({ user }) => {
                 visible={calendlyVisible}
                 onHide={() => setCalendlyVisible(false)}
                 userId={session?.user?.id}
-                userName={session?.user?.name || user?.kind0?.username}
+                userName={session?.user?.username || user?.kind0?.username}
                 userEmail={session?.user?.email}
             />
             <CancelSubscription

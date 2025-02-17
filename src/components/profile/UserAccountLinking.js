@@ -79,6 +79,9 @@ const LinkAccountsCard = ({ session }) => {
                     });
 
                     if (response.ok) {
+                        // clear the local storage of the users ephemeral keys
+                        localStorage.removeItem('anonymousPrivkey');
+                        localStorage.removeItem('anonymousPubkey');
                         showToast('success', 'Success', 'Nostr account linked successfully');
                         // Refresh the session to get updated user data
                         await update();
@@ -181,7 +184,7 @@ const LinkAccountsCard = ({ session }) => {
                     icon="pi pi-github"
                     onClick={handleGithubLink}
                     disabled={isGithubLinked}
-                    className={`text-[#f8f8ff] w-[250px] mx-auto`}
+                    className={`text-[#f8f8ff] w-[250px]`}
                     rounded
                 />
 
@@ -190,7 +193,7 @@ const LinkAccountsCard = ({ session }) => {
                     icon={<Image src="/images/nostr-icon-white.png" width={20} height={20} alt="Nostr" className="mr-2" />}
                     onClick={handleNostrLink}
                     disabled={isNostrLinked}
-                    className={`text-[#f8f8ff] w-[250px] mx-auto flex items-center justify-center`}
+                    className={`text-[#f8f8ff] w-[250px]`}
                     rounded
                 />
 
@@ -199,7 +202,7 @@ const LinkAccountsCard = ({ session }) => {
                     icon="pi pi-envelope"
                     onClick={handleEmailLink}
                     disabled={isEmailLinked}
-                    className={`text-[#f8f8ff] w-[250px] mx-auto`}
+                    className={`text-[#f8f8ff] w-[250px]`}
                     rounded
                 />
             </div>
