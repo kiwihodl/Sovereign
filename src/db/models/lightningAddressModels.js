@@ -1,24 +1,24 @@
 import prisma from "@/db/prisma";
 
 export const getAllLightningAddresses = async () => {
-    return await prisma.lightningAddress.findMany();
+    return await prisma.platformLightningAddress.findMany();
 };
 
 export const getLightningAddressByName = async (name) => {
-    return await prisma.lightningAddress.findFirst({
+    return await prisma.platformLightningAddress.findFirst({
         where: { name },
     });
 };
 
 export const getLightningAddress = async (userId) => {
-    return await prisma.lightningAddress.findUnique({
+    return await prisma.platformLightningAddress.findUnique({
         where: { userId },
     });
 };
 
 export const createLightningAddress = async (userId, name, description, maxSendable, minSendable, invoiceMacaroon, lndCert, lndHost, lndPort) => {
     try {
-        return await prisma.lightningAddress.create({
+        return await prisma.platformLightningAddress.create({
             data: { 
                 userId, 
                 name, 
@@ -38,14 +38,14 @@ export const createLightningAddress = async (userId, name, description, maxSenda
 };
 
 export const updateLightningAddress = async (userId, data) => {
-    return await prisma.lightningAddress.update({
+    return await prisma.platformLightningAddress.update({
         where: { userId },
         data,
     });
 };
 
 export const deleteLightningAddress = async (userId) => {
-    return await prisma.lightningAddress.delete({
+    return await prisma.platformLightningAddress.delete({
         where: { userId },
     });
 };

@@ -40,6 +40,12 @@ export const findKind0Fields = async (kind0) => {
         fields.lud16 = lud16;
     }
 
+    const nip05 = findTruthyPropertyValue(kind0, ['nip05']);
+
+    if (nip05) {
+        fields.nip05 = nip05;
+    }
+
     return fields;
 }
 

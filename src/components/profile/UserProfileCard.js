@@ -70,7 +70,7 @@ const UserProfileCard = ({ user }) => {
                 className="rounded-full m-2 mt-0 object-cover max-w-[100px] max-h-[100px]"
             />
             <h3 className="text-center">
-                {user.username || user?.name || user?.email || "Anon"}
+                {user.username || user?.email || "Anon"}
             </h3>
             <div className="flex flex-col gap-2 justify-center w-full overflow-hidden">
                 {
@@ -98,13 +98,17 @@ const UserProfileCard = ({ user }) => {
             </div>
             <div className='w-full flex flex-row justify-between'>
                 <div className="flex flex-col justify-between gap-4 my-2">
-                    {user?.lightningAddress ? (
+                    {user?.platformLightningAddress ? (
                         <h4 className="bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
-                            <span className="font-bold">Lightning Address:</span> {user.lightningAddress.name}@plebdevs.com <i className="pi pi-copy cursor-pointer hover:text-gray-400" onClick={() => copyToClipboard(user.lightningAddress.name + "@plebdevs.com")} />
+                            <span className="font-bold">Lightning Address:</span> {user.platformLightningAddress.name}@plebdevs.com <i className="pi pi-copy cursor-pointer hover:text-gray-400" onClick={() => copyToClipboard(user.platformLightningAddress.name + "@plebdevs.com")} />
+                        </h4>
+                    ) : user?.lud16 ? (
+                        <h4 className="bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
+                            <span className="font-bold">Lightning Address:</span> {user.lud16} <i className="pi pi-copy cursor-pointer hover:text-gray-400" onClick={() => copyToClipboard(user.lud16)} />
                         </h4>
                     ) : (
                         <div className="flex flex-row justify-between bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
-                            <h4 >
+                            <h4>
                                 <span className="font-bold">Lightning Address:</span> None
                             </h4>
                             <MoreInfo 
@@ -115,9 +119,23 @@ const UserProfileCard = ({ user }) => {
                             />
                         </div>
                     )}
-                    {user?.nip05 ? (
+                    {user?.platformNip05 ? (
                         <h4 className="bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
-                            <span className="font-bold">NIP-05:</span> {user.nip05.name}@plebdevs.com <i className="pi pi-copy cursor-pointer hover:text-gray-400" onClick={() => copyToClipboard(user.nip05.name + "@plebdevs.com")} />
+                            <span className="font-bold">NIP-05:</span>{' '}
+                            {user.platformNip05.name}@plebdevs.com{' '}
+                            <i 
+                                className="pi pi-copy cursor-pointer hover:text-gray-400" 
+                                onClick={() => copyToClipboard(`${user.platformNip05.name}@plebdevs.com`)} 
+                            />
+                        </h4>
+                    ) : user?.nip05 ? (
+                        <h4 className="bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
+                            <span className="font-bold">NIP-05:</span>{' '}
+                            {user.nip05}{' '}
+                            <i 
+                                className="pi pi-copy cursor-pointer hover:text-gray-400" 
+                                onClick={() => copyToClipboard(user.nip05)} 
+                            />
                         </h4>
                     ) : (
                         <div className="flex flex-row justify-between bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
@@ -125,9 +143,9 @@ const UserProfileCard = ({ user }) => {
                                 <span className="font-bold">NIP-05:</span> None
                             </h4>
                             <MoreInfo 
-                                tooltip="PlebDevs Custom NIP-05"
-                                modalTitle="PlebDevs Custom NIP-05"
-                                modalBody="This is a placeholder for your PlebDevs issued NIP-05 (claimable through subscription)"
+                                tooltip="NIP-05 Info"
+                                modalTitle="What is NIP-05?"
+                                modalBody="NIP-05 is a verification standard in Nostr that links your identity to a domain name, similar to how Twitter verifies accounts. It helps prove ownership of your identity."
                                 className="text-xs"
                             />
                         </div>
@@ -169,7 +187,7 @@ const UserProfileCard = ({ user }) => {
                         />
                     </div>
                     <h3 className="self-start">
-                        {user.username || user?.name || user?.email || "Anon"}
+                        {user.username || user?.email || "Anon"}
                     </h3>
                     {
                         user?.pubkey && (
@@ -193,10 +211,14 @@ const UserProfileCard = ({ user }) => {
                     )}
                 </div>
             </div>
-            <div className="flex flex-col justify-between gap-4 my-2">
-                {user?.lightningAddress ? (
-                    <h4 className="bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
-                        <span className="font-bold">Lightning Address:</span> {user.lightningAddress.name}@plebdevs.com <i className="pi pi-copy cursor-pointer hover:text-gray-400" onClick={() => copyToClipboard(user.lightningAddress.name + "@plebdevs.com")} />
+            <div className="flex flex-col justify-between gap-2">
+                {user?.platformLightningAddress ? (
+                    <h4 className="bg-gray-900 rounded-lg p-2 max-lap:w-fit min-w-[240px]">
+                        <span className="font-bold">Lightning Address:</span> {user.platformLightningAddress.name}@plebdevs.com <i className="pi pi-copy cursor-pointer hover:text-gray-400" onClick={() => copyToClipboard(user.platformLightningAddress.name + "@plebdevs.com")} />
+                    </h4>
+                ) : user?.lud16 ? (
+                    <h4 className="bg-gray-900 rounded-lg p-2 max-lap:w-fit min-w-[240px]">
+                        <span className="font-bold">Lightning Address:</span> {user.lud16} <i className="pi pi-copy cursor-pointer hover:text-gray-400" onClick={() => copyToClipboard(user.lud16)} />
                     </h4>
                 ) : (
                     <div className="flex flex-row justify-between bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
@@ -211,9 +233,23 @@ const UserProfileCard = ({ user }) => {
                         />
                     </div>
                 )}
-                {user?.nip05 ? (
+                {user?.platformNip05 ? (
                     <h4 className="bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
-                        <span className="font-bold">NIP-05:</span> {user.nip05.name}@plebdevs.com <i className="pi pi-copy cursor-pointer hover:text-gray-400" onClick={() => copyToClipboard(user.nip05.name + "@plebdevs.com")} />
+                        <span className="font-bold">NIP-05:</span>{' '}
+                        {user.platformNip05.name}@plebdevs.com{' '}
+                        <i 
+                            className="pi pi-copy cursor-pointer hover:text-gray-400" 
+                            onClick={() => copyToClipboard(`${user.platformNip05.name}@plebdevs.com`)} 
+                        />
+                    </h4>
+                ) : user?.nip05 ? (
+                    <h4 className="bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
+                        <span className="font-bold">NIP-05:</span>{' '}
+                        {user.nip05}{' '}
+                        <i 
+                            className="pi pi-copy cursor-pointer hover:text-gray-400" 
+                            onClick={() => copyToClipboard(user.nip05)} 
+                        />
                     </h4>
                 ) : (
                     <div className="flex flex-row justify-between bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">

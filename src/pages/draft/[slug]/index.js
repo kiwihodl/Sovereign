@@ -327,7 +327,7 @@ export default function Draft() {
                                 <p className='text-lg'>
                                     Created by{' '}
                                     <a href={`https://nostr.com/${hexToNpub(user?.pubkey)}`} rel='noreferrer noopener' target='_blank' className='text-blue-500 hover:underline'>
-                                        {user?.username || user?.name || user?.pubkey.slice(0, 10)}{'... '}
+                                        {user?.username || user?.pubkey.slice(0, 10)}{'... '}
                                     </a>
                                 </p>
                             )}

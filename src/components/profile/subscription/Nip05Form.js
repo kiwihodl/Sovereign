@@ -19,13 +19,13 @@ const Nip05Form = ({ visible, onHide }) => {
     const { showToast } = useToast();
 
     useEffect(() => {
-        if (session && session?.user && !session?.user?.nip05) {
+        if (session && session?.user && !session?.user?.platformNip05) {
             setPubkey(session.user.pubkey || '');
-            setName(session.user.name || '');
-        } else if (session && session?.user && session?.user?.nip05) {
-            setExistingNip05(session.user.nip05);
-            setPubkey(session.user.nip05.pubkey || '');
-            setName(session.user.nip05.name || '');
+            setName(session.user.username || '');
+        } else if (session && session?.user && session?.user?.platformNip05) {
+            setExistingNip05(session.user.platformNip05);
+            setPubkey(session.user.platformNip05.pubkey || '');
+            setName(session.user.platformNip05.name || '');
         }
     }, [session]);
 

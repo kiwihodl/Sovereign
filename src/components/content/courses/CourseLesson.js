@@ -86,7 +86,7 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
                             <p className='text-lg'>
                                 Created by{' '}
                                 <a rel='noreferrer noopener' target='_blank' className='text-blue-500 hover:underline'>
-                                    {lesson.author?.username || lesson.author?.name || lesson.author?.pubkey}
+                                    {lesson.author?.username || lesson.author?.pubkey}
                                 </a>
                             </p>
                         </div>

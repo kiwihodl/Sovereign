@@ -14,8 +14,8 @@ const LightningAddressForm = ({ visible, onHide }) => {
     const [existingLightningAddress, setExistingLightningAddress] = useState(null);
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
-    const [maxSendable, setMaxSendable] = useState(10000000);
-    const [minSendable, setMinSendable] = useState(1);
+    const [maxSendable, setMaxSendable] = useState(10000000000);
+    const [minSendable, setMinSendable] = useState(1000);
     const [invoiceMacaroon, setInvoiceMacaroon] = useState('');
     const [lndCert, setLndCert] = useState('');
     const [lndHost, setLndHost] = useState('');
@@ -26,18 +26,18 @@ const LightningAddressForm = ({ visible, onHide }) => {
     const { showToast } = useToast();
 
     useEffect(() => {
-        if (session && session?.user && !session?.user?.lightningAddress) {
-            setName(session.user.name || '');
-        } else if (session && session?.user && session?.user?.lightningAddress) {
-            setExistingLightningAddress(session.user.lightningAddress);
-            setName(session.user.lightningAddress.name || '');
-            setDescription(session.user.lightningAddress.description || '');
-            setMaxSendable(session.user.lightningAddress.maxSendable || 10000000);
-            setMinSendable(session.user.lightningAddress.minSendable || 1);
-            setInvoiceMacaroon(session.user.lightningAddress.invoiceMacaroon || '');
-            setLndCert(session.user.lightningAddress.lndCert || '');
-            setLndHost(session.user.lightningAddress.lndHost || '');
-            setLndPort(session.user.lightningAddress.lndPort || '8080');
+        if (session && session?.user && !session?.user?.platformLightningAddress) {
+            setName(session.user.username || '');
+        } else if (session && session?.user && session?.user?.platformLightningAddress) {
+            setExistingLightningAddress(session.user.platformLightningAddress);
+            setName(session.user.platformLightningAddress.name || '');
+            setDescription(session.user.platformLightningAddress.description || '');
+            setMaxSendable(Number(session.user.platformLightningAddress.maxSendable) || 10000000000);
+            setMinSendable(Number(session.user.platformLightningAddress.minSendable) || 1000);
+            setInvoiceMacaroon(session.user.platformLightningAddress.invoiceMacaroon || '');
+            setLndCert(session.user.platformLightningAddress.lndCert || '');
+            setLndHost(session.user.platformLightningAddress.lndHost || '');
+            setLndPort(session.user.platformLightningAddress.lndPort || '8080');
         }
     }, [session]);
 
@@ -46,10 +46,21 @@ const LightningAddressForm = ({ visible, onHide }) => {
         try {
             let response;
             const lowercaseName = name.toLowerCase();
+            const data = {
+                name: lowercaseName,
+                description,
+                maxSendable: BigInt(maxSendable).toString(),
+                minSendable: BigInt(minSendable).toString(),
+                invoiceMacaroon,
+                lndCert,
+                lndHost,
+                lndPort
+            };
+
             if (existingLightningAddress) {
-                response = await axios.put(`/api/users/${session.user.id}/lightning-address`, { name: lowercaseName, description, maxSendable, minSendable, invoiceMacaroon, lndCert, lndHost, lndPort });
+                response = await axios.put(`/api/users/${session.user.id}/lightning-address`, data);
             } else {
-                response = await axios.post(`/api/users/${session.user.id}/lightning-address`, { name: lowercaseName, description, maxSendable, minSendable, invoiceMacaroon, lndCert, lndHost, lndPort });
+                response = await axios.post(`/api/users/${session.user.id}/lightning-address`, data);
             }
             if (!existingLightningAddress && response.status === 201) {
                 showToast('success', 'Lightning Address Claimed', 'Your Lightning Address has been claimed');
@@ -101,10 +112,9 @@ const LightningAddressForm = ({ visible, onHide }) => {
                 <label>Description</label>
                 <InputText placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} tooltip='This is your Lightning Address description, it will be displayed as the description LUD16 lnurlp endpoint' />
                 <label>Max Sendable</label>
-                {/* Todo: max is 2,147,483 sats until i imlement bigInt for sat amounts */}
-                <InputNumber placeholder="Max Sendable" value={maxSendable} onChange={(e) => setMaxSendable(e.target.value)} max={2147483647} min={1000} tooltip='This is the maximum amount of sats that can be sent to your Lightning Address (currently denominated in sats NOT msat)' />
+                <InputNumber placeholder="Max Sendable" value={maxSendable} onChange={(e) => setMaxSendable(e.value)} min={1000} tooltip='Maximum amount in millisats (1000 millisats = 1 sat)' />
                 <label>Min Sendable</label>
-                <InputNumber placeholder="Min Sendable" value={minSendable} onChange={(e) => setMinSendable(e.target.value)} min={1} max={2147483647} tooltip='This is the minimum amount of sats that can be sent to your Lightning Address (currently denominated in sats NOT msat)' />
+                <InputNumber placeholder="Min Sendable" value={minSendable} onChange={(e) => setMinSendable(e.value)} min={1} tooltip='Minimum amount in millisats (1000 millisats = 1 sat)' />
                 <label>Invoice Macaroon</label>
                 <InputText placeholder="Invoice Macaroon" value={invoiceMacaroon} onChange={(e) => setInvoiceMacaroon(e.target.value)} tooltip='This is your LND Invoice Macaroon, it is used to create invoices for your Lightning Address but DOES NOT grant access to move funds from your LND node' />
                 <label>LND Cert</label>
