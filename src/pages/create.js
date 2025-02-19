@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MenuTab from "@/components/menutab/MenuTab";
 import DocumentForm from "@/components/forms/DocumentForm";
-import VideoForm from "@/components/forms/VideoForm";
+import VideoForm from "@/components/forms/video/VideoForm";
 import CourseForm from "@/components/forms/course/CourseForm";
 import CombinedResourceForm from "@/components/forms/CombinedResourceForm";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
