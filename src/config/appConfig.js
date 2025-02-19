@@ -4,7 +4,6 @@ const appConfig = {
       "wss://relay.damus.io/",
       "wss://relay.snort.social/",
       "wss://relay.nostr.band/",
-      "wss://relay.mutinywallet.com/",
       "wss://relay.primal.net/",
       "wss://nostr21.com/",
       "wss://nostrue.com/",
