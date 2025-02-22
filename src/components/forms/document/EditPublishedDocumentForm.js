@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
 import { useNDKContext } from '@/context/NDKContext';
+import { useEncryptContent } from '@/hooks/encryption/useEncryptContent';
 import GenericButton from '@/components/buttons/GenericButton';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
 import { validateEvent } from '@/utils/nostr';
@@ -12,24 +13,25 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Tooltip } from 'primereact/tooltip';
-import { useEncryptContent } from '@/hooks/encryption/useEncryptContent';
+import dynamic from 'next/dynamic';
 
-const EditPublishedVideoForm = ({ event }) => {
+const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
+
+const EditPublishedDocumentForm = ({ event }) => {
     const router = useRouter();
     const { data: session } = useSession();
     const { showToast } = useToast();
     const { ndk, addSigner } = useNDKContext();
+    const { encryptContent } = useEncryptContent();
     const [user, setUser] = useState(null);
     const [title, setTitle] = useState(event.title);
     const [summary, setSummary] = useState(event.summary);
     const [price, setPrice] = useState(event.price);
     const [isPaidResource, setIsPaidResource] = useState(event.price ? true : false);
-    const [videoUrl, setVideoUrl] = useState(event.content);
+    const [content, setContent] = useState(event.content);
     const [coverImage, setCoverImage] = useState(event.image);
     const [additionalLinks, setAdditionalLinks] = useState(event.additionalLinks);
     const [topics, setTopics] = useState(event.topics);
-
-    const { encryptContent } = useEncryptContent();
 
     useEffect(() => {
         if (session) {
@@ -37,9 +39,9 @@ const EditPublishedVideoForm = ({ event }) => {
         }
     }, [session]);
 
-    useEffect(() => {
-        console.log("event", event);
-    }, [event]);
+    const handleContentChange = useCallback((value) => {
+        setContent(value || '');
+    }, []);
 
     const addLink = () => {
         setAdditionalLinks([...additionalLinks, '']);
@@ -76,27 +78,11 @@ const EditPublishedVideoForm = ({ event }) => {
                 await addSigner();
             }
 
-            let embedCode = '';
-
-            // Generate embed code based on video URL
-            if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
-                const videoId = videoUrl.split('v=')[1] || videoUrl.split('/').pop();
-                embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://www.youtube.com/embed/${videoId}?enablejsapi=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
-            } else if (videoUrl.includes('vimeo.com')) {
-                const videoId = videoUrl.split('/').pop();
-                embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://player.vimeo.com/video/${videoId}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
-            } else if (!price || !price > 0 && (videoUrl.includes('.mp4') || videoUrl.includes('.mov') || videoUrl.includes('.avi') || videoUrl.includes('.wmv') || videoUrl.includes('.flv') || videoUrl.includes('.webm'))) {
-                embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><video src="${CDN_ENDPOINT}/${videoUrl}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" controls></video></div>`;
-            } else if (videoUrl.includes('.mp4') || videoUrl.includes('.mov') || videoUrl.includes('.avi') || videoUrl.includes('.wmv') || videoUrl.includes('.flv') || videoUrl.includes('.webm')) {
-                const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-                const videoEmbed = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><video src="${baseUrl}/api/get-video-url?videoKey=${encodeURIComponent(videoUrl)}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" controls></video></div>`;
-                embedCode = videoEmbed;
-            }
-
             // Encrypt content if it's a paid resource
+            let finalContent = content;
             if (isPaidResource && price > 0) {
-                embedCode = await encryptContent(embedCode);
-                if (!embedCode) {
+                finalContent = await encryptContent(content);
+                if (!finalContent) {
                     showToast('error', 'Error', 'Failed to encrypt content');
                     return;
                 }
@@ -104,20 +90,20 @@ const EditPublishedVideoForm = ({ event }) => {
 
             const ndkEvent = new NDKEvent(ndk);
             ndkEvent.kind = event.kind;
-            ndkEvent.content = embedCode;
+            ndkEvent.content = finalContent;
             ndkEvent.created_at = Math.floor(Date.now() / 1000);
             ndkEvent.pubkey = event.pubkey;
             ndkEvent.tags = [
                 ['title', title],
                 ['summary', summary],
                 ['image', coverImage],
-                ['t', 'video'],
+                ['t', 'document'],
                 ['d', event.d],
             ];
 
             // Add topics
             topics.forEach(topic => {
-                if (topic && topic !== 'video') {
+                if (topic && topic !== 'document') {
                     ndkEvent.tags.push(['t', topic]);
                 }
             });
@@ -152,20 +138,20 @@ const EditPublishedVideoForm = ({ event }) => {
                 });
 
                 if (updatedResource && updatedResource.status === 200) {
-                    showToast('success', 'Success', 'Video updated successfully');
+                    showToast('success', 'Success', 'Document updated successfully');
                     router.push(`/details/${updatedResource.data.noteId}`);
                 } else {
-                    showToast('error', 'Error', 'Failed to update video');
+                    showToast('error', 'Error', 'Failed to update document');
                 }
             }
         } catch (error) {
-            console.error('Error updating video:', error);
-            showToast('error', 'Error', 'Failed to update video');
+            console.error('Error updating document:', error);
+            showToast('error', 'Error', 'Failed to update document');
         }
     };
 
     return (
-        <form onSubmit={(e) => handleSubmit(e)}>
+        <form onSubmit={handleSubmit}>
             <div className="p-inputgroup flex-1">
                 <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
             </div>
@@ -174,7 +160,7 @@ const EditPublishedVideoForm = ({ event }) => {
             </div>
 
             <div className="p-inputgroup flex-1 mt-4 flex-col">
-                <p className="py-2">Paid Video</p>
+                <p className="py-2">Paid Document</p>
                 <InputSwitch checked={isPaidResource} onChange={(e) => setIsPaidResource(e.value)} />
                 {isPaidResource && (
                     <div className="p-inputgroup flex-1 py-4">
@@ -184,20 +170,27 @@ const EditPublishedVideoForm = ({ event }) => {
                 )}
             </div>
             <div className="p-inputgroup flex-1 mt-4">
-                <InputText value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="Video URL" />
-            </div>
-            <div className="p-inputgroup flex-1 mt-4">
                 <InputText value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="Cover Image URL" />
+            </div>
+            <div className="p-inputgroup flex-1 flex-col mt-4">
+                <span>Content</span>
+                <div data-color-mode="dark">
+                    <MDEditor
+                        value={content}
+                        onChange={handleContentChange}
+                        height={350}
+                    />
+                </div>
             </div>
             <div className="mt-8 flex-col w-full">
                 <span className="pl-1 flex items-center">
                     External Links
-                    <i className="pi pi-info-circle ml-2 cursor-pointer"
-                        data-pr-tooltip="Add any relevant external links that pair with this content (these links are currently not encrypted for 'paid' content)"
-                        data-pr-position="right"
-                        data-pr-at="right+5 top"
-                        data-pr-my="left center-2"
-                        style={{ fontSize: '1rem', color: 'var(--primary-color)' }}
+                    <i className="pi pi-info-circle ml-2 cursor-pointer" 
+                       data-pr-tooltip="Add any relevant external links that pair with this content (these links are currently not encrypted for 'paid' content)"
+                       data-pr-position="right"
+                       data-pr-at="right+5 top"
+                       data-pr-my="left center-2"
+                       style={{ fontSize: '1rem', color: 'var(--primary-color)' }}
                     />
                 </span>
                 {additionalLinks.map((link, index) => (
@@ -227,10 +220,10 @@ const EditPublishedVideoForm = ({ event }) => {
                 </div>
             </div>
             <div className="flex justify-center mt-8">
-                <GenericButton type="submit" severity="success" outlined label={"Update"} />
+                <GenericButton type="submit" severity="success" outlined label="Update" />
             </div>
         </form>
     );
 };
 
-export default EditPublishedVideoForm;
+export default EditPublishedDocumentForm;

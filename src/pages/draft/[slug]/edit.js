@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
-import DocumentForm from "@/components/forms/DocumentForm";
+import EditDraftDocumentForm from "@/components/forms/document/EditDraftDocumentForm";
 import EditDraftVideoForm from "@/components/forms/video/EditDraftVideoForm";
 import CourseForm from "@/components/forms/course/CourseForm";
 import CombinedResourceForm from "@/components/forms/CombinedResourceForm";
@@ -38,7 +38,7 @@ const Edit = () => {
             <h2 className="text-center mb-8">Edit Draft</h2>
             {draft?.type === 'course' && <CourseForm draft={draft} />}
             {draft?.type === 'video' && <EditDraftVideoForm draft={draft} />}
-            {draft?.type === 'document' && <DocumentForm draft={draft} />}
+            {draft?.type === 'document' && <EditDraftDocumentForm draft={draft} />}
             {draft?.type === 'combined' && <CombinedResourceForm draft={draft} />}
         </div>
     );

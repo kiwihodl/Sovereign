@@ -8,10 +8,10 @@ import GenericButton from "@/components/buttons/GenericButton";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/useToast";
-import { useNDKContext } from "@/context/NDKContext";
-import { NDKEvent } from "@nostr-dev-kit/ndk";
 import dynamic from 'next/dynamic';
-import { useEncryptContent } from '@/hooks/encryption/useEncryptContent';
+import 'primeicons/primeicons.css';
+import { Tooltip } from 'primereact/tooltip';
+import 'primereact/resources/primereact.min.css';
 
 const MDEditor = dynamic(
     () => import("@uiw/react-md-editor"),
@@ -19,26 +19,21 @@ const MDEditor = dynamic(
         ssr: false,
     }
 );
-import 'primeicons/primeicons.css';
-import { Tooltip } from 'primereact/tooltip';
-import 'primereact/resources/primereact.min.css';
 
-const DocumentForm = ({ draft = null, isPublished = false }) => {
-    const [title, setTitle] = useState(draft?.title || '');
-    const [summary, setSummary] = useState(draft?.summary || '');
-    const [isPaidResource, setIsPaidResource] = useState(draft?.price ? true : false);
-    const [price, setPrice] = useState(draft?.price || 0);
-    const [coverImage, setCoverImage] = useState(draft?.image || '');
-    const [topics, setTopics] = useState(draft?.topics || ['']);
-    const [content, setContent] = useState(draft?.content || '');
+const DocumentForm = () => {
+    const [title, setTitle] = useState('');
+    const [summary, setSummary] = useState('');
+    const [isPaidResource, setIsPaidResource] = useState(false);
+    const [price, setPrice] = useState(0);
+    const [coverImage, setCoverImage] = useState('');
+    const [topics, setTopics] = useState(['']);
+    const [content, setContent] = useState('');
     const [user, setUser] = useState(null);
-    const [additionalLinks, setAdditionalLinks] = useState(draft?.additionalLinks || ['']);
-    const { encryptContent, isLoading: encryptLoading, error: encryptError } = useEncryptContent();
+    const [additionalLinks, setAdditionalLinks] = useState(['']);
 
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const { showToast } = useToast();
     const router = useRouter();
-    const { ndk, addSigner } = useNDKContext();
 
     useEffect(() => {
         if (session) {
@@ -50,129 +45,39 @@ const DocumentForm = ({ draft = null, isPublished = false }) => {
         setContent(value || '');
     }, []);
 
-    useEffect(() => {
-        if (draft) {
-            setTitle(draft.title);
-            setSummary(draft.summary);
-            setIsPaidResource(draft.price ? true : false);
-            setPrice(draft.price || 0);
-            setContent(draft.content);
-            setCoverImage(draft.image);
-            setTopics(draft.topics || []);
-            setAdditionalLinks(draft.additionalLinks || []);
-        }
-    }, [draft]);
-
-    const buildEvent = async (draft) => {
-        const dTag = draft.d
-        const event = new NDKEvent(ndk);
-        let encryptedContent;
-
-        if (draft?.price) {
-            encryptedContent = await encryptContent(draft.content);
-        }
-
-        event.kind = draft?.price ? 30402 : 30023; // Determine kind based on if price is present
-        event.content = draft?.price ? encryptedContent : draft.content;
-        event.created_at = Math.floor(Date.now() / 1000);
-        event.pubkey = user.pubkey;
-        event.tags = [
-            ['d', dTag],
-            ['title', draft.title],
-            ['summary', draft.summary],
-            ['image', draft.image],
-            ...draft.topics.map(topic => ['t', topic]),
-            ['published_at', Math.floor(Date.now() / 1000).toString()],
-            ...(draft?.price ? [['price', draft.price.toString()], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
-        ];
-
-        return event;
-    };
-
-    const handlePublishedResource = async (e) => {
-        e.preventDefault();
-
-        // create new object with state fields
-        const updatedDraft = {
-            title,
-            summary,
-            price,
-            content,
-            d: draft.d,
-            image: coverImage,
-            topics: [...new Set([...topics.map(topic => topic.trim().toLowerCase()), 'document'])],
-            additionalLinks: additionalLinks.filter(link => link.trim() !== '')
-        }
-
-        const event = await buildEvent(updatedDraft);
-
-        try {
-            if (!ndk.signer) {
-                await addSigner();
-            }
-
-            await ndk.connect();
-
-            const published = await ndk.publish(event);
-
-            if (published) {
-                // update the resource with new noteId
-                const response = await axios.put(`/api/resources/${draft.d}`, { noteId: event.id });
-                showToast('success', 'Success', 'Document published successfully.');
-                router.push(`/details/${event.id}`);
-            } else {
-                showToast('error', 'Error', 'Failed to publish document. Please try again.');
-            }
-        } catch (error) {
-            console.error(error);
-            showToast('error', 'Error', 'Failed to publish document. Please try again.');
-        }
-    }
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const userResponse = await axios.get(`/api/users/${user.pubkey}`);
+        try {
+            const userResponse = await axios.get(`/api/users/${user.pubkey}`);
+            if (!userResponse.data) {
+                showToast('error', 'Error', 'User not found', 'Please try again.');
+                return;
+            }
 
-        if (!userResponse.data) {
-            showToast('error', 'Error', 'User not found', 'Please try again.');
-            return;
-        }
+            const payload = {
+                title,
+                summary,
+                type: 'document',
+                price: isPaidResource ? price : null,
+                content,
+                image: coverImage,
+                topics: [...new Set([...topics.map(topic => topic.trim().toLowerCase()), 'document'])],
+                additionalLinks: additionalLinks.filter(link => link.trim() !== ''),
+                user: userResponse.data.id
+            };
 
-        const payload = {
-            title,
-            summary,
-            type: 'document',
-            price: isPaidResource ? price : null,
-            content,
-            image: coverImage,
-            topics: [...new Set([...topics.map(topic => topic.trim().toLowerCase()), 'document'])],
-            additionalLinks: additionalLinks.filter(link => link.trim() !== '')
-        };
+            const response = await axios.post('/api/drafts', payload);
 
-        if (!draft) {
-            // Only include user when creating a new draft
-            payload.user = userResponse.data.id;
-        }
-
-        if (payload) {
-            const url = draft ? `/api/drafts/${draft.id}` : '/api/drafts';
-            const method = draft ? 'put' : 'post';
-
-            axios[method](url, payload)
-                .then(response => {
-                    if (response.status === 200 || response.status === 201) {
-                        showToast('success', 'Success', draft ? 'Document updated successfully.' : 'Document saved as draft.');
-
-                        if (response.data?.id) {
-                            router.push(`/draft/${response.data.id}`);
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error(error);
-                    showToast('error', 'Error', 'Failed to save document. Please try again.');
-                });
+            if (response.status === 201) {
+                showToast('success', 'Success', 'Document saved as draft.');
+                if (response.data?.id) {
+                    router.push(`/draft/${response.data.id}`);
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            showToast('error', 'Error', 'Failed to save document. Please try again.');
         }
     };
 
@@ -209,7 +114,7 @@ const DocumentForm = ({ draft = null, isPublished = false }) => {
     };
 
     return (
-        <form onSubmit={isPublished && draft ? handlePublishedResource : handleSubmit}>
+        <form onSubmit={handleSubmit}>
             <div className="p-inputgroup flex-1">
                 <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
             </div>
@@ -277,7 +182,7 @@ const DocumentForm = ({ draft = null, isPublished = false }) => {
                 </div>
             </div>
             <div className="flex justify-center mt-8">
-                <GenericButton type="submit" severity="success" outlined label={draft ? "Update Draft" : "Save Draft"} />
+                <GenericButton type="submit" severity="success" outlined label="Save Draft" />
             </div>
         </form>
     );

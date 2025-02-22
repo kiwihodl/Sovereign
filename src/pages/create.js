@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import MenuTab from "@/components/menutab/MenuTab";
-import DocumentForm from "@/components/forms/DocumentForm";
+import DocumentForm from "@/components/forms/document/DocumentForm";
 import VideoForm from "@/components/forms/video/VideoForm";
 import CourseForm from "@/components/forms/course/CourseForm";
 import CombinedResourceForm from "@/components/forms/CombinedResourceForm";
