@@ -20,8 +20,7 @@ const StackerNewsIconComponent = () => (
 
 const headerTemplate = (options, windowWidth, platform, id) => {
     return (
-        <div className="flex flex-row justify-between items-end mb-2">
-            <GenericButton outlined severity="primary" size="small" className="py-0" onClick={options.onTogglerClick} icon={options.collapsed ? 'pi pi-chevron-down' : 'pi pi-chevron-up'} tooltip={windowWidth <= 768 ? null : 'comments'} tooltipOptions={{ position: 'right' }} />
+        <div className="flex flex-row justify-between items-end my-2">
             <GenericButton
                 label={windowWidth > 768 ? `View ${platform === 'nostr' ? 'on' : 'in'} ${platform}` : null}
                 icon="pi pi-external-link"
@@ -31,6 +30,7 @@ const headerTemplate = (options, windowWidth, platform, id) => {
                 tooltip={windowWidth < 768 ? `View ${platform === 'nostr' ? 'on' : 'in'} ${platform}` : null}
                 tooltipOptions={{ position: 'left' }}
             />
+            <GenericButton outlined severity="primary" size="small" className="py-0" onClick={options.onTogglerClick} icon={options.collapsed ? 'pi pi-chevron-down' : 'pi pi-chevron-up'} tooltip={windowWidth <= 768 ? null : 'comments'} tooltipOptions={{ position: 'left' }} />
         </div>
     );
 };
@@ -104,11 +104,6 @@ const CommunityMessage = ({ message, searchQuery, windowWidth, platform }) => {
                         </Panel>
                     ) : (
                         <div className="w-full flex flex-row justify-between items-end">
-                            {platform !== "nostr" ? (
-                                <p className="rounded-lg text-sm text-gray-300">
-                                    {new Date(message.timestamp).toLocaleString()}
-                                </p>
-                            ) : <div></div>}
                             <GenericButton
                                 label={windowWidth > 768 ? `View in ${platform}` : null}
                                 icon="pi pi-external-link"
@@ -118,6 +113,11 @@ const CommunityMessage = ({ message, searchQuery, windowWidth, platform }) => {
                                 tooltip={windowWidth < 768 ? `View in ${platform}` : null}
                                 tooltipOptions={{ position: 'left' }}
                             />
+                            {platform !== "nostr" ? (
+                                <p className="rounded-lg text-sm text-gray-300">
+                                    {new Date(message.timestamp).toLocaleString()}
+                                </p>
+                            ) : <div></div>}
                         </div>
                     )
                 }
