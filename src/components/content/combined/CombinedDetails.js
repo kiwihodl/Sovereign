@@ -118,7 +118,7 @@ const CombinedDetails = ({ processedEvent, topics, title, summary, image, price,
         }
 
         if (processedEvent?.content) {
-            return <MDDisplay className='p-2 rounded-lg w-full' source={processedEvent.content} />;
+            return <MDDisplay className='p-4 rounded-lg w-full' source={processedEvent.content} />;
         }
 
         return null;
@@ -222,14 +222,14 @@ const CombinedDetails = ({ processedEvent, topics, title, summary, image, price,
                                 {renderPaymentMessage()}
                                 <div className="flex flex-row justify-end gap-2">
                                     {course && (
-                                        <GenericButton 
-                                            size={isMobileView ? 'small' : null} 
-                                            outlined 
-                                            icon="pi pi-external-link" 
-                                            onClick={() => window.open(`/course/${course}`, '_blank')} 
-                                            label={isMobileView ? "Course" : "Open Course"} 
-                                            tooltip="This is a lesson in a course" 
-                                            tooltipOptions={{ position: 'top' }} 
+                                        <GenericButton
+                                            size={isMobileView ? 'small' : null}
+                                            outlined
+                                            icon="pi pi-external-link"
+                                            onClick={() => window.open(`/course/${course}`, '_blank')}
+                                            label={isMobileView ? "Course" : "Open Course"}
+                                            tooltip="This is a lesson in a course"
+                                            tooltipOptions={{ position: 'top' }}
                                         />
                                     )}
                                     <GenericButton
@@ -245,8 +245,8 @@ const CombinedDetails = ({ processedEvent, topics, title, summary, image, price,
                         )}
                     </div>
                 </div>
+                {renderContent()}
             </div>
-            {renderContent()}
         </div>
     );
 };

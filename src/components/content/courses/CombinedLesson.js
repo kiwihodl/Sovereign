@@ -116,7 +116,7 @@ const CombinedLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
         if (isPaid && decryptionPerformed) {
             return (
                 <div ref={mdDisplayRef}>
-                    <MDDisplay className={'p-2 rounded-lg w-full'} source={lesson.content} />
+                    <MDDisplay className={'p-4 rounded-lg w-full'} source={lesson.content} />
                 </div>
             );
         }
@@ -158,7 +158,7 @@ const CombinedLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
         if (lesson?.content) {
             return (
                 <div ref={mdDisplayRef}>
-                    <MDDisplay className={'p-2 rounded-lg w-full'} source={lesson.content} />
+                    <MDDisplay className={'p-4 rounded-lg w-full'} source={lesson.content} />
                 </div>
             );
         }
