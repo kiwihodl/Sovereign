@@ -86,6 +86,11 @@ const CommunityMessage = ({ message, searchQuery, windowWidth, platform }) => {
                             collapsed={collapsed}
                             onToggle={(e) => setCollapsed(e.value)}
                             className="w-full"
+                            pt={{
+                                content: {
+                                    className: 'p-4 py-0'
+                                },
+                            }}
                         >
                             <div className="max-w-[100vw]">
                                 {nsec || npub ? (

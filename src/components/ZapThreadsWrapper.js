@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-const ZapThreadsWrapper = ({ anchor, user, relays, disable }) => {
+const ZapThreadsWrapper = ({ anchor, user, relays, disable, className }) => {
   // Create a ref to store the reference to the <div> element
   const zapRef = useRef(null);
 
@@ -52,7 +52,7 @@ const ZapThreadsWrapper = ({ anchor, user, relays, disable }) => {
   }, [anchor, user, relays, disable]);
 
   // Render a <div> element and attach the zapRef to it
-  return <div className="overflow-x-hidden" ref={zapRef} />;
+  return <div className={`overflow-x-hidden ${className || ''}`} ref={zapRef} />;
 };
 
 export default ZapThreadsWrapper;
