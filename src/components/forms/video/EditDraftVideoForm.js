@@ -8,14 +8,12 @@ import { InputSwitch } from 'primereact/inputswitch';
 import GenericButton from '@/components/buttons/GenericButton';
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
-import 'primeicons/primeicons.css';
 import { Tooltip } from 'primereact/tooltip';
-import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
 
 const CDN_ENDPOINT = process.env.NEXT_PUBLIC_CDN_ENDPOINT;
 
-// todo need to handle case where published video is being edited and not just draft
-const VideoForm = ({ draft = null }) => {
+const EditDraftVideoForm = ({ draft }) => {
     const [title, setTitle] = useState(draft?.title || '');
     const [summary, setSummary] = useState(draft?.summary || '');
     const [price, setPrice] = useState(draft?.price || 0);
@@ -26,7 +24,7 @@ const VideoForm = ({ draft = null }) => {
     const [additionalLinks, setAdditionalLinks] = useState(draft?.additionalLinks || ['']);
 
     const router = useRouter();
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const [user, setUser] = useState(null);
     const { showToast } = useToast();
 
@@ -36,80 +34,62 @@ const VideoForm = ({ draft = null }) => {
         }
     }, [session]);
 
-    useEffect(() => {
-        if (draft) {
-            setTitle(draft.title);
-            setSummary(draft.summary);
-            setPrice(draft.price || 0);
-            setIsPaidResource(draft.price ? true : false);
-            setVideoUrl(draft.content);
-            setCoverImage(draft.image);
-            setTopics(draft.topics || ['']);
-            setAdditionalLinks(draft.additionalLinks || ['']);
-        }
-    }, [draft]);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        let embedCode = '';
-    
-        // Check if it's a YouTube video
-        if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
-            const videoId = videoUrl.split('v=')[1] || videoUrl.split('/').pop();
-            embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://www.youtube.com/embed/${videoId}?enablejsapi=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
-        }
-        // Check if it's a Vimeo video
-        else if (videoUrl.includes('vimeo.com')) {
-            const videoId = videoUrl.split('/').pop();
-            embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://player.vimeo.com/video/${videoId}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
-        }
-        else if (!price || !price > 0 && (videoUrl.includes('.mp4') || videoUrl.includes('.mov') || videoUrl.includes('.avi') || videoUrl.includes('.wmv') || videoUrl.includes('.flv') || videoUrl.includes('.webm'))) {
-            embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><video src="${CDN_ENDPOINT}/${videoUrl}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" controls></video></div>`;
-        }
-        else if (videoUrl.includes('.mp4') || videoUrl.includes('.mov') || videoUrl.includes('.avi') || videoUrl.includes('.wmv') || videoUrl.includes('.flv') || videoUrl.includes('.webm')) {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-            const videoEmbed = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><video src="${baseUrl}/api/get-video-url?videoKey=${encodeURIComponent(videoUrl)}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" controls></video></div>`;
-            embedCode = videoEmbed;
-        }
-        // Add more conditions here for other video services
 
-        const userResponse = await axios.get(`/api/users/${user.pubkey}`);
+        try {
+            // Verify user exists
+            const userResponse = await axios.get(`/api/users/${user.pubkey}`);
+            if (!userResponse.data) {
+                showToast('error', 'Error', 'User not found', 'Please try again.');
+                return;
+            }
 
-        if (!userResponse.data) {
-            showToast('error', 'Error', 'User not found', 'Please try again.');
-            return;
-        }
-    
-        const payload = {
-            title,
-            summary,
-            type: 'video',
-            price: isPaidResource ? price : null,
-            content: embedCode,
-            image: coverImage,
-            user: userResponse.data.id,
-            topics: [...new Set([...topics.map(topic => topic.trim().toLowerCase()), 'video'])],
-            additionalLinks: additionalLinks.filter(link => link.trim() !== ''),
-        };
+            let embedCode = '';
 
-        if (payload && payload.user) {
-            const url = draft ? `/api/drafts/${draft.id}` : '/api/drafts';
-            const method = draft ? 'put' : 'post';
+            // Check if it's a YouTube video
+            if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+                const videoId = videoUrl.split('v=')[1] || videoUrl.split('/').pop();
+                embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://www.youtube.com/embed/${videoId}?enablejsapi=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
+            }
+            // Check if it's a Vimeo video
+            else if (videoUrl.includes('vimeo.com')) {
+                const videoId = videoUrl.split('/').pop();
+                embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://player.vimeo.com/video/${videoId}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
+            }
+            else if ((!price || price <= 0) && (videoUrl.includes('.mp4') || videoUrl.includes('.mov') || videoUrl.includes('.avi') || videoUrl.includes('.wmv') || videoUrl.includes('.flv') || videoUrl.includes('.webm'))) {
+                const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+                embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><video src="${baseUrl}/${videoUrl}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" controls></video></div>`;
+            }
+            else if (videoUrl.includes('.mp4') || videoUrl.includes('.mov') || videoUrl.includes('.avi') || videoUrl.includes('.wmv') || videoUrl.includes('.flv') || videoUrl.includes('.webm')) {
+                const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+                const videoEmbed = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><video src="${baseUrl}/api/get-video-url?videoKey=${encodeURIComponent(videoUrl)}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" controls></video></div>`;
+                embedCode = videoEmbed;
+            }
 
-            axios[method](url, payload)
-                .then(response => {
-                    if (response.status === 200 || response.status === 201) {
-                        showToast('success', 'Success', draft ? 'Video updated successfully.' : 'Video saved as draft.');
+            const formData = {
+                title,
+                summary,
+                type: 'video',
+                price: isPaidResource ? price : null,
+                content: embedCode,
+                image: coverImage,
+                topics: [...new Set([...topics.map(topic => topic.trim().toLowerCase()), 'video'])],
+                additionalLinks: additionalLinks.filter(link => link.trim() !== ''),
+                user: userResponse.data.id,
+            };
 
-                        if (response.data?.id) {
-                            router.push(`/draft/${response.data.id}`);
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error(error);
-                    showToast('error', 'Error', 'Failed to save video. Please try again.');
-                });
+            const response = await axios.put(`/api/drafts/${draft.id}`, formData);
+
+            if (response.status === 200) {
+                showToast('success', 'Success', 'Video updated successfully.');
+                if (response.data?.id) {
+                    router.push(`/draft/${response.data.id}`);
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            showToast('error', 'Error', 'Failed to update video. Please try again.');
         }
     };
 
@@ -120,7 +100,7 @@ const VideoForm = ({ draft = null }) => {
 
     const addTopic = (e) => {
         e.preventDefault();
-        setTopics([...topics, '']); // Add an empty string to the topics array
+        setTopics([...topics, '']);
     };
 
     const removeTopic = (e, index) => {
@@ -144,7 +124,10 @@ const VideoForm = ({ draft = null }) => {
         const updatedLinks = additionalLinks.filter((_, i) => i !== index);
         setAdditionalLinks(updatedLinks);
     };
-    
+
+    if (!draft) {
+        return null;
+    }
 
     return (
         <form onSubmit={handleSubmit}>
@@ -174,12 +157,12 @@ const VideoForm = ({ draft = null }) => {
             <div className="mt-8 flex-col w-full">
                 <span className="pl-1 flex items-center">
                     External Links
-                    <i className="pi pi-info-circle ml-2 cursor-pointer" 
-                       data-pr-tooltip="Add any relevant external links that pair with this content (these links are currently not encrypted for 'paid' content)"
-                       data-pr-position="right"
-                       data-pr-at="right+5 top"
-                       data-pr-my="left center-2"
-                       style={{ fontSize: '1rem', color: 'var(--primary-color)' }}
+                    <i className="pi pi-info-circle ml-2 cursor-pointer"
+                        data-pr-tooltip="Add any relevant external links that pair with this content"
+                        data-pr-position="right"
+                        data-pr-at="right+5 top"
+                        data-pr-my="left center-2"
+                        style={{ fontSize: '1rem', color: 'var(--primary-color)' }}
                     />
                 </span>
                 {additionalLinks.map((link, index) => (
@@ -209,10 +192,10 @@ const VideoForm = ({ draft = null }) => {
                 </div>
             </div>
             <div className="flex justify-center mt-8">
-                <GenericButton type="submit" severity="success" outlined label={draft ? "Update" : "Submit"} />
+                <GenericButton type="submit" severity="success" outlined label="Update" />
             </div>
         </form>
     );
-}
+};
 
-export default VideoForm;
+export default EditDraftVideoForm;

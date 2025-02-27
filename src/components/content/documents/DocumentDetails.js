@@ -120,7 +120,7 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
             );
         }
         if (processedEvent?.content) {
-            return <MDDisplay className='p-2 rounded-lg w-full' source={processedEvent.content} />;
+            return <MDDisplay className='p-4 rounded-lg w-full' source={processedEvent.content} />;
         }
         return null;
     }
@@ -235,8 +235,8 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
                         )}
                     </div>
                 </div>
+                {renderContent()}
             </div>
-            {renderContent()}
         </div>
     )
 }
