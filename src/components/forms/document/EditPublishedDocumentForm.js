@@ -51,11 +51,13 @@ const EditPublishedDocumentForm = ({ event }) => {
         setAdditionalLinks(additionalLinks.filter((_, i) => i !== index));
     }
 
-    const addTopic = () => {
+    const addTopic = (e) => {
+        e.preventDefault();
         setTopics([...topics, '']);
     }
 
     const removeTopic = (e, index) => {
+        e.preventDefault();
         setTopics(topics.filter((_, i) => i !== index));
     }
 
