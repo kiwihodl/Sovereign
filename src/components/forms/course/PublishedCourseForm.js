@@ -97,7 +97,7 @@ const PublishedCourseForm = ({ course }) => {
 
             // Update course in database
             await axios.put(`/api/courses/${course.d}`, {
-                price: isPaidCourse ? price : 0,
+                price: isPaidCourse ? Number(price) : 0,
                 lessons: lessons.map(lesson => ({
                     resourceId: lesson.d,
                     draftId: null,
