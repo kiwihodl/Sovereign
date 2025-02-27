@@ -43,11 +43,13 @@ const EditPublishedDocumentForm = ({ event }) => {
         setContent(value || '');
     }, []);
 
-    const addLink = () => {
+    const addLink = (e) => {
+        e.preventDefault();
         setAdditionalLinks([...additionalLinks, '']);
     }
 
     const removeLink = (e, index) => {
+        e.preventDefault();
         setAdditionalLinks(additionalLinks.filter((_, i) => i !== index));
     }
 
