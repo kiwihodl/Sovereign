@@ -81,9 +81,15 @@ const EditPublishedDocumentForm = ({ event }) => {
             // Encrypt content if it's a paid resource
             let finalContent = content;
             if (isPaidResource && price > 0) {
-                finalContent = await encryptContent(content);
-                if (!finalContent) {
-                    showToast('error', 'Error', 'Failed to encrypt content');
+                try {
+                    finalContent = await encryptContent(content);
+                    if (!finalContent) {
+                        showToast('error', 'Error', 'Failed to encrypt content');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Encryption error:', error);
+                    showToast('error', 'Error', 'Failed to encrypt content: ' + error.message);
                     return;
                 }
             }
