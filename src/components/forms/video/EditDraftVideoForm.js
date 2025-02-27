@@ -11,6 +11,8 @@ import { useSession } from 'next-auth/react';
 import { Tooltip } from 'primereact/tooltip';
 import 'primeicons/primeicons.css';
 
+const CDN_ENDPOINT = process.env.NEXT_PUBLIC_CDN_ENDPOINT;
+
 const EditDraftVideoForm = ({ draft }) => {
     const [title, setTitle] = useState(draft?.title || '');
     const [summary, setSummary] = useState(draft?.summary || '');
