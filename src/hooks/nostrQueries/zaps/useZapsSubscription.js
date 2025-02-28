@@ -26,7 +26,7 @@ export function useZapsSubscription({ event }) {
       try {
         const filters = [
           { kinds: [9735], "#e": [event.id] },
-          { kinds: [9735], "#a": [`${event.kind}:${event.pubkey}:${event.id}`] }
+          { kinds: [9735], "#a": [`${event.kind}:${event.pubkey}:${event.d}`] }
         ];
 
         subscription = ndk.subscribe(filters, {
