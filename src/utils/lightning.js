@@ -10,7 +10,7 @@ export const getTotalFromZaps = (zaps, event) => {
     let uniqueZaps = new Set();
     zaps.forEach((zap) => {
       // If the zap matches the event or the parameterized event, then add the zap to the total
-      if ((zap.tags.find(tag => tag[0] === "e" && tag[1] === event.id) || zap.tags.find(tag => tag[0] === "a" && tag[1] === `${event.kind}:${event.id}:${event.d}`)) &&!uniqueZaps.has(zap.id)) {
+      if ((zap.tags.find(tag => tag[0] === "e" && tag[1] === event.id) || zap.tags.find(tag => tag[0] === "a" && tag[1] === `${event.kind}:${event.pubkey}:${event.d}`)) &&!uniqueZaps.has(zap.id)) {
         uniqueZaps.add(zap.id);
         const bolt11Tag = zap.tags.find(tag => tag[0] === "bolt11");
         const invoice = bolt11Tag ? bolt11Tag[1] : null;

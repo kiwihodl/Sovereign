@@ -16,7 +16,7 @@ export function useZapsQuery({ event, type }) {
 
             const filters = [
                 { kinds: [9735], "#e": [event.id] },
-                { kinds: [9735], "#a": [`${event.kind}:${event.id}:${event.d}`] }
+                { kinds: [9735], "#a": [`${event.kind}:${event.pubkey}:${event.d}`] }
             ];
 
             const events = await ndk.fetchEvents(filters, { closeOnEose: true });
