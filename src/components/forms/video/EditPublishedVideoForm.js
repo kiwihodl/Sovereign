@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useToast } from '@/hooks/useToast';
@@ -13,6 +13,14 @@ import { InputNumber } from 'primereact/inputnumber';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Tooltip } from 'primereact/tooltip';
 import { useEncryptContent } from '@/hooks/encryption/useEncryptContent';
+import dynamic from 'next/dynamic';
+
+const MDEditor = dynamic(
+    () => import("@uiw/react-md-editor"),
+    {
+        ssr: false,
+    }
+);
 
 const EditPublishedVideoForm = ({ event }) => {
     const router = useRouter();
@@ -24,7 +32,7 @@ const EditPublishedVideoForm = ({ event }) => {
     const [summary, setSummary] = useState(event.summary);
     const [price, setPrice] = useState(event.price);
     const [isPaidResource, setIsPaidResource] = useState(event.price ? true : false);
-    const [videoUrl, setVideoUrl] = useState(event.content);
+    const [videoEmbed, setVideoEmbed] = useState(event.content);
     const [coverImage, setCoverImage] = useState(event.image);
     const [additionalLinks, setAdditionalLinks] = useState(event.additionalLinks);
     const [topics, setTopics] = useState(event.topics);
@@ -40,6 +48,10 @@ const EditPublishedVideoForm = ({ event }) => {
     useEffect(() => {
         console.log("event", event);
     }, [event]);
+
+    const handleVideoEmbedChange = useCallback((value) => {
+        setVideoEmbed(value || '');
+    }, []);
 
     const addLink = () => {
         setAdditionalLinks([...additionalLinks, '']);
@@ -76,22 +88,8 @@ const EditPublishedVideoForm = ({ event }) => {
                 await addSigner();
             }
 
-            let embedCode = '';
-
-            // Generate embed code based on video URL
-            if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
-                const videoId = videoUrl.split('v=')[1] || videoUrl.split('/').pop();
-                embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://www.youtube.com/embed/${videoId}?enablejsapi=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
-            } else if (videoUrl.includes('vimeo.com')) {
-                const videoId = videoUrl.split('/').pop();
-                embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://player.vimeo.com/video/${videoId}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
-            } else if ((price === undefined || price <= 0) && (videoUrl.includes('.mp4') || videoUrl.includes('.mov') || videoUrl.includes('.avi') || videoUrl.includes('.wmv') || videoUrl.includes('.flv') || videoUrl.includes('.webm'))) {
-                embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><video src="${CDN_ENDPOINT}/${videoUrl}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" controls></video></div>`;
-            } else if (videoUrl.includes('.mp4') || videoUrl.includes('.mov') || videoUrl.includes('.avi') || videoUrl.includes('.wmv') || videoUrl.includes('.flv') || videoUrl.includes('.webm')) {
-                const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-                const videoEmbed = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><video src="${baseUrl}/api/get-video-url?videoKey=${encodeURIComponent(videoUrl)}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" controls></video></div>`;
-                embedCode = videoEmbed;
-            }
+            // Use the custom markdown/HTML content directly as the embed code
+            let embedCode = videoEmbed;
 
             // Encrypt content if it's a paid resource
             if (isPaidResource && price > 0) {
@@ -183,8 +181,18 @@ const EditPublishedVideoForm = ({ event }) => {
                     </div>
                 )}
             </div>
-            <div className="p-inputgroup flex-1 mt-4">
-                <InputText value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="Video URL" />
+            <div className="p-inputgroup flex-1 flex-col mt-4">
+                <span>Video Embed</span>
+                <div data-color-mode="dark">
+                    <MDEditor
+                        value={videoEmbed}
+                        onChange={handleVideoEmbedChange}
+                        height={250}
+                    />
+                </div>
+                <small className="text-gray-400 mt-2">
+                    You can customize your video embed using markdown or HTML. For example, paste iframe embeds from YouTube or Vimeo, or use video tags for direct video files.
+                </small>
             </div>
             <div className="p-inputgroup flex-1 mt-4">
                 <InputText value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="Cover Image URL" />
