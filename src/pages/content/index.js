@@ -14,7 +14,7 @@ const MenuTab = ({ items, selectedTopic, onTabChange }) => {
     const router = useRouter();
     // Reorder items to put 'Free' and 'Paid' after 'Courses', 'Videos', and 'Documents'
     const priorityItems = ['All', 'Courses', 'Videos', 'Documents', 'Free', 'Paid'];
-    const blacklistedItems = ['document', 'video', 'course', "333", "4a90e2", "f0f0f0"];
+    const blacklistedItems = ['document', 'video', 'course'];
     const otherItems = items.filter(item => !priorityItems.includes(item) && !blacklistedItems.includes(item));
     const allItems = [...priorityItems, ...otherItems];
 
