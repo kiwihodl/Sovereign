@@ -134,7 +134,7 @@ const AboutPage = () => {
                 </div>
             </Card>
 
-            <Card title="Connect with Us" className="mb-4">
+            <Card title="Connect with Us" className="mb-4 max-tab:mx-2">
                 <div className="flex flex-wrap gap-4 justify-center">
                     <GenericButton
                         severity="secondary"
