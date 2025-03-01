@@ -48,14 +48,14 @@ const CombinedResourceForm = () => {
 
     const getVideoEmbed = (url) => {
         let embedCode = '';
-        
+
         if (url.includes('youtube.com') || url.includes('youtu.be')) {
             const videoId = url.split('v=')[1] || url.split('/').pop();
             embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://www.youtube.com/embed/${videoId}?enablejsapi=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
         } else if (url.includes('vimeo.com')) {
             const videoId = url.split('/').pop();
             embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://player.vimeo.com/video/${videoId}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
-        } else if (!price || !price > 0 && (url.includes('.mp4') || url.includes('.mov') || url.includes('.avi') || url.includes('.wmv') || url.includes('.flv') || url.includes('.webm'))) {
+        } else if (!price || price <= 0 && (url.includes('.mp4') || url.includes('.mov') || url.includes('.avi') || url.includes('.wmv') || url.includes('.flv') || url.includes('.webm'))) {
             embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><video src="${CDN_ENDPOINT}/${url}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" controls></video></div>`;
         } else if (url.includes('.mp4') || url.includes('.mov') || url.includes('.avi') || url.includes('.wmv') || url.includes('.flv') || url.includes('.webm')) {
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
@@ -140,7 +140,7 @@ const CombinedResourceForm = () => {
             <div className="p-inputgroup flex-1">
                 <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
             </div>
-            
+
             <div className="p-inputgroup flex-1 mt-4">
                 <InputTextarea value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" rows={5} cols={30} />
             </div>
@@ -178,12 +178,12 @@ const CombinedResourceForm = () => {
             <div className="mt-8 flex-col w-full">
                 <span className="pl-1 flex items-center">
                     External Links
-                    <i className="pi pi-info-circle ml-2 cursor-pointer" 
-                       data-pr-tooltip="Add any relevant external links that pair with this content (these links are currently not encrypted for 'paid' content)"
-                       data-pr-position="right"
-                       data-pr-at="right+5 top"
-                       data-pr-my="left center-2"
-                       style={{ fontSize: '1rem', color: 'var(--primary-color)' }}
+                    <i className="pi pi-info-circle ml-2 cursor-pointer"
+                        data-pr-tooltip="Add any relevant external links that pair with this content (these links are currently not encrypted for 'paid' content)"
+                        data-pr-position="right"
+                        data-pr-at="right+5 top"
+                        data-pr-my="left center-2"
+                        style={{ fontSize: '1rem', color: 'var(--primary-color)' }}
                     />
                 </span>
                 {additionalLinks.map((link, index) => (
