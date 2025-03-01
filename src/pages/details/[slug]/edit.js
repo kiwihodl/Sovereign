@@ -4,7 +4,7 @@ import { parseEvent } from "@/utils/nostr";
 import EditPublishedDocumentForm from "@/components/forms/document/EditPublishedDocumentForm";
 import EditPublishedVideoForm from "@/components/forms/video/EditPublishedVideoForm";
 import CourseForm from "@/components/forms/course/CourseForm";
-import CombinedResourceForm from "@/components/forms/CombinedResourceForm";
+import EditPublishedCombinedResourceForm from "@/components/forms/combined/EditPublishedCombinedResourceForm";
 import { useNDKContext } from "@/context/NDKContext";
 import { useToast } from "@/hooks/useToast";
 
@@ -41,7 +41,7 @@ export default function Edit() {
             {event?.topics.includes('course') && <CourseForm draft={event} isPublished />}
             {event?.topics.includes('video') && !event?.topics.includes('document') && <EditPublishedVideoForm event={event} />}
             {event?.topics.includes('document') && !event?.topics.includes('video') && <EditPublishedDocumentForm event={event} />}
-            {event?.topics.includes('video') && event?.topics.includes('document') && <CombinedResourceForm draft={event} isPublished />}
+            {event?.topics.includes('video') && event?.topics.includes('document') && <EditPublishedCombinedResourceForm event={event} />}
         </div>
     );
 }

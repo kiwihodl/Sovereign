@@ -22,7 +22,7 @@ const MDEditor = dynamic(
     }
 );
 
-const EditPublishedVideoForm = ({ event }) => {
+const EditPublishedCombinedResourceForm = ({ event }) => {
     const router = useRouter();
     const { data: session } = useSession();
     const { showToast } = useToast();
@@ -32,12 +32,32 @@ const EditPublishedVideoForm = ({ event }) => {
     const [summary, setSummary] = useState(event.summary);
     const [price, setPrice] = useState(event.price);
     const [isPaidResource, setIsPaidResource] = useState(event.price ? true : false);
-    const [videoEmbed, setVideoEmbed] = useState(event.content);
+    const [videoEmbed, setVideoEmbed] = useState('');
+    const [content, setContent] = useState('');
     const [coverImage, setCoverImage] = useState(event.image);
-    const [additionalLinks, setAdditionalLinks] = useState(event.additionalLinks);
-    const [topics, setTopics] = useState(event.topics);
+    const [additionalLinks, setAdditionalLinks] = useState(event.additionalLinks || []);
+    const [topics, setTopics] = useState(event.topics || []);
 
     const { encryptContent } = useEncryptContent();
+
+    // Extract video embed and content from the combined content
+    useEffect(() => {
+        if (event?.content) {
+            const parts = event.content.split('\n\n');
+            if (parts.length > 1) {
+                // First part is video embed
+                const videoEmbedPart = parts[0];
+                setVideoEmbed(videoEmbedPart);
+                
+                // Join the rest of the content
+                const remainingContent = parts.slice(1).join('\n\n');
+                setContent(remainingContent);
+            } else {
+                // If there's no clear separation, just set everything as content
+                setContent(event.content);
+            }
+        }
+    }, [event]);
 
     useEffect(() => {
         if (session) {
@@ -45,12 +65,12 @@ const EditPublishedVideoForm = ({ event }) => {
         }
     }, [session]);
 
-    useEffect(() => {
-        console.log("event", event);
-    }, [event]);
-
     const handleVideoEmbedChange = useCallback((value) => {
         setVideoEmbed(value || '');
+    }, []);
+
+    const handleContentChange = useCallback((value) => {
+        setContent(value || '');
     }, []);
 
     const addLink = () => {
@@ -88,13 +108,14 @@ const EditPublishedVideoForm = ({ event }) => {
                 await addSigner();
             }
 
-            // Use the custom markdown/HTML content directly as the embed code
-            let embedCode = videoEmbed;
+            // Combine video embed and content
+            const updatedCombinedContent = `${videoEmbed}\n\n${content}`;
 
             // Encrypt content if it's a paid resource
+            let finalContent = updatedCombinedContent;
             if (isPaidResource && price > 0) {
-                embedCode = await encryptContent(embedCode);
-                if (!embedCode) {
+                finalContent = await encryptContent(updatedCombinedContent);
+                if (!finalContent) {
                     showToast('error', 'Error', 'Failed to encrypt content');
                     return;
                 }
@@ -102,40 +123,48 @@ const EditPublishedVideoForm = ({ event }) => {
 
             const ndkEvent = new NDKEvent(ndk);
             ndkEvent.kind = event.kind;
-            ndkEvent.content = embedCode;
+            ndkEvent.content = finalContent;
             ndkEvent.created_at = Math.floor(Date.now() / 1000);
             ndkEvent.pubkey = event.pubkey;
             ndkEvent.tags = [
                 ['title', title],
                 ['summary', summary],
                 ['image', coverImage],
-                ['t', 'video'],
                 ['d', event.d],
             ];
 
-            // Add topics
-            topics.forEach(topic => {
-                if (topic && topic !== 'video') {
-                    ndkEvent.tags.push(['t', topic]);
+            // Add the required topic tags
+            const requiredTopics = ['video', 'document'];
+            const customTopics = topics.filter(topic => !requiredTopics.includes(topic.toLowerCase()));
+            
+            // Add required topics
+            requiredTopics.forEach(topic => {
+                ndkEvent.tags.push(['t', topic]);
+            });
+
+            // Add custom topics
+            customTopics.forEach(topic => {
+                if (topic && topic.trim()) {
+                    ndkEvent.tags.push(['t', topic.trim().toLowerCase()]);
                 }
             });
 
             // Add additional links
             additionalLinks.forEach(link => {
-                if (link) {
-                    ndkEvent.tags.push(['r', link]);
+                if (link && link.trim()) {
+                    ndkEvent.tags.push(['r', link.trim()]);
                 }
             });
 
             // Add price if it exists
-            if (price) {
+            if (price && isPaidResource) {
                 ndkEvent.tags.push(['price', price.toString()]);
             }
 
             // Validate the event
             const validationResult = validateEvent(ndkEvent);
             if (validationResult !== true) {
-                console.log("validationResult", validationResult);
+                console.error("validation error:", validationResult);
                 showToast('error', 'Error', validationResult);
                 return;
             }
@@ -150,15 +179,15 @@ const EditPublishedVideoForm = ({ event }) => {
                 });
 
                 if (updatedResource && updatedResource.status === 200) {
-                    showToast('success', 'Success', 'Video updated successfully');
+                    showToast('success', 'Success', 'Content updated successfully');
                     router.push(`/details/${updatedResource.data.noteId}`);
                 } else {
-                    showToast('error', 'Error', 'Failed to update video');
+                    showToast('error', 'Error', 'Failed to update content');
                 }
             }
         } catch (error) {
-            console.error('Error updating video:', error);
-            showToast('error', 'Error', 'Failed to update video');
+            console.error('Error updating content:', error);
+            showToast('error', 'Error', 'Failed to update content');
         }
     };
 
@@ -172,7 +201,7 @@ const EditPublishedVideoForm = ({ event }) => {
             </div>
 
             <div className="p-inputgroup flex-1 mt-4 flex-col">
-                <p className="py-2">Paid Video</p>
+                <p className="py-2">Paid Resource</p>
                 <InputSwitch checked={isPaidResource} onChange={(e) => setIsPaidResource(e.value)} />
                 {isPaidResource && (
                     <div className="p-inputgroup flex-1 py-4">
@@ -181,6 +210,7 @@ const EditPublishedVideoForm = ({ event }) => {
                     </div>
                 )}
             </div>
+            
             <div className="p-inputgroup flex-1 flex-col mt-4">
                 <span>Video Embed</span>
                 <div data-color-mode="dark">
@@ -194,12 +224,24 @@ const EditPublishedVideoForm = ({ event }) => {
                     You can customize your video embed using markdown or HTML. For example, paste iframe embeds from YouTube or Vimeo, or use video tags for direct video files.
                 </small>
             </div>
+
             <div className="p-inputgroup flex-1 mt-4">
                 <InputText value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="Cover Image URL" />
             </div>
+
+            <div className="p-inputgroup flex-1 flex-col mt-4">
+                <span>Content</span>
+                <div data-color-mode="dark">
+                    <MDEditor
+                        value={content}
+                        onChange={handleContentChange}
+                        height={350}
+                    />
+                </div>
+            </div>
+
             <div className="mt-8 flex-col w-full">
                 <div className="flex flex-row items-center pl-1">
-
                     <span className="pl-1 flex items-center">
                         External Links
                     </span>
@@ -241,10 +283,10 @@ const EditPublishedVideoForm = ({ event }) => {
                 </div>
             </div>
             <div className="flex justify-center mt-8">
-                <GenericButton type="submit" severity="success" outlined label={"Update"} />
+                <GenericButton type="submit" severity="success" outlined label="Update" />
             </div>
         </form>
     );
 };
 
-export default EditPublishedVideoForm;
+export default EditPublishedCombinedResourceForm; 

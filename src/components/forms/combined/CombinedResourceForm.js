@@ -10,8 +10,6 @@ import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 import { Tooltip } from 'primereact/tooltip';
-import { useEncryptContent } from '@/hooks/encryption/useEncryptContent';
-import { useNDKContext } from "@/context/NDKContext";
 import 'primeicons/primeicons.css';
 import 'primereact/resources/primereact.min.css';
 
@@ -22,23 +20,21 @@ const MDEditor = dynamic(
 
 const CDN_ENDPOINT = process.env.NEXT_PUBLIC_CDN_ENDPOINT;
 
-const CombinedResourceForm = ({ draft = null, isPublished = false }) => {
-    const [title, setTitle] = useState(draft?.title || '');
-    const [summary, setSummary] = useState(draft?.summary || '');
-    const [price, setPrice] = useState(draft?.price || 0);
-    const [isPaidResource, setIsPaidResource] = useState(draft?.price ? true : false);
-    const [videoUrl, setVideoUrl] = useState(draft?.videoUrl || '');
-    const [content, setContent] = useState(draft?.content || '');
-    const [coverImage, setCoverImage] = useState(draft?.image || '');
-    const [topics, setTopics] = useState(draft?.topics || ['']);
-    const [additionalLinks, setAdditionalLinks] = useState(draft?.additionalLinks || ['']);
+const CombinedResourceForm = () => {
+    const [title, setTitle] = useState('');
+    const [summary, setSummary] = useState('');
+    const [price, setPrice] = useState(0);
+    const [isPaidResource, setIsPaidResource] = useState(false);
+    const [videoUrl, setVideoUrl] = useState('');
+    const [content, setContent] = useState('');
+    const [coverImage, setCoverImage] = useState('');
+    const [topics, setTopics] = useState(['']);
+    const [additionalLinks, setAdditionalLinks] = useState(['']);
     const [user, setUser] = useState(null);
 
     const router = useRouter();
     const { data: session } = useSession();
     const { showToast } = useToast();
-    const { ndk, addSigner } = useNDKContext();
-    const { encryptContent } = useEncryptContent();
 
     useEffect(() => {
         if (session) {
@@ -52,14 +48,14 @@ const CombinedResourceForm = ({ draft = null, isPublished = false }) => {
 
     const getVideoEmbed = (url) => {
         let embedCode = '';
-        
+
         if (url.includes('youtube.com') || url.includes('youtu.be')) {
             const videoId = url.split('v=')[1] || url.split('/').pop();
             embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://www.youtube.com/embed/${videoId}?enablejsapi=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
         } else if (url.includes('vimeo.com')) {
             const videoId = url.split('/').pop();
             embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://player.vimeo.com/video/${videoId}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
-        } else if (!price || !price > 0 && (url.includes('.mp4') || url.includes('.mov') || url.includes('.avi') || url.includes('.wmv') || url.includes('.flv') || url.includes('.webm'))) {
+        } else if (!price || price <= 0 && (url.includes('.mp4') || url.includes('.mov') || url.includes('.avi') || url.includes('.wmv') || url.includes('.flv') || url.includes('.webm'))) {
             embedCode = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><video src="${CDN_ENDPOINT}/${url}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" controls></video></div>`;
         } else if (url.includes('.mp4') || url.includes('.mov') || url.includes('.avi') || url.includes('.wmv') || url.includes('.flv') || url.includes('.webm')) {
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
@@ -93,13 +89,10 @@ const CombinedResourceForm = ({ draft = null, isPublished = false }) => {
             additionalLinks: additionalLinks.filter(link => link.trim() !== ''),
         };
 
-        const url = draft ? `/api/drafts/${draft.id}` : '/api/drafts';
-        const method = draft ? 'put' : 'post';
-
         try {
-            const response = await axios[method](url, payload);
-            if (response.status === 200 || response.status === 201) {
-                showToast('success', 'Success', draft ? 'Content updated successfully.' : 'Content saved as draft.');
+            const response = await axios.post('/api/drafts', payload);
+            if (response.status === 201) {
+                showToast('success', 'Success', 'Content saved as draft.');
                 if (response.data?.id) {
                     router.push(`/draft/${response.data.id}`);
                 }
@@ -142,80 +135,12 @@ const CombinedResourceForm = ({ draft = null, isPublished = false }) => {
         setAdditionalLinks(updatedAdditionalLinks);
     };
 
-    const buildEvent = async (draft) => {
-        const dTag = draft.d;
-        const event = new NDKEvent(ndk);
-        let encryptedContent;
-
-        const videoEmbed = videoUrl ? getVideoEmbed(videoUrl) : '';
-        const combinedContent = `${videoEmbed}\n\n${content}`;
-
-        if (draft?.price) {
-            encryptedContent = await encryptContent(combinedContent);
-        }
-
-        event.kind = draft?.price ? 30402 : 30023;
-        event.content = draft?.price ? encryptedContent : combinedContent;
-        event.created_at = Math.floor(Date.now() / 1000);
-        event.pubkey = user.pubkey;
-        event.tags = [
-            ['d', dTag],
-            ['title', draft.title],
-            ['summary', draft.summary],
-            ['image', draft.image],
-            ...draft.topics.map(topic => ['t', topic]),
-            ['published_at', Math.floor(Date.now() / 1000).toString()],
-            ...(draft?.price ? [['price', draft.price.toString()], ['location', `https://plebdevs.com/details/${draft.id}`]] : []),
-        ];
-
-        return event;
-    };
-
-    const handlePublishedResource = async (e) => {
-        e.preventDefault();
-
-        const updatedDraft = {
-            title,
-            summary,
-            price,
-            content,
-            videoUrl,
-            d: draft.d,
-            image: coverImage,
-            topics: [...new Set([...topics.map(topic => topic.trim().toLowerCase()), 'video', 'document'])],
-            additionalLinks: additionalLinks.filter(link => link.trim() !== '')
-        };
-
-        const event = await buildEvent(updatedDraft);
-
-        try {
-            if (!ndk.signer) {
-                await addSigner();
-            }
-
-            await ndk.connect();
-
-            const published = await ndk.publish(event);
-
-            if (published) {
-                const response = await axios.put(`/api/resources/${draft.d}`, { noteId: event.id });
-                showToast('success', 'Success', 'Content published successfully.');
-                router.push(`/details/${event.id}`);
-            } else {
-                showToast('error', 'Error', 'Failed to publish content. Please try again.');
-            }
-        } catch (error) {
-            console.error(error);
-            showToast('error', 'Error', 'Failed to publish content. Please try again.');
-        }
-    };
-
     return (
         <form onSubmit={handleSubmit}>
             <div className="p-inputgroup flex-1">
                 <InputText value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
             </div>
-            
+
             <div className="p-inputgroup flex-1 mt-4">
                 <InputTextarea value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Summary" rows={5} cols={30} />
             </div>
@@ -253,12 +178,12 @@ const CombinedResourceForm = ({ draft = null, isPublished = false }) => {
             <div className="mt-8 flex-col w-full">
                 <span className="pl-1 flex items-center">
                     External Links
-                    <i className="pi pi-info-circle ml-2 cursor-pointer" 
-                       data-pr-tooltip="Add any relevant external links that pair with this content (these links are currently not encrypted for 'paid' content)"
-                       data-pr-position="right"
-                       data-pr-at="right+5 top"
-                       data-pr-my="left center-2"
-                       style={{ fontSize: '1rem', color: 'var(--primary-color)' }}
+                    <i className="pi pi-info-circle ml-2 cursor-pointer"
+                        data-pr-tooltip="Add any relevant external links that pair with this content (these links are currently not encrypted for 'paid' content)"
+                        data-pr-position="right"
+                        data-pr-at="right+5 top"
+                        data-pr-my="left center-2"
+                        style={{ fontSize: '1rem', color: 'var(--primary-color)' }}
                     />
                 </span>
                 {additionalLinks.map((link, index) => (
@@ -289,10 +214,10 @@ const CombinedResourceForm = ({ draft = null, isPublished = false }) => {
             </div>
 
             <div className="flex justify-center mt-8">
-                <GenericButton type="submit" severity="success" outlined label={draft ? "Update" : "Submit"} />
+                <GenericButton type="submit" severity="success" outlined label="Submit" />
             </div>
         </form>
     );
 };
 
-export default CombinedResourceForm;
+export default CombinedResourceForm; 
