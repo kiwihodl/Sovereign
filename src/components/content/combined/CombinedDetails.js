@@ -44,6 +44,7 @@ const CombinedDetails = ({ processedEvent, topics, title, summary, image, price,
 
     useEffect(() => {
         if (zaps.length > 0) {
+            console.log('zaps', zaps);
             const total = getTotalFromZaps(zaps, processedEvent);
             setZapAmount(total);
         }
