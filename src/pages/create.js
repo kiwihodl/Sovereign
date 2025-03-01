@@ -3,7 +3,7 @@ import MenuTab from "@/components/menutab/MenuTab";
 import DocumentForm from "@/components/forms/document/DocumentForm";
 import VideoForm from "@/components/forms/video/VideoForm";
 import CourseForm from "@/components/forms/course/CourseForm";
-import CombinedResourceForm from "@/components/forms/CombinedResourceForm";
+import CombinedResourceForm from "@/components/forms/combined/CombinedResourceForm";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useRouter } from "next/router";
 import { ProgressSpinner } from "primereact/progressspinner";
