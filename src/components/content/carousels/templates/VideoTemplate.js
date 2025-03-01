@@ -13,7 +13,6 @@ import { Tag } from "primereact/tag";
 import { Message } from "primereact/message";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import GenericButton from "@/components/buttons/GenericButton";
-import appConfig from "@/config/appConfig";
 
 export function VideoTemplate({ video, isLesson, showMetaTags }) {
     const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: video });
@@ -63,6 +62,9 @@ export function VideoTemplate({ video, isLesson, showMetaTags }) {
                     className="rounded-md"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary-foreground/50" />
+                <div className="absolute bottom-4 left-4 flex gap-2">
+                    <PlayCircle className="w-6 h-6 text-white" />
+                </div>
             </div>
             <CardHeader className="flex flex-row justify-between items-center p-4 border-b border-gray-700">
                 <div className="flex items-center gap-4">
