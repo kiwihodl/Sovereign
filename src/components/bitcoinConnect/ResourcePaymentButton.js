@@ -54,7 +54,7 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
     try {
       const ln = new LightningAddress(lnAddress);
       await ln.fetch();
-      const invoice = await ln.requestInvoice({ satoshi: amount });
+      const invoice = await ln.requestInvoice({ satoshi: amount, comment: `Resource Purchase: ${resourceId}, User: ${session?.user?.id}` });
       setInvoice(invoice);
       setDialogVisible(true);
     } catch (error) {

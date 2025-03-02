@@ -79,7 +79,8 @@ const CoursePaymentButton = ({ lnAddress, amount, onSuccess, onError, courseId }
             const ln = new LightningAddress(lnAddress);
             await ln.fetch();
             const invoice = await ln.requestInvoice({ 
-                satoshi: discountApplied ? calculateDiscount(amount).discountedAmount : amount 
+                satoshi: discountApplied ? calculateDiscount(amount).discountedAmount : amount,
+                comment: `Course Purchase: ${courseId}, User: ${session?.user?.id}`
             });
             setInvoice(invoice);
             setDialogVisible(true);

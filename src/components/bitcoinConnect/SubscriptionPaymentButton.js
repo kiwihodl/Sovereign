@@ -60,7 +60,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
         try {
             const ln = new LightningAddress(lnAddress);
             await ln.fetch();
-            const newInvoice = await ln.requestInvoice({ satoshi: amount });
+            const newInvoice = await ln.requestInvoice({ satoshi: amount, comment: `Subscription Purchase. User: ${session?.user?.id}` });
             return newInvoice;
         } catch (error) {
             console.error('Error fetching invoice:', error);
