@@ -127,7 +127,7 @@ const Subscribe = () => {
             {windowWidth < 768 && (
                 <h1 className="text-3xl font-bold mb-6">Subscription Management</h1>
             )}
-            <div className="mb-4 p-4 bg-gray-800 rounded-lg w-fit">
+            <div className="mb-2 p-4 bg-gray-800 rounded-lg w-fit">
                 {session && session?.user ? (
                     <>
                         {subscribed && !user?.role?.nwc && (
@@ -164,7 +164,7 @@ const Subscribe = () => {
 
             {!session?.user && (
                 <>
-                    <Card title="Start Your PlebDevs Journey" className="mb-6">
+                    <Card title="Start Your PlebDevs Journey" className="mb-2">
                         <p className='mb-4 text-xl'>
                             The PlebDevs subscription unlocks all paid content, grants access to our 1:1 calendar for tutoring, support, and mentorship, and grants you your own personal plebdevs.com Lightning Address and Nostr NIP-05 identity.
                         </p>
@@ -172,14 +172,14 @@ const Subscribe = () => {
                             Subscribe monthly with a pay-as-you-go option or set up an auto-recurring subscription using Nostr Wallet Connect.
                         </p>
                     </Card>
-                    <Card title="Ready to level up?" className="mb-4">
+                    <Card title="Ready to level up?" className="mb-2">
                         <p className='text-xl pb-4'>Login to start your subscription!</p>
                         <GenericButton label="Login" onClick={() => router.push('/auth/signin')} className='text-[#f8f8ff] w-fit' rounded icon="pi pi-user" />
                     </Card>
                 </>
             )}
 
-            <Card title="Subscribe to PlebDevs" className="mb-4">
+            <Card title="Subscribe to PlebDevs" className="mb-2">
                 {isProcessing ? (
                     <div className="w-full flex flex-col mx-auto justify-center items-center mt-4">
                         <div className='w-full h-full flex items-center justify-center'><ProgressSpinner /></div>
@@ -222,14 +222,14 @@ const Subscribe = () => {
 
             {session?.user && subscribed && (
                 <>
-                    <Card title="Subscription Benefits" className="mb-4">
+                    <Card title="Subscription Benefits" className="mb-2">
                         <div className="flex flex-col gap-4">
                             <GenericButton severity="info" outlined className="w-fit text-start" label="Schedule 1:1" icon="pi pi-calendar" onClick={() => setCalendlyVisible(true)} />
                             <GenericButton severity="help" outlined className="w-fit text-start" label={session?.user?.platformNip05?.name ? "Update Nostr NIP-05" : "Claim PlebDevs Nostr NIP-05"} icon="pi pi-at" onClick={() => setNip05Visible(true)} />
                             <GenericButton severity="warning" outlined className="w-fit text-start" label={session?.user?.platformLightningAddress ? "Update Lightning Address" : "Claim PlebDevs Lightning Address"} icon={<i style={{ color: "orange" }} className="pi pi-bolt mr-2"></i>} onClick={() => setLightningAddressVisible(true)} />
                         </div>
                     </Card>
-                    <Card title="Manage Subscription" className="mb-4">
+                    <Card title="Manage Subscription" className="mb-2">
                         <div className='flex flex-col gap-4'>
                             <GenericButton outlined className="w-fit" label="Renew Subscription" icon="pi pi-sync" onClick={() => setRenewSubscriptionVisible(true)} />
                             <GenericButton severity="danger" outlined className="w-fit" label="Cancel Subscription" icon="pi pi-trash" onClick={() => setCancelSubscriptionVisible(true)} />
@@ -238,7 +238,7 @@ const Subscribe = () => {
                 </>
             )}
 
-            <Card title="Frequently Asked Questions" className="mb-6">
+            <Card title="Frequently Asked Questions" className="mb-2">
                 <div className="flex flex-col gap-4 max-w-[80%] max-mob:max-w-full">
                     <div>
                         <h3 className="text-lg font-semibold">How does the subscription work?</h3>
