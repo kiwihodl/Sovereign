@@ -104,6 +104,22 @@ PlebDevs is an open-source platform that combines educational content, community
 - Admin pubkey management
 - Content pricing controls
 
+### Running locally
+
+1. Clone the repository
+2. Install dependencies
+3. Create a `.env` file based on the `.env.example` file
+4. Open Docker Desktop
+5. Run `docker compose up --build`
+6. In schema.prisma, ensure you have the local datasource uncommented and the production datasource commented out.
+7. Exec into the container and run `npx prisma migrate dev`
+8. Restart the docker compose
+9. Rerun `docker compose up --build`
+
+Now the database is running and the migrations are applied.
+You can now run locally.
+
+
 ## Contributing
 
 Contributions are welcome! Whether you're fixing bugs, improving documentation, or proposing new features, please feel free to open an issue or submit a PR.

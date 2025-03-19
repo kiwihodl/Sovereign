@@ -50,6 +50,20 @@ const syncNostrProfile = async (pubkey) => {
                 await updateUser(dbUser.id, updates);
                 dbUser = await getUserByPubkey(pubkey);
             }
+
+            // Check if user should have author role but doesn't
+            if (appConfig.authorPubkeys.includes(pubkey) && !dbUser.role?.admin) {
+                const role = await createRole({
+                    userId: dbUser.id,
+                    admin: true,
+                    subscribed: false,
+                });
+                
+                if (role) {
+                    await updateUser(dbUser.id, { role: role.id });
+                    dbUser = await getUserByPubkey(pubkey);
+                }
+            }
         } else {
             // Create new user
             const username = fields.username || pubkey.slice(0, 8);
