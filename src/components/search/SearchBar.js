@@ -66,7 +66,7 @@ const SearchBar = () => {
 
     const handleContentSelect = (content) => {
         if (content?.type === 'course') {
-            router.push(`/course/${content.id}`);
+            router.push(`/course/${content?.d || content?.id}`);
         } else {
             router.push(`/details/${content.id}`);
         }

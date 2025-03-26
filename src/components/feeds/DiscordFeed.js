@@ -15,7 +15,7 @@ const DiscordFeed = ({ searchQuery }) => {
         if (!data) return [];
         return data
             .filter(message =>
-                message.content.toLowerCase().includes(searchQuery.toLowerCase())
+                searchQuery ? message.content.toLowerCase().includes(searchQuery.toLowerCase()) : true
             )
             .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     }, [data, searchQuery]);
@@ -33,8 +33,8 @@ const DiscordFeed = ({ searchQuery }) => {
     }
 
     return (
-        <div className="h-full w-full min-bottom-bar:w-[86vw]">
-            <div className="mx-4">
+        <div className="h-full w-full">
+            <div className="mx-0">
             {filteredData.length > 0 ? (
                 filteredData.map(message => (
                     <CommunityMessage

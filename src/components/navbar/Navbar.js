@@ -27,7 +27,7 @@ const Navbar = () => {
         {
             label: 'Feeds',
             icon: 'pi pi-comments',
-            command: () => router.push('/feeds?channel=global')
+            command: () => router.push('/feed?channel=global')
         },
         {
             label: 'Subscribe',
@@ -49,9 +49,9 @@ const Navbar = () => {
                     src="/images/plebdevs-icon.png"
                     width={50}
                     height={50}
-                    className="rounded-full mr-2 max-tab:hidden max-mob:hidden"
+                    className="rounded-full max-tab:hidden max-mob:hidden"
                 />
-                <h1 className="text-white text-xl font-semibold max-tab:text-2xl max-mob:text-2xl pb-1">PlebDevs</h1>
+                <h1 className="text-white text-xl font-semibold max-tab:text-2xl max-mob:text-2xl pb-1 pl-2">PlebDevs</h1>
             </div>
             <div 
                 className={`ml-2 p-2 cursor-pointer transition-all duration-300 flex items-center justify-center ${isHovered ? 'bg-gray-700 rounded-full' : ''}`}
@@ -83,7 +83,7 @@ const Navbar = () => {
                 <Menubar
                     start={start}
                     end={UserAvatar}
-                    className='px-6 py-8 bg-gray-800 border-t-0 border-l-0 border-r-0 rounded-none fixed z-10 w-[100vw] max-tab:px-[5%] max-mob:px-[5%]'
+                    className='px-10 py-8 bg-gray-800 border-t-0 border-l-0 border-r-0 rounded-none fixed z-10 w-[100vw] max-tab:px-[5%] max-mob:px-[5%]'
                     style={{ height: navbarHeight }}
                 />
             </div>

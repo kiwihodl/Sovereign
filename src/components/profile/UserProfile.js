@@ -32,7 +32,7 @@ const UserProfile = () => {
 
     return (
         user && (
-            <div className="p-4">
+            <div className="py-4 px-1">
                 {
                     windowWidth < 768 && (
                         <h1 className="text-3xl font-bold mb-6">Profile</h1>

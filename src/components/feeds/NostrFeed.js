@@ -72,13 +72,13 @@ const NostrFeed = ({ searchQuery }) => {
 
     const filteredNotes = communityNotes
         .filter(message =>
-            message.content.toLowerCase().includes(searchQuery.toLowerCase())
+            searchQuery ? message.content.toLowerCase().includes(searchQuery.toLowerCase()) : true
         )
         .sort((a, b) => b.created_at - a.created_at);
 
     return (
-        <div className="h-full w-full min-bottom-bar:w-[86vw]">
-            <div className="mx-4 mt-4">
+        <div className="h-full w-full">
+            <div className="mx-0 mt-4">
                 {filteredNotes.length > 0 ? (
                     filteredNotes.map(message => (
                         <CommunityMessage

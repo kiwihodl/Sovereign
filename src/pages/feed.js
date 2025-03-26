@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { InputText } from 'primereact/inputtext';
 import CommunityMenuTab from '@/components/menutab/CommunityMenuTab';
 import NostrFeed from '@/components/feeds/NostrFeed';
 import DiscordFeed from '@/components/feeds/DiscordFeed';
@@ -17,7 +16,6 @@ const Feed = () => {
     const [selectedTopic, setSelectedTopic] = useState('global');
     const [title, setTitle] = useState('Community');
     const allTopics = ['global', 'nostr', 'discord', 'stackernews'];
-    const [searchQuery, setSearchQuery] = useState('');
 
     const router = useRouter();
 
@@ -50,38 +48,31 @@ const Feed = () => {
     };
 
     return (
-        <div className="w-full max-w-5xl mx-auto">
-            <div className="mb-6">
-                <div className='mb-4 flex flex-row items-end'>
-                    <h1 className="font-bold mb-0">Feeds</h1>
-                    <GenericButton
-                        icon={getTagIcon(title)}
-                        className='ml-2 text-sm p-2 py-1 flex items-center cursor-default hover:bg-transparent'
-                        outlined
-                        severity={{
-                            'global': 'success',
-                            'discord': 'primary',
-                            'stackernews': 'warning',
-                            'nostr': 'help'
-                        }[title] || 'info'}
-                        label={`${title}`}
-                    />
-                </div>
-                <div className='w-full flex flex-row items-center justify-between mb-2'>
-                    <InputText
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search"
-                        icon="pi pi-search"
-                        className="w-fit"
-                    />
+        <div className="w-full mx-auto px-10">
+            <div className="mb-2">
+                <div className='flex flex-col'>
+                    <div className='my-4 flex flex-row items-end'>
+                        <h1 className="font-bold mb-0">Feeds</h1>
+                        <GenericButton
+                            icon={getTagIcon(title)}
+                            className='ml-2 text-sm p-2 py-1 flex items-center cursor-default hover:bg-transparent'
+                            outlined
+                            severity={{
+                                'global': 'success',
+                                'discord': 'primary',
+                                'stackernews': 'warning',
+                                'nostr': 'help'
+                            }[title] || 'info'}
+                            label={`${title}`}
+                        />
+                    </div>
+                    {selectedTopic === 'nostr' && (
+                        <div className='w-full mt-2'>
+                            <MessageInput />
+                        </div>
+                    )}
                 </div>
                 <Divider />
-                {selectedTopic === 'nostr' && (
-                    <MessageInput
-                        collapsed={false}
-                    />
-                )}
             </div>
             <CommunityMenuTab
                 items={allTopics}
@@ -90,10 +81,10 @@ const Feed = () => {
                 className="mb-4"
             />
             <div className="feed-content">
-                {selectedTopic === 'global' && <GlobalFeed searchQuery={searchQuery} />}
-                {selectedTopic === 'nostr' && <NostrFeed searchQuery={searchQuery} />}
-                {selectedTopic === 'discord' && <DiscordFeed searchQuery={searchQuery} />}
-                {selectedTopic === 'stackernews' && <StackerNewsFeed searchQuery={searchQuery} />}
+                {selectedTopic === 'global' && <GlobalFeed />}
+                {selectedTopic === 'nostr' && <NostrFeed />}
+                {selectedTopic === 'discord' && <DiscordFeed />}
+                {selectedTopic === 'stackernews' && <StackerNewsFeed />}
             </div>
         </div>
     );

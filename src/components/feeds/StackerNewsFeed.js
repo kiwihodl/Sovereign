@@ -36,13 +36,13 @@ const StackerNewsFeed = ({ searchQuery }) => {
 
     const filteredItems = items
         .filter(item =>
-            item.title.toLowerCase().includes(searchQuery.toLowerCase())
+            searchQuery ? item.title.toLowerCase().includes(searchQuery.toLowerCase()) : true
         )
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     return (
-        <div className="h-full w-full min-bottom-bar:w-[86vw]">
-            <div className="mx-4 mt-4">
+        <div className="h-full w-full">
+            <div className="mx-0 mt-4">
                 {filteredItems && filteredItems.length > 0 ? (
                     filteredItems.map(item => (
                         <CommunityMessage

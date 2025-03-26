@@ -123,7 +123,7 @@ const Subscribe = () => {
     ];
 
     return (
-        <div className="p-4">
+        <div className="w-full px-12 my-4">
             {windowWidth < 768 && (
                 <h1 className="text-3xl font-bold mb-6">Subscription Management</h1>
             )}

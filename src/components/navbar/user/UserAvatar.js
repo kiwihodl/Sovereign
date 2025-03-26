@@ -1,13 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Avatar } from 'primereact/avatar';
 import { useRouter } from 'next/router';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import GenericButton from '@/components/buttons/GenericButton';
 import { Menu } from 'primereact/menu';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import { useSession, signOut } from 'next-auth/react';
-import { ProgressSpinner } from 'primereact/progressspinner';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';

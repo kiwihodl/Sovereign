@@ -98,6 +98,7 @@ const GlobalFeed = ({searchQuery}) => {
         const dateB = b.type === 'nostr' ? b.created_at * 1000 : new Date(b.timestamp || b.createdAt);
         return dateB - dateA;
     }).filter(item => {
+        if (!searchQuery) return true;
         const searchLower = searchQuery.toLowerCase();
         if (item.type === 'discord' || item.type === 'nostr') {
             return item.content.toLowerCase().includes(searchLower);
@@ -108,8 +109,8 @@ const GlobalFeed = ({searchQuery}) => {
     });
 
     return (
-        <div className="h-full w-full min-bottom-bar:w-[86vw]">
-            <div className="mx-4 mt-4">
+        <div className="h-full w-full">
+            <div className="mx-0 mt-4">
             {combinedFeed.length > 0 ? (
                 combinedFeed.map(item => (
                     <CommunityMessage

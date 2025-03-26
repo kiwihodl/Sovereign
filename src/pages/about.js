@@ -12,8 +12,8 @@ const AboutPage = () => {
     const { showToast } = useToast();
     const windowWidth = useWindowWidth();
 
-    const isTabView = windowWidth <= 1360;
-    const isMobile = windowWidth < 768;
+    const isTabView = windowWidth <= 1160;
+    const isMobile = windowWidth < 668;
 
     const copyToClipboard = async (text) => {
         try {
@@ -32,7 +32,7 @@ const AboutPage = () => {
     };
 
     return (
-        <div className={`${isTabView ? 'w-full' : 'w-[83vw]'} ${isMobile ? 'p-0' : 'p-4'} mx-auto`}>
+        <div className={`${isTabView ? 'w-full' : 'w-full px-12'} ${isMobile ? 'p-0' : 'p-4'} mx-auto`}>
             <InteractivePromotionalCarousel />
             <Card title="Key Features" className={`mb-4 ${isMobile ? 'm-2' : null}`}>
                 <div className="flex flex-col gap-4 max-w-[80%] max-mob:max-w-full">

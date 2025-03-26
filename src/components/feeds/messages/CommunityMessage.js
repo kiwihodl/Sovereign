@@ -144,7 +144,9 @@ const CommunityMessage = ({ message, searchQuery, windowWidth, platform }) => {
                 }
             }}
         >
-            <p className="m-0 text-lg text-gray-200 break-words">{highlightText(message.content, searchQuery)}</p>
+            <p className="m-0 text-lg text-gray-200 break-words">
+                {searchQuery ? highlightText(message.content, searchQuery) : message.content}
+            </p>
         </Card>
     );
 };
