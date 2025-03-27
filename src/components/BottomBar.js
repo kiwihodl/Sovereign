@@ -20,6 +20,9 @@ const BottomBar = () => {
             <div onClick={() => router.push('/feed?channel=global')} className={`hover:bg-gray-700 cursor-pointer px-4 py-2 rounded-lg ${isActive('/feed') ? 'bg-gray-700' : ''}`}>
                 <i className="pi pi-comments text-2xl" />
             </div>
+            <div onClick={() => router.push('/about')} className={`hover:bg-gray-700 cursor-pointer px-4 py-2 rounded-lg ${isActive('/about') ? 'bg-gray-700' : ''}`}>
+                <i className="pi pi-info-circle text-2xl" />
+            </div>
         </div>
     );
 };

@@ -54,7 +54,7 @@ const Navbar = () => {
         {
             label: 'Subscribe',
             icon: 'pi pi-star',
-            command: () => router.push('/subscribe')
+            command: () => router.push('/about')
         },
         {
             label: 'About',

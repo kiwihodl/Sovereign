@@ -27,7 +27,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
     const router = useRouter();
 
     const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
-    const amount = 50000;
+    const amount = 50;
 
     useEffect(() => {
         initializeBitcoinConnect();
@@ -92,7 +92,7 @@ const SubscriptionPaymentButtons = ({ onSuccess, onError, onRecurringSubscriptio
             const initNwcOptions = {
                 name: "plebdevs.com",
                 requestMethods: ['pay_invoice'],
-                maxAmount: 50000,
+                maxAmount: 500,
                 editable: false,
                 budgetRenewal: 'monthly',
                 expiresAt: yearFromNow,

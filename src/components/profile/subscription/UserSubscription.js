@@ -190,7 +190,7 @@ const UserSubscription = () => {
                         </>
                     )}
 
-                    <Card title="Frequently Asked Questions" className="mt-2 border border-gray-700 rounded-lg">
+                    <Card title="Frequently Asked Questions" className="border border-gray-700 rounded-lg">
                         <div className="flex flex-col gap-4">
                             <div>
                                 <h3 className="text-lg font-semibold">How does the subscription work?</h3>
