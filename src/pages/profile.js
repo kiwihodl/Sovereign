@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { ProgressSpinner } from "primereact/progressspinner";
 
+//todo: Link below connect wallet, relays hidden in ... (open modal)
 const Profile = () => {
     const router = useRouter();
     const { data: session, status } = useSession();
