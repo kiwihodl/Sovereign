@@ -13,18 +13,16 @@ import GenericButton from '@/components/buttons/GenericButton';
 import { useRouter } from 'next/router';
 import HeroBanner from '@/components/banner/HeroBanner';
 
-// todo: NEED TO UPDATE THIS WITH PROD CONTENT IDS
 const TOP_CONTENT_IDS = [
-  "72aa9f48-a0d1-4e0e-ba6b-de3e8ef8e9ad",
-  "d493fc22-20ab-47fc-ab55-b017b92bb0fe",
-  "936a024a-719c-455c-8c9d-2657ebd8a5f0",
-  "dfa1e4ed-1387-418d-a166-84dbdb9701df",
-  "f806c5c6-7b88-4be6-911e-0f7e08a0dac2",
-  "ad217a77-7422-45eb-979e-fe8cefd89a1f",
-  "3dcc434a-7b65-4cf4-883a-db117fe97b77",
-  "e0495afa-d879-47d8-a8be-843785e47611",
-  "8670318e-91d0-443f-9ceb-8324cd1bdabc",
-  "5d67444d-0b91-423b-b927-3def8535adc8"
+  "f538f5c5-1a72-4804-8eb1-3f05cea64874", // starter course
+  "f73c37f4-df2e-4f7d-a838-dce568c76136", // frontend course
+  "f6825391-831c-44da-904a-9ac3d149b7be", // backend course
+  "164a7d28-3677-4f68-9fbb-ce2ff5cc4684", // Review bitcoin halving code
+  "16a65e26-e5d9-450f-9b98-79d539b8acb0", // NWC
+  "751ba534-e13a-4ed6-8f8b-452bf482f944", // Bitcoin Core Beginner Workshop
+  "91c15fc0-bb11-43b4-83e6-4b8fd3a826ac", // Node JS Backend Walkthrough
+  "5bb34e83-599b-4494-9790-db2ac087baed", // Rust cheatsheet
+  "67d24075-7cda-4d38-93ad-cd0ef32f13f1", // Pleb Node Template
 ];
 
 const MenuTab = ({ selectedTopic, onTabChange, allTopics }) => {
