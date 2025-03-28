@@ -24,11 +24,6 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
     const [searchResults, setSearchResults] = useState([]);
     const op = useRef(null);
     const { ndk, reInitializeNDK } = useNDKContext();
-    
-    // Debug effect to check component mounting and props
-    useEffect(() => {
-        console.log("SearchBar mounted with props:", { isMobileSearch, isDesktopNav });
-    }, [isMobileSearch, isDesktopNav]);
 
     const selectedOptionTemplate = (option, props) => {
         if (isDesktopNav) {

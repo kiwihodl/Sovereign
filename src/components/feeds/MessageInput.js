@@ -29,7 +29,6 @@ const MessageInput = () => {
         try {
             // Wait for relay connection
             await currentPool.ensureRelay(relay);
-            // Try to publish
             await currentPool.publish([relay], event);
             return true;
         } catch (err) {

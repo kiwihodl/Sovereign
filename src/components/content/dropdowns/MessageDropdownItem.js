@@ -67,7 +67,7 @@ const MessageDropdownItem = ({ message, onSelect }) => {
                         authorData = await fetchNostrAuthor(messageRef.pubkey);
                     }
                     
-                    // Extract author details with fallbacks - profile already contains the formatted data
+                    // Extract author details with fallbacks
                     const authorName = authorData?.name || authorData?.displayName || "Unknown User";
                     const authorPicture = authorData?.picture || authorData?.image || null;
                     
@@ -86,7 +86,6 @@ const MessageDropdownItem = ({ message, onSelect }) => {
                     }
                     
                 } else if (currentPlatform === "discord") {
-                    // Format Discord message
                     const avatarUrl = messageRef?.author?.avatar 
                         ? `https://cdn.discordapp.com/avatars/${messageRef.author.id}/${messageRef.author.avatar}.png`
                         : null;
@@ -105,7 +104,6 @@ const MessageDropdownItem = ({ message, onSelect }) => {
                     }
                     
                 } else if (currentPlatform === "stackernews") {
-                    // Format StackerNews message
                     if (isMounted) {
                         setMessageData({
                             content: messageRef?.title,

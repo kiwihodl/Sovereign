@@ -10,8 +10,6 @@ import 'primeicons/primeicons.css';
 import { useNDKContext } from '@/context/NDKContext';
 import useWindowWidth from '@/hooks/useWindowWidth';
 
-// todo: Dropdown on left becomes search bar on mobile (also about and subscribe are linked in user avatart dropdown on mobile)
-// MAYBE: Add a 4th button at the bottom that contains both about and subscribe
 const Navbar = () => {
     const router = useRouter();
     const windowWidth = useWindowWidth();
@@ -20,11 +18,6 @@ const Navbar = () => {
     const [isHovered, setIsHovered] = useState(false);
     const [showMobileSearch, setShowMobileSearch] = useState(false);
     const menu = useRef(null);
-
-    // Debug Navbar mounting
-    useEffect(() => {
-        console.log("Navbar mounted, windowWidth:", windowWidth);
-    }, [windowWidth]);
 
     // Lock/unlock body scroll when mobile search is shown/hidden
     useEffect(() => {

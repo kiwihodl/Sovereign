@@ -13,6 +13,7 @@ import GenericButton from '@/components/buttons/GenericButton';
 import { useRouter } from 'next/router';
 import HeroBanner from '@/components/banner/HeroBanner';
 
+// todo: NEED TO UPDATE THIS WITH PROD CONTENT IDS
 const TOP_CONTENT_IDS = [
   "72aa9f48-a0d1-4e0e-ba6b-de3e8ef8e9ad",
   "d493fc22-20ab-47fc-ab55-b017b92bb0fe",
