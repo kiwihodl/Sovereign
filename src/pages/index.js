@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import CoursesCarousel from '@/components/content/carousels/CoursesCarousel';
 import VideosCarousel from '@/components/content/carousels/VideosCarousel';
 import DocumentsCarousel from '@/components/content/carousels/DocumentsCarousel';
@@ -12,18 +12,6 @@ import 'primeicons/primeicons.css';
 import GenericButton from '@/components/buttons/GenericButton';
 import { useRouter } from 'next/router';
 import HeroBanner from '@/components/banner/HeroBanner';
-
-const TOP_CONTENT_IDS = [
-  "f538f5c5-1a72-4804-8eb1-3f05cea64874", // starter course
-  "f73c37f4-df2e-4f7d-a838-dce568c76136", // frontend course
-  "f6825391-831c-44da-904a-9ac3d149b7be", // backend course
-  "164a7d28-3677-4f68-9fbb-ce2ff5cc4684", // Review bitcoin halving code
-  "16a65e26-e5d9-450f-9b98-79d539b8acb0", // NWC
-  "751ba534-e13a-4ed6-8f8b-452bf482f944", // Bitcoin Core Beginner Workshop
-  "91c15fc0-bb11-43b4-83e6-4b8fd3a826ac", // Node JS Backend Walkthrough
-  "5bb34e83-599b-4494-9790-db2ac087baed", // Rust cheatsheet
-  "67d24075-7cda-4d38-93ad-cd0ef32f13f1", // Pleb Node Template
-];
 
 const MenuTab = ({ selectedTopic, onTabChange, allTopics }) => {
     const router = useRouter();
@@ -112,7 +100,6 @@ export default function Home() {
     const [allContent, setAllContent] = useState([]);
     const [allTopics, setAllTopics] = useState([]);
     const [selectedTopic, setSelectedTopic] = useState('Top');
-    const [filteredContent, setFilteredContent] = useState([]);
 
     useEffect(() => {
         if (documents && !documentsLoading) {
@@ -146,12 +133,7 @@ export default function Home() {
         );
         setAllTopics(otherTopics);
 
-        if (selectedTopic === 'Top') {
-            const topContent = allContent.filter(item => TOP_CONTENT_IDS.includes(item.d));
-            setFilteredContent(topContent);
-        } else {
-            filterContent(selectedTopic, allContent);
-        }
+        filterContent(selectedTopic, allContent);
     }, [processedDocuments, processedVideos, processedCourses, selectedTopic]);
 
     const filterContent = (topic, content) => {
@@ -168,20 +150,15 @@ export default function Home() {
                 filtered = content.filter(item => item.topics && item.topics.includes(topicLower));
             }
         }
-        setFilteredContent(filtered);
     };
 
     const handleTopicChange = (newTopic) => {
         setSelectedTopic(newTopic);
-        if (newTopic === 'Top') {
-            const topContent = allContent.filter(item => TOP_CONTENT_IDS.includes(item.d));
-            setFilteredContent(topContent);
-            router.push('/');
-        } else if (newTopic === 'More') {
+        if (newTopic === 'More') {
             router.push('/content?tag=all');
         } else {
             filterContent(newTopic, allContent);
-            router.push(`/content?tag=${newTopic.toLowerCase()}`);
+            router.push(newTopic === 'Top' ? '/' : `/content?tag=${newTopic.toLowerCase()}`);
         }
     };
 
