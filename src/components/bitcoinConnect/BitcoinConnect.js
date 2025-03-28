@@ -12,13 +12,24 @@ let initialized = false;
 
 export async function initializeBitcoinConnect() {
   if (!initialized) {
-    const { init } = await import('@getalby/bitcoin-connect-react');
-    init({
-      appName: "PlebDevs",
-      filters: ["nwc"],
-      showBalance: false
-    });
-    initialized = true;
+    try {
+      const { init } = await import('@getalby/bitcoin-connect-react');
+      // Check if custom elements are already registered
+      if (!customElements.get('bc-balance')) {
+        init({
+          appName: "PlebDevs",
+          filters: ["nwc"],
+          showBalance: false
+        });
+        initialized = true;
+      }
+    } catch (error) {
+      // If the error is about custom element already being defined, we can ignore it
+      // as it means the component is already initialized
+      if (!error.message?.includes('has already been defined as a custom element')) {
+        console.error('Error initializing Bitcoin Connect:', error);
+      }
+    }
   }
 }
 
