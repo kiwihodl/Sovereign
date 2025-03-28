@@ -211,6 +211,7 @@ const AboutPage = () => {
                         <h2 className="text-xl font-bold m-0">Subscribe to PlebDevs</h2>
                         <MoreInfo
                             tooltip="Subscription FAQ"
+                            tooltipPosition='top'
                             modalTitle="Frequently Asked Questions"
                             modalBody={faqContent}
                             className="text-gray-400 hover:text-white"

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { TabView, TabPanel } from "primereact/tabview";
 import UserProfile from "@/components/profile/UserProfile";
-import UserSettings from "@/components/profile/UserSettings";
 import UserContent from "@/components/profile/UserContent";
 import UserSubscription from "@/components/profile/subscription/UserSubscription";
 import { useRouter } from "next/router";
@@ -16,7 +15,7 @@ const Profile = () => {
     const [activeTab, setActiveTab] = useState(0);
     const {isAdmin, isLoading} = useIsAdmin();
     
-    const tabs = ["profile", "settings", "content", "subscribe"];
+    const tabs = ["profile", "content", "subscribe"];
 
     useEffect(() => {
         const { tab } = router.query;
@@ -73,13 +72,6 @@ const Profile = () => {
                     },
                 }}>
                     <UserProfile />
-                </TabPanel>
-                <TabPanel header="Settings" pt={{
-                    headerAction: {
-                        className: "bg-transparent"
-                    },
-                }}>
-                    <UserSettings />
                 </TabPanel>
                 {isAdmin && (
                     <TabPanel header="Content" pt={{

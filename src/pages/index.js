@@ -116,8 +116,6 @@ export default function Home() {
     const [selectedTopic, setSelectedTopic] = useState('Top');
     const [filteredContent, setFilteredContent] = useState([]);
 
-    const memoizedFilteredContent = useMemo(() => filteredContent, [filteredContent]);
-
     useEffect(() => {
         if (documents && !documentsLoading) {
             const processedDocuments = documents.map(document => ({...parseEvent(document), type: 'document'}));

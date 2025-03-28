@@ -3,7 +3,7 @@ import { Dialog } from 'primereact/dialog';
 import { Tooltip } from 'primereact/tooltip';
 import useWindowWidth from '@/hooks/useWindowWidth';
 
-const MoreInfo = ({ tooltip, modalTitle, modalBody, className = '' }) => {
+const MoreInfo = ({ tooltip, modalTitle, modalBody, className = '', tooltipPosition = 'right' }) => {
     const [visible, setVisible] = useState(false);
     const windowWidth = useWindowWidth();
     const isMobile = windowWidth < 768;
@@ -14,11 +14,9 @@ const MoreInfo = ({ tooltip, modalTitle, modalBody, className = '' }) => {
                 className={`pi pi-question-circle cursor-pointer ${className}`}
                 onClick={() => setVisible(true)}
                 data-pr-tooltip={tooltip}
-                data-pr-position="right"
-                data-pr-at="right+5 top"
-                data-pr-my="left center-2"
+                data-pr-position={tooltipPosition}
             />
-            {!isMobile && <Tooltip target=".pi-question-circle" />}
+            {!isMobile && <Tooltip target=".pi-question-circle" position={tooltipPosition} />}
             
             <Dialog
                 header={modalTitle}

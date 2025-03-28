@@ -1,20 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import UserAvatar from './user/UserAvatar';
-import { Menubar } from 'primereact/menubar';
 import { Menu } from 'primereact/menu';
 import { useRouter } from 'next/router';
 import SearchBar from '../search/SearchBar';
+import { useSession } from 'next-auth/react';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
-import { useNDKContext } from '@/context/NDKContext';
 import useWindowWidth from '@/hooks/useWindowWidth';
 
 const Navbar = () => {
     const router = useRouter();
     const windowWidth = useWindowWidth();
     const navbarHeight = '60px';
-    const { ndk } = useNDKContext();
+    const { data: session } = useSession();
     const [isHovered, setIsHovered] = useState(false);
     const [showMobileSearch, setShowMobileSearch] = useState(false);
     const menu = useRef(null);
@@ -47,7 +46,7 @@ const Navbar = () => {
         {
             label: 'Subscribe',
             icon: 'pi pi-star',
-            command: () => router.push('/about')
+            command: () => session?.user ? router.push('/profile?tab=subscribe') : router.push('/about')
         },
         {
             label: 'About',
@@ -62,7 +61,7 @@ const Navbar = () => {
                 <div className='px-10 py-8 bg-gray-800 border-t-0 border-l-0 border-r-0 rounded-none fixed z-10 w-[100vw] max-tab:px-[5%] max-mob:px-[5%] flex justify-between' style={{ height: navbarHeight }}>
                     {/* Left section */}
                     <div className='flex items-center flex-1'>
-                        <div onClick={() => router.push('/')} className="flex flex-row items-center justify-center cursor-pointer">
+                        <div onClick={() => router.push('/')} className="flex flex-row items-center justify-center cursor-pointer hover:opacity-80">
                             <Image
                                 alt="logo"
                                 src="/images/plebdevs-icon.png"

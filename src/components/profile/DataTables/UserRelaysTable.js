@@ -58,10 +58,10 @@ const UserRelaysTable = ({ ndk, userRelays, setUserRelays, reInitializeNDK }) =>
         <div className="text-[#f8f8ff]">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-xl font-bold">Relays</h2>
                     <p className="text-gray-400">Manage your connected relays</p>
                 </div>
                 <GenericButton
+                    outlined
                     icon="pi pi-plus"
                     label="Add Relay"
                     severity="success"
@@ -78,7 +78,7 @@ const UserRelaysTable = ({ ndk, userRelays, setUserRelays, reInitializeNDK }) =>
                         className="flex-1"
                     />
                     <GenericButton
-                        label="Add"
+                        label="+"
                         severity="success"
                         outlined
                         onClick={addRelay}
@@ -122,7 +122,7 @@ const UserRelaysTable = ({ ndk, userRelays, setUserRelays, reInitializeNDK }) =>
     };
 
     return (
-        <div className="bg-gray-800 rounded-lg border border-gray-700 w-full">
+        <div className="w-full">
             <DataTable
                 value={userRelays}
                 className="border-none"

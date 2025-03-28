@@ -2,19 +2,24 @@ import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import { Menu } from 'primereact/menu';
 import { Tooltip } from 'primereact/tooltip';
+import { Dialog } from 'primereact/dialog';
 import { nip19 } from 'nostr-tools';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { useToast } from '@/hooks/useToast';
 import UserBadges from '@/components/profile/UserBadges';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import MoreInfo from '@/components/MoreInfo';
+import UserRelaysTable from '@/components/profile/DataTables/UserRelaysTable';
+import { useNDKContext } from "@/context/NDKContext";
 
 const UserProfileCard = ({ user }) => {
     const [showBadges, setShowBadges] = useState(false);
+    const [showRelaysModal, setShowRelaysModal] = useState(false);
     const menu = useRef(null);
     const { showToast } = useToast();
     const { returnImageProxy } = useImageProxy();
     const windowWidth = useWindowWidth();
+    const { ndk, userRelays, setUserRelays, reInitializeNDK } = useNDKContext();
 
     const copyToClipboard = (text) => {
         navigator.clipboard.writeText(text);
@@ -43,6 +48,11 @@ const UserProfileCard = ({ user }) => {
             label: 'Open Nostr Profile',
             icon: 'pi pi-external-link',
             command: () => window.open(`https://nostr.com/${nip19.npubEncode(user?.pubkey)}`, '_blank')
+        },
+        {
+            label: 'Manage Relays',
+            icon: 'pi pi-server',
+            command: () => setShowRelaysModal(true)
         }
     ];
 
@@ -282,6 +292,20 @@ const UserProfileCard = ({ user }) => {
                 visible={showBadges}
                 onHide={() => setShowBadges(false)}
             />
+            <Dialog 
+                visible={showRelaysModal} 
+                onHide={() => setShowRelaysModal(false)}
+                header="Manage Relays"
+                className="w-[90vw] max-w-[800px]"
+                modal
+            >
+                <UserRelaysTable 
+                    ndk={ndk}
+                    userRelays={userRelays}
+                    setUserRelays={setUserRelays}
+                    reInitializeNDK={reInitializeNDK}
+                />
+            </Dialog>
         </>
     );
 };

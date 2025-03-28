@@ -10,6 +10,7 @@ import UserProgress from "@/components/profile/progress/UserProgress";
 import UserProgressTable from '@/components/profile/DataTables/UserProgressTable';
 import UserPurchaseTable from '@/components/profile/DataTables/UserPurchaseTable';
 import BitcoinLightningCard from '@/components/profile/BitcoinLightningCard';
+import UserAccountLinking from "@/components/profile/UserAccountLinking";
 
 const UserProfile = () => {
     const windowWidth = useWindowWidth();
@@ -42,6 +43,7 @@ const UserProfile = () => {
                     <div className="w-[22%] h-full max-lap:w-full">
                         {user && <UserProfileCard user={user} />}
                         <BitcoinLightningCard />
+                        {user && <UserAccountLinking session={session} />}
                     </div>
 
                     <div className="w-[78%] flex flex-col justify-center mx-auto max-lap:w-full">
