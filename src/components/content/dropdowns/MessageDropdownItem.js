@@ -211,7 +211,7 @@ const MessageDropdownItem = ({ message, onSelect }) => {
 
     return (
         <div 
-            className="px-6 py-6 border-b border-gray-700 cursor-pointer" 
+            className="group px-6 py-5 border-b border-gray-700/50 cursor-pointer hover:bg-gray-800/30 transition-colors duration-200" 
             onClick={() => !loading && onSelect(messageData || messageRef)}
         >
             {loading ? (
@@ -220,10 +220,49 @@ const MessageDropdownItem = ({ message, onSelect }) => {
                 </div>
             ) : (
                 isMobile ? renderSimplifiedMessage() : 
-                <CommunityMessage 
-                    message={finalMessage}
-                    platform={platform} 
-                />
+                <div className="flex flex-col">
+                    <div className="flex gap-4">
+                        <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-700/50 flex-shrink-0 shadow-lg">
+                            {messageData?.avatarProxy ? (
+                                <Image 
+                                    src={messageData.avatarProxy} 
+                                    alt="avatar" 
+                                    width={48} 
+                                    height={48} 
+                                    className="object-cover w-full h-full transition-transform duration-200 group-hover:scale-[1.05]" 
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                    <i className="pi pi-user text-gray-400 text-xl" />
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex-1">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="font-medium text-[#f8f8ff] group-hover:text-white transition-colors duration-200">
+                                    {messageData?.author}
+                                </div>
+                                <div className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors duration-200">
+                                    {messageData?.timestamp ? formatTimestampToHowLongAgo(messageData.timestamp) : ''}
+                                </div>
+                            </div>
+                            <p className="text-neutral-50/80 whitespace-pre-wrap mb-3 text-sm leading-relaxed group-hover:text-neutral-50/90 transition-colors duration-200">
+                                {messageData?.content}
+                            </p>
+                            
+                            <div className="flex flex-wrap gap-2">
+                                <div className="px-3 py-1.5 bg-blue-500/20 border border-blue-500/30 text-blue-400 rounded-full text-xs font-medium flex items-center group-hover:bg-blue-500/30 transition-colors duration-200">
+                                    {getPlatformIcon()}
+                                    {platform}
+                                </div>
+                                <div className="px-3 py-1.5 bg-gray-700/50 border border-gray-600/30 text-gray-300 rounded-full text-xs font-medium group-hover:bg-gray-700/70 transition-colors duration-200">
+                                    plebdevs
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

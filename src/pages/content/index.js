@@ -172,7 +172,7 @@ const ContentPage = () => {
     return (
         <div className="w-full px-10 max-mob:px-1">
             <div className="w-fit mt-8 flex flex-col items-start">
-                <h1 className="text-3xl font-bold mb-4 ml-2">All Content</h1>
+                <h1 className="text-3xl font-bold mb-4 ml-2 max-mob:hidden">All Content</h1>
             </div>
             <MenuTab
                 items={allTopics}

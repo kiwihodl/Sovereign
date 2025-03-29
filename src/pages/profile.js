@@ -53,7 +53,7 @@ const Profile = () => {
     if (!session) return null;
 
     return (
-        <div className="w-full min-h-full mx-auto px-10">
+        <div className="w-full min-h-full mx-auto px-10 max-mob:px-2">
             <TabView
                 pt={{
                     root: {
