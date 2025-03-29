@@ -48,7 +48,7 @@ const Feed = () => {
     };
 
     return (
-        <div className="w-full mx-auto px-10">
+        <div className="w-full mx-auto px-10 max-mob:px-2">
             <div className="mb-2">
                 <div className='flex flex-col'>
                     <div className='my-4 flex flex-row items-end'>
