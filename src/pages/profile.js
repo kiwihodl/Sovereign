@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { TabView, TabPanel } from "primereact/tabview";
 import UserProfile from "@/components/profile/UserProfile";
-import UserSettings from "@/components/profile/UserSettings";
 import UserContent from "@/components/profile/UserContent";
 import UserSubscription from "@/components/profile/subscription/UserSubscription";
 import { useRouter } from "next/router";
@@ -9,13 +8,14 @@ import { useSession } from "next-auth/react";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { ProgressSpinner } from "primereact/progressspinner";
 
+//todo: Link below connect wallet, relays hidden in ... (open modal)
 const Profile = () => {
     const router = useRouter();
     const { data: session, status } = useSession();
     const [activeTab, setActiveTab] = useState(0);
     const {isAdmin, isLoading} = useIsAdmin();
     
-    const tabs = ["profile", "settings", "content", "subscribe"];
+    const tabs = ["profile", "content", "subscribe"];
 
     useEffect(() => {
         const { tab } = router.query;
@@ -53,7 +53,7 @@ const Profile = () => {
     if (!session) return null;
 
     return (
-        <div className="w-full min-h-full min-bottom-bar:w-[86vw] mx-auto">
+        <div className="w-full min-h-full mx-auto px-10">
             <TabView
                 pt={{
                     root: {
@@ -72,13 +72,6 @@ const Profile = () => {
                     },
                 }}>
                     <UserProfile />
-                </TabPanel>
-                <TabPanel header="Settings" pt={{
-                    headerAction: {
-                        className: "bg-transparent"
-                    },
-                }}>
-                    <UserSettings />
                 </TabPanel>
                 {isAdmin && (
                     <TabPanel header="Content" pt={{

@@ -27,6 +27,7 @@ export default function GenericCarousel({items, selectedTopic, title}) {
         return `${type}-${baseKey}-${index}`;
     };
 
+    // todo: max sizing for single peice of content being shown
     const renderItem = (item, index) => {
         if (!item) return <TemplateSkeleton key={generateUniqueTemplateKey(item, index, 'skeleton')} />;
         
@@ -58,7 +59,7 @@ export default function GenericCarousel({items, selectedTopic, title}) {
     };
 
     return (
-        <div className="w-full px-4 mb-4">
+        <div className="w-full mb-4">
             <div className="grid grid-cols-2 gap-4 max-w-full max-tab:grid-cols-1 lg:grid-cols-3">
                 {items.map((item, index) => (
                     <div key={generateUniqueTemplateKey(item, index, 'container')} className="w-full min-w-0">

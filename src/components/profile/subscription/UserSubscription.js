@@ -93,7 +93,7 @@ const UserSubscription = () => {
     };
 
     return (
-        <div className="p-4">
+        <div className="py-4 px-1">
             {windowWidth < 768 && (
                 <h1 className="text-3xl font-bold mb-6">Subscription Management</h1>
             )}
@@ -117,7 +117,7 @@ const UserSubscription = () => {
                     {!subscribed && (
                         <Card 
                             title="Subscribe to PlebDevs" 
-                            className="mb-2 max-lap:h-auto border border-gray-700" 
+                            className="max-lap:h-auto border border-gray-700" 
                             pt={{
                                 body: { className: 'py-2' },
                                 content: { className: 'pt-0' }

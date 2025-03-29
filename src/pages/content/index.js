@@ -58,9 +58,9 @@ const MenuTab = ({ items, selectedTopic, onTabChange }) => {
                 activeIndex={allItems.indexOf(selectedTopic)}
                 onTabChange={(e) => onTabChange(allItems[e.index])}
                 pt={{
-                    menu: { className: 'bg-transparent border-none ml-2 my-4 py-1' },
+                    menu: { className: 'bg-transparent border-none my-2 py-1' },
                     action: ({ context, parent }) => ({
-                        className: 'cursor-pointer select-none flex items-center relative no-underline overflow-hidden border-b-2 p-2 font-bold rounded-t-lg',
+                        className: 'cursor-pointer select-none flex items-center relative no-underline overflow-hidden border-b-2 p-2 pl-1 font-bold rounded-t-lg',
                         style: { top: '2px' }
                     }),
                     menuitem: { className: 'mr-0' }
@@ -156,7 +156,7 @@ const ContentPage = () => {
         router.push(`/content${queryParam}`, undefined, { shallow: true });
         filterContent(newTopic, allContent);
     };
-
+    
     const renderCarousels = () => {
         return (
             <GenericCarousel
@@ -170,15 +170,14 @@ const ContentPage = () => {
     };
 
     return (
-        <div className="w-full px-4">
-            <div className="w-fit mx-4 mt-8 flex flex-col items-start">
-                <h1 className="text-3xl font-bold mb-4 ml-1">All Content</h1>
+        <div className="w-full px-10 max-mob:px-1">
+            <div className="w-fit mt-8 flex flex-col items-start">
+                <h1 className="text-3xl font-bold mb-4 ml-2">All Content</h1>
             </div>
             <MenuTab
                 items={allTopics}
                 selectedTopic={selectedTopic}
                 onTabChange={handleTopicChange}
-                className="max-w-[90%] mx-auto"
             />
             {renderCarousels()}
         </div>

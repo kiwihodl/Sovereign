@@ -20,7 +20,7 @@ const responsiveOptions = [
         numScroll: 1
     },
     {
-        breakpoint: '575px',
+        breakpoint: '675px',
         numVisible: 1,
         numScroll: 1
     }
@@ -82,17 +82,17 @@ export default function DocumentsCarousel() {
 
     return (
         <>
-            <h3 className={`ml-[6%] mt-4 max-mob:text-3xl max-mob:ml-10`}>Documents</h3>
-            <Divider className={`${isMobileView ? '' : 'hidden'}`} />
+            <h3 className={`ml-[3%] mt-4 max-mob:text-2xl max-tab:ml-10 max-mob:ml-5`}>Documents</h3>
+            <Divider className='w-[95%] mx-auto max-tab:hidden max-mob:w-[100%]' />
             <Carousel 
                 value={documentsLoading || !processedDocuments.length ? [{}, {}, {}] : [...processedDocuments]}
                 numVisible={2}
                 pt={{
                     previousButton: {
-                        className: isMobileView ? 'm-0' : ''
+                        className: 'm-0'
                     },
                     nextButton: {
-                        className: isMobileView ? 'm-0' : ''
+                        className: 'm-0'
                     }
                 }}
                 itemTemplate={(item) => 
