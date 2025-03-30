@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Tag } from "primereact/tag";
 import Image from "next/image";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
@@ -12,6 +12,8 @@ import dynamic from "next/dynamic";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import appConfig from "@/config/appConfig";
 import useTrackDocumentLesson from "@/hooks/tracking/useTrackDocumentLesson";
+import { Menu } from "primereact/menu";
+import { Toast } from "primereact/toast";
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -27,16 +29,45 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
     const { returnImageProxy } = useImageProxy();
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 768;
+    const menuRef = useRef(null);
+    const toastRef = useRef(null);
     // todo implement real read time needs to be on form
     const readTime = 120;
 
-    const { isCompleted, isTracking } = useTrackDocumentLesson({
+    const { isCompleted, isTracking, markLessonAsCompleted } = useTrackDocumentLesson({
         lessonId: lesson?.d,
         courseId: course?.d,
         readTime: readTime,
         paidCourse: isPaid,
         decryptionPerformed: decryptionPerformed,
     });
+    
+    const menuItems = [
+        {
+            label: 'Mark as completed',
+            icon: 'pi pi-check-circle',
+            command: async () => {
+                try {
+                    await markLessonAsCompleted();
+                    setCompleted && setCompleted(lesson.id);
+                    toastRef.current.show({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'Lesson marked as completed',
+                        life: 3000
+                    });
+                } catch (error) {
+                    console.error('Failed to mark lesson as completed:', error);
+                    toastRef.current.show({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to mark lesson as completed',
+                        life: 3000
+                    });
+                }
+            }
+        }
+    ];
 
     useEffect(() => {
         if (!zaps || zapsLoading || zapsError) return;
@@ -86,6 +117,7 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
 
     return (
         <div className="w-full">
+            <Toast ref={toastRef} />
             <div className="relative w-[80%] h-[200px] mx-auto mb-24">
                 <Image
                     alt="lesson background image"
@@ -150,20 +182,48 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
                     </div>
                 </div>
                 <Divider />
-            {lesson?.additionalLinks && lesson.additionalLinks.length > 0 && (
-                <div className='mt-6 bg-gray-800/90 rounded-lg p-4'>
-                    <h3 className='text-lg font-semibold mb-2 text-white'>External links:</h3>
-                    <ul className='list-disc list-inside text-white'>
-                        {lesson.additionalLinks.map((link, index) => (
-                            <li key={index}>
-                                <a href={link} target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:underline'>
-                                    {new URL(link).hostname}
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
+                {lesson?.additionalLinks && lesson.additionalLinks.length > 0 && (
+                    <div className='mt-6 bg-gray-800/90 rounded-lg p-4'>
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h3 className='text-lg font-semibold mb-2 text-white'>External links:</h3>
+                                <ul className='list-disc list-inside text-white'>
+                                    {lesson.additionalLinks.map((link, index) => (
+                                        <li key={index}>
+                                            <a href={link} target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:underline'>
+                                                {new URL(link).hostname}
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div>
+                                <Menu model={menuItems} popup ref={menuRef} />
+                                <GenericButton
+                                    icon="pi pi-ellipsis-v"
+                                    onClick={(e) => menuRef.current.toggle(e)}
+                                    aria-label="More options"
+                                    className="p-button-text"
+                                    tooltip={isMobileView ? null : "More options"}
+                                    tooltipOptions={{ position: 'top' }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
+                {!lesson?.additionalLinks || lesson.additionalLinks.length === 0 && (
+                    <div className='mt-6 flex justify-end'>
+                        <Menu model={menuItems} popup ref={menuRef} />
+                        <GenericButton
+                            icon="pi pi-ellipsis-v"
+                            onClick={(e) => menuRef.current.toggle(e)}
+                            aria-label="More options"
+                            className="p-button-text"
+                            tooltip={isMobileView ? null : "More options"}
+                            tooltipOptions={{ position: 'top' }}
+                        />
+                    </div>
+                )}
             </div>
             {renderContent()}
         </div>

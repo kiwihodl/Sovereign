@@ -269,33 +269,49 @@ const CombinedLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
                 </div>
                 {!isVideo && <Divider />}
                 {lesson?.additionalLinks && lesson.additionalLinks.length > 0 && (
-                    <div className='mt-6 bg-gray-800/90 rounded-lg p-4'>
-                        <h3 className='text-lg font-semibold mb-2 text-white'>External links:</h3>
-                        <ul className='list-disc list-inside text-white'>
-                            {lesson.additionalLinks.map((link, index) => (
-                                <li key={index}>
-                                    <a href={link} target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:underline'>
-                                        {new URL(link).hostname}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
+                    <div className='mt-6 bg-gray-800/90 rounded-lg p-4 px-0'>
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h3 className='text-lg font-semibold mb-2 text-white'>External links:</h3>
+                                <ul className='list-disc list-inside text-white'>
+                                    {lesson.additionalLinks.map((link, index) => (
+                                        <li key={index}>
+                                            <a href={link} target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:underline'>
+                                                {new URL(link).hostname}
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div>
+                                <Menu model={menuItems} popup ref={menuRef} />
+                                <GenericButton
+                                    icon="pi pi-ellipsis-v"
+                                    onClick={(e) => menuRef.current.toggle(e)}
+                                    aria-label="More options"
+                                    className="p-button-text"
+                                    tooltip={isMobileView ? null : "More options"}
+                                    tooltipOptions={{ position: 'top' }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
+                {!lesson?.additionalLinks || lesson.additionalLinks.length === 0 && (
+                    <div className='mt-6 flex justify-end'>
+                        <Menu model={menuItems} popup ref={menuRef} />
+                        <GenericButton
+                            icon="pi pi-ellipsis-v"
+                            onClick={(e) => menuRef.current.toggle(e)}
+                            aria-label="More options"
+                            className="p-button-text"
+                            tooltip={isMobileView ? null : "More options"}
+                            tooltipOptions={{ position: 'top' }}
+                        />
                     </div>
                 )}
             </div>
             {!isVideo && renderContent()}
-            
-            <div className="flex justify-end mt-8 mr-4">
-                <Menu model={menuItems} popup ref={menuRef} />
-                <GenericButton
-                    icon="pi pi-ellipsis-v"
-                    onClick={(e) => menuRef.current.toggle(e)}
-                    aria-label="More options"
-                    className="p-button-text"
-                    tooltip={isMobileView ? null : "More options"}
-                    tooltipOptions={{ position: 'top' }}
-                />
-            </div>
         </div>
     );
 };

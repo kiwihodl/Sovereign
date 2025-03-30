@@ -116,16 +116,44 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setComplete
                     </p>
                         {lesson?.additionalLinks && lesson.additionalLinks.length > 0 && (
                             <div className='mt-6'>
-                                <h3 className='text-lg font-semibold mb-2'>External links:</h3>
-                                <ul className='list-disc list-inside'>
-                                    {lesson.additionalLinks.map((link, index) => (
-                                        <li key={index}>
-                                            <a href={link} target="_blank" rel="noopener noreferrer" className='text-blue-500 hover:underline'>
-                                                {new URL(link).hostname}
-                                            </a>
-                                        </li>
-                                    ))}
-                                </ul>
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className='text-lg font-semibold mb-2'>External links:</h3>
+                                        <ul className='list-disc list-inside'>
+                                            {lesson.additionalLinks.map((link, index) => (
+                                                <li key={index}>
+                                                    <a href={link} target="_blank" rel="noopener noreferrer" className='text-blue-500 hover:underline'>
+                                                        {new URL(link).hostname}
+                                                    </a>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <Menu model={menuItems} popup ref={menuRef} />
+                                        <GenericButton
+                                            icon="pi pi-ellipsis-v"
+                                            onClick={(e) => menuRef.current.toggle(e)}
+                                            aria-label="More options"
+                                            className="p-button-text"
+                                            tooltip={isMobileView ? null : "More options"}
+                                            tooltipOptions={{ position: 'top' }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        {!lesson?.additionalLinks || lesson.additionalLinks.length === 0 && (
+                            <div className='mt-6 flex justify-end'>
+                                <Menu model={menuItems} popup ref={menuRef} />
+                                <GenericButton
+                                    icon="pi pi-ellipsis-v"
+                                    onClick={(e) => menuRef.current.toggle(e)}
+                                    aria-label="More options"
+                                    className="p-button-text"
+                                    tooltip={isMobileView ? null : "More options"}
+                                    tooltipOptions={{ position: 'top' }}
+                                />
                             </div>
                         )}
                         <div className='flex flex-row w-full mt-6 items-center'>
@@ -164,18 +192,6 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setComplete
             </div>
             <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
                 {renderContent()}
-            </div>
-            
-            <div className="w-[75vw] mx-auto flex justify-end mt-4 mb-12 max-tab:w-[95vw] max-mob:w-[95vw]">
-                <Menu model={menuItems} popup ref={menuRef} />
-                <GenericButton
-                    icon="pi pi-ellipsis-v"
-                    onClick={(e) => menuRef.current.toggle(e)}
-                    aria-label="More options"
-                    className="p-button-text"
-                    tooltip={isMobileView ? null : "More options"}
-                    tooltipOptions={{ position: 'top' }}
-                />
             </div>
         </div>
     )
