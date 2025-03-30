@@ -12,6 +12,8 @@ import dynamic from "next/dynamic";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import appConfig from "@/config/appConfig";
 import useTrackVideoLesson from '@/hooks/tracking/useTrackVideoLesson';
+import { Menu } from "primereact/menu";
+import { Toast } from "primereact/toast";
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -26,13 +28,15 @@ const CombinedLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
     const [videoDuration, setVideoDuration] = useState(null);
     const [videoPlayed, setVideoPlayed] = useState(false);
     const mdDisplayRef = useRef(null);
+    const menuRef = useRef(null);
+    const toastRef = useRef(null);
     const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: lesson, type: "lesson" });
     const { returnImageProxy } = useImageProxy();
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 768;
     const isVideo = lesson?.type === 'video';
 
-    const { isCompleted: videoCompleted, isTracking: videoTracking } = useTrackVideoLesson({
+    const { isCompleted: videoCompleted, isTracking: videoTracking, markLessonAsCompleted } = useTrackVideoLesson({
         lessonId: lesson?.d,
         videoDuration,
         courseId: course?.d,
@@ -40,6 +44,33 @@ const CombinedLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
         paidCourse: isPaid,
         decryptionPerformed
     });
+
+    const menuItems = [
+        {
+            label: 'Mark as completed',
+            icon: 'pi pi-check-circle',
+            command: async () => {
+                try {
+                    await markLessonAsCompleted();
+                    setCompleted(lesson.id);
+                    toastRef.current.show({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'Lesson marked as completed',
+                        life: 3000
+                    });
+                } catch (error) {
+                    console.error('Failed to mark lesson as completed:', error);
+                    toastRef.current.show({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to mark lesson as completed',
+                        life: 3000
+                    });
+                }
+            }
+        }
+    ];
 
     useEffect(() => {
         const handleYouTubeMessage = (event) => {
@@ -168,6 +199,7 @@ const CombinedLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
 
     return (
         <div className="w-full">
+            <Toast ref={toastRef} />
             {isVideo ? renderContent() : (
                 <>
                     <div className="relative w-[80%] h-[200px] mx-auto mb-24">
@@ -252,6 +284,18 @@ const CombinedLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
                 )}
             </div>
             {!isVideo && renderContent()}
+            
+            <div className="flex justify-end mt-8 mr-4">
+                <Menu model={menuItems} popup ref={menuRef} />
+                <GenericButton
+                    icon="pi pi-ellipsis-v"
+                    onClick={(e) => menuRef.current.toggle(e)}
+                    aria-label="More options"
+                    className="p-button-text"
+                    tooltip={isMobileView ? null : "More options"}
+                    tooltipOptions={{ position: 'top' }}
+                />
+            </div>
         </div>
     );
 };

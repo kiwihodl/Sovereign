@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Tag } from "primereact/tag";
 import Image from "next/image";
 import { useImageProxy } from "@/hooks/useImageProxy";
@@ -6,6 +6,11 @@ import { getTotalFromZaps } from "@/utils/lightning";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
 import dynamic from "next/dynamic";
 import { useZapsQuery } from "@/hooks/nostrQueries/zaps/useZapsQuery";
+import { Menu } from "primereact/menu";
+import { Toast } from "primereact/toast";
+import GenericButton from "@/components/buttons/GenericButton";
+import useTrackDocumentLesson from "@/hooks/tracking/useTrackDocumentLesson";
+import useWindowWidth from "@/hooks/useWindowWidth";
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -14,10 +19,51 @@ const MDDisplay = dynamic(
     }
 );
 
-const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
+const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted }) => {
     const [zapAmount, setZapAmount] = useState(0);
     const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: lesson, type: "lesson" });
     const { returnImageProxy } = useImageProxy();
+    const menuRef = useRef(null);
+    const toastRef = useRef(null);
+    const windowWidth = useWindowWidth();
+    const isMobileView = windowWidth <= 768;
+    
+    const readTime = lesson?.content ? Math.max(30, Math.ceil(lesson.content.length / 20)) : 60;
+    
+    const { isCompleted, isTracking, markLessonAsCompleted } = useTrackDocumentLesson({
+        lessonId: lesson?.d,
+        courseId: course?.d,
+        readTime,
+        paidCourse: isPaid,
+        decryptionPerformed
+    });
+    
+    const menuItems = [
+        {
+            label: 'Mark as completed',
+            icon: 'pi pi-check-circle',
+            command: async () => {
+                try {
+                    await markLessonAsCompleted();
+                    setCompleted && setCompleted(lesson.id);
+                    toastRef.current.show({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'Lesson marked as completed',
+                        life: 3000
+                    });
+                } catch (error) {
+                    console.error('Failed to mark lesson as completed:', error);
+                    toastRef.current.show({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to mark lesson as completed',
+                        life: 3000
+                    });
+                }
+            }
+        }
+    ];
 
     useEffect(() => {
         if (!zaps || zapsLoading || zapsError) return;
@@ -26,6 +72,12 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
 
         setZapAmount(total);
     }, [zaps, zapsLoading, zapsError, lesson]);
+    
+    useEffect(() => {
+        if (isCompleted && !isTracking && setCompleted) {
+            setCompleted(lesson.id);
+        }
+    }, [isCompleted, isTracking, lesson.id, setCompleted]);
 
     const renderContent = () => {
         if (isPaid && decryptionPerformed) {
@@ -42,6 +94,7 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
 
     return (
         <div className='w-full px-24 pt-12 mx-auto mt-4 max-tab:px-0 max-mob:px-0 max-tab:pt-2 max-mob:pt-2'>
+            <Toast ref={toastRef} />
             <div className='w-full flex flex-row justify-between max-tab:flex-col max-mob:flex-col'>
                 <div className='w-[75vw] mx-auto flex flex-row items-start justify-between max-tab:flex-col max-mob:flex-col max-tab:w-[95vw] max-mob:w-[95vw]'>
                     <div className='flex flex-col items-start max-w-[45vw] max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
@@ -111,6 +164,18 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid }) => {
             </div>
             <div className='w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]'>
                 {renderContent()}
+            </div>
+            
+            <div className="w-[75vw] mx-auto flex justify-end mt-4 mb-12 max-tab:w-[95vw] max-mob:w-[95vw]">
+                <Menu model={menuItems} popup ref={menuRef} />
+                <GenericButton
+                    icon="pi pi-ellipsis-v"
+                    onClick={(e) => menuRef.current.toggle(e)}
+                    aria-label="More options"
+                    className="p-button-text"
+                    tooltip={isMobileView ? null : "More options"}
+                    tooltipOptions={{ position: 'top' }}
+                />
             </div>
         </div>
     )
