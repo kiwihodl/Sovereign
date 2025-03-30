@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useToast } from "@/hooks/useToast";
 import { Tag } from "primereact/tag";
@@ -13,6 +13,8 @@ import { getTotalFromZaps } from "@/utils/lightning";
 import { useSession } from "next-auth/react";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import dynamic from "next/dynamic";
+import { Toast } from "primereact/toast";
+import MoreOptionsMenu from "@/components/ui/MoreOptionsMenu";
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -29,6 +31,62 @@ const CombinedDetails = ({ processedEvent, topics, title, summary, image, price,
     const { showToast } = useToast();
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 768;
+    const menuRef = useRef(null);
+    const toastRef = useRef(null);
+
+    const handleDelete = async () => {
+        try {
+            const response = await axios.delete(`/api/resources/${processedEvent.d}`);
+            if (response.status === 204) {
+                showToast('success', 'Success', 'Resource deleted successfully.');
+                router.push('/');
+            }
+        } catch (error) {
+            if (error.response?.data?.error?.includes("Invalid `prisma.resource.delete()`")) {
+                showToast('error', 'Error', 'Resource cannot be deleted because it is part of a course, delete the course first.');
+            } else {
+                showToast('error', 'Error', 'Failed to delete resource. Please try again.');
+            }
+        }
+    };
+
+    const authorMenuItems = [
+        {
+            label: 'Edit',
+            icon: 'pi pi-pencil',
+            command: () => router.push(`/details/${processedEvent.id}/edit`)
+        },
+        {
+            label: 'Delete',
+            icon: 'pi pi-trash',
+            command: handleDelete
+        },
+        {
+            label: 'View Nostr note',
+            icon: 'pi pi-globe',
+            command: () => {
+                window.open(`https://habla.news/a/${nAddress}`, '_blank');
+            }
+        }
+    ];
+
+    const userMenuItems = [
+        {
+            label: 'View Nostr note',
+            icon: 'pi pi-globe',
+            command: () => {
+                window.open(`https://habla.news/a/${nAddress}`, '_blank');
+            }
+        }
+    ];
+
+    if (course) {
+        userMenuItems.unshift({
+            label: isMobileView ? 'Course' : 'Open Course',
+            icon: 'pi pi-external-link',
+            command: () => window.open(`/course/${course}`, '_blank')
+        });
+    }
 
     useEffect(() => {
         if (isLesson) {
@@ -48,22 +106,6 @@ const CombinedDetails = ({ processedEvent, topics, title, summary, image, price,
             setZapAmount(total);
         }
     }, [zaps, processedEvent]);
-
-    const handleDelete = async () => {
-        try {
-            const response = await axios.delete(`/api/resources/${processedEvent.d}`);
-            if (response.status === 204) {
-                showToast('success', 'Success', 'Resource deleted successfully.');
-                router.push('/');
-            }
-        } catch (error) {
-            if (error.response?.data?.error?.includes("Invalid `prisma.resource.delete()`")) {
-                showToast('error', 'Error', 'Resource cannot be deleted because it is part of a course, delete the course first.');
-            } else {
-                showToast('error', 'Error', 'Failed to delete resource. Please try again.');
-            }
-        }
-    };
 
     const renderPaymentMessage = () => {
         if (session?.user?.role?.subscribed && decryptedContent) {
@@ -124,37 +166,9 @@ const CombinedDetails = ({ processedEvent, topics, title, summary, image, price,
         return null;
     };
 
-    const renderAdditionalLinks = () => {
-        if (processedEvent?.additionalLinks?.length > 0) {
-            return (
-                <div className="my-4">
-                    <p>Additional Links:</p>
-                    {processedEvent.additionalLinks.map((link, index) => (
-                        <div key={index} className="mb-2">
-                            <a
-                                className="text-blue-500 hover:underline hover:text-blue-600 break-words"
-                                href={link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{
-                                    wordBreak: 'break-word',
-                                    overflowWrap: 'break-word',
-                                    display: 'inline-block',
-                                    maxWidth: '100%'
-                                }}
-                            >
-                                {link}
-                            </a>
-                        </div>
-                    ))}
-                </div>
-            );
-        }
-        return null;
-    };
-
     return (
         <div className="w-full">
+            <Toast ref={toastRef} />
             <div className="relative w-full h-[400px] mb-8">
                 <Image
                     alt="background image"
@@ -168,18 +182,22 @@ const CombinedDetails = ({ processedEvent, topics, title, summary, image, price,
                 <div className="mb-8 bg-gray-800/70 rounded-lg p-4 max-mob:rounded-t-none max-tab:rounded-t-none">
                     <div className="flex flex-row items-center justify-between w-full">
                         <h1 className='text-4xl font-bold text-white'>{title}</h1>
-                        <div className="flex flex-wrap gap-2">
-                            {topics?.map((topic, index) => (
-                                <Tag className='text-[#f8f8ff]' key={index} value={topic} />
-                            ))}
-                            {isLesson && <Tag size="small" className="text-[#f8f8ff]" value="lesson" />}
-                        </div>
+                        <ZapDisplay
+                            zapAmount={zapAmount}
+                            event={processedEvent}
+                            zapsLoading={zapsLoading && zapAmount === 0}
+                        />
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2 mb-4">
+                        {topics?.map((topic, index) => (
+                            <Tag className='text-[#f8f8ff]' key={index} value={topic} />
+                        ))}
+                        {isLesson && <Tag size="small" className="text-[#f8f8ff]" value="lesson" />}
                     </div>
                     {summary?.split('\n').map((line, index) => (
                         <p key={index}>{line}</p>
                     ))}
-                    {renderAdditionalLinks()}
-                    <div className='flex items-center justify-between'>
+                    <div className='flex items-center justify-between mt-8'>
                         <div className='flex items-center'>
                             <Image
                                 alt="avatar image"
@@ -195,54 +213,16 @@ const CombinedDetails = ({ processedEvent, topics, title, summary, image, price,
                                 </a>
                             </p>
                         </div>
-                        <ZapDisplay
-                            zapAmount={zapAmount}
-                            event={processedEvent}
-                            zapsLoading={zapsLoading && zapAmount === 0}
-                        />
+                        <div className="flex justify-end">
+                            <MoreOptionsMenu 
+                                menuItems={authorView ? authorMenuItems : userMenuItems}
+                                additionalLinks={processedEvent?.additionalLinks || []}
+                                isMobileView={isMobileView}
+                            />
+                        </div>
                     </div>
-                    <div className='w-full mt-8 flex flex-wrap justify-between items-center'>
-                        {authorView ? (
-                            <div className='flex space-x-2 mt-4 sm:mt-0'>
-                                {renderPaymentMessage()}
-                                <div className="flex flex-row gap-2">
-                                    <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
-                                    <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
-                                    <GenericButton
-                                        tooltip={isMobileView ? null : "View Nostr Note"}
-                                        tooltipOptions={{ position: 'left' }}
-                                        icon="pi pi-external-link"
-                                        outlined
-                                        onClick={() => window.open(`https://habla.news/a/${nAddress}`, '_blank')}
-                                    />
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="w-full flex flex-row justify-between gap-2">
-                                {renderPaymentMessage()}
-                                <div className="flex flex-row justify-end gap-2">
-                                    {course && (
-                                        <GenericButton
-                                            size={isMobileView ? 'small' : null}
-                                            outlined
-                                            icon="pi pi-external-link"
-                                            onClick={() => window.open(`/course/${course}`, '_blank')}
-                                            label={isMobileView ? "Course" : "Open Course"}
-                                            tooltip="This is a lesson in a course"
-                                            tooltipOptions={{ position: 'top' }}
-                                        />
-                                    )}
-                                    <GenericButton
-                                        size={isMobileView ? 'small' : null}
-                                        tooltip={isMobileView ? null : "View Nostr Note"}
-                                        tooltipOptions={{ position: 'left' }}
-                                        icon="pi pi-external-link"
-                                        outlined
-                                        onClick={() => window.open(`https://habla.news/a/${nAddress}`, '_blank')}
-                                    />
-                                </div>
-                            </div>
-                        )}
+                    <div className='w-full mt-4'>
+                        {renderPaymentMessage()}
                     </div>
                 </div>
                 {renderContent()}
