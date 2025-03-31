@@ -89,17 +89,6 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setComplete
     ];
 
     // Add additional links to menu items if they exist
-    if (lesson?.additionalLinks && lesson.additionalLinks.length > 0) {
-        lesson.additionalLinks.forEach((link, index) => {
-            menuItems.push({
-                label: `Link: ${new URL(link).hostname}`,
-                icon: 'pi pi-external-link',
-                command: () => {
-                    window.open(link, '_blank');
-                }
-            });
-        });
-    }
 
     useEffect(() => {
         if (!zaps || zapsLoading || zapsError) return;
