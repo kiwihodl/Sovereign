@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { useToast } from "@/hooks/useToast";
 import { Tag } from 'primereact/tag';
@@ -19,6 +19,8 @@ import appConfig from "@/config/appConfig";
 import useTrackCourse from '@/hooks/tracking/useTrackCourse';
 import WelcomeModal from '@/components/onboarding/WelcomeModal';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { Toast } from "primereact/toast";
+import MoreOptionsMenu from "@/components/ui/MoreOptionsMenu";
 
 export default function CourseDetails({ processedEvent, paidCourse, lessons, decryptionPerformed, handlePaymentSuccess, handlePaymentError }) {
     const [zapAmount, setZapAmount] = useState(0);
@@ -32,6 +34,40 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 768;
     const { ndk } = useNDKContext();
+    const menuRef = useRef(null);
+    const toastRef = useRef(null);
+
+    const handleDelete = async () => {
+        try {
+            const response = await axios.delete(`/api/courses/${processedEvent.d}`);
+            if (response.status === 204) {
+                showToast('success', 'Success', 'Course deleted successfully.');
+                router.push('/');
+            }
+        } catch (error) {
+            showToast('error', 'Error', 'Failed to delete course. Please try again.');
+        }
+    }
+
+    const menuItems = [
+        {
+            label: processedEvent?.pubkey === session?.user?.pubkey ? 'Edit' : null,
+            icon: 'pi pi-pencil',
+            command: () => router.push(`/course/${processedEvent.d}/edit`),
+            visible: processedEvent?.pubkey === session?.user?.pubkey
+        },
+        {
+            label: processedEvent?.pubkey === session?.user?.pubkey ? 'Delete' : null,
+            icon: 'pi pi-trash',
+            command: handleDelete,
+            visible: processedEvent?.pubkey === session?.user?.pubkey
+        },
+        {
+            label: 'View Nostr note',
+            icon: 'pi pi-globe',
+            command: () => window.open(`https://nostr.band/${nAddress}`, '_blank')
+        }
+    ];
 
     const { isCompleted } = useTrackCourse({
         courseId: processedEvent?.d,
@@ -74,18 +110,6 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
         }
     }, [zaps, processedEvent]);
 
-    const handleDelete = async () => {
-        try {
-            const response = await axios.delete(`/api/courses/${processedEvent.d}`);
-            if (response.status === 204) {
-                showToast('success', 'Success', 'Course deleted successfully.');
-                router.push('/');
-            }
-        } catch (error) {
-            showToast('error', 'Error', 'Failed to delete course. Please try again.');
-        }
-    }
-
     const renderPaymentMessage = () => {
         if (session?.user && session.user?.role?.subscribed && decryptionPerformed) {
             return <GenericButton tooltipOptions={{ position: 'top' }} tooltip={`You are subscribed so you can access all paid content`} icon="pi pi-check" label="Subscribed" severity="success" outlined size="small" className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0" />
@@ -101,45 +125,18 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
 
         if (paidCourse && !decryptionPerformed) {
             return (
-                <CoursePaymentButton
-                    lnAddress={author?.lud16}
-                    amount={processedEvent.price}
-                    onSuccess={handlePaymentSuccess}
-                    onError={handlePaymentError}
-                    courseId={processedEvent.d}
-                />
-            );
-        }
-
-        return null;
-    };
-
-    const renderAdditionalLinks = () => {
-        if (processedEvent?.additionalLinks && processedEvent.additionalLinks.length > 0) {
-            return (
-                <div className="my-4">
-                    <p>Additional Links:</p>
-                    {processedEvent.additionalLinks.map((link, index) => (
-                        <div key={index} className="mb-2">
-                            <a 
-                                className="text-blue-500 hover:underline hover:text-blue-600 break-words"
-                                href={link} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                style={{ 
-                                    wordBreak: 'break-word', 
-                                    overflowWrap: 'break-word',
-                                    display: 'inline-block',
-                                    maxWidth: '100%'
-                                }}
-                            >
-                                {link}
-                            </a>
-                        </div>
-                    ))}
+                <div className='w-fit'>
+                    <CoursePaymentButton
+                        lnAddress={author?.lud16}
+                        amount={processedEvent.price}
+                        onSuccess={handlePaymentSuccess}
+                        onError={handlePaymentError}
+                        courseId={processedEvent.d}
+                    />
                 </div>
             );
         }
+
         return null;
     };
 
@@ -149,7 +146,8 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
 
     return (
         <div className="w-full">
-                  <WelcomeModal />
+            <Toast ref={toastRef} />
+            <WelcomeModal />
             <div className="relative w-full h-[400px] mb-8">
                 <Image
                     alt="course image"
@@ -165,13 +163,18 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
                     {isCompleted && <Tag severity="success" value="Completed" />}
                     <div className="flex flex-row items-center justify-between w-full">
                         <h1 className='text-4xl font-bold text-white'>{processedEvent.name}</h1>
-                        <div className="flex flex-wrap gap-2">
-                            {processedEvent.topics && processedEvent.topics.length > 0 && (
-                                processedEvent.topics.map((topic, index) => (
-                                    <Tag className='text-white' key={index} value={topic}></Tag>
-                                ))
-                            )}
-                        </div>
+                        <ZapDisplay
+                            zapAmount={zapAmount}
+                            event={processedEvent}
+                            zapsLoading={zapsLoading && zapAmount === 0}
+                        />
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2 mb-4">
+                        {processedEvent.topics && processedEvent.topics.length > 0 && (
+                            processedEvent.topics.map((topic, index) => (
+                                <Tag className='text-white' key={index} value={topic}></Tag>
+                            ))
+                        )}
                     </div>
                     <div className='text-xl text-gray-200 mb-4 mt-4 max-mob:text-base'>{processedEvent.description && (
                         processedEvent.description.split('\n').map((line, index) => (
@@ -179,7 +182,7 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
                         ))
                     )}
                     </div>
-                    <div className='flex items-center justify-between'>
+                    <div className='flex items-center justify-between mt-8'>
                         <div className='flex items-center'>
                             <Image
                                 alt="avatar image"
@@ -195,26 +198,16 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
                                 </a>
                             </p>
                         </div>
-                        <ZapDisplay
-                            zapAmount={zapAmount}
-                            event={processedEvent}
-                            zapsLoading={zapsLoading && zapAmount === 0}
-                        />
+                        <div className="flex justify-end">
+                            <MoreOptionsMenu
+                                menuItems={menuItems}
+                                additionalLinks={processedEvent?.additionalLinks || []}
+                                isMobileView={isMobileView}
+                            />
+                        </div>
                     </div>
-                    <div className='w-full mt-8 flex flex-wrap justify-between items-center'>
+                    <div className='w-full mt-4'>
                         {renderPaymentMessage()}
-                        {processedEvent?.pubkey === session?.user?.pubkey ? (
-                            <div className='flex space-x-2 mt-4 sm:mt-0'>
-                                <GenericButton onClick={() => router.push(`/course/${processedEvent.d}/edit`)} label="Edit" severity='warning' outlined />
-                                <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
-                                <GenericButton outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={isMobileView ? null : "View Nostr Event"} tooltipOptions={{ position: paidCourse ? 'left' : 'right' }} />
-                            </div>
-                        ) : (
-                            <div className='flex space-x-2 mt-4 sm:mt-0'>
-                                <GenericButton className='my-2' outlined icon="pi pi-external-link" onClick={() => window.open(`https://nostr.band/${nAddress}`, '_blank')} tooltip={isMobileView ? null : "View Nostr Event"} tooltipOptions={{ position: paidCourse ? 'left' : 'right' }} />
-                            </div>
-                        )}
-                        {renderAdditionalLinks()}
                     </div>
                 </div>
             </div>

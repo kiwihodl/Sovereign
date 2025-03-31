@@ -134,7 +134,7 @@ const useTrackVideoLesson = ({lessonId, videoDuration, courseId, videoPlayed, pa
     }
   }, [timeSpent, videoDuration, markLessonAsCompleted, isAdmin]);
 
-  return { isCompleted, isTracking };
+  return { isCompleted, isTracking, markLessonAsCompleted };
 };
 
 export default useTrackVideoLesson;

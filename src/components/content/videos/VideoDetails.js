@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useToast } from "@/hooks/useToast";
 import { Tag } from "primereact/tag";
@@ -13,6 +13,8 @@ import { getTotalFromZaps } from "@/utils/lightning";
 import { useSession } from "next-auth/react";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import dynamic from "next/dynamic";
+import { Toast } from "primereact/toast";
+import MoreOptionsMenu from "@/components/ui/MoreOptionsMenu";
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -31,25 +33,8 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
     const { showToast } = useToast();
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 768;
-
-    useEffect(() => {
-        if (isLesson) {
-            axios.get(`/api/resources/${processedEvent.d}`).then(res => {
-                if (res.data && res.data.lessons[0]?.courseId) {
-                    setCourse(res.data.lessons[0]?.courseId);
-                }
-            }).catch(err => {
-                console.error('err', err);
-            });
-        }
-    }, [processedEvent.d, isLesson]);
-
-    useEffect(() => {
-        if (zaps.length > 0) {
-            const total = getTotalFromZaps(zaps, processedEvent);
-            setZapAmount(total);
-        }
-    }, [zaps, processedEvent]);
+    const menuRef = useRef(null);
+    const toastRef = useRef(null);
 
     const handleDelete = async () => {
         try {
@@ -69,6 +54,63 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
             }
         }
     }
+
+    const authorMenuItems = [
+        {
+            label: 'Edit',
+            icon: 'pi pi-pencil',
+            command: () => router.push(`/details/${processedEvent.id}/edit`)
+        },
+        {
+            label: 'Delete',
+            icon: 'pi pi-trash',
+            command: handleDelete
+        },
+        {
+            label: 'View Nostr note',
+            icon: 'pi pi-globe',
+            command: () => {
+                window.open(`https://habla.news/a/${nAddress}`, '_blank');
+            }
+        }
+    ];
+
+    const userMenuItems = [
+        {
+            label: 'View Nostr note',
+            icon: 'pi pi-globe',
+            command: () => {
+                window.open(`https://habla.news/a/${nAddress}`, '_blank');
+            }
+        }
+    ];
+
+    if (course) {
+        userMenuItems.unshift({
+            label: isMobileView ? 'Course' : 'Open Course',
+            icon: 'pi pi-external-link',
+            command: () => window.open(`/course/${course}`, '_blank')
+        });
+    }
+
+    useEffect(() => {
+        if (isLesson) {
+            axios.get(`/api/resources/${processedEvent.d}`).then(res => {
+                if (res.data && res.data.lessons[0]?.courseId) {
+                    setCourse(res.data.lessons[0]?.courseId);
+                }
+            }).catch(err => {
+                console.error('err', err);
+            });
+        }
+    }, [processedEvent.d, isLesson]);
+
+    useEffect(() => {
+        if (zaps.length > 0) {
+            const total = getTotalFromZaps(zaps, processedEvent);
+            setZapAmount(total);
+        }
+    }, [zaps, processedEvent]);
 
     const renderPaymentMessage = () => {
         if (session?.user && session.user?.role?.subscribed && decryptedContent) {
@@ -130,37 +172,9 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
         return null;
     }
 
-    const renderAdditionalLinks = () => {
-        if (processedEvent?.additionalLinks && processedEvent.additionalLinks.length > 0) {
-            return (
-                <div className="my-4">
-                    <p>Additional Links:</p>
-                    {processedEvent.additionalLinks.map((link, index) => (
-                        <div key={index} className="mb-2">
-                            <a
-                                className="text-blue-500 hover:underline hover:text-blue-600 break-words"
-                                href={link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{
-                                    wordBreak: 'break-word',
-                                    overflowWrap: 'break-word',
-                                    display: 'inline-block',
-                                    maxWidth: '100%'
-                                }}
-                            >
-                                {link}
-                            </a>
-                        </div>
-                    ))}
-                </div>
-            );
-        }
-        return null;
-    };
-
     return (
         <div className="w-full">
+            <Toast ref={toastRef} />
             {renderContent()}
             <div className="bg-gray-800/90 rounded-lg p-4 m-4 max-mob:m-0 max-tab:m-0 max-mob:rounded-t-none max-tab:rounded-t-none">
                 <div className={`w-full flex flex-col items-start justify-start mt-2 px-2`}>
@@ -183,65 +197,39 @@ const VideoDetails = ({ processedEvent, topics, title, summary, image, price, au
                         </div>
                     </div>
                     <div className='flex flex-row items-center justify-between w-full'>
-                        <div className="mt-4 max-mob:text-base max-tab:text-base">
+                        <div className="my-4 max-mob:text-base max-tab:text-base">
                             {(summary)?.split('\n').map((line, index) => (
                                 <p key={index}>{line}</p>
                             ))}
-                            {renderAdditionalLinks()}
                         </div>
                     </div>
-                    <div className='flex items-center'>
-                        <Image
-                            alt="avatar image"
-                            src={returnImageProxy(author?.avatar, author?.username)}
-                            width={50}
-                            height={50}
-                            className="rounded-full mr-4"
-                        />
-                        <p className='text-lg text-white'>
-                            By{' '}
-                            <a rel='noreferrer noopener' target='_blank' className='text-blue-300 hover:underline'>
-                                {author?.username}
-                            </a>
-                        </p>
+                    <div className='flex items-center justify-between w-full'>
+                        <div className='flex items-center'>
+                            <Image
+                                alt="avatar image"
+                                src={returnImageProxy(author?.avatar, author?.username)}
+                                width={50}
+                                height={50}
+                                className="rounded-full mr-4"
+                            />
+                            <p className='text-lg text-white'>
+                                By{' '}
+                                <a rel='noreferrer noopener' target='_blank' className='text-blue-300 hover:underline'>
+                                    {author?.username}
+                                </a>
+                            </p>
+                        </div>
+                        <div className="flex justify-end">
+                            <MoreOptionsMenu 
+                                menuItems={authorView ? authorMenuItems : userMenuItems}
+                                additionalLinks={processedEvent?.additionalLinks || []}
+                                isMobileView={isMobileView}
+                            />
+                        </div>
                     </div>
                 </div>
-                <div className="w-full flex flex-row justify-end mt-4">
-                    {authorView ? (
-                        <div className='flex space-x-2 mt-4 sm:mt-0'>
-                            {renderPaymentMessage()}
-                            <div className="flex flex-row justify-end">
-                                <GenericButton onClick={() => router.push(`/details/${processedEvent.id}/edit`)} label="Edit" severity='warning' outlined />
-                                <GenericButton onClick={handleDelete} label="Delete" severity='danger' outlined />
-                                <GenericButton
-                                    tooltip={isMobileView ? null : "View Nostr Note"}
-                                    tooltipOptions={{ position: 'left' }}
-                                    icon="pi pi-external-link"
-                                    outlined
-                                    onClick={() => {
-                                        window.open(`https://habla.news/a/${nAddress}`, '_blank');
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="w-full flex flex-row justify-between">
-                            {renderPaymentMessage()}
-                            <div className="flex flex-row justify-end">
-                                {course && <GenericButton size={isMobileView ? 'small' : null} outlined icon="pi pi-external-link" onClick={() => window.open(`/course/${course}`, '_blank')} label={isMobileView ? "Course" : "Open Course"} tooltip="This is a lesson in a course" tooltipOptions={{ position: 'top' }} />}
-                                <GenericButton
-                                    size={isMobileView ? 'small' : null}
-                                    tooltip={isMobileView ? null : "View Nostr Note"}
-                                    tooltipOptions={{ position: 'left' }}
-                                    icon="pi pi-external-link"
-                                    outlined
-                                    onClick={() => {
-                                        window.open(`https://habla.news/a/${nAddress}`, '_blank');
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    )}
+                <div className="w-full flex justify-start mt-4">
+                    {renderPaymentMessage()}
                 </div>
             </div>
         </div>

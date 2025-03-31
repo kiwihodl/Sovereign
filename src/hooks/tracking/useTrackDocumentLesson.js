@@ -105,7 +105,7 @@ const useTrackDocumentLesson = ({ lessonId, courseId, readTime, paidCourse, decr
     }
   }, [timeSpent, markLessonAsCompleted, readTime, isAdmin]);
 
-  return { isCompleted, isTracking };
+  return { isCompleted, isTracking, markLessonAsCompleted };
 };
 
 export default useTrackDocumentLesson;

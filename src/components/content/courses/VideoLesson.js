@@ -3,7 +3,6 @@ import { Tag } from "primereact/tag";
 import Image from "next/image";
 import ZapDisplay from "@/components/zaps/ZapDisplay";
 import { useImageProxy } from "@/hooks/useImageProxy";
-import GenericButton from "@/components/buttons/GenericButton";
 import { useZapsQuery } from "@/hooks/nostrQueries/zaps/useZapsQuery";
 import { nip19 } from "nostr-tools";
 import { getTotalFromZaps } from "@/utils/lightning";
@@ -12,6 +11,9 @@ import { Divider } from "primereact/divider";
 import appConfig from "@/config/appConfig";
 import useWindowWidth from "@/hooks/useWindowWidth";
 import useTrackVideoLesson from '@/hooks/tracking/useTrackVideoLesson';
+import { Toast } from "primereact/toast";
+import MoreOptionsMenu from "@/components/ui/MoreOptionsMenu";
+import { useSession } from "next-auth/react";
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -30,8 +32,11 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
     const [videoDuration, setVideoDuration] = useState(null);
     const [videoPlayed, setVideoPlayed] = useState(false);
     const mdDisplayRef = useRef(null);
+    const menuRef = useRef(null);
+    const toastRef = useRef(null);
+    const { data: session } = useSession();
 
-    const { isCompleted, isTracking } = useTrackVideoLesson({
+    const { isCompleted, isTracking, markLessonAsCompleted } = useTrackVideoLesson({
         lessonId: lesson?.d,
         videoDuration,
         courseId: course?.d,
@@ -39,6 +44,61 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
         paidCourse: isPaid,
         decryptionPerformed
     });
+    
+    const buildMenuItems = () => {
+        const items = [];
+        
+        const hasAccess = session?.user && (
+            !isPaid ||
+            decryptionPerformed ||
+            session.user.role?.subscribed
+        );
+        
+        if (hasAccess) {
+            items.push({
+                label: 'Mark as completed',
+                icon: 'pi pi-check-circle',
+                command: async () => {
+                    try {
+                        await markLessonAsCompleted();
+                        setCompleted(lesson.id);
+                        toastRef.current.show({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: 'Lesson marked as completed',
+                            life: 3000
+                        });
+                    } catch (error) {
+                        console.error('Failed to mark lesson as completed:', error);
+                        toastRef.current.show({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Failed to mark lesson as completed',
+                            life: 3000
+                        });
+                    }
+                }
+            });
+        }
+        
+        items.push({
+            label: 'Open lesson',
+            icon: 'pi pi-arrow-up-right',
+            command: () => {
+                window.open(`/details/${lesson.id}`, '_blank');
+            }
+        });
+        
+        items.push({
+            label: 'View Nostr note',
+            icon: 'pi pi-globe',
+            command: () => {
+                window.open(`https://habla.news/a/${nAddress}`, '_blank');
+            }
+        });
+        
+        return items;
+    };
 
     useEffect(() => {
         const handleYouTubeMessage = (event) => {
@@ -148,20 +208,27 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
 
     return (
         <div className="w-full">
+            <Toast ref={toastRef} />
             {renderContent()}
             <Divider />
             <div className="bg-gray-800/90 rounded-lg p-4 m-4">
                 <div className="w-full flex flex-col items-start justify-start mt-2 px-2">
-                    <div className="flex flex-row items-center gap-2 w-full">
+                    <div className="flex flex-row items-center justify-between w-full">
                         <h1 className='text-3xl text-white'>{lesson.title}</h1>
+                        <ZapDisplay
+                            zapAmount={zapAmount}
+                            event={lesson}
+                            zapsLoading={zapsLoading}
+                        />
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2 mb-4">
                         {lesson.topics && lesson.topics.length > 0 && (
                             lesson.topics.map((topic, index) => (
-                                <Tag className='mt-2 text-white' key={index} value={topic}></Tag>
+                                <Tag className='text-white' key={index} value={topic}></Tag>
                             ))
                         )}
                     </div>
-                    <div className='flex flex-row items-center justify-between w-full'>
-                        <div className='text-xl mt-4 text-gray-200'>{lesson.summary && (
+                    <div className='text-xl mt-4 text-gray-200'>{lesson.summary && (
                         <div className="text-xl mt-4">
                             {lesson.summary.split('\n').map((line, index) => (
                                 <p key={index}>{line}</p>
@@ -169,55 +236,31 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
                         </div>
                     )}
                     </div>
-                        <ZapDisplay
-                            zapAmount={zapAmount}
-                            event={lesson}
-                            zapsLoading={zapsLoading}
+                </div>
+                <div className='flex items-center justify-between mt-8'>
+                    <div className='flex items-center'>
+                        <Image
+                            alt="avatar image"
+                            src={returnImageProxy(lesson.author?.avatar, lesson.author?.username)}
+                            width={50}
+                            height={50}
+                            className="rounded-full mr-4"
+                        />
+                        <p className='text-lg text-white'>
+                            Created by{' '}
+                            <a rel='noreferrer noopener' target='_blank' className='text-blue-300 hover:underline'>
+                                {lesson.author?.username || lesson.author?.pubkey}
+                            </a>
+                        </p>
+                    </div>
+                    <div className="flex justify-end">
+                        <MoreOptionsMenu 
+                            menuItems={buildMenuItems()}
+                            additionalLinks={lesson?.additionalLinks || []}
+                            isMobileView={isMobileView}
                         />
                     </div>
                 </div>
-                <div className='w-full flex flex-col space-y-4 mt-4'>
-                    <div className='flex flex-row justify-between items-center'>
-                        <div className='flex flex-row w-fit items-center'>
-                            <Image
-                                alt="avatar image"
-                                src={returnImageProxy(lesson.author?.avatar, lesson.author?.username)}
-                                width={50}
-                                height={50}
-                                className="rounded-full mr-4"
-                            />
-                            <p className='text-lg text-white'>
-                                Created by{' '}
-                                <a rel='noreferrer noopener' target='_blank' className='text-blue-300 hover:underline'>
-                                    {lesson.author?.username || lesson.author?.pubkey}
-                                </a>
-                            </p>
-                        </div>
-                        <GenericButton
-                            tooltip={isMobileView ? null : "View Nostr Note"}
-                            tooltipOptions={{ position: 'left' }}
-                            icon="pi pi-external-link"
-                            outlined
-                            onClick={() => {
-                                window.open(`https://habla.news/a/${nAddress}`, '_blank');
-                            }}
-                        />
-                    </div>
-                </div>
-                {lesson?.additionalLinks && lesson.additionalLinks.length > 0 && (
-                    <div className='mt-6'>
-                        <h3 className='text-lg font-semibold mb-2 text-white'>External links:</h3>
-                        <ul className='list-disc list-inside text-white'>
-                            {lesson.additionalLinks.map((link, index) => (
-                                <li key={index}>
-                                    <a href={link} target="_blank" rel="noopener noreferrer" className='text-blue-300 hover:underline'>
-                                        {new URL(link).hostname}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
             </div>
         </div>
     )
