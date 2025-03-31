@@ -125,13 +125,15 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
 
         if (paidCourse && !decryptionPerformed) {
             return (
-                <CoursePaymentButton
-                    lnAddress={author?.lud16}
-                    amount={processedEvent.price}
-                    onSuccess={handlePaymentSuccess}
-                    onError={handlePaymentError}
-                    courseId={processedEvent.d}
-                />
+                <div className='w-fit'>
+                    <CoursePaymentButton
+                        lnAddress={author?.lud16}
+                        amount={processedEvent.price}
+                        onSuccess={handlePaymentSuccess}
+                        onError={handlePaymentError}
+                        courseId={processedEvent.d}
+                    />
+                </div>
             );
         }
 
@@ -197,7 +199,7 @@ export default function CourseDetails({ processedEvent, paidCourse, lessons, dec
                             </p>
                         </div>
                         <div className="flex justify-end">
-                            <MoreOptionsMenu 
+                            <MoreOptionsMenu
                                 menuItems={menuItems}
                                 additionalLinks={processedEvent?.additionalLinks || []}
                                 isMobileView={isMobileView}
