@@ -12,6 +12,7 @@ import useWindowWidth from "@/hooks/useWindowWidth";
 import { nip19 } from "nostr-tools";
 import appConfig from "@/config/appConfig";
 import MoreOptionsMenu from "@/components/ui/MoreOptionsMenu";
+import { useSession } from "next-auth/react";
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -28,6 +29,7 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setComplete
     const toastRef = useRef(null);
     const windowWidth = useWindowWidth();
     const isMobileView = windowWidth <= 768;
+    const { data: session } = useSession();
     
     const readTime = lesson?.content ? Math.max(30, Math.ceil(lesson.content.length / 20)) : 60;
     
@@ -39,39 +41,51 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setComplete
         decryptionPerformed
     });
     
-    const menuItems = [
-        {
-            label: 'Mark as completed',
-            icon: 'pi pi-check-circle',
-            command: async () => {
-                try {
-                    await markLessonAsCompleted();
-                    setCompleted && setCompleted(lesson.id);
-                    toastRef.current.show({
-                        severity: 'success',
-                        summary: 'Success',
-                        detail: 'Lesson marked as completed',
-                        life: 3000
-                    });
-                } catch (error) {
-                    console.error('Failed to mark lesson as completed:', error);
-                    toastRef.current.show({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to mark lesson as completed',
-                        life: 3000
-                    });
+    const buildMenuItems = () => {
+        const items = [];
+        
+        const hasAccess = session?.user && (
+            !isPaid ||
+            decryptionPerformed ||
+            session.user.role?.subscribed
+        );
+        
+        if (hasAccess) {
+            items.push({
+                label: 'Mark as completed',
+                icon: 'pi pi-check-circle',
+                command: async () => {
+                    try {
+                        await markLessonAsCompleted();
+                        setCompleted && setCompleted(lesson.id);
+                        toastRef.current.show({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: 'Lesson marked as completed',
+                            life: 3000
+                        });
+                    } catch (error) {
+                        console.error('Failed to mark lesson as completed:', error);
+                        toastRef.current.show({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Failed to mark lesson as completed',
+                            life: 3000
+                        });
+                    }
                 }
-            }
-        },
-        {
+            });
+        }
+        
+        items.push({
             label: 'Open lesson',
             icon: 'pi pi-arrow-up-right',
             command: () => {
                 window.open(`/details/${lesson.id}`, '_blank');
             }
-        },
-        {
+        });
+        
+        items.push({
             label: 'View Nostr note',
             icon: 'pi pi-globe',
             command: () => {
@@ -85,10 +99,10 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setComplete
                     window.open(`https://habla.news/a/${addr}`, '_blank');
                 }
             }
-        }
-    ];
-
-    // Add additional links to menu items if they exist
+        });
+        
+        return items;
+    };
 
     useEffect(() => {
         if (!zaps || zapsLoading || zapsError) return;
@@ -164,7 +178,7 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setComplete
                             </div>
                             <div className="flex justify-end">
                                 <MoreOptionsMenu 
-                                    menuItems={menuItems}
+                                    menuItems={buildMenuItems()}
                                     additionalLinks={lesson?.additionalLinks || []}
                                     isMobileView={isMobileView}
                                 />

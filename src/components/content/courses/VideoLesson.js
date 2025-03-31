@@ -13,6 +13,7 @@ import useWindowWidth from "@/hooks/useWindowWidth";
 import useTrackVideoLesson from '@/hooks/tracking/useTrackVideoLesson';
 import { Toast } from "primereact/toast";
 import MoreOptionsMenu from "@/components/ui/MoreOptionsMenu";
+import { useSession } from "next-auth/react";
 
 const MDDisplay = dynamic(
     () => import("@uiw/react-markdown-preview"),
@@ -33,6 +34,7 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
     const mdDisplayRef = useRef(null);
     const menuRef = useRef(null);
     const toastRef = useRef(null);
+    const { data: session } = useSession();
 
     const { isCompleted, isTracking, markLessonAsCompleted } = useTrackVideoLesson({
         lessonId: lesson?.d,
@@ -43,46 +45,60 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
         decryptionPerformed
     });
     
-    const menuItems = [
-        {
-            label: 'Mark as completed',
-            icon: 'pi pi-check-circle',
-            command: async () => {
-                try {
-                    await markLessonAsCompleted();
-                    setCompleted(lesson.id);
-                    toastRef.current.show({
-                        severity: 'success',
-                        summary: 'Success',
-                        detail: 'Lesson marked as completed',
-                        life: 3000
-                    });
-                } catch (error) {
-                    console.error('Failed to mark lesson as completed:', error);
-                    toastRef.current.show({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to mark lesson as completed',
-                        life: 3000
-                    });
+    const buildMenuItems = () => {
+        const items = [];
+        
+        const hasAccess = session?.user && (
+            !isPaid ||
+            decryptionPerformed ||
+            session.user.role?.subscribed
+        );
+        
+        if (hasAccess) {
+            items.push({
+                label: 'Mark as completed',
+                icon: 'pi pi-check-circle',
+                command: async () => {
+                    try {
+                        await markLessonAsCompleted();
+                        setCompleted(lesson.id);
+                        toastRef.current.show({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: 'Lesson marked as completed',
+                            life: 3000
+                        });
+                    } catch (error) {
+                        console.error('Failed to mark lesson as completed:', error);
+                        toastRef.current.show({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Failed to mark lesson as completed',
+                            life: 3000
+                        });
+                    }
                 }
-            }
-        },
-        {
+            });
+        }
+        
+        items.push({
             label: 'Open lesson',
             icon: 'pi pi-arrow-up-right',
             command: () => {
                 window.open(`/details/${lesson.id}`, '_blank');
             }
-        },
-        {
+        });
+        
+        items.push({
             label: 'View Nostr note',
             icon: 'pi pi-globe',
             command: () => {
                 window.open(`https://habla.news/a/${nAddress}`, '_blank');
             }
-        }
-    ];
+        });
+        
+        return items;
+    };
 
     useEffect(() => {
         const handleYouTubeMessage = (event) => {
@@ -239,7 +255,7 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
                     </div>
                     <div className="flex justify-end">
                         <MoreOptionsMenu 
-                            menuItems={menuItems}
+                            menuItems={buildMenuItems()}
                             additionalLinks={lesson?.additionalLinks || []}
                             isMobileView={isMobileView}
                         />

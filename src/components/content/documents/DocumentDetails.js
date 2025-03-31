@@ -141,7 +141,7 @@ const DocumentDetails = ({ processedEvent, topics, title, summary, image, price,
             return (
                 <div className="w-full px-4">
 
-                    <div className="w-full p-8 rounded-lg flex flex-col items-center justify-center bg-gray-800">
+                    <div className="w-full p-8 rounded-lg flex flex-col items-center justify-center">
                         <div className="mx-auto py-auto">
                             <i className="pi pi-lock text-[60px] text-red-500"></i>
                         </div>
