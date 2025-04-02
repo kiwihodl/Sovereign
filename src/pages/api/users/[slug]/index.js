@@ -1,6 +1,12 @@
-import { getUserById, getUserByPubkey, getUserByEmail, updateUser, deleteUser } from "@/db/models/userModels";
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/pages/api/auth/[...nextauth].js"
+import {
+  getUserById,
+  getUserByPubkey,
+  getUserByEmail,
+  updateUser,
+  deleteUser,
+} from '@/db/models/userModels';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/pages/api/auth/[...nextauth].js';
 
 export default async function handler(req, res) {
   const { slug } = req.query;
@@ -11,7 +17,7 @@ export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions);
 
   if (!session) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: 'Unauthorized' });
     return;
   }
 
@@ -28,7 +34,7 @@ export default async function handler(req, res) {
       // Assume slug is an ID
       const id = parseInt(slug);
       if (isNaN(id)) {
-        res.status(400).json({ error: "Invalid identifier" });
+        res.status(400).json({ error: 'Invalid identifier' });
         return;
       }
       user = await getUserById(id);
@@ -50,7 +56,7 @@ export default async function handler(req, res) {
           res.status(200).json(updatedUser);
         } else {
           // Handle attempt to update user with pubkey
-          res.status(400).json({ error: "Cannot update user with pubkey. Use ID instead." });
+          res.status(400).json({ error: 'Cannot update user with pubkey. Use ID instead.' });
         }
         break;
       case 'DELETE':
@@ -60,7 +66,7 @@ export default async function handler(req, res) {
           res.status(204).end();
         } else {
           // Handle attempt to delete user with pubkey
-          res.status(400).json({ error: "Cannot delete user with pubkey. Use ID instead." });
+          res.status(400).json({ error: 'Cannot delete user with pubkey. Use ID instead.' });
         }
         break;
       default:

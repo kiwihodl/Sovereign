@@ -33,7 +33,12 @@ export function useDraftsQuery() {
     }
   };
 
-  const { data: drafts, isLoading: draftsLoading, error: draftsError, refetch: refetchDrafts } = useQuery({
+  const {
+    data: drafts,
+    isLoading: draftsLoading,
+    error: draftsError,
+    refetch: refetchDrafts,
+  } = useQuery({
     queryKey: ['drafts', isClient, user?.id],
     queryFn: fetchDraftsDB,
     enabled: isClient && !!user?.id,

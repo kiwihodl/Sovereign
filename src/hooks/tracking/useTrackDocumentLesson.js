@@ -2,7 +2,13 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import axios from 'axios';
 
-const useTrackDocumentLesson = ({ lessonId, courseId, readTime, paidCourse, decryptionPerformed }) => {
+const useTrackDocumentLesson = ({
+  lessonId,
+  courseId,
+  readTime,
+  paidCourse,
+  decryptionPerformed,
+}) => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [timeSpent, setTimeSpent] = useState(0);
   const [isTracking, setIsTracking] = useState(false);
@@ -20,7 +26,9 @@ const useTrackDocumentLesson = ({ lessonId, courseId, readTime, paidCourse, decr
   const checkOrCreateUserLesson = useCallback(async () => {
     if (!session?.user) return false;
     try {
-      const response = await axios.get(`/api/users/${session.user.id}/lessons/${lessonId}?courseId=${courseId}`);
+      const response = await axios.get(
+        `/api/users/${session.user.id}/lessons/${lessonId}?courseId=${courseId}`
+      );
       if (response.status === 200 && response?.data) {
         if (response?.data?.completed) {
           setIsCompleted(true);
@@ -54,12 +62,15 @@ const useTrackDocumentLesson = ({ lessonId, courseId, readTime, paidCourse, decr
   const markLessonAsCompleted = useCallback(async () => {
     if (!session?.user || completedRef.current) return;
     completedRef.current = true;
-    
+
     try {
-      const response = await axios.put(`/api/users/${session.user.id}/lessons/${lessonId}?courseId=${courseId}`, {
-        completed: true,
-        completedAt: new Date().toISOString(),
-      });
+      const response = await axios.put(
+        `/api/users/${session.user.id}/lessons/${lessonId}?courseId=${courseId}`,
+        {
+          completed: true,
+          completedAt: new Date().toISOString(),
+        }
+      );
 
       if (response.status === 200) {
         setIsCompleted(true);
@@ -79,7 +90,11 @@ const useTrackDocumentLesson = ({ lessonId, courseId, readTime, paidCourse, decr
       if (isAdmin) return; // Skip tracking for admin users
 
       const alreadyCompleted = await checkOrCreateUserLesson();
-      if (!alreadyCompleted && !completedRef.current && (!paidCourse || (paidCourse && decryptionPerformed))) {
+      if (
+        !alreadyCompleted &&
+        !completedRef.current &&
+        (!paidCourse || (paidCourse && decryptionPerformed))
+      ) {
         setIsTracking(true);
         timerRef.current = setInterval(() => {
           setTimeSpent(prevTime => prevTime + 1);

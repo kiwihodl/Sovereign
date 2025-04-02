@@ -1,7 +1,7 @@
-import { getUserLessons, createOrUpdateUserLesson } from "@/db/models/userLessonModels";
-import { getResourceById } from "@/db/models/resourceModels";
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/pages/api/auth/[...nextauth].js"
+import { getUserLessons, createOrUpdateUserLesson } from '@/db/models/userLessonModels';
+import { getResourceById } from '@/db/models/resourceModels';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/pages/api/auth/[...nextauth].js';
 
 // todo somehow make it to where we can get lesson slug in this endpoint
 export default async function handler(req, res) {
@@ -12,12 +12,12 @@ export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions);
 
   if (!session) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: 'Unauthorized' });
     return;
   }
 
   switch (method) {
-    case "GET":
+    case 'GET':
       try {
         const userLessons = await getUserLessons(userId);
         res.status(200).json(userLessons);
@@ -26,11 +26,11 @@ export default async function handler(req, res) {
       }
       break;
 
-    case "POST":
+    case 'POST':
       try {
         const { resourceId, ...data } = req.body;
         const resource = await getResourceById(resourceId);
-        const lesson = resource?.lessons.find((lesson) => lesson.courseId === courseId);
+        const lesson = resource?.lessons.find(lesson => lesson.courseId === courseId);
         const lessonId = lesson?.id;
         const userLesson = await createOrUpdateUserLesson(userId, lessonId, data);
         res.status(201).json(userLesson);
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
       break;
 
     default:
-      res.setHeader("Allow", ["GET", "POST"]);
+      res.setHeader('Allow', ['GET', 'POST']);
       res.status(405).end(`Method ${method} Not Allowed`);
   }
 }

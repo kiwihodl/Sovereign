@@ -2,39 +2,44 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNDKContext } from '@/context/NDKContext';
 
-export function useAllContentQuery({ids}) {
-    const [isClient, setIsClient] = useState(false);
-    const {ndk, addSigner} = useNDKContext();
+export function useAllContentQuery({ ids }) {
+  const [isClient, setIsClient] = useState(false);
+  const { ndk, addSigner } = useNDKContext();
 
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
-const fetchAllContentFromNDK = async (ids) => {
-  try {
+  const fetchAllContentFromNDK = async ids => {
+    try {
       await ndk.connect();
 
       const filter = { ids: ids };
       const events = await ndk.fetchEvents(filter);
 
       if (events && events.size > 0) {
-          const eventsArray = Array.from(events);
-          return eventsArray;
+        const eventsArray = Array.from(events);
+        return eventsArray;
       }
       return [];
-  } catch (error) {
+    } catch (error) {
       console.error('Error fetching videos from NDK:', error);
       return [];
-  }
-};
+    }
+  };
 
-const { data: allContent, isLoading: allContentLoading, error: allContentError, refetch: refetchAllContent } = useQuery({
+  const {
+    data: allContent,
+    isLoading: allContentLoading,
+    error: allContentError,
+    refetch: refetchAllContent,
+  } = useQuery({
     queryKey: ['allContent', isClient],
     queryFn: () => fetchAllContentFromNDK(ids),
     staleTime: 1000 * 60 * 30, // 30 minutes
     refetchInterval: 1000 * 60 * 30, // 30 minutes
     enabled: isClient,
-  })
+  });
 
-  return { allContent, allContentLoading, allContentError, refetchAllContent }
+  return { allContent, allContentLoading, allContentError, refetchAllContent };
 }

@@ -1,6 +1,6 @@
-import prisma from "../prisma";
+import prisma from '../prisma';
 
-export const createRole = async (data) => {
+export const createRole = async data => {
   return await prisma.role.create({
     data: {
       user: { connect: { id: data.userId } },
@@ -11,6 +11,6 @@ export const createRole = async (data) => {
       lastPaymentAt: null,
       subscriptionExpiredAt: null,
       nwc: null,
-    }
+    },
   });
 };

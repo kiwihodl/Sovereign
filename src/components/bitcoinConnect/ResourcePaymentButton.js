@@ -11,10 +11,9 @@ import GenericButton from '@/components/buttons/GenericButton';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import { useRouter } from 'next/router';
 
-const Payment = dynamic(
-  () => import('@getalby/bitcoin-connect-react').then((mod) => mod.Payment),
-  { ssr: false }
-);
+const Payment = dynamic(() => import('@getalby/bitcoin-connect-react').then(mod => mod.Payment), {
+  ssr: false,
+});
 
 const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resourceId }) => {
   const [invoice, setInvoice] = useState(null);
@@ -29,32 +28,35 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
   useEffect(() => {
     let intervalId;
     if (invoice) {
-        intervalId = setInterval(async () => {
-            const paid = await invoice.verifyPayment();
+      intervalId = setInterval(async () => {
+        const paid = await invoice.verifyPayment();
 
-            if (paid && invoice.preimage) {
-                clearInterval(intervalId);
-                // handle success
-                handlePaymentSuccess({ paid, preimage: invoice.preimage });
-            }
-        }, 2000);
+        if (paid && invoice.preimage) {
+          clearInterval(intervalId);
+          // handle success
+          handlePaymentSuccess({ paid, preimage: invoice.preimage });
+        }
+      }, 2000);
     } else {
-        console.error('no invoice');
+      console.error('no invoice');
     }
 
     return () => {
-        if (intervalId) {
-            clearInterval(intervalId);
-        }
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
     };
-}, [invoice]);
+  }, [invoice]);
 
   const fetchInvoice = async () => {
     setIsLoading(true);
     try {
       const ln = new LightningAddress(lnAddress);
       await ln.fetch();
-      const invoice = await ln.requestInvoice({ satoshi: amount, comment: `Resource Purchase: ${resourceId}, User: ${session?.user?.id}` });
+      const invoice = await ln.requestInvoice({
+        satoshi: amount,
+        comment: `Resource Purchase: ${resourceId}, User: ${session?.user?.id}`,
+      });
       setInvoice(invoice);
       setDialogVisible(true);
     } catch (error) {
@@ -65,12 +67,12 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
     setIsLoading(false);
   };
 
-  const handlePaymentSuccess = async (response) => {
+  const handlePaymentSuccess = async response => {
     try {
       const purchaseData = {
         userId: session.user.id,
         resourceId: resourceId,
-        amountPaid: parseInt(amount, 10)
+        amountPaid: parseInt(amount, 10),
       };
 
       const result = await axios.post('/api/purchase/resource', purchaseData);
@@ -83,7 +85,11 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
       }
     } catch (error) {
       console.error('Error updating user purchases:', error);
-      showToast('error', 'Purchase Update Failed', 'Payment was successful, but failed to update user purchases.');
+      showToast(
+        'error',
+        'Purchase Update Failed',
+        'Payment was successful, but failed to update user purchases.'
+      );
       if (onError) onError(error);
     }
     setDialogVisible(false);
@@ -103,12 +109,12 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
           }
         }}
         disabled={isLoading}
-        severity='primary'
+        severity="primary"
         rounded
         className={`text-[#f8f8ff] text-sm ${isLoading ? 'hidden' : ''}`}
       />
       {isLoading && (
-        <div className='w-full h-full flex items-center justify-center'>
+        <div className="w-full h-full flex items-center justify-center">
           <ProgressSpinner
             style={{ width: '30px', height: '30px' }}
             strokeWidth="8"
@@ -126,7 +132,7 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
           <Payment
             invoice={invoice.paymentRequest}
             onPaid={handlePaymentSuccess}
-            paymentMethods='all'
+            paymentMethods="all"
             title={`Pay ${amount} sats`}
           />
         ) : (

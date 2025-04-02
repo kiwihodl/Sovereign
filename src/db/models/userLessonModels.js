@@ -1,6 +1,6 @@
-import prisma from "@/db/prisma";
+import prisma from '@/db/prisma';
 
-export const getUserLessons = async (userId) => {
+export const getUserLessons = async userId => {
   return await prisma.userLesson.findMany({
     where: { userId },
     include: { lesson: true },

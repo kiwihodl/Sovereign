@@ -1,22 +1,22 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
-import NDK, { NDKNip07Signer } from "@nostr-dev-kit/ndk";
-import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-import appConfig from "@/config/appConfig";
+import NDK, { NDKNip07Signer } from '@nostr-dev-kit/ndk';
+import NDKCacheAdapterDexie from '@nostr-dev-kit/ndk-cache-dexie';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import appConfig from '@/config/appConfig';
 
 const NDKContext = createContext(null);
 
 export const NDKProvider = ({ children }) => {
   const [ndk, setNdk] = useState(null);
-  const [userRelays, setUserRelays] = useLocalStorage("userRelays", appConfig.defaultRelayUrls);
+  const [userRelays, setUserRelays] = useLocalStorage('userRelays', appConfig.defaultRelayUrls);
 
-  const createNDKInstance = (relays) => {
+  const createNDKInstance = relays => {
     const allRelays = [...new Set([...appConfig.defaultRelayUrls, ...relays])];
     return new NDK({
       explicitRelayUrls: allRelays,
       enableOutboxModel: true,
-      outboxRelayUrls: ["wss://nos.lol/"],
-      cacheAdapter: new NDKCacheAdapterDexie({ dbName: 'ndk-cache' })
+      outboxRelayUrls: ['wss://nos.lol/'],
+      cacheAdapter: new NDKCacheAdapterDexie({ dbName: 'ndk-cache' }),
     });
   };
 

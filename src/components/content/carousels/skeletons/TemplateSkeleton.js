@@ -1,12 +1,12 @@
-import React from "react";
-import { Skeleton } from "primereact/skeleton";
+import React from 'react';
+import { Skeleton } from 'primereact/skeleton';
 
 const TemplateSkeleton = () => {
   return (
     <div className="flex flex-col items-start mx-auto px-4 mt-8 rounded-md">
       {/* Image Skeleton */}
       {/* <div className="w-full" style={{ paddingBottom: "56.25%" }}> */}
-        <Skeleton width="100%" height="18rem"></Skeleton>
+      <Skeleton width="100%" height="18rem"></Skeleton>
       {/* </div> */}
 
       {/* Title Skeleton */}

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { Octokit } from "@octokit/rest";
-import { throttling } from "@octokit/plugin-throttling";
+import { Octokit } from '@octokit/rest';
+import { throttling } from '@octokit/plugin-throttling';
 
 const ThrottledOctokit = Octokit.plugin(throttling);
 
@@ -12,7 +12,7 @@ export function useFetchGithubRepos(accessToken) {
         console.log('No access token provided');
         return [];
       }
-      
+
       try {
         const octokit = new ThrottledOctokit({
           auth: accessToken,
@@ -32,14 +32,14 @@ export function useFetchGithubRepos(accessToken) {
         console.log('Fetching repositories...');
         const { data } = await octokit.repos.listForAuthenticatedUser({
           sort: 'updated',
-          per_page: 100
+          per_page: 100,
         });
         console.log(`Found ${data.length} repositories`);
 
         return data.map(repo => ({
           id: repo.id,
           name: repo.name,
-          html_url: repo.html_url
+          html_url: repo.html_url,
         }));
       } catch (error) {
         console.error('Error fetching GitHub repos:', error);

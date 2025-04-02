@@ -1,6 +1,6 @@
-import { createOrUpdateUserCourse } from "@/db/models/userCourseModels";
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/pages/api/auth/[...nextauth].js"
+import { createOrUpdateUserCourse } from '@/db/models/userCourseModels';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/pages/api/auth/[...nextauth].js';
 
 export default async function handler(req, res) {
   const { method } = req;
@@ -10,12 +10,12 @@ export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions);
 
   if (!session) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: 'Unauthorized' });
     return;
   }
 
   switch (method) {
-    case "POST":
+    case 'POST':
       try {
         const userCourse = await createOrUpdateUserCourse(userId, courseSlug, req.body);
         res.status(201).json(userCourse);
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
       break;
 
     default:
-      res.setHeader("Allow", ["GET", "POST"]);
+      res.setHeader('Allow', ['GET', 'POST']);
       res.status(405).end(`Method ${method} Not Allowed`);
   }
 }

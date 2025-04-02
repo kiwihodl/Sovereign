@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 import { kv } from '@vercel/kv';
 import { finalizeEvent } from 'nostr-tools/pure';
 import { SimplePool } from 'nostr-tools/pool';
@@ -7,131 +7,138 @@ import appConfig from '@/config/appConfig';
 const ZAP_PRIVKEY = process.env.ZAP_PRIVKEY;
 
 export default async function handler(req, res) {
-    try {
-        // Add execution time limit protection
-        const startTime = Date.now();
-        const TIMEOUT_MS = 8000; // Vercel timeout is 10s, give ourselves margin
-        
-        // Get all invoice keys from Redis
-        const keys = await kv.keys('invoice:*');
+  try {
+    // Add execution time limit protection
+    const startTime = Date.now();
+    const TIMEOUT_MS = 8000; // Vercel timeout is 10s, give ourselves margin
 
-        // Add batch size limit
-        const BATCH_LIMIT = 500;
-        if (keys.length > BATCH_LIMIT) {
-            console.warn(`Large number of invoices: ${keys.length}. Processing first ${BATCH_LIMIT} only.`);
-            keys.length = BATCH_LIMIT;
+    // Get all invoice keys from Redis
+    const keys = await kv.keys('invoice:*');
+
+    // Add batch size limit
+    const BATCH_LIMIT = 500;
+    if (keys.length > BATCH_LIMIT) {
+      console.warn(
+        `Large number of invoices: ${keys.length}. Processing first ${BATCH_LIMIT} only.`
+      );
+      keys.length = BATCH_LIMIT;
+    }
+
+    const results = {
+      processed: 0,
+      settled: 0,
+      expired: 0,
+      errors: 0,
+      pending: 0,
+    };
+
+    // Process each invoice
+    for (const key of keys) {
+      if (Date.now() - startTime > TIMEOUT_MS) {
+        console.warn('Approaching timeout, stopping processing');
+        break;
+      }
+      try {
+        const invoiceData = await kv.get(key);
+        if (!invoiceData) continue;
+
+        const { name, foundAddress, zapRequest, settled } = invoiceData;
+        const paymentHash = key.replace('invoice:', '');
+
+        // Skip if already settled
+        if (settled) {
+          await kv.del(key);
+          continue;
         }
 
-        const results = {
-            processed: 0,
-            settled: 0,
-            expired: 0,
-            errors: 0,
-            pending: 0
+        // Add axios timeout configuration
+        const axiosConfig = {
+          timeout: 5000, // 5 second timeout
+          headers: {
+            'Grpc-Metadata-macaroon': foundAddress.invoiceMacaroon,
+          },
         };
 
-        // Process each invoice
-        for (const key of keys) {
-            if (Date.now() - startTime > TIMEOUT_MS) {
-                console.warn('Approaching timeout, stopping processing');
-                break;
-            }
-            try {
-                const invoiceData = await kv.get(key);
-                if (!invoiceData) continue;
+        // Check payment status with timeout handling
+        const response = await axios.get(
+          `https://${foundAddress.lndHost}:${foundAddress.lndPort}/v1/invoice/${paymentHash}`,
+          axiosConfig
+        );
 
-                const { name, foundAddress, zapRequest, settled } = invoiceData;
-                const paymentHash = key.replace('invoice:', '');
-
-                // Skip if already settled
-                if (settled) {
-                    await kv.del(key);
-                    continue;
-                }
-
-                // Add axios timeout configuration
-                const axiosConfig = {
-                    timeout: 5000, // 5 second timeout
-                    headers: {
-                        'Grpc-Metadata-macaroon': foundAddress.invoiceMacaroon,
-                    }
-                };
-
-                // Check payment status with timeout handling
-                const response = await axios.get(
-                    `https://${foundAddress.lndHost}:${foundAddress.lndPort}/v1/invoice/${paymentHash}`,
-                    axiosConfig
-                );
-
-                if (!response.data) {
-                    results.errors++;
-                    continue;
-                }
-
-                // Handle expired invoices
-                if (response.data.state === "EXPIRED" || response.data.state === "CANCELED") {
-                    await kv.del(key);
-                    results.expired++;
-                    continue;
-                }
-
-                // Handle pending invoices
-                if (response.data.state === "OPEN") {
-                    results.pending++;
-                    continue;
-                }
-
-                // Handle settled invoices
-                if (response.data.state === "SETTLED" && !settled) {
-                    try {
-                        const preimage = Buffer.from(response.data.r_preimage, 'base64').toString('hex');
-                        
-                        // Parse and prepare zap receipt
-                        const parsedZapRequest = zapRequest;
-                        const zapReceipt = {
-                            kind: 9735,
-                            created_at: Math.floor(Date.now() / 1000),
-                            content: "",
-                            tags: [
-                                ["p", parsedZapRequest.tags.find(t => t[0] === "p")[1]],
-                                ["bolt11", response.data.payment_request],
-                                ["description", JSON.stringify(parsedZapRequest)],
-                                ["preimage", preimage],
-                            ]
-                        };
-
-                        const signedZapReceipt = finalizeEvent(zapReceipt, foundAddress.relayPrivkey || ZAP_PRIVKEY);
-                        // Publish zap receipt to relays
-                        const pool = new SimplePool();
-                        const relays = appConfig.defaultRelayUrls || [];
-                        await Promise.any(pool.publish(relays, signedZapReceipt));
-                        
-                        // Delete from Redis after successful broadcast
-                        await kv.del(key);
-                        results.settled++;
-                    } catch (broadcastError) {
-                        console.error('Error broadcasting zap receipt:', broadcastError);
-                        // Keep in Redis for retry if broadcast fails
-                        await kv.set(key, { ...invoiceData, settled: true }, { ex: 3600 });
-                        results.errors++;
-                    }
-                }
-
-                results.processed++;
-            } catch (error) {
-                if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT') {
-                    console.error(`Connection issue with LND node for ${foundAddress.lndHost}: ${error.message}`);
-                    results.errors++;
-                    continue;
-                }
-                console.error('Error processing invoice:', error);
-                results.errors++;
-            }
+        if (!response.data) {
+          results.errors++;
+          continue;
         }
 
-        res.status(200).json(results);
-    } catch (error) {
-        console.error('Error in polling endpoint:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        // Handle expired invoices
+        if (response.data.state === 'EXPIRED' || response.data.state === 'CANCELED') {
+          await kv.del(key);
+          results.expired++;
+          continue;
+        }
+
+        // Handle pending invoices
+        if (response.data.state === 'OPEN') {
+          results.pending++;
+          continue;
+        }
+
+        // Handle settled invoices
+        if (response.data.state === 'SETTLED' && !settled) {
+          try {
+            const preimage = Buffer.from(response.data.r_preimage, 'base64').toString('hex');
+
+            // Parse and prepare zap receipt
+            const parsedZapRequest = zapRequest;
+            const zapReceipt = {
+              kind: 9735,
+              created_at: Math.floor(Date.now() / 1000),
+              content: '',
+              tags: [
+                ['p', parsedZapRequest.tags.find(t => t[0] === 'p')[1]],
+                ['bolt11', response.data.payment_request],
+                ['description', JSON.stringify(parsedZapRequest)],
+                ['preimage', preimage],
+              ],
+            };
+
+            const signedZapReceipt = finalizeEvent(
+              zapReceipt,
+              foundAddress.relayPrivkey || ZAP_PRIVKEY
+            );
+            // Publish zap receipt to relays
+            const pool = new SimplePool();
+            const relays = appConfig.defaultRelayUrls || [];
+            await Promise.any(pool.publish(relays, signedZapReceipt));
+
+            // Delete from Redis after successful broadcast
+            await kv.del(key);
+            results.settled++;
+          } catch (broadcastError) {
+            console.error('Error broadcasting zap receipt:', broadcastError);
+            // Keep in Redis for retry if broadcast fails
+            await kv.set(key, { ...invoiceData, settled: true }, { ex: 3600 });
+            results.errors++;
+          }
+        }
+
+        results.processed++;
+      } catch (error) {
+        if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT') {
+          console.error(
+            `Connection issue with LND node for ${foundAddress.lndHost}: ${error.message}`
+          );
+          results.errors++;
+          continue;
+        }
+        console.error('Error processing invoice:', error);
+        results.errors++;
+      }
     }
+
+    res.status(200).json(results);
+  } catch (error) {
+    console.error('Error in polling endpoint:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 }
