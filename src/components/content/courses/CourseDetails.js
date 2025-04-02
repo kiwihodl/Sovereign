@@ -120,11 +120,24 @@ export default function CourseDetails({
     }
   }, [zaps, processedEvent]);
 
+  useEffect(() => {
+    if (session?.user?.privkey) {
+      const privkeyBuffer = Buffer.from(session.user.privkey, "hex");
+      setNsec(nip19.nsecEncode(privkeyBuffer));
+    } else if (session?.user?.pubkey) {
+      setNpub(nip19.npubEncode(session.user.pubkey));
+    }
+  }, [session]);
+
   const renderPaymentMessage = () => {
-    if (session?.user && session.user?.role?.subscribed && decryptionPerformed) {
+    if (
+      session?.user &&
+      session.user?.role?.subscribed &&
+      decryptionPerformed
+    ) {
       return (
         <GenericButton
-          tooltipOptions={{ position: 'top' }}
+          tooltipOptions={{ position: "top" }}
           tooltip={`You are subscribed so you can access all paid content`}
           icon="pi pi-check"
           label="Subscribed"
@@ -268,6 +281,40 @@ export default function CourseDetails({
           </div>
           <div className="w-full mt-4">{renderPaymentMessage()}</div>
         </div>
+        {nAddress !== null && (
+          <div className="px-4">
+            {paidCourse ? (
+              // For paid content, only show ZapThreads if user has access
+              processedEvent?.pubkey === session?.user?.pubkey ||
+              decryptionPerformed ||
+              session?.user?.role?.subscribed ? (
+                <ZapThreadsWrapper
+                  anchor={nAddress}
+                  user={session?.user ? nsec || npub : null}
+                  relays={appConfig.defaultRelayUrls.join(",")}
+                  disable="zaps"
+                  isAuthorized={true}
+                />
+              ) : (
+                <div className="text-center p-4 bg-gray-800/50 rounded-lg">
+                  <p className="text-gray-400">
+                    Comments are only available to course purchasers,
+                    subscribers, and the course creator.
+                  </p>
+                </div>
+              )
+            ) : (
+              // For free content, show ZapThreads to everyone
+              <ZapThreadsWrapper
+                anchor={nAddress}
+                user={session?.user ? nsec || npub : null}
+                relays={appConfig.defaultRelayUrls.join(",")}
+                disable="zaps"
+                isAuthorized={true}
+              />
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
