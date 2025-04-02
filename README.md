@@ -119,6 +119,14 @@ PlebDevs is an open-source platform that combines educational content, community
 Now the database is running and the migrations are applied.
 You can now run locally.
 
+### Linting and Code Formatting
+
+We use ESLint with Next.js configuration and Prettier for code formatting. We've kept the linting process simple with just two commands:
+
+- `npm run lint` - Run ESLint to check for issues
+- `npm run lint:fix` - Fix both ESLint and Prettier formatting issues in one command
+
+Before submitting a PR, please run `npm run lint:fix` to ensure your code follows our standards.
 
 ## Contributing
 
