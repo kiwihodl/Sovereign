@@ -129,10 +129,11 @@ You can now run locally.
 
 ### Linting and Code Formatting
 
-We use ESLint with Next.js configuration and Prettier for code formatting. We've kept the linting process simple with just two commands:
+We use ESLint with Next.js configuration and Prettier for code formatting:
 
-- `npm run lint` - Run ESLint to check for issues
-- `npm run lint:fix` - Fix both ESLint and Prettier formatting issues in one command
+1. First-time setup: `npm run setup-lint`
+2. Check code: `npm run lint`
+3. Fix issues: `npm run lint:fix`
 
 Before submitting a PR, please run `npm run lint:fix` to ensure your code follows our standards.
 

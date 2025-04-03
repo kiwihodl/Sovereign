@@ -7,7 +7,8 @@
     "build": "npx prisma generate && next build && npx prisma migrate deploy",
     "start": "next start",
     "lint": "next lint",
-    "lint:fix": "next lint --fix && prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "lint:fix": "next lint --fix && npx prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "setup-lint": "npm install --save-dev prettier@3.5.3",
     "postinstall": "npx prisma generate"
   },
   "dependencies": {
