@@ -62,7 +62,7 @@ const EmbeddedVideoForm = ({ draft = null, onSave, isPaid }) => {
     const payload = {
       title,
       summary,
-      type: 'vidoe',
+      type: 'video',
       price: isPaidResource ? price : null,
       content: embedCode,
       image: coverImage,
