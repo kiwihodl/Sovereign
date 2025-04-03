@@ -5,7 +5,7 @@ export const useEncryptContent = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const encryptContent = async (content) => {
+  const encryptContent = async content => {
     setIsLoading(true);
     setError(null);
 
@@ -24,7 +24,7 @@ export const useEncryptContent = () => {
       setIsLoading(false);
       return null;
     }
-  }
+  };
 
   return { encryptContent, isLoading, error };
 };

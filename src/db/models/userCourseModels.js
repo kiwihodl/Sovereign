@@ -1,6 +1,6 @@
-import prisma from "@/db/prisma";
+import prisma from '@/db/prisma';
 
-export const getUserCourses = async (userId) => {
+export const getUserCourses = async userId => {
   return await prisma.userCourse.findMany({
     where: { userId },
     include: { course: true },
@@ -29,14 +29,16 @@ export const createOrUpdateUserCourse = async (userId, courseId, data) => {
     },
   });
 
-  const updateData = existing?.completed ? {
-    ...data,
-    updatedAt: new Date(),
-    completedAt: existing.completedAt,
-  } : {
-    ...data,
-    updatedAt: new Date(),
-  };
+  const updateData = existing?.completed
+    ? {
+        ...data,
+        updatedAt: new Date(),
+        completedAt: existing.completedAt,
+      }
+    : {
+        ...data,
+        updatedAt: new Date(),
+      };
 
   return await prisma.userCourse.upsert({
     where: {
@@ -70,12 +72,12 @@ export const submitCourseRepo = async (userId, courseSlug, repoLink) => {
     where: {
       userId_courseId: {
         userId,
-        courseId: courseSlug
-      }
+        courseId: courseSlug,
+      },
     },
     data: {
-      submittedRepoLink: repoLink
-    }
+      submittedRepoLink: repoLink,
+    },
   });
 };
 
@@ -86,19 +88,19 @@ export const checkCourseCompletion = async (userId, courseId) => {
       lessons: {
         include: {
           userLessons: {
-            where: { userId: userId }
-          }
-        }
-      }
-    }
+            where: { userId: userId },
+          },
+        },
+      },
+    },
   });
 
   if (!course) {
-    throw new Error("Course not found");
+    throw new Error('Course not found');
   }
 
-  const allLessonsCompleted = course.lessons.every(lesson => 
-    lesson.userLessons.length > 0 && lesson.userLessons[0].completed
+  const allLessonsCompleted = course.lessons.every(
+    lesson => lesson.userLessons.length > 0 && lesson.userLessons[0].completed
   );
 
   const existingUserCourse = await prisma.userCourse.findUnique({
@@ -106,14 +108,14 @@ export const checkCourseCompletion = async (userId, courseId) => {
       userId_courseId: {
         userId,
         courseId,
-      }
-    }
+      },
+    },
   });
 
   if (allLessonsCompleted) {
     await createOrUpdateUserCourse(userId, courseId, {
       completed: true,
-      ...(existingUserCourse?.completed ? {} : { completedAt: new Date() })
+      ...(existingUserCourse?.completed ? {} : { completedAt: new Date() }),
     });
     return true;
   }

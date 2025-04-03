@@ -10,9 +10,10 @@ PlebDevs is an open-source platform that combines educational content, community
 ## Technical Implementation
 
 ### Nostr Integration
+
 - **Content Distribution**: Implements NIP-23 for rich multimedia content embedding
 - **Content Encryption**: Paid content bodies are encrypted while maintaining metadata visibility
-- **Authentication**: 
+- **Authentication**:
   - Multi-method signup (NIP-07, Email, GitHub, Anonymous)
   - Ephemeral keypair generation for non-Nostr users
   - Account linking and recovery system
@@ -24,6 +25,7 @@ PlebDevs is an open-source platform that combines educational content, community
 - **Additional NIPs**: Implements NIP-01, NIP-19, NIP-39, NIP-57
 
 ### Platform Architecture
+
 - **Content Management**:
   - Draft system with preview capabilities
   - Parameterized replaceable events
@@ -47,7 +49,7 @@ PlebDevs is an open-source platform that combines educational content, community
   - Documents: Markdown documents posted as NIP-23 long-form events
   - Video: Formatted markdown documents with rich media support, including embedded videos, also posted as NIP-23 events
   - Courses: Nostr lists (NIP-51) that combines multiple documents and videos into a structured learning path.
-- ⚡️ **Monetization**: 
+- ⚡️ **Monetization**:
   - Free content available to all (viewable on any Nostr client) and zappable
   - Premium content purchasable with Lightning or through a PlebDevs subscription
   - Subscription options:
@@ -66,21 +68,25 @@ PlebDevs is an open-source platform that combines educational content, community
 ## Tech Stack
 
 ### Frontend ⚛️
+
 - [Next.js](https://nextjs.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [PrimeReact](https://primereact.org/)
 
 ### Backend 🔧
+
 - [Prisma](https://www.prisma.io/)
 - [PostgreSQL](https://www.postgresql.org/)
 - [Redis](https://redis.io/)
 
 ### Infrastructure ⚙️
+
 - [Vercel](https://vercel.com/)
 - [Docker](https://www.docker.com/)
 - [Digital Ocean](https://www.digitalocean.com/)
 
 ### Bitcoin & Nostr Integration 🔌
+
 - [NDK](https://github.com/nostr-dev-kit/ndk)
 - [nostr-tools](https://github.com/nbd-wtf/nostr-tools)
 - [Bitcoin-Connect](https://github.com/getAlby/bitcoin-connect)
@@ -91,6 +97,7 @@ PlebDevs is an open-source platform that combines educational content, community
 ## Deployment Options
 
 ### Self-Hosting Requirements
+
 - Docker environment
 - PostgreSQL database
 - Redis instance
@@ -98,6 +105,7 @@ PlebDevs is an open-source platform that combines educational content, community
 - Nostr relay (optional for improved performance)
 
 ### Configuration (still in development)
+
 - Customizable platform branding
 - Configurable subscription tiers
 - Custom relay preferences
@@ -119,6 +127,15 @@ PlebDevs is an open-source platform that combines educational content, community
 Now the database is running and the migrations are applied.
 You can now run locally.
 
+### Linting and Code Formatting
+
+We use ESLint with Next.js configuration and Prettier for code formatting:
+
+1. First-time setup: `npm run setup-lint`
+2. Check code: `npm run lint`
+3. Fix issues: `npm run lint:fix`
+
+Before submitting a PR, please run `npm run lint:fix` to ensure your code follows our standards.
 
 ## Contributing
 

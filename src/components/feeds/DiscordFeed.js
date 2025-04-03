@@ -6,51 +6,55 @@ import CommunityMessage from '@/components/feeds/messages/CommunityMessage';
 import useWindowWidth from '@/hooks/useWindowWidth';
 
 const DiscordFeed = ({ searchQuery }) => {
-    const router = useRouter();
-    const { data, error, isLoading } = useDiscordQuery({page: router.query.page});
-    const windowWidth = useWindowWidth();
+  const router = useRouter();
+  const { data, error, isLoading } = useDiscordQuery({ page: router.query.page });
+  const windowWidth = useWindowWidth();
 
-    // Memoize the filtered data
-    const filteredData = useMemo(() => {
-        if (!data) return [];
-        return data
-            .filter(message =>
-                searchQuery ? message.content.toLowerCase().includes(searchQuery.toLowerCase()) : true
-            )
-            .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    }, [data, searchQuery]);
+  // Memoize the filtered data
+  const filteredData = useMemo(() => {
+    if (!data) return [];
+    return data
+      .filter(message =>
+        searchQuery ? message.content.toLowerCase().includes(searchQuery.toLowerCase()) : true
+      )
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  }, [data, searchQuery]);
 
-    if (isLoading) {
-        return (
-            <div className="h-[100vh] min-bottom-bar:w-[86vw] max-sidebar:w-[100vw]">
-                <ProgressSpinner className='w-full mt-24 mx-auto' />
-            </div>
-        );
-    }
-
-    if (error) {
-        return <div className="text-red-500 text-center p-4">Failed to load messages. Please try again later.</div>;
-    }
-
+  if (isLoading) {
     return (
-        <div className="h-full w-full">
-            <div className="mx-0">
-            {filteredData.length > 0 ? (
-                filteredData.map(message => (
-                    <CommunityMessage
-                        key={message.id}
-                        message={message}
-                        searchQuery={searchQuery}
-                        windowWidth={windowWidth}
-                        platform="discord"
-                    />
-                ))
-            ) : (
-                <div className="text-gray-400 text-center p-4">No messages available.</div>
-            )}
-            </div>
-        </div>
+      <div className="h-[100vh] min-bottom-bar:w-[86vw] max-sidebar:w-[100vw]">
+        <ProgressSpinner className="w-full mt-24 mx-auto" />
+      </div>
     );
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-500 text-center p-4">
+        Failed to load messages. Please try again later.
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full w-full">
+      <div className="mx-0">
+        {filteredData.length > 0 ? (
+          filteredData.map(message => (
+            <CommunityMessage
+              key={message.id}
+              message={message}
+              searchQuery={searchQuery}
+              windowWidth={windowWidth}
+              platform="discord"
+            />
+          ))
+        ) : (
+          <div className="text-gray-400 text-center p-4">No messages available.</div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default DiscordFeed;

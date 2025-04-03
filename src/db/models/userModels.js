@@ -1,4 +1,4 @@
-import prisma from "../prisma";
+import prisma from '../prisma';
 
 export const getAllUsers = async () => {
   return await prisma.user.findMany({
@@ -22,14 +22,14 @@ export const getAllUsers = async () => {
       },
       userBadges: {
         include: {
-          badge: true
-        }
-      }
+          badge: true,
+        },
+      },
     },
   });
 };
 
-export const getUserById = async (id) => {
+export const getUserById = async id => {
   return await prisma.user.findUnique({
     where: { id },
     include: {
@@ -54,14 +54,14 @@ export const getUserById = async (id) => {
       platformLightningAddress: true,
       userBadges: {
         include: {
-          badge: true
-        }
-      }
+          badge: true,
+        },
+      },
     },
   });
 };
 
-export const getUserByPubkey = async (pubkey) => {
+export const getUserByPubkey = async pubkey => {
   return await prisma.user.findUnique({
     where: { pubkey },
     include: {
@@ -86,12 +86,12 @@ export const getUserByPubkey = async (pubkey) => {
       platformLightningAddress: true,
       userBadges: {
         include: {
-          badge: true
-        }
-      }
+          badge: true,
+        },
+      },
     },
   });
-}
+};
 
 export const addResourcePurchaseToUser = async (userId, purchaseData) => {
   return await prisma.user.update({
@@ -135,7 +135,7 @@ export const addCoursePurchaseToUser = async (userId, purchaseData) => {
   });
 };
 
-export const createUser = async (data) => {
+export const createUser = async data => {
   return await prisma.user.create({
     data: {
       ...data,
@@ -146,20 +146,20 @@ export const createUser = async (data) => {
 
 export const updateUser = async (id, data) => {
   const updateData = { ...data };
-  
+
   if (data.role) {
     updateData.role = {
-      connect: { id: data.role }
+      connect: { id: data.role },
     };
   }
-  
+
   return await prisma.user.update({
     where: { id },
     data: updateData,
   });
 };
 
-export const deleteUser = async (id) => {
+export const deleteUser = async id => {
   return await prisma.user.delete({
     where: { id },
   });
@@ -202,14 +202,16 @@ export const updateUserSubscription = async (userId, isSubscribed, nwc) => {
 export const findExpiredSubscriptions = async () => {
   try {
     const now = new Date();
-    const oneMonthAndOneHourAgo = new Date(now.getTime() - 1 * 30 * 24 * 60 * 60 * 1000 - 1 * 60 * 60 * 1000);
+    const oneMonthAndOneHourAgo = new Date(
+      now.getTime() - 1 * 30 * 24 * 60 * 60 * 1000 - 1 * 60 * 60 * 1000
+    );
 
     const result = await prisma.role.findMany({
       where: {
         subscribed: true,
         lastPaymentAt: {
-          lt: oneMonthAndOneHourAgo
-        }
+          lt: oneMonthAndOneHourAgo,
+        },
       },
       select: {
         userId: true,
@@ -217,7 +219,7 @@ export const findExpiredSubscriptions = async () => {
         subscriptionExpiredAt: true,
         subscriptionStartDate: true,
         admin: true,
-      }
+      },
     });
 
     return result;
@@ -226,10 +228,10 @@ export const findExpiredSubscriptions = async () => {
   }
 };
 
-export const expireUserSubscriptions = async (userIds) => {
+export const expireUserSubscriptions = async userIds => {
   try {
     const now = new Date();
-    const updatePromises = userIds.map((userId) =>
+    const updatePromises = userIds.map(userId =>
       prisma.role.update({
         where: { userId },
         data: {
@@ -238,7 +240,7 @@ export const expireUserSubscriptions = async (userIds) => {
           lastPaymentAt: null,
           nwc: null,
           subscriptionExpiredAt: now,
-        }
+        },
       })
     );
 
@@ -249,46 +251,46 @@ export const expireUserSubscriptions = async (userIds) => {
   }
 };
 
-export const getUserByEmail = async (email) => {
-    if (!email || typeof email !== 'string') {
-        console.error('Invalid email parameter:', email);
-        return null;
-    }
+export const getUserByEmail = async email => {
+  if (!email || typeof email !== 'string') {
+    console.error('Invalid email parameter:', email);
+    return null;
+  }
 
-    try {
-        return await prisma.user.findUnique({
-            where: { 
-                email: email.toLowerCase().trim() 
-            },
-            include: {
-                role: true,
-                purchased: {
-                    include: {
-                        course: true,
-                        resource: true,
-                    },
-                },
-                userCourses: {
-                    include: {
-                        course: true,
-                    },
-                },
-                userLessons: {
-                    include: {
-                        lesson: true,
-                    },
-                },
-                platformNip05: true,
-                platformLightningAddress: true,
-                userBadges: {
-                    include: {
-                        badge: true
-                    }
-                }
-            },
-        });
-    } catch (error) {
-        console.error('Error in getUserByEmail:', error);
-        return null;
-    }
+  try {
+    return await prisma.user.findUnique({
+      where: {
+        email: email.toLowerCase().trim(),
+      },
+      include: {
+        role: true,
+        purchased: {
+          include: {
+            course: true,
+            resource: true,
+          },
+        },
+        userCourses: {
+          include: {
+            course: true,
+          },
+        },
+        userLessons: {
+          include: {
+            lesson: true,
+          },
+        },
+        platformNip05: true,
+        platformLightningAddress: true,
+        userBadges: {
+          include: {
+            badge: true,
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Error in getUserByEmail:', error);
+    return null;
+  }
 };

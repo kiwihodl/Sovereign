@@ -7,7 +7,7 @@ const inMemoryStore = new Map();
 
 // Simple in-memory rate limiter for development
 const localRatelimit = {
-  limit: async (key) => {
+  limit: async key => {
     const now = Date.now();
     const windowMs = 10 * 1000; // 10 seconds
     const maxRequests = 40;
@@ -33,37 +33,38 @@ const localRatelimit = {
 };
 
 // Use local rate limiter for development, Upstash for production
-const ratelimit = process.env.NODE_ENV === 'production'
-  ? new Ratelimit({
-      redis: kv,
-      limiter: Ratelimit.slidingWindow(40, '10 s'),
-      analytics: true,
-      timeout: 1000,
-    })
-  : localRatelimit;
+const ratelimit =
+  process.env.NODE_ENV === 'production'
+    ? new Ratelimit({
+        redis: kv,
+        limiter: Ratelimit.slidingWindow(40, '10 s'),
+        analytics: true,
+        timeout: 1000,
+      })
+    : localRatelimit;
 
 // Define which routes you want to rate limit
 export const config = {
   matcher: [
     // Exclude .well-known routes from middleware
     '/((?!.well-known).*)',
-  ]
+  ],
 };
 
 export default async function middleware(request) {
   // Add CORS headers for all responses
   const response = NextResponse.next();
-  
+
   // Add CORS headers
   response.headers.set('Access-Control-Allow-Origin', '*');
   response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  
+
   // Handle OPTIONS request
   if (request.method === 'OPTIONS') {
-    return new NextResponse(null, { 
+    return new NextResponse(null, {
       status: 200,
-      headers: response.headers
+      headers: response.headers,
     });
   }
 

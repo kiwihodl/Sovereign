@@ -1,6 +1,6 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth].js";
-import { submitCourseRepo } from "@/db/models/userCourseModels";
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/pages/api/auth/[...nextauth].js';
+import { submitCourseRepo } from '@/db/models/userCourseModels';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {

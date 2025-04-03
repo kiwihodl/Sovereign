@@ -7,7 +7,7 @@ let prisma;
 // If not, create a new instance of PrismaClient and attach it to the global object.
 // This ensures that the same instance of PrismaClient is reused across multiple invocations.
 if (!global.prisma) {
-    global.prisma = new PrismaClient();
+  global.prisma = new PrismaClient();
 }
 
 // Assign the global PrismaClient instance to the prisma variable.

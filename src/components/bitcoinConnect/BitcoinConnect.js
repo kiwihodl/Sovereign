@@ -1,12 +1,9 @@
 import dynamic from 'next/dynamic';
 import { useEffect } from 'react';
 
-const Button = dynamic(
-  () => import('@getalby/bitcoin-connect-react').then((mod) => mod.Button),
-  {
-    ssr: false,
-  }
-);
+const Button = dynamic(() => import('@getalby/bitcoin-connect-react').then(mod => mod.Button), {
+  ssr: false,
+});
 
 let initialized = false;
 
@@ -17,9 +14,9 @@ export async function initializeBitcoinConnect() {
       // Check if custom elements are already registered
       if (!customElements.get('bc-balance')) {
         init({
-          appName: "PlebDevs",
-          filters: ["nwc"],
-          showBalance: false
+          appName: 'PlebDevs',
+          filters: ['nwc'],
+          showBalance: false,
         });
         initialized = true;
       }
@@ -39,10 +36,12 @@ const BitcoinConnectButton = () => {
   }, []);
 
   return (
-    <Button onConnect={(provider) => {
-      console.log('provider:', provider);
-    }} />
+    <Button
+      onConnect={provider => {
+        console.log('provider:', provider);
+      }}
+    />
   );
-}
+};
 
 export default BitcoinConnectButton;

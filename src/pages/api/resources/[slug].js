@@ -1,11 +1,11 @@
-import { getResourceById, updateResource, deleteResource, } from "@/db/models/resourceModels";
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/pages/api/auth/[...nextauth]"
+import { getResourceById, updateResource, deleteResource } from '@/db/models/resourceModels';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
 
 export default async function handler(req, res) {
   const { slug } = req.query;
 
-  const session = await getServerSession(req, res, authOptions)
+  const session = await getServerSession(req, res, authOptions);
 
   if (req.method === 'GET') {
     try {
@@ -42,8 +42,8 @@ export default async function handler(req, res) {
     }
 
     try {
-        await deleteResource(slug);
-        res.status(204).end();
+      await deleteResource(slug);
+      res.status(204).end();
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

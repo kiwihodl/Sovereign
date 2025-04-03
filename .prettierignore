@@ -1,0 +1,11 @@
+# Ignore artifacts
+.next
+build
+node_modules
+public
+.git
+.gitignore
+package-lock.json
+.DS_Store
+# Prisma
+prisma/migrations 

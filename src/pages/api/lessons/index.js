@@ -1,6 +1,6 @@
-import { getAllLessons, createLesson } from "@/db/models/lessonModels";
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/pages/api/auth/[...nextauth]"
+import { getAllLessons, createLesson } from '@/db/models/lessonModels';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
@@ -11,7 +11,7 @@ export default async function handler(req, res) {
       res.status(500).json({ error: error.message });
     }
   } else if (req.method === 'POST') {
-    const session = await getServerSession(req, res, authOptions)
+    const session = await getServerSession(req, res, authOptions);
 
     if (!session) {
       return res.status(401).json({ error: 'Unauthorized' });

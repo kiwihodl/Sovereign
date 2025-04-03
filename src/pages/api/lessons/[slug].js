@@ -1,11 +1,11 @@
-import { getLessonById, updateLesson, deleteLesson } from "@/db/models/lessonModels";
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/pages/api/auth/[...nextauth]"
+import { getLessonById, updateLesson, deleteLesson } from '@/db/models/lessonModels';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
 
 export default async function handler(req, res) {
   const { slug } = req.query;
 
-  const session = await getServerSession(req, res, authOptions)
+  const session = await getServerSession(req, res, authOptions);
 
   if (req.method === 'GET') {
     try {

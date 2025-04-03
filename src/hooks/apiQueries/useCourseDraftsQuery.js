@@ -31,11 +31,11 @@ export function useCourseDraftsQuery() {
     }
   };
 
-  const { 
-    data: courseDrafts, 
-    isLoading: courseDraftsLoading, 
-    error: courseDraftsError, 
-    refetch: refetchCourseDrafts 
+  const {
+    data: courseDrafts,
+    isLoading: courseDraftsLoading,
+    error: courseDraftsError,
+    refetch: refetchCourseDrafts,
   } = useQuery({
     queryKey: ['courseDrafts', isClient],
     queryFn: fetchCourseDrafts,

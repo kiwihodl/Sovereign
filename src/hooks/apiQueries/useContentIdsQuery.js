@@ -20,12 +20,17 @@ export function useContentIdsQuery() {
     }
   };
 
-  const { data: contentIds, isLoading: contentIdsLoading, error: contentIdsError, refetch: refetchContentIds } = useQuery({
+  const {
+    data: contentIds,
+    isLoading: contentIdsLoading,
+    error: contentIdsError,
+    refetch: refetchContentIds,
+  } = useQuery({
     queryKey: ['contentIds', isClient],
     queryFn: fetchContentIdsDB,
     staleTime: 1000 * 60 * 30, // 30 minutes
     refetchInterval: 1000 * 60 * 30, // 30 minutes
-    enabled: isClient
+    enabled: isClient,
   });
 
   return { contentIds, contentIdsLoading, contentIdsError, refetchContentIds };

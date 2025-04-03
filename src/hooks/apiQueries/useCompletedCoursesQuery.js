@@ -9,12 +9,12 @@ export function useCompletedCoursesQuery() {
 
   const fetchCompletedCourses = async () => {
     if (!session?.user?.id) return [];
-    
+
     try {
       const response = await axios.get('/api/courses/completed', {
         params: {
-          userId: session.user.id
-        }
+          userId: session.user.id,
+        },
       });
       return response.data;
     } catch (error) {

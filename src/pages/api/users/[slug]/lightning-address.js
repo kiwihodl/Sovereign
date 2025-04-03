@@ -1,6 +1,11 @@
-import { getLightningAddress, createLightningAddress, updateLightningAddress, deleteLightningAddress } from "@/db/models/lightningAddressModels"
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/pages/api/auth/[...nextauth].js"
+import {
+  getLightningAddress,
+  createLightningAddress,
+  updateLightningAddress,
+  deleteLightningAddress,
+} from '@/db/models/lightningAddressModels';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/pages/api/auth/[...nextauth].js';
 
 export default async function handler(req, res) {
   const { slug } = req.query;
@@ -9,7 +14,7 @@ export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions);
 
   if (!session) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: 'Unauthorized' });
     return;
   }
 
@@ -29,27 +34,38 @@ export default async function handler(req, res) {
 
     case 'POST':
       try {
-        const { name, description, maxSendable, minSendable, invoiceMacaroon, lndCert, lndHost, lndPort } = req.body;
+        const {
+          name,
+          description,
+          maxSendable,
+          minSendable,
+          invoiceMacaroon,
+          lndCert,
+          lndHost,
+          lndPort,
+        } = req.body;
         const lightningAddress = await createLightningAddress(
-          userId, 
-          name, 
-          description, 
-          BigInt(maxSendable), 
-          BigInt(minSendable), 
-          invoiceMacaroon, 
-          lndCert, 
-          lndHost, 
+          userId,
+          name,
+          description,
+          BigInt(maxSendable),
+          BigInt(minSendable),
+          invoiceMacaroon,
+          lndCert,
+          lndHost,
           lndPort
         );
 
         res.status(201).json({
           ...lightningAddress,
           maxSendable: lightningAddress.maxSendable.toString(),
-          minSendable: lightningAddress.minSendable.toString()
+          minSendable: lightningAddress.minSendable.toString(),
         });
       } catch (error) {
         console.error('Error creating Lightning Address:', error);
-        res.status(500).json({ error: 'Error creating Lightning Address', errorMessage: error.message });
+        res
+          .status(500)
+          .json({ error: 'Error creating Lightning Address', errorMessage: error.message });
       }
       break;
 

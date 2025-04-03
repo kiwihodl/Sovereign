@@ -1,13 +1,13 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "../auth/[...nextauth]";
-import prisma from "@/db/prisma";
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../auth/[...nextauth]';
+import prisma from '@/db/prisma';
 import { finalizeEvent, verifyEvent } from 'nostr-tools/pure';
 import { SimplePool } from 'nostr-tools/pool';
 import { nip19 } from 'nostr-tools';
 import { Buffer } from 'buffer';
-import appConfig from "@/config/appConfig";
+import appConfig from '@/config/appConfig';
 
-const hexToBytes = (hex) => {
+const hexToBytes = hex => {
   return Buffer.from(hex, 'hex');
 };
 
@@ -53,9 +53,9 @@ export default async function handler(req, res) {
 
       // Check if course requires repo submission
       if (userCourse.course.submissionRequired && !userCourse.submittedRepoLink) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           error: 'Repository submission required',
-          message: 'You must submit a project repository to earn this badge'
+          message: 'You must submit a project repository to earn this badge',
         });
       }
 
@@ -93,7 +93,7 @@ export default async function handler(req, res) {
 
     let noteId = badge.noteId;
 
-    if (noteId && noteId.startsWith("naddr")) {
+    if (noteId && noteId.startsWith('naddr')) {
       const naddr = nip19.decode(noteId);
       noteId = `${naddr.data.kind}:${naddr.data.pubkey}:${naddr.data.identifier}`;
     }
@@ -114,14 +114,14 @@ export default async function handler(req, res) {
         ['a', noteId],
         ['d', `plebdevs-badge-award-${session.user.id}`],
       ],
-      content: ""
+      content: '',
     };
 
     // Add validation for required fields
     if (!user.pubkey || !noteId) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Missing required fields',
-        message: 'Pubkey and noteId are required' 
+        message: 'Pubkey and noteId are required',
       });
     }
 
@@ -136,7 +136,7 @@ export default async function handler(req, res) {
 
     // Initialize pool and publish to relays
     const pool = new SimplePool();
-    
+
     let published = false;
     try {
       await Promise.any(pool.publish(appConfig.defaultRelayUrls, signedEvent));
@@ -163,17 +163,16 @@ export default async function handler(req, res) {
       },
     });
 
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       userBadge,
-      event: signedEvent 
+      event: signedEvent,
     });
-
   } catch (error) {
     console.error('Error issuing badge:', error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       error: 'Failed to issue badge',
-      message: error.message 
+      message: error.message,
     });
   }
 }
