@@ -1,7 +1,6 @@
 import React from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import useWindowWidth from '@/hooks/useWindowWidth';
 import ProgressListItem from '@/components/content/lists/ProgressListItem';
 import { formatDateTime } from '@/utils/time';
 import { ProgressSpinner } from 'primereact/progressspinner';

@@ -21,6 +21,7 @@ import WelcomeModal from '@/components/onboarding/WelcomeModal';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Toast } from 'primereact/toast';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
+import { Divider } from 'primereact/divider';
 
 export default function CourseDetails({
   processedEvent,
@@ -201,54 +202,63 @@ export default function CourseDetails({
     <div className="w-full">
       <Toast ref={toastRef} />
       <WelcomeModal />
-      <div className="relative w-full h-[400px] mb-8">
-        <Image
-          alt="course image"
-          src={returnImageProxy(processedEvent.image)}
-          fill
-          className="object-cover rounded-b-lg"
-        />
-        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-      </div>
-      <div className="w-full mx-auto px-4 py-8 -mt-32 relative z-10 max-mob:px-0 max-tab:px-0">
-        <i
-          className={`pi pi-arrow-left cursor-pointer hover:opacity-75 absolute top-0 left-4`}
-          onClick={() => router.push('/')}
-        />
-        <div className="mb-8 bg-gray-800/70 rounded-lg p-4 max-mob:rounded-t-none max-tab:rounded-t-none">
-          {isCompleted && <Tag severity="success" value="Completed" />}
-          <div className="flex flex-row items-center justify-between w-full">
-            <h1 className="text-4xl font-bold text-white">{processedEvent.name}</h1>
-            <ZapDisplay
-              zapAmount={zapAmount}
-              event={processedEvent}
-              zapsLoading={zapsLoading && zapAmount === 0}
+      
+      <div className="flex flex-col">
+        {/* Header with course image, title and options */}
+        <div className="flex mb-6">
+          {/* Course image */}
+          <div className="relative w-52 h-32 mr-6 flex-shrink-0 rounded-lg overflow-hidden">
+            <Image
+              alt="course image"
+              src={returnImageProxy(processedEvent.image)}
+              fill
+              className="object-cover"
             />
           </div>
-          <div className="flex flex-wrap gap-2 mt-2 mb-4">
-            {processedEvent.topics &&
-              processedEvent.topics.length > 0 &&
-              processedEvent.topics.map((topic, index) => (
-                <Tag className="text-white" key={index} value={topic}></Tag>
-              ))}
-          </div>
-          <div className="text-xl text-gray-200 mb-4 mt-4 max-mob:text-base">
-            {processedEvent.description &&
-              processedEvent.description
-                .split('\n')
-                .map((line, index) => <p key={index}>{line}</p>)}
-          </div>
-          <div className="flex items-center justify-between mt-8">
+          
+          {/* Title and options */}
+          <div className="flex-1">
+            <div className="flex items-start justify-between mb-2">
+              <div>
+                {isCompleted && (
+                  <Tag severity="success" value="Completed" className="mb-2" />
+                )}
+                <h1 className="text-2xl font-bold text-white">{processedEvent.name}</h1>
+              </div>
+              <div className="flex items-center space-x-2">
+                <ZapDisplay
+                  zapAmount={zapAmount}
+                  event={processedEvent}
+                  zapsLoading={zapsLoading && zapAmount === 0}
+                />
+                <MoreOptionsMenu
+                  menuItems={menuItems}
+                  additionalLinks={processedEvent?.additionalLinks || []}
+                  isMobileView={isMobileView}
+                />
+              </div>
+            </div>
+            
+            {/* Topics/tags */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {processedEvent.topics &&
+                processedEvent.topics.length > 0 &&
+                processedEvent.topics.map((topic, index) => (
+                  <Tag className="text-white" key={index} value={topic}></Tag>
+                ))}
+            </div>
+            
+            {/* Author info */}
             <div className="flex items-center">
               <Image
                 alt="avatar image"
                 src={returnImageProxy(author?.avatar, author?.pubkey)}
-                width={50}
-                height={50}
-                className="rounded-full mr-4"
+                width={32}
+                height={32}
+                className="rounded-full mr-2"
               />
-              <p className="text-lg text-white">
-                By{' '}
+              <p className="text-gray-300">
+                Created by{' '}
                 <a
                   rel="noreferrer noopener"
                   target="_blank"
@@ -258,15 +268,63 @@ export default function CourseDetails({
                 </a>
               </p>
             </div>
-            <div className="flex justify-end">
-              <MoreOptionsMenu
-                menuItems={menuItems}
-                additionalLinks={processedEvent?.additionalLinks || []}
-                isMobileView={isMobileView}
-              />
+          </div>
+        </div>
+        
+        <Divider className="my-4" />
+        
+        {/* Course details */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left column: Description */}
+          <div className="lg:col-span-2">
+            <h2 className="text-xl font-semibold mb-3 text-white">About This Course</h2>
+            <div className="text-gray-300 mb-4">
+              {processedEvent.description &&
+                processedEvent.description
+                  .split('\n')
+                  .map((line, index) => <p key={index} className="mb-2">{line}</p>)}
+            </div>
+            
+            {/* Payment section */}
+            <div className="mt-4">
+              {renderPaymentMessage()}
             </div>
           </div>
-          <div className="w-full mt-4">{renderPaymentMessage()}</div>
+          
+          {/* Right column: Course details */}
+          <div className="bg-gray-800 rounded-lg p-4">
+            <h2 className="text-xl font-semibold mb-3 text-white">Course Information</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-gray-300 font-medium mb-2">Course Content</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-400">Lessons</p>
+                    <p className="font-semibold text-white">{lessons.length}</p>
+                  </div>
+                  {paidCourse && (
+                    <div>
+                      <p className="text-sm text-gray-400">Price</p>
+                      <p className="font-semibold text-white">{processedEvent.price} sats</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {processedEvent.published && (
+                <div>
+                  <h3 className="text-gray-300 font-medium mb-2">Details</h3>
+                  <div>
+                    <p className="text-sm text-gray-400">Published</p>
+                    <p className="font-semibold text-white">
+                      {new Date(processedEvent.published * 1000).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
