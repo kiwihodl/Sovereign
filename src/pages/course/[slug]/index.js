@@ -17,6 +17,7 @@ import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import appConfig from '@/config/appConfig';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import MenuTab from '@/components/menutab/MenuTab';
+import { Tag } from 'primereact/tag';
 
 const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
   ssr: false,
@@ -330,6 +331,10 @@ const Course = () => {
     }
   };
 
+  const handleToggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible);
+  };
+
   // Map active tab name back to index for MenuTab
   const getActiveTabIndex = () => {
     const tabMap = ['overview', 'content', 'qa'];
@@ -344,11 +349,11 @@ const Course = () => {
   const getTabItems = () => {
     const items = [
       {
-        label: 'Course Overview',
+        label: 'Overview',
         icon: 'pi pi-home',
       },
       {
-        label: 'Lesson Content',
+        label: 'Content',
         icon: 'pi pi-book',
       }
     ];
@@ -356,7 +361,7 @@ const Course = () => {
     // Add lessons tab only on mobile
     if (isMobileView) {
       items.push({
-        label: 'Course Lessons',
+        label: 'Lessons',
         icon: 'pi pi-list',
       });
     }
@@ -385,8 +390,32 @@ const Course = () => {
 
   // Render Course Overview section
   const renderOverviewSection = () => {
+    // Get isCompleted status for use in the component
+    const isCompleted = completedLessons.length > 0;
+    
     return (
-      <div className="bg-gray-900 rounded-lg border border-gray-800 shadow-md p-6">
+      <div className={`bg-gray-900 rounded-lg border border-gray-800 shadow-md ${isMobileView ? 'p-4' : 'p-6'}`}>
+        {isMobileView && course && (
+          <div className="mb-2">
+            {/* Completed tag above image in mobile view */}
+            {isCompleted && (
+              <div className="mb-2">
+                <Tag severity="success" value="Completed" />
+              </div>
+            )}
+            
+            {/* Course image */}
+            {course.image && (
+              <div className="w-full h-48 relative rounded-lg overflow-hidden mb-3">
+                <img 
+                  src={course.image} 
+                  alt={course.title} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+          </div>
+        )}
         <CourseDetails
           processedEvent={course}
           paidCourse={paidCourse}
@@ -394,6 +423,8 @@ const Course = () => {
           decryptionPerformed={decryptionPerformed}
           handlePaymentSuccess={handlePaymentSuccess}
           handlePaymentError={handlePaymentError}
+          isMobileView={isMobileView}
+          showCompletedTag={!isMobileView}
         />
       </div>
     );
@@ -461,16 +492,17 @@ const Course = () => {
             items={getTabItems()}
             activeIndex={getActiveTabIndex()}
             onTabChange={(index) => toggleTab(index)}
+            sidebarVisible={sidebarVisible}
+            onToggleSidebar={handleToggleSidebar}
+            isMobileView={isMobileView}
           />
         </div>
 
-        <div className="flex items-start mt-4">
-          {/* Main content area - keep existing implementation */}
-          <div
-            className={`transition-all duration-300 ${
-              isMobileView ? 'w-full' : ((!isMobileView && sidebarVisible) ? 'flex-1' : 'w-full')
-            }`}
-          >
+        {/* Revised layout structure to prevent content flexing */}
+        <div className="relative mt-4">
+          {/* Main content area with fixed width */}
+          <div className={`transition-all duration-500 ease-in-out ${isMobileView ? 'w-full' : 'w-full'}`} 
+              style={!isMobileView && sidebarVisible ? {paddingRight: '320px'} : {}}>
             {/* Overview tab content */}
             <div className={`${activeTab === 'overview' ? 'block' : 'hidden'}`}>
               {renderOverviewSection()}
@@ -508,33 +540,60 @@ const Course = () => {
             </div>
           </div>
 
-          {/* Course Sidebar Component - Always visible on desktop, hidden on mobile unless lessons tab is active */}
-          <div 
-            className={`flex-shrink-0 transition-all duration-300 ${
-              (!isMobileView && sidebarVisible) ? 'ml-5 w-auto opacity-100' : 
+          {/* Course Sidebar - positioned absolutely on desktop when visible */}
+          {!isMobileView ? (
+            <div 
+              className={`transition-all duration-500 ease-in-out ${
+                sidebarVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
+              }`}
+              style={{
+                position: 'absolute',
+                top: '0',
+                right: '0',
+                width: '320px',
+                height: '100%',
+                zIndex: 999,
+                overflow: 'visible',
+                pointerEvents: sidebarVisible ? 'auto' : 'none'
+              }}
+            >
+              <CourseSidebar
+                lessons={uniqueLessons}
+                activeIndex={activeIndex}
+                onLessonSelect={handleLessonSelect}
+                completedLessons={completedLessons}
+                isMobileView={isMobileView}
+                sidebarVisible={sidebarVisible}
+                setSidebarVisible={setSidebarVisible}
+                hideToggleButton={true}
+              />
+            </div>
+          ) : (
+            <div className={`flex-shrink-0 transition-all duration-300 z-[999] ${
               (isMobileView && activeTab === 'lessons') ? 'ml-0 w-auto opacity-100' : 
               'w-0 ml-0 opacity-0 overflow-hidden'
-            }`}
-          >
-            <CourseSidebar
-              lessons={uniqueLessons}
-              activeIndex={activeIndex}
-              onLessonSelect={(index) => {
-                handleLessonSelect(index);
-                if (isMobileView) {
-                  toggleTab(getTabItems().findIndex(item => item.label === 'Lesson Content')); // On mobile, switch to content tab when a lesson is selected
-                }
-              }}
-              completedLessons={completedLessons}
-              isMobileView={isMobileView}
-              onClose={() => {
-                setSidebarVisible(false);
-                setActiveTab('content');
-              }}
-              sidebarVisible={sidebarVisible || !isMobileView}  // Always visible on desktop
-              setSidebarVisible={setSidebarVisible}
-            />
-          </div>
+            }`}>
+              <CourseSidebar
+                lessons={uniqueLessons}
+                activeIndex={activeIndex}
+                onLessonSelect={(index) => {
+                  handleLessonSelect(index);
+                  if (isMobileView) {
+                    toggleTab(getTabItems().findIndex(item => item.label === 'Lesson Content'));
+                  }
+                }}
+                completedLessons={completedLessons}
+                isMobileView={isMobileView}
+                onClose={() => {
+                  setSidebarVisible(false);
+                  setActiveTab('content');
+                }}
+                sidebarVisible={sidebarVisible}
+                setSidebarVisible={setSidebarVisible}
+                hideToggleButton={true}
+              />
+            </div>
+          )}
         </div>
       </div>
     </>

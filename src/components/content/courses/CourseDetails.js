@@ -30,6 +30,8 @@ export default function CourseDetails({
   decryptionPerformed,
   handlePaymentSuccess,
   handlePaymentError,
+  isMobileView,
+  showCompletedTag = true,
 }) {
   const [zapAmount, setZapAmount] = useState(0);
   const [author, setAuthor] = useState(null);
@@ -40,7 +42,8 @@ export default function CourseDetails({
   const { data: session, status } = useSession();
   const { showToast } = useToast();
   const windowWidth = useWindowWidth();
-  const isMobileView = windowWidth <= 768;
+  const localIsMobileView = windowWidth <= 768; // Use as fallback
+  const isPhone = isMobileView || localIsMobileView;
   const { ndk } = useNDKContext();
   const menuRef = useRef(null);
   const toastRef = useRef(null);
@@ -205,42 +208,81 @@ export default function CourseDetails({
       
       <div className="flex flex-col">
         {/* Header with course image, title and options */}
-        <div className="flex mb-6">
-          {/* Course image */}
-          <div className="relative w-52 h-32 mr-6 flex-shrink-0 rounded-lg overflow-hidden">
-            <Image
-              alt="course image"
-              src={returnImageProxy(processedEvent.image)}
-              fill
-              className="object-cover"
-            />
-          </div>
-          
-          {/* Title and options */}
-          <div className="flex-1">
-            <div className="flex items-start justify-between mb-2">
-              <div>
-                {isCompleted && (
-                  <Tag severity="success" value="Completed" className="mb-2" />
-                )}
-                <h1 className="text-2xl font-bold text-white">{processedEvent.name}</h1>
-              </div>
-              <div className="flex items-center space-x-2">
-                <ZapDisplay
-                  zapAmount={zapAmount}
-                  event={processedEvent}
-                  zapsLoading={zapsLoading && zapAmount === 0}
-                />
-                <MoreOptionsMenu
-                  menuItems={menuItems}
-                  additionalLinks={processedEvent?.additionalLinks || []}
-                  isMobileView={isMobileView}
-                />
-              </div>
+        {!isPhone && (
+          <div className="flex mb-6">
+            {/* Course image */}
+            <div className="relative w-52 h-32 mr-6 flex-shrink-0 rounded-lg overflow-hidden">
+              <Image
+                alt="course image"
+                src={returnImageProxy(processedEvent.image)}
+                fill
+                className="object-cover"
+              />
             </div>
             
-            {/* Topics/tags */}
-            <div className="flex flex-wrap gap-2 mb-3">
+            {/* Title and options */}
+            <div className="flex-1">
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  {isCompleted && showCompletedTag && (
+                    <Tag severity="success" value="Completed" className="mb-2" />
+                  )}
+                  <h1 className="text-2xl font-bold text-white">{processedEvent.name}</h1>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <ZapDisplay
+                    zapAmount={zapAmount}
+                    event={processedEvent}
+                    zapsLoading={zapsLoading && zapAmount === 0}
+                  />
+                  <MoreOptionsMenu
+                    menuItems={menuItems}
+                    additionalLinks={processedEvent?.additionalLinks || []}
+                    isMobileView={isPhone}
+                  />
+                </div>
+              </div>
+              
+              {/* Topics/tags */}
+              <div className="flex flex-wrap gap-2 mb-3">
+                {processedEvent.topics &&
+                  processedEvent.topics.length > 0 &&
+                  processedEvent.topics.map((topic, index) => (
+                    <Tag className="text-white" key={index} value={topic}></Tag>
+                  ))}
+              </div>
+              
+              {/* Author info */}
+              <div className="flex items-center">
+                <Image
+                  alt="avatar image"
+                  src={returnImageProxy(author?.avatar, author?.pubkey)}
+                  width={32}
+                  height={32}
+                  className="rounded-full mr-2"
+                />
+                <p className="text-gray-300">
+                  Created by{' '}
+                  <a
+                    rel="noreferrer noopener"
+                    target="_blank"
+                    className="text-blue-300 hover:underline"
+                  >
+                    {author?.username || author?.name || author?.pubkey}
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Mobile-specific layout */}
+        {isPhone && (
+          <div className="mb-4">
+            {/* Completed tag is now moved to the parent component */}
+            
+            {/* Mobile topics/tags right below image (image is in parent component) */}
+            <div className="flex flex-wrap gap-2 mb-3 mt-2">
               {processedEvent.topics &&
                 processedEvent.topics.length > 0 &&
                 processedEvent.topics.map((topic, index) => (
@@ -248,41 +290,58 @@ export default function CourseDetails({
                 ))}
             </div>
             
-            {/* Author info */}
-            <div className="flex items-center">
-              <Image
-                alt="avatar image"
-                src={returnImageProxy(author?.avatar, author?.pubkey)}
-                width={32}
-                height={32}
-                className="rounded-full mr-2"
+            {/* Title and zaps in same row */}
+            <div className="flex justify-between items-center mb-3">
+              <h1 className="text-xl font-bold text-white mr-3">{processedEvent.name}</h1>
+              <ZapDisplay
+                zapAmount={zapAmount}
+                event={processedEvent}
+                zapsLoading={zapsLoading && zapAmount === 0}
               />
-              <p className="text-gray-300">
-                Created by{' '}
-                <a
-                  rel="noreferrer noopener"
-                  target="_blank"
-                  className="text-blue-300 hover:underline"
-                >
-                  {author?.username || author?.name || author?.pubkey}
-                </a>
-              </p>
+            </div>
+            
+            {/* Author info and more options in bottom row */}
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex items-center">
+                <Image
+                  alt="avatar image"
+                  src={returnImageProxy(author?.avatar, author?.pubkey)}
+                  width={32}
+                  height={32}
+                  className="rounded-full mr-2"
+                />
+                <p className="text-gray-300 text-sm">
+                  Created by{' '}
+                  <a
+                    rel="noreferrer noopener"
+                    target="_blank"
+                    className="text-blue-300 hover:underline"
+                  >
+                    {author?.username || author?.name || author?.pubkey}
+                  </a>
+                </p>
+              </div>
+              <MoreOptionsMenu
+                menuItems={menuItems}
+                additionalLinks={processedEvent?.additionalLinks || []}
+                isMobileView={isPhone}
+              />
             </div>
           </div>
-        </div>
+        )}
         
         <Divider className="my-4" />
         
         {/* Course details */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className={`grid grid-cols-1 ${isPhone ? 'gap-4' : 'lg:grid-cols-3 gap-6'}`}>
           {/* Left column: Description */}
-          <div className="lg:col-span-2">
+          <div className={`${isPhone ? '' : 'lg:col-span-2'}`}>
             <h2 className="text-xl font-semibold mb-3 text-white">About This Course</h2>
             <div className="text-gray-300 mb-4">
               {processedEvent.description &&
                 processedEvent.description
                   .split('\n')
-                  .map((line, index) => <p key={index} className="mb-2">{line}</p>)}
+                  .map((line, index) => <p key={index} className={`${isPhone ? 'text-sm' : ''} mb-2`}>{line}</p>)}
             </div>
             
             {/* Payment section */}
@@ -292,8 +351,8 @@ export default function CourseDetails({
           </div>
           
           {/* Right column: Course details */}
-          <div className="bg-gray-800 rounded-lg p-4">
-            <h2 className="text-xl font-semibold mb-3 text-white">Course Information</h2>
+          <div className={`bg-gray-800 rounded-lg h-fit ${isPhone ? 'p-3' : 'p-4'}`}>
+            <h2 className={`${isPhone ? 'text-lg' : 'text-xl'} font-semibold mb-3 text-white`}>Course Information</h2>
             
             <div className="space-y-4">
               <div>
