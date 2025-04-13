@@ -202,7 +202,7 @@ export default function CourseDetails({
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full bg-gray-800 p-4 rounded-lg">
       <Toast ref={toastRef} />
       <WelcomeModal />
       

@@ -1,14 +1,11 @@
 import React from 'react';
-import { Tag } from 'primereact/tag';
 import { useRouter } from 'next/router';
 import GenericButton from '@/components/buttons/GenericButton';
-import Image from 'next/image';
 import 'primeicons/primeicons.css';
 
 const CourseHeader = ({ 
   course, 
   isMobileView, 
-  isCompleted, 
   navbarHeight,
   isNavbarMode = false 
 }) => {
@@ -42,30 +39,16 @@ const CourseHeader = ({
             e.stopPropagation();
             router.push('/');
           }}
-          className="mr-2 pl-0 p-button-rounded p-button-text text-gray-300 hover:text-white"
+          className="mr-2 p-button-rounded p-button-text text-gray-300 hover:text-white"
           rounded={true}
           text={true}
           aria-label="Go back to home"
         />
         
-        {course.image && (
-          <div className="relative h-8 w-8 mr-3 rounded-md overflow-hidden flex-shrink-0 border border-gray-700/50">
-            <img
-              src={course.image}
-              alt={course.name}
-              className="object-cover w-full h-full"
-            />
-          </div>
-        )}
-        
-        <div className="flex items-center">
-          <h1 className={`text-white font-semibold truncate ${isMobileView ? 'text-base max-w-[120px]' : 'text-lg max-w-[240px]'}`}>
+        <div className="flex items-center pb-1">
+          <h2 className={`text-white font-semibold truncate ${isMobileView ? 'text-base max-w-[160px]' : 'text-lg max-w-[300px]'}`}>
             {course.name}
-          </h1>
-          
-          {isCompleted && !isMobileView && (
-            <Tag severity="success" value="Completed" size="small" className="ml-2 py-0.5 text-xs" />
-          )}
+          </h2>
         </div>
       </div>
     );
@@ -74,10 +57,10 @@ const CourseHeader = ({
   // Standard mode - for course page content
   return (
     <div 
-      className="bg-transparent backdrop-blur-sm mb-0 p-3 px-4 sticky z-20 flex items-center justify-between"
+      className="bg-transparent backdrop-blur-sm mb-0 p-3 px-4 sticky z-20 flex items-center"
       style={{ top: `${navbarHeight}px` }}
     >
-      <div className="flex items-center max-w-[80%]">
+      <div className="flex items-center max-w-[90%]">
         <GenericButton
           icon="pi pi-arrow-left"
           onClick={handleBackNavigation}
@@ -88,23 +71,9 @@ const CourseHeader = ({
           text={true}
           aria-label="Go back"
         />
-        {!isMobileView && course.image && (
-          <div className="relative w-8 h-8 mr-3 rounded-md overflow-hidden flex-shrink-0 border border-gray-700/50">
-            <img
-              src={course.image}
-              alt={course.name}
-              className="object-cover w-full h-full"
-            />
-          </div>
-        )}
-        <h1 className={`font-medium text-gray-100 ${isMobileView ? 'text-sm' : 'text-base'} truncate`}>
+        <h2 className={`font-medium text-gray-100 ${isMobileView ? 'text-sm' : 'text-base'} truncate`}>
           {course.name}
-        </h1>
-      </div>
-      <div className="flex items-center">
-        {isCompleted && (
-          <Tag severity="success" value="Completed" size="small" className="ml-2 py-1 text-xs" />
-        )}
+        </h2>
       </div>
     </div>
   );

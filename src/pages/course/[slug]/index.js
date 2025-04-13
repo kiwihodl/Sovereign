@@ -388,13 +388,25 @@ const Course = () => {
   // Render the QA section (empty for now)
   const renderQASection = () => {
     return (
-      <div className="rounded-lg border p-8 mt-4">
+      <div className="rounded-lg p-8 mt-4 bg-gray-800">
         <h2 className="text-xl font-bold mb-4">Comments</h2>
-        <ZapThreadsWrapper
-          anchor={course?.d}
-          user={session?.user?.pubkey ? nip19.npubEncode(session?.user?.pubkey) : null}
-          relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.primal.net/, wss://nostrue.com/, wss://purplerelay.com/, wss://relay.devs.tools/"
-        />
+        {nAddress !== null ? (
+          <ZapThreadsWrapper
+            anchor={nAddress}
+            user={session?.user?.pubkey ? nip19.npubEncode(session?.user?.pubkey) : null}
+            relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.primal.net/, wss://nostrue.com/, wss://purplerelay.com/, wss://relay.devs.tools/"
+            disable="zaps"
+          />
+        ) : course?.d ? (
+          <ZapThreadsWrapper
+            anchor={course.d}
+            user={session?.user?.pubkey ? nip19.npubEncode(session?.user?.pubkey) : null}
+            relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.primal.net/, wss://nostrue.com/, wss://purplerelay.com/, wss://relay.devs.tools/"
+            disable="zaps"
+          />
+        ) : (
+          <p>Loading comments...</p>
+        )}
       </div>
     );
   };
@@ -404,7 +416,7 @@ const Course = () => {
     const isCompleted = completedLessons.length > 0;
     
     return (
-      <div className={`bg-gray-900 rounded-lg border border-gray-800 shadow-md ${isMobileView ? 'p-4' : 'p-6'}`}>
+      <div className={`bg-gray-800 rounded-lg border border-gray-800 shadow-md ${isMobileView ? 'p-4' : 'p-6'}`}>
         {isMobileView && course && (
           <div className="mb-2">
             {/* Completed tag above image in mobile view */}

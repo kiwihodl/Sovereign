@@ -42,6 +42,7 @@ export default function MenuTab({ items, activeIndex, onTabChange, sidebarVisibl
             tooltip={sidebarVisible ? "Hide lessons" : "Show lessons"}
             tooltipOptions={{ position: 'bottom' }}
             aria-label="Toggle course lessons"
+            size="small"
           />
         </div>
       )}
