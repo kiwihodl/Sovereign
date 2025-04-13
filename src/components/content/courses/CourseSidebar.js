@@ -4,6 +4,7 @@ import { Button } from 'primereact/button';
 import { Sidebar } from 'primereact/sidebar';
 import Image from 'next/image';
 import { useImageProxy } from '@/hooks/useImageProxy';
+import GenericButton from '@/components/buttons/GenericButton';
 
 const CourseSidebar = ({
   lessons,
@@ -18,6 +19,7 @@ const CourseSidebar = ({
 }) => {
   const { returnImageProxy } = useImageProxy();
   const [visible, setVisible] = useState(true);
+  const navbarHeight = 60; // Match the navbar height
 
   // Sync with parent state if provided
   useEffect(() => {
@@ -83,16 +85,17 @@ const CourseSidebar = ({
 
   // Sidebar content component for reuse
   const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-gray-800 text-[#f8f8ff] px-4 py-4">
+    <div className="flex flex-col h-full bg-gray-800 text-[#f8f8ff] pl-3 py-4">
       <div className="flex items-center justify-between border-b border-gray-700 pb-4 mb-4">
         <h2 className="font-bold text-white text-lg">Course Lessons</h2>
         {visible && !hideToggleButton && !isMobileView && (
-          <Button
+          <GenericButton
             icon="pi pi-times"
             onClick={handleToggle}
             className="p-button-rounded p-button-text text-gray-300 hover:text-white p-button-sm"
             tooltip="Close sidebar"
             tooltipOptions={{ position: 'left' }}
+            rounded={true}
           />
         )}
       </div>
@@ -121,21 +124,18 @@ const CourseSidebar = ({
           transform: 'translateY(-50%)'
         }}
       >
-        <Button 
+        <GenericButton 
           icon="pi pi-chevron-left"
           onClick={handleToggle}
+          className="shadow-2xl border-0 rounded-r-none rounded-l-xl bg-blue-600 hover:bg-blue-700 pointer-events-auto"
+          tooltip="Show lessons"
+          tooltipOptions={{ position: 'left' }}
           style={{
             borderTopRightRadius: 0, 
             borderBottomRightRadius: 0,
             boxShadow: '0 0 20px rgba(0,0,0,0.5)',
             width: '3rem',
             height: '5rem'
-          }}
-          className="shadow-2xl border-0 rounded-r-none rounded-l-xl bg-blue-600 hover:bg-blue-700 pointer-events-auto"
-          tooltip="Show lessons"
-          tooltipOptions={{ position: 'left' }}
-          pt={{
-            icon: { className: 'font-bold text-lg' }
           }}
         />
       </div>
@@ -176,7 +176,8 @@ const CourseSidebar = ({
               visible ? 'w-80 opacity-100' : 'w-0 opacity-0 overflow-hidden'
             }`}
           >
-            <div className="ml-2 w-80 h-[calc(100vh-400px)] sticky top-8 overflow-hidden rounded-lg border border-gray-800 shadow-md bg-gray-900">
+            <div className="ml-2 w-80 h-[calc(100vh-400px)] sticky overflow-hidden rounded-lg border border-gray-800 shadow-md bg-gray-900"
+                 style={{ top: `${navbarHeight + 70}px` }}> {/* Adjusted to match new header spacing */}
               <div className="h-full overflow-y-auto">
                 <SidebarContent />
               </div>

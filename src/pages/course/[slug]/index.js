@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { parseCourseEvent, parseEvent, findKind0Fields } from '@/utils/nostr';
 import CourseDetails from '@/components/content/courses/CourseDetails';
@@ -6,6 +6,7 @@ import VideoLesson from '@/components/content/courses/VideoLesson';
 import DocumentLesson from '@/components/content/courses/DocumentLesson';
 import CombinedLesson from '@/components/content/courses/CombinedLesson';
 import CourseSidebar from '@/components/content/courses/CourseSidebar';
+import CourseHeader from '@/components/content/courses/CourseHeader';
 import { useNDKContext } from '@/context/NDKContext';
 import { useSession } from 'next-auth/react';
 import { nip19 } from 'nostr-tools';
@@ -187,7 +188,8 @@ const Course = () => {
   const [nAddress, setNAddress] = useState(null);
   const windowWidth = useWindowWidth();
   const isMobileView = windowWidth <= 968;
-  const [activeTab, setActiveTab] = useState('content'); // Default to content tab on mobile
+  const [activeTab, setActiveTab] = useState('overview'); // Default to overview tab
+  const navbarHeight = 60; // Match the height from Navbar component
 
   useEffect(() => {
     if (router.isReady) {
@@ -199,6 +201,24 @@ const Course = () => {
       }
     }
   }, [router.isReady, router.query.slug]);
+
+  useEffect(() => {
+    if (router.isReady) {
+      const { active } = router.query;
+      if (active !== undefined) {
+        setActiveIndex(parseInt(active, 10));
+        // If we have an active lesson, switch to content tab
+        setActiveTab('content');
+      } else {
+        setActiveIndex(0);
+        // Default to overview tab when no active parameter
+        setActiveTab('overview');
+      }
+
+      // Auto-open sidebar on desktop, close on mobile
+      setSidebarVisible(!isMobileView);
+    }
+  }, [router.isReady, router.query, isMobileView]);
 
   const setCompleted = useCallback(lessonId => {
     setCompletedLessons(prev => [...prev, lessonId]);
@@ -220,12 +240,14 @@ const Course = () => {
     paidCourse,
     loading: courseLoading,
   } = useCourseData(ndk, fetchAuthor, router);
+  
   const { lessons, uniqueLessons, setLessons } = useLessons(
     ndk,
     fetchAuthor,
     lessonIds,
     course?.pubkey
   );
+  
   const { decryptionPerformed, loading: decryptionLoading } = useDecryption(
     session,
     paidCourse,
@@ -234,24 +256,13 @@ const Course = () => {
     setLessons
   );
 
-  useEffect(() => {
-    if (router.isReady) {
-      const { active } = router.query;
-      if (active !== undefined) {
-        setActiveIndex(parseInt(active, 10));
-      } else {
-        setActiveIndex(0);
-      }
-
-      // Auto-open sidebar on desktop, close on mobile
-      setSidebarVisible(!isMobileView);
-
-      // Reset to content tab when switching to mobile
-      if (isMobileView) {
-        setActiveTab('content');
-      }
-    }
-  }, [router.isReady, router.query, isMobileView]);
+  // Check if course is completed - moved after course is initialized
+  const isCourseCompleted = useMemo(() => {
+    if (!course || !completedLessons.length) return false;
+    // A course is completed if at least one lesson is completed
+    // You can change this logic if needed (e.g., all lessons must be completed)
+    return completedLessons.length > 0;
+  }, [completedLessons, course]);
 
   useEffect(() => {
     if (uniqueLessons.length > 0) {
@@ -367,7 +378,7 @@ const Course = () => {
     }
     
     items.push({
-      label: 'Q&A',
+      label: 'Comments',
       icon: 'pi pi-comments',
     });
     
@@ -387,7 +398,6 @@ const Course = () => {
       </div>
     );
   };
-
   // Render Course Overview section
   const renderOverviewSection = () => {
     // Get isCompleted status for use in the component
@@ -474,20 +484,13 @@ const Course = () => {
 
   return (
     <>
-      {/* {course && paidCourse !== null && (
-        <CourseDetails
-          processedEvent={course}
-          paidCourse={paidCourse}
-          lessons={uniqueLessons}
-          decryptionPerformed={decryptionPerformed}
-          handlePaymentSuccess={handlePaymentSuccess}
-          handlePaymentError={handlePaymentError}
-        />
-      )} */}
-
-      <div className="mx-4 mb-12">
+      <div className="mx-auto px-8 max-mob:px-1 mb-12 mt-4">
         {/* Tab navigation using MenuTab component */}
-        <div className="sticky top-0 z-10 pt-2 bg-transparent border-b border-gray-700">
+        <div className="sticky z-10 bg-transparent border-b border-gray-700/30"
+             style={{ 
+               top: `${navbarHeight}px`,
+               height: `${navbarHeight}px`
+             }}> 
           <MenuTab 
             items={getTabItems()}
             activeIndex={getActiveTabIndex()}

@@ -8,6 +8,10 @@ import { useSession } from 'next-auth/react';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import useWindowWidth from '@/hooks/useWindowWidth';
+import CourseHeader from '../content/courses/CourseHeader';
+import { useNDKContext } from '@/context/NDKContext';
+import { nip19 } from 'nostr-tools';
+import { parseCourseEvent } from '@/utils/nostr';
 
 const Navbar = () => {
   const router = useRouter();
@@ -17,6 +21,51 @@ const Navbar = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const menu = useRef(null);
+  const { ndk } = useNDKContext();
+  const [course, setCourse] = useState(null);
+  const [isCompleted, setIsCompleted] = useState(false);
+  
+  // Check if we're on a course page
+  const isCoursePage = router.pathname.startsWith('/course/');
+  
+  // Fetch course data when on a course page
+  useEffect(() => {
+    if (isCoursePage && router.isReady && ndk) {
+      const fetchCourse = async () => {
+        try {
+          const { slug } = router.query;
+          let identifier;
+          
+          if (slug.includes('naddr')) {
+            const { data } = nip19.decode(slug);
+            identifier = data?.identifier;
+          } else {
+            identifier = slug;
+          }
+          
+          if (identifier) {
+            const event = await ndk.fetchEvent({ '#d': [identifier] });
+            if (event) {
+              const parsedCourse = parseCourseEvent(event);
+              setCourse(parsedCourse);
+              
+              // Check if course is completed (simplified for nav display)
+              if (session?.user?.completedCourses?.includes(identifier)) {
+                setIsCompleted(true);
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching course for navbar:', error);
+        }
+      };
+      
+      fetchCourse();
+    } else {
+      setCourse(null);
+      setIsCompleted(false);
+    }
+  }, [isCoursePage, router.isReady, router.query, ndk, session?.user?.completedCourses]);
 
   // Lock/unlock body scroll when mobile search is shown/hidden
   useEffect(() => {
@@ -65,21 +114,33 @@ const Navbar = () => {
         >
           {/* Left section */}
           <div className="flex items-center flex-1">
-            <div
-              onClick={() => router.push('/')}
-              className="flex flex-row items-center justify-center cursor-pointer hover:opacity-80"
-            >
-              <Image
-                alt="logo"
-                src="/images/plebdevs-icon.png"
-                width={50}
-                height={50}
-                className="rounded-full max-tab:hidden max-mob:hidden"
+            {isCoursePage && course ? (
+              /* Course header in navbar mode */
+              <CourseHeader
+                course={course}
+                isMobileView={windowWidth <= 600}
+                isCompleted={isCompleted}
+                isNavbarMode={true}
               />
-              <h1 className="text-white text-xl font-semibold max-tab:text-2xl max-mob:text-2xl pb-1 pl-2">
-                PlebDevs
-              </h1>
-            </div>
+            ) : (
+              /* Regular PlebDevs branding */
+              <div
+                onClick={() => router.push('/')}
+                className="flex flex-row items-center justify-center cursor-pointer hover:opacity-80"
+              >
+                <Image
+                  alt="logo"
+                  src="/images/plebdevs-icon.png"
+                  width={50}
+                  height={50}
+                  className="rounded-full max-tab:hidden max-mob:hidden"
+                />
+                <h1 className="text-white text-xl font-semibold max-tab:text-2xl max-mob:text-2xl pb-1 pl-2">
+                  PlebDevs
+                </h1>
+              </div>
+            )}
+            
             {windowWidth > 600 ? (
               <div
                 className={`ml-2 p-2 cursor-pointer transition-all duration-300 flex items-center justify-center ${isHovered ? 'bg-gray-700 rounded-full' : ''}`}

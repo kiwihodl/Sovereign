@@ -1,6 +1,7 @@
 import React from 'react';
 import { TabMenu } from 'primereact/tabmenu';
 import { Button } from 'primereact/button';
+import GenericButton from '@/components/buttons/GenericButton';
 
 export default function MenuTab({ items, activeIndex, onTabChange, sidebarVisible, onToggleSidebar, isMobileView = false }) {
   return (
@@ -25,12 +26,12 @@ export default function MenuTab({ items, activeIndex, onTabChange, sidebarVisibl
       {/* Sidebar toggle button positioned at the far right - hidden on mobile */}
       {!isMobileView && (
         <div className="absolute right-2 top-0 flex items-center h-full">
-          <Button
+          <GenericButton
             icon={sidebarVisible 
               ? "pi pi-times" 
               : "pi pi-chevron-left"}
             onClick={onToggleSidebar}
-            className="p-button-rounded text-blue-400 hover:text-blue-500 hover:bg-blue-100/10"
+            outlined={true}
             style={{ 
               width: '2.5rem', 
               height: '2.5rem', 
@@ -41,9 +42,6 @@ export default function MenuTab({ items, activeIndex, onTabChange, sidebarVisibl
             tooltip={sidebarVisible ? "Hide lessons" : "Show lessons"}
             tooltipOptions={{ position: 'bottom' }}
             aria-label="Toggle course lessons"
-            pt={{
-              icon: { className: 'font-bold text-lg' }
-            }}
           />
         </div>
       )}
