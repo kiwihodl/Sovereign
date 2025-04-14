@@ -109,7 +109,7 @@ const CourseSidebar = ({
 
   // Mobile content tab
   const MobileLessonsTab = () => (
-    <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-800 shadow-md mb-6">
+    <div className="bg-gray-800 rounded-lg overflow-hidden border border-gray-800 shadow-md mb-6">
       <div className="bg-gray-800 p-4 border-b border-gray-700">
         <h2 className="font-bold text-white text-xl">Course Lessons</h2>
       </div>
@@ -138,7 +138,7 @@ const CourseSidebar = ({
               visible ? 'w-80 opacity-100' : 'w-0 opacity-0 overflow-hidden'
             }`}
           >
-            <div className="ml-2 w-80 h-[calc(100vh-400px)] sticky overflow-hidden rounded-lg border border-gray-800 shadow-md bg-gray-900"
+            <div className="ml-2 w-80 h-[calc(100vh-400px)] sticky overflow-hidden rounded-lg border border-gray-800 shadow-md bg-gray-800"
                  style={{ top: `${navbarHeight + 70}px` }}> {/* Adjusted to match new header spacing */}
               <div className="h-full overflow-y-auto">
                 <SidebarContent />

@@ -523,27 +523,20 @@ const Course = () => {
             {/* Content tab content */}
             <div className={`${activeTab === 'content' ? 'block' : 'hidden'}`}>
               {uniqueLessons.length > 0 && uniqueLessons[activeIndex] ? (
-                <div className="bg-gray-900 rounded-lg shadow-sm overflow-hidden">
+                <div className="bg-gray-800 rounded-lg shadow-sm overflow-hidden">
                   {renderLesson(uniqueLessons[activeIndex])}
                 </div>
               ) : (
-                <div className="text-center bg-gray-900 rounded-lg p-8">
+                <div className="text-center bg-gray-800 rounded-lg p-8">
                   <p>Select a lesson from the sidebar to begin learning.</p>
                 </div>
               )}
 
               {course?.content && (
-                <div className="mt-8 bg-gray-900 rounded-lg shadow-sm">
+                <div className="mt-8 bg-gray-800 rounded-lg shadow-sm">
                   <MarkdownDisplay content={course.content} className="p-4 rounded-lg" />
                 </div>
               )}
-            </div>
-
-            {/* Lessons tab - only visible on mobile */}
-            <div className={`${activeTab === 'lessons' && isMobileView ? 'block' : 'hidden'}`}>
-              <div className="text-center bg-gray-900 rounded-lg p-8">
-                <p>Please use the sidebar to navigate lessons.</p>
-              </div>
             </div>
 
             {/* QA tab content */}

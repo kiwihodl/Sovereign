@@ -1,11 +1,8 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { useToast } from '@/hooks/useToast';
-import { Tag } from 'primereact/tag';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 import CoursePaymentButton from '@/components/bitcoinConnect/CoursePaymentButton';
-import ZapDisplay from '@/components/zaps/ZapDisplay';
 import GenericButton from '@/components/buttons/GenericButton';
 import { nip19 } from 'nostr-tools';
 import { useImageProxy } from '@/hooks/useImageProxy';
@@ -20,8 +17,10 @@ import useTrackCourse from '@/hooks/tracking/useTrackCourse';
 import WelcomeModal from '@/components/onboarding/WelcomeModal';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Toast } from 'primereact/toast';
-import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
-import { Divider } from 'primereact/divider';
+
+// Import the desktop and mobile components
+import DesktopCourseDetails from './DesktopCourseDetails';
+import MobileCourseDetails from './MobileCourseDetails';
 
 export default function CourseDetails({
   processedEvent,
@@ -201,190 +200,33 @@ export default function CourseDetails({
     );
   }
 
+  // Shared props for both mobile and desktop components
+  const detailsProps = {
+    processedEvent,
+    paidCourse,
+    lessons,
+    decryptionPerformed,
+    author,
+    zapAmount,
+    zapsLoading,
+    menuItems,
+    returnImageProxy,
+    renderPaymentMessage,
+    isCompleted,
+    showCompletedTag
+  };
+
   return (
     <div className="w-full bg-gray-800 p-4 rounded-lg">
       <Toast ref={toastRef} />
       <WelcomeModal />
       
       <div className="flex flex-col">
-        {/* Header with course image, title and options */}
-        {!isPhone && (
-          <div className="flex mb-6">
-            {/* Course image */}
-            <div className="relative w-52 h-32 mr-6 flex-shrink-0 rounded-lg overflow-hidden">
-              <Image
-                alt="course image"
-                src={returnImageProxy(processedEvent.image)}
-                fill
-                className="object-cover"
-              />
-            </div>
-            
-            {/* Title and options */}
-            <div className="flex-1">
-              <div className="flex items-start justify-between mb-2">
-                <div>
-                  {isCompleted && showCompletedTag && (
-                    <Tag severity="success" value="Completed" className="mb-2" />
-                  )}
-                  <h1 className="text-2xl font-bold text-white">{processedEvent.name}</h1>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <ZapDisplay
-                    zapAmount={zapAmount}
-                    event={processedEvent}
-                    zapsLoading={zapsLoading && zapAmount === 0}
-                  />
-                  <MoreOptionsMenu
-                    menuItems={menuItems}
-                    additionalLinks={processedEvent?.additionalLinks || []}
-                    isMobileView={isPhone}
-                  />
-                </div>
-              </div>
-              
-              {/* Topics/tags */}
-              <div className="flex flex-wrap gap-2 mb-3">
-                {processedEvent.topics &&
-                  processedEvent.topics.length > 0 &&
-                  processedEvent.topics.map((topic, index) => (
-                    <Tag className="text-white" key={index} value={topic}></Tag>
-                  ))}
-              </div>
-              
-              {/* Author info */}
-              <div className="flex items-center">
-                <Image
-                  alt="avatar image"
-                  src={returnImageProxy(author?.avatar, author?.pubkey)}
-                  width={32}
-                  height={32}
-                  className="rounded-full mr-2"
-                />
-                <p className="text-gray-300">
-                  Created by{' '}
-                  <a
-                    rel="noreferrer noopener"
-                    target="_blank"
-                    className="text-blue-300 hover:underline"
-                  >
-                    {author?.username || author?.name || author?.pubkey}
-                  </a>
-                </p>
-              </div>
-            </div>
-          </div>
+        {isPhone ? (
+          <MobileCourseDetails {...detailsProps} />
+        ) : (
+          <DesktopCourseDetails {...detailsProps} />
         )}
-        
-        {/* Mobile-specific layout */}
-        {isPhone && (
-          <div className="mb-4">
-            {/* Completed tag is now moved to the parent component */}
-            
-            {/* Mobile topics/tags right below image (image is in parent component) */}
-            <div className="flex flex-wrap gap-2 mb-3 mt-2">
-              {processedEvent.topics &&
-                processedEvent.topics.length > 0 &&
-                processedEvent.topics.map((topic, index) => (
-                  <Tag className="text-white" key={index} value={topic}></Tag>
-                ))}
-            </div>
-            
-            {/* Title and zaps in same row */}
-            <div className="flex justify-between items-center mb-3">
-              <h1 className="text-xl font-bold text-white mr-3">{processedEvent.name}</h1>
-              <ZapDisplay
-                zapAmount={zapAmount}
-                event={processedEvent}
-                zapsLoading={zapsLoading && zapAmount === 0}
-              />
-            </div>
-            
-            {/* Author info and more options in bottom row */}
-            <div className="flex justify-between items-center mb-2">
-              <div className="flex items-center">
-                <Image
-                  alt="avatar image"
-                  src={returnImageProxy(author?.avatar, author?.pubkey)}
-                  width={32}
-                  height={32}
-                  className="rounded-full mr-2"
-                />
-                <p className="text-gray-300 text-sm">
-                  Created by{' '}
-                  <a
-                    rel="noreferrer noopener"
-                    target="_blank"
-                    className="text-blue-300 hover:underline"
-                  >
-                    {author?.username || author?.name || author?.pubkey}
-                  </a>
-                </p>
-              </div>
-              <MoreOptionsMenu
-                menuItems={menuItems}
-                additionalLinks={processedEvent?.additionalLinks || []}
-                isMobileView={isPhone}
-              />
-            </div>
-          </div>
-        )}
-        
-        <Divider className="my-4" />
-        
-        {/* Course details */}
-        <div className={`grid grid-cols-1 ${isPhone ? 'gap-4' : 'lg:grid-cols-3 gap-6'}`}>
-          {/* Left column: Description */}
-          <div className={`${isPhone ? '' : 'lg:col-span-2'}`}>
-            <h2 className="text-xl font-semibold mb-3 text-white">About This Course</h2>
-            <div className="text-gray-300 mb-4">
-              {processedEvent.description &&
-                processedEvent.description
-                  .split('\n')
-                  .map((line, index) => <p key={index} className={`${isPhone ? 'text-sm' : ''} mb-2`}>{line}</p>)}
-            </div>
-            
-            {/* Payment section */}
-            <div className="mt-4">
-              {renderPaymentMessage()}
-            </div>
-          </div>
-          
-          {/* Right column: Course details */}
-          <div className={`bg-gray-800 rounded-lg h-fit ${isPhone ? 'p-3 pl-0' : 'p-4'}`}>
-            <h2 className={`${isPhone ? 'text-lg' : 'text-xl'} font-semibold mb-3 text-white`}>Course Information</h2>
-            
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-gray-300 font-medium mb-2">Course Content</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-400">Lessons</p>
-                    <p className="font-semibold text-white">{lessons.length}</p>
-                  </div>
-                  {paidCourse && (
-                    <div>
-                      <p className="text-sm text-gray-400">Price</p>
-                      <p className="font-semibold text-white">{processedEvent.price} sats</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              {processedEvent.published && (
-                <div>
-                  <h3 className="text-gray-300 font-medium mb-2">Details</h3>
-                  <div>
-                    <p className="text-sm text-gray-400">Published</p>
-                    <p className="font-semibold text-white">
-                      {new Date(processedEvent.published * 1000).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
