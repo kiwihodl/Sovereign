@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Tag } from 'primereact/tag';
-import { Button } from 'primereact/button';
-import { Sidebar } from 'primereact/sidebar';
 import Image from 'next/image';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import GenericButton from '@/components/buttons/GenericButton';
@@ -109,39 +107,6 @@ const CourseSidebar = ({
     </div>
   );
 
-  // Global toggle button container - only shown if hideToggleButton is false
-  const SidebarToggle = () => {
-    if (visible || hideToggleButton || isMobileView) return null;
-    
-    return (
-      <div 
-        style={{
-          position: 'fixed',
-          right: 0,
-          top: '40%',
-          zIndex: 99999,
-          pointerEvents: 'auto',
-          transform: 'translateY(-50%)'
-        }}
-      >
-        <GenericButton 
-          icon="pi pi-chevron-left"
-          onClick={handleToggle}
-          className="shadow-2xl border-0 rounded-r-none rounded-l-xl bg-blue-600 hover:bg-blue-700 pointer-events-auto"
-          tooltip="Show lessons"
-          tooltipOptions={{ position: 'left' }}
-          style={{
-            borderTopRightRadius: 0, 
-            borderBottomRightRadius: 0,
-            boxShadow: '0 0 20px rgba(0,0,0,0.5)',
-            width: '3rem',
-            height: '5rem'
-          }}
-        />
-      </div>
-    );
-  };
-
   // Mobile content tab
   const MobileLessonsTab = () => (
     <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-800 shadow-md mb-6">
@@ -160,9 +125,6 @@ const CourseSidebar = ({
 
   return (
     <>
-      {/* Unified button approach for desktop - only if not hidden */}
-      {!hideToggleButton && <SidebarToggle />}
-      
       {/* Mobile view - direct content instead of sidebar */}
       {isMobileView && visible && (
         <MobileLessonsTab />

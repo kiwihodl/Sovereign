@@ -32,17 +32,11 @@ export default function MenuTab({ items, activeIndex, onTabChange, sidebarVisibl
               : "pi pi-chevron-left"}
             onClick={onToggleSidebar}
             outlined={true}
-            style={{ 
-              width: '2.5rem', 
-              height: '2.5rem', 
-              backgroundColor: 'transparent',
-              border: 'none',
-              fontWeight: 'bold'
-            }}
+            rounded={true}
+            size="small"
             tooltip={sidebarVisible ? "Hide lessons" : "Show lessons"}
             tooltipOptions={{ position: 'bottom' }}
             aria-label="Toggle course lessons"
-            size="small"
           />
         </div>
       )}

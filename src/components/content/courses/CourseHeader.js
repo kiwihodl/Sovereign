@@ -39,7 +39,7 @@ const CourseHeader = ({
             e.stopPropagation();
             router.push('/');
           }}
-          className="mr-2 p-button-rounded p-button-text text-gray-300 hover:text-white"
+          className="mr-4 p-button-rounded p-button-text text-gray-300 hover:text-white"
           rounded={true}
           text={true}
           aria-label="Go back to home"

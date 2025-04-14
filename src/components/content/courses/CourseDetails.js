@@ -351,7 +351,7 @@ export default function CourseDetails({
           </div>
           
           {/* Right column: Course details */}
-          <div className={`bg-gray-800 rounded-lg h-fit ${isPhone ? 'p-3' : 'p-4'}`}>
+          <div className={`bg-gray-800 rounded-lg h-fit ${isPhone ? 'p-3 pl-0' : 'p-4'}`}>
             <h2 className={`${isPhone ? 'text-lg' : 'text-xl'} font-semibold mb-3 text-white`}>Course Information</h2>
             
             <div className="space-y-4">
