@@ -13,16 +13,12 @@ import { nip19 } from 'nostr-tools';
 import { useToast } from '@/hooks/useToast';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useDecryptContent } from '@/hooks/encryption/useDecryptContent';
-import dynamic from 'next/dynamic';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import appConfig from '@/config/appConfig';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import MenuTab from '@/components/menutab/MenuTab';
 import { Tag } from 'primereact/tag';
-
-const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
-  ssr: false,
-});
+import MarkdownDisplay from '@/components/markdown/MarkdownDisplay';
 
 const useCourseData = (ndk, fetchAuthor, router) => {
   const [course, setCourse] = useState(null);
@@ -470,6 +466,7 @@ const Course = () => {
           isPaid={paidCourse}
           setCompleted={setCompleted}
         />
+        
       );
     } else if (lesson.type === 'video' && !lesson.topics?.includes('document')) {
       return (
@@ -496,7 +493,7 @@ const Course = () => {
 
   return (
     <>
-      <div className="mx-auto px-8 max-mob:px-1 mb-12 mt-4">
+      <div className="mx-auto px-8 max-mob:px-0 mb-12 mt-4">
         {/* Tab navigation using MenuTab component */}
         <div className="sticky z-10 bg-transparent border-b border-gray-700/30"
              style={{ 
@@ -526,25 +523,25 @@ const Course = () => {
             {/* Content tab content */}
             <div className={`${activeTab === 'content' ? 'block' : 'hidden'}`}>
               {uniqueLessons.length > 0 && uniqueLessons[activeIndex] ? (
-                <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                <div className="bg-gray-900 rounded-lg shadow-sm overflow-hidden">
                   {renderLesson(uniqueLessons[activeIndex])}
                 </div>
               ) : (
-                <div className="text-center bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-8">
+                <div className="text-center bg-gray-900 rounded-lg p-8">
                   <p>Select a lesson from the sidebar to begin learning.</p>
                 </div>
               )}
 
               {course?.content && (
-                <div className="mt-8 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-                  <MDDisplay className="p-4 rounded-lg" source={course.content} />
+                <div className="mt-8 bg-gray-900 rounded-lg shadow-sm">
+                  <MarkdownDisplay content={course.content} className="p-4 rounded-lg" />
                 </div>
               )}
             </div>
 
             {/* Lessons tab - only visible on mobile */}
             <div className={`${activeTab === 'lessons' && isMobileView ? 'block' : 'hidden'}`}>
-              <div className="text-center bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-8">
+              <div className="text-center bg-gray-900 rounded-lg p-8">
                 <p>Please use the sidebar to navigate lessons.</p>
               </div>
             </div>

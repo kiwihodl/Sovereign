@@ -6,11 +6,7 @@ import Image from 'next/image';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { formatDateTime, formatUnixTimestamp } from '@/utils/time';
 import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
-
-const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
-  ssr: false,
-});
+import MarkdownDisplay from '@/components/markdown/MarkdownDisplay';
 
 const DraftCourseLesson = ({ lesson, course }) => {
   const [isPublished, setIsPublished] = useState(false);
@@ -149,7 +145,7 @@ const DraftCourseLesson = ({ lesson, course }) => {
         </div>
       </div>
       <div className="w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]">
-        {lesson?.content && <MDDisplay className="p-4 rounded-lg" source={lesson.content} />}
+        {lesson?.content && <MarkdownDisplay content={lesson.content} className="p-4 rounded-lg" />}
       </div>
     </div>
   );

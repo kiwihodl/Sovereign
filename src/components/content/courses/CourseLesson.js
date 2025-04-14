@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { getTotalFromZaps } from '@/utils/lightning';
 import ZapDisplay from '@/components/zaps/ZapDisplay';
-import dynamic from 'next/dynamic';
 import { useZapsQuery } from '@/hooks/nostrQueries/zaps/useZapsQuery';
 import { Toast } from 'primereact/toast';
 import useTrackDocumentLesson from '@/hooks/tracking/useTrackDocumentLesson';
@@ -13,10 +12,7 @@ import { nip19 } from 'nostr-tools';
 import appConfig from '@/config/appConfig';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
 import { useSession } from 'next-auth/react';
-
-const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
-  ssr: false,
-});
+import MarkdownDisplay from '@/components/markdown/MarkdownDisplay';
 
 const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted }) => {
   const [zapAmount, setZapAmount] = useState(0);
@@ -114,7 +110,7 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setComplete
 
   const renderContent = () => {
     if (isPaid && decryptionPerformed) {
-      return <MDDisplay className="p-4 rounded-lg w-full" source={lesson.content} />;
+      return <MarkdownDisplay content={lesson.content} className="p-4 rounded-lg w-full" />;
     }
     if (isPaid && !decryptionPerformed) {
       return (
@@ -124,7 +120,7 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setComplete
       );
     }
     if (lesson?.content) {
-      return <MDDisplay className="p-4 rounded-lg w-full" source={lesson.content} />;
+      return <MarkdownDisplay content={lesson.content} className="p-4 rounded-lg w-full" />;
     }
     return null;
   };

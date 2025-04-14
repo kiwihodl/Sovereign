@@ -6,7 +6,6 @@ import { useImageProxy } from '@/hooks/useImageProxy';
 import { useZapsQuery } from '@/hooks/nostrQueries/zaps/useZapsQuery';
 import { nip19 } from 'nostr-tools';
 import { getTotalFromZaps } from '@/utils/lightning';
-import dynamic from 'next/dynamic';
 import { Divider } from 'primereact/divider';
 import appConfig from '@/config/appConfig';
 import useWindowWidth from '@/hooks/useWindowWidth';
@@ -14,10 +13,7 @@ import useTrackVideoLesson from '@/hooks/tracking/useTrackVideoLesson';
 import { Toast } from 'primereact/toast';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
 import { useSession } from 'next-auth/react';
-
-const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
-  ssr: false,
-});
+import MarkdownDisplay from '@/components/markdown/MarkdownDisplay';
 
 const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted }) => {
   const [zapAmount, setZapAmount] = useState(0);
@@ -170,7 +166,7 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
     if (isPaid && decryptionPerformed) {
       return (
         <div ref={mdDisplayRef}>
-          <MDDisplay className="p-0 rounded-lg w-full" source={lesson.content} />
+          <MarkdownDisplay content={lesson.content} className="p-0 rounded-lg w-full" />
         </div>
       );
     } else if (isPaid && !decryptionPerformed) {
@@ -196,7 +192,7 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
     } else if (lesson?.content) {
       return (
         <div ref={mdDisplayRef}>
-          <MDDisplay className="p-0 rounded-lg w-full" source={lesson.content} />
+          <MarkdownDisplay content={lesson.content} className="p-0 rounded-lg w-full" />
         </div>
       );
     }

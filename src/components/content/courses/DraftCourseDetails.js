@@ -4,7 +4,6 @@ import { useImageProxy } from '@/hooks/useImageProxy';
 import { Tag } from 'primereact/tag';
 import GenericButton from '@/components/buttons/GenericButton';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
 import axios from 'axios';
 import { nip04, nip19 } from 'nostr-tools';
 import { v4 as uuidv4 } from 'uuid';
@@ -18,10 +17,7 @@ import { validateEvent } from '@/utils/nostr';
 import appConfig from '@/config/appConfig';
 import { useEncryptContent } from '@/hooks/encryption/useEncryptContent';
 import 'primeicons/primeicons.css';
-
-const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
-  ssr: false,
-});
+import MarkdownDisplay from '@/components/markdown/MarkdownDisplay';
 
 export default function DraftCourseDetails({ processedEvent, draftId, lessons }) {
   const [author, setAuthor] = useState(null);
@@ -467,7 +463,7 @@ export default function DraftCourseDetails({ processedEvent, draftId, lessons })
       </div>
       <div className="w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]">
         {processedEvent?.content && (
-          <MDDisplay className="p-4 rounded-lg" source={processedEvent.content} />
+          <MarkdownDisplay content={processedEvent.content} className="p-4 rounded-lg" />
         )}
       </div>
     </div>
