@@ -381,6 +381,26 @@ const Course = () => {
     return items;
   };
 
+  // Add keyboard navigation support for tabs
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowRight') {
+        const currentIndex = getActiveTabIndex();
+        const nextIndex = (currentIndex + 1) % getTabItems().length;
+        toggleTab(nextIndex);
+      } else if (e.key === 'ArrowLeft') {
+        const currentIndex = getActiveTabIndex();
+        const prevIndex = (currentIndex - 1 + getTabItems().length) % getTabItems().length;
+        toggleTab(prevIndex);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [activeTab]);
+
   // Render the QA section (empty for now)
   const renderQASection = () => {
     return (
