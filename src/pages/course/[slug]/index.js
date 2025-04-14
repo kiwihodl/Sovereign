@@ -584,7 +584,7 @@ const Course = () => {
                 onLessonSelect={(index) => {
                   handleLessonSelect(index);
                   if (isMobileView) {
-                    toggleTab(getTabItems().findIndex(item => item.label === 'Lesson Content'));
+                    toggleTab(getTabItems().findIndex(item => item.label === 'Content'));
                   }
                 }}
                 completedLessons={completedLessons}
