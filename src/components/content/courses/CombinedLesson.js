@@ -10,7 +10,6 @@ import { getTotalFromZaps } from '@/utils/lightning';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import appConfig from '@/config/appConfig';
 import useTrackVideoLesson from '@/hooks/tracking/useTrackVideoLesson';
-import { Menu } from 'primereact/menu';
 import { Toast } from 'primereact/toast';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
 import { useSession } from 'next-auth/react';

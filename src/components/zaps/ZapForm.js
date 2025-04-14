@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { nip19 } from 'nostr-tools';
 import appConfig from '@/config/appConfig';
 

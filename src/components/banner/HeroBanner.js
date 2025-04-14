@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import Image from 'next/image';
 import { getSession, signIn, useSession } from 'next-auth/react';

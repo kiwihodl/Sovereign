@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { Tooltip } from 'primereact/tooltip';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import MoreInfo from '@/components/MoreInfo';
 

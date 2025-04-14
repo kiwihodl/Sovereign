@@ -6,7 +6,6 @@ import { DocumentTemplate } from '@/components/content/carousels/templates/Docum
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 import { useDocuments } from '@/hooks/nostr/useDocuments';
 import useWindowWidth from '@/hooks/useWindowWidth';
-import { nip19 } from 'nostr-tools';
 import { Divider } from 'primereact/divider';
 const responsiveOptions = [
   {

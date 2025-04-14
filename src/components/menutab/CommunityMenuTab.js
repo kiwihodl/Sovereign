@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { TabMenu } from 'primereact/tabmenu';
 import GenericButton from '@/components/buttons/GenericButton';
 import Image from 'next/image';

@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { Menu } from 'primereact/menu';
 import GenericButton from '@/components/buttons/GenericButton';
 import { signIn } from 'next-auth/react';
 import Image from 'next/image';

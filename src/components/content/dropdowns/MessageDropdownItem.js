@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import CommunityMessage from '@/components/feeds/messages/CommunityMessage';
 import { parseMessageEvent } from '@/utils/nostr';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useNDKContext } from '@/context/NDKContext';

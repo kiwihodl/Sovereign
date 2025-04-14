@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import GenericButton from '@/components/buttons/GenericButton';
 import { useImageProxy } from '@/hooks/useImageProxy';

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';

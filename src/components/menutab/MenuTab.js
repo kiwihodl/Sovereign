@@ -1,6 +1,5 @@
 import React from 'react';
 import { TabMenu } from 'primereact/tabmenu';
-import { Button } from 'primereact/button';
 import GenericButton from '@/components/buttons/GenericButton';
 
 export default function MenuTab({ items, activeIndex, onTabChange, sidebarVisible, onToggleSidebar, isMobileView = false }) {

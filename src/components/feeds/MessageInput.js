@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { InputTextarea } from 'primereact/inputtextarea';
 import GenericButton from '@/components/buttons/GenericButton';
 import { useNDKContext } from '@/context/NDKContext';

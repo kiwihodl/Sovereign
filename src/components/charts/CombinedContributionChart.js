@@ -1,7 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useFetchGithubCommits } from '@/hooks/githubQueries/useFetchGithubCommits';
-import { Tooltip } from 'primereact/tooltip';
-import { formatDateTime } from '@/utils/time';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import MoreInfo from '@/components/MoreInfo';
 

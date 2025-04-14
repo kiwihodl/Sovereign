@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useMemo } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import ZapForm from './ZapForm';
 import { ProgressSpinner } from 'primereact/progressspinner';
