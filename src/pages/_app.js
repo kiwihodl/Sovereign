@@ -10,7 +10,6 @@ import '@/styles/custom-theme.css'; // custom theme
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import '@uiw/react-md-editor/markdown-editor.css';
-import '@uiw/react-markdown-preview/markdown.css';
 import { useRouter } from 'next/router';
 import { NDKProvider } from '@/context/NDKContext';
 import { Analytics } from '@vercel/analytics/react';
