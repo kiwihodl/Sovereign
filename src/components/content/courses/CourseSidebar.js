@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Tag } from 'primereact/tag';
 import Image from 'next/image';
 import { useImageProxy } from '@/hooks/useImageProxy';
@@ -11,26 +11,17 @@ const CourseSidebar = ({
   completedLessons,
   isMobileView,
   onClose,
-  sidebarVisible: parentSidebarVisible,
+  sidebarVisible,
   setSidebarVisible,
   hideToggleButton = false,
 }) => {
   const { returnImageProxy } = useImageProxy();
-  const [visible, setVisible] = useState(true);
   const navbarHeight = 60; // Match the navbar height
 
-  // Sync with parent state if provided
-  useEffect(() => {
-    if (typeof parentSidebarVisible !== 'undefined') {
-      setVisible(parentSidebarVisible);
-    }
-  }, [parentSidebarVisible]);
-
   const handleToggle = () => {
-    const newState = !visible;
-    setVisible(newState);
+    // Only use the parent's state setter
     if (setSidebarVisible) {
-      setSidebarVisible(newState);
+      setSidebarVisible(!sidebarVisible);
     }
   };
 
@@ -86,7 +77,7 @@ const CourseSidebar = ({
     <div className="flex flex-col h-full bg-gray-800 text-[#f8f8ff] pl-3 py-4">
       <div className="flex items-center justify-between border-b border-gray-700 pb-4 mb-4">
         <h2 className="font-bold text-white text-lg">Course Lessons</h2>
-        {visible && !hideToggleButton && !isMobileView && (
+        {sidebarVisible && !hideToggleButton && !isMobileView && (
           <GenericButton
             icon="pi pi-times"
             onClick={handleToggle}
@@ -126,7 +117,7 @@ const CourseSidebar = ({
   return (
     <>
       {/* Mobile view - direct content instead of sidebar */}
-      {isMobileView && visible && (
+      {isMobileView && sidebarVisible && (
         <MobileLessonsTab />
       )}
       
@@ -135,7 +126,7 @@ const CourseSidebar = ({
         <div className="relative flex flex-row-reverse z-[999]">
           <div 
             className={`transition-all duration-500 ease-in-out flex ${
-              visible ? 'w-80 opacity-100' : 'w-0 opacity-0 overflow-hidden'
+              sidebarVisible ? 'w-80 opacity-100' : 'w-0 opacity-0 overflow-hidden'
             }`}
           >
             <div className="ml-2 w-80 h-[calc(100vh-400px)] sticky overflow-hidden rounded-lg border border-gray-800 shadow-md bg-gray-800"
