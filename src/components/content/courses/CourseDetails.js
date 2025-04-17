@@ -21,6 +21,7 @@ import WelcomeModal from '@/components/onboarding/WelcomeModal';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Toast } from 'primereact/toast';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
+import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 
 export default function CourseDetails({
   processedEvent,
@@ -122,7 +123,7 @@ export default function CourseDetails({
 
   useEffect(() => {
     if (session?.user?.privkey) {
-      const privkeyBuffer = Buffer.from(session.user.privkey, "hex");
+      const privkeyBuffer = Buffer.from(session.user.privkey, 'hex');
       setNsec(nip19.nsecEncode(privkeyBuffer));
     } else if (session?.user?.pubkey) {
       setNpub(nip19.npubEncode(session.user.pubkey));
@@ -130,14 +131,10 @@ export default function CourseDetails({
   }, [session]);
 
   const renderPaymentMessage = () => {
-    if (
-      session?.user &&
-      session.user?.role?.subscribed &&
-      decryptionPerformed
-    ) {
+    if (session?.user && session.user?.role?.subscribed && decryptionPerformed) {
       return (
         <GenericButton
-          tooltipOptions={{ position: "top" }}
+          tooltipOptions={{ position: 'top' }}
           tooltip={`You are subscribed so you can access all paid content`}
           icon="pi pi-check"
           label="Subscribed"
@@ -291,15 +288,15 @@ export default function CourseDetails({
                 <ZapThreadsWrapper
                   anchor={nAddress}
                   user={session?.user ? nsec || npub : null}
-                  relays={appConfig.defaultRelayUrls.join(",")}
+                  relays={appConfig.defaultRelayUrls.join(',')}
                   disable="zaps"
                   isAuthorized={true}
                 />
               ) : (
                 <div className="text-center p-4 bg-gray-800/50 rounded-lg">
                   <p className="text-gray-400">
-                    Comments are only available to course purchasers,
-                    subscribers, and the course creator.
+                    Comments are only available to course purchasers, subscribers, and the course
+                    creator.
                   </p>
                 </div>
               )
@@ -308,7 +305,7 @@ export default function CourseDetails({
               <ZapThreadsWrapper
                 anchor={nAddress}
                 user={session?.user ? nsec || npub : null}
-                relays={appConfig.defaultRelayUrls.join(",")}
+                relays={appConfig.defaultRelayUrls.join(',')}
                 disable="zaps"
                 isAuthorized={true}
               />

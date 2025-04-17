@@ -1,25 +1,25 @@
-import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
-import { useToast } from "@/hooks/useToast";
-import { Tag } from "primereact/tag";
-import Image from "next/image";
-import { useRouter } from "next/router";
-import ResourcePaymentButton from "@/components/bitcoinConnect/ResourcePaymentButton";
-import ZapDisplay from "@/components/zaps/ZapDisplay";
-import GenericButton from "@/components/buttons/GenericButton";
-import { useImageProxy } from "@/hooks/useImageProxy";
-import { useZapsSubscription } from "@/hooks/nostrQueries/zaps/useZapsSubscription";
-import { getTotalFromZaps } from "@/utils/lightning";
-import { useSession } from "next-auth/react";
-import useWindowWidth from "@/hooks/useWindowWidth";
-import dynamic from "next/dynamic";
-import { Toast } from "primereact/toast";
-import MoreOptionsMenu from "@/components/ui/MoreOptionsMenu";
-import ZapThreadsWrapper from "@/components/ZapThreadsWrapper";
-import appConfig from "@/config/appConfig";
-import { nip19 } from "nostr-tools";
+import React, { useEffect, useState, useRef } from 'react';
+import axios from 'axios';
+import { useToast } from '@/hooks/useToast';
+import { Tag } from 'primereact/tag';
+import Image from 'next/image';
+import { useRouter } from 'next/router';
+import ResourcePaymentButton from '@/components/bitcoinConnect/ResourcePaymentButton';
+import ZapDisplay from '@/components/zaps/ZapDisplay';
+import GenericButton from '@/components/buttons/GenericButton';
+import { useImageProxy } from '@/hooks/useImageProxy';
+import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscription';
+import { getTotalFromZaps } from '@/utils/lightning';
+import { useSession } from 'next-auth/react';
+import useWindowWidth from '@/hooks/useWindowWidth';
+import dynamic from 'next/dynamic';
+import { Toast } from 'primereact/toast';
+import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
+import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
+import appConfig from '@/config/appConfig';
+import { nip19 } from 'nostr-tools';
 
-const MDDisplay = dynamic(() => import("@uiw/react-markdown-preview"), {
+const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
   ssr: false,
 });
 
@@ -59,71 +59,63 @@ const VideoDetails = ({
     try {
       const response = await axios.delete(`/api/resources/${processedEvent.d}`);
       if (response.status === 204) {
-        showToast("success", "Success", "Resource deleted successfully.");
-        router.push("/");
+        showToast('success', 'Success', 'Resource deleted successfully.');
+        router.push('/');
       }
     } catch (error) {
       if (
         error.response &&
         error.response.data &&
-        error.response.data.error.includes("Invalid `prisma.resource.delete()`")
+        error.response.data.error.includes('Invalid `prisma.resource.delete()`')
       ) {
         showToast(
-          "error",
-          "Error",
-          "Resource cannot be deleted because it is part of a course, delete the course first."
+          'error',
+          'Error',
+          'Resource cannot be deleted because it is part of a course, delete the course first.'
         );
-      } else if (
-        error.response &&
-        error.response.data &&
-        error.response.data.error
-      ) {
-        showToast("error", "Error", error.response.data.error);
+      } else if (error.response && error.response.data && error.response.data.error) {
+        showToast('error', 'Error', error.response.data.error);
       } else {
-        showToast(
-          "error",
-          "Error",
-          "Failed to delete resource. Please try again."
-        );
+        showToast('error', 'Error', 'Failed to delete resource. Please try again.');
       }
     }
   };
 
   const authorMenuItems = [
     {
-      label: "Edit",
-      icon: "pi pi-pencil",
+      label: 'Edit',
+      icon: 'pi pi-pencil',
       command: () => router.push(`/details/${processedEvent.id}/edit`),
     },
     {
-      label: "Delete",
-      icon: "pi pi-trash",
+      label: 'Delete',
+      icon: 'pi pi-trash',
       command: handleDelete,
     },
     {
-      label: "View Nostr note",
-      icon: "pi pi-globe",
+      label: 'View Nostr note',
+      icon: 'pi pi-globe',
       command: () => {
-        window.open(`https://habla.news/a/${nAddress}`, "_blank");
+        window.open(`https://habla.news/a/${nAddress}`, '_blank');
       },
     },
   ];
 
   const userMenuItems = [
     {
-      label: "View Nostr note",
-      icon: "pi pi-globe",
+      label: 'View Nostr note',
+      icon: 'pi pi-globe',
       command: () => {
-        window.open(`https://habla.news/a/${nAddress}`, "_blank");
+        window.open(`https://habla.news/a/${nAddress}`, '_blank');
       },
     },
   ];
 
   if (course) {
     userMenuItems.unshift({
-      label: isMobileView ? "Course" : "Open Course",
-      icon: "pi pi-external-link",
-      command: () => window.open(`/course/${course}`, "_blank"),
+      label: isMobileView ? 'Course' : 'Open Course',
+      icon: 'pi pi-external-link',
+      command: () => window.open(`/course/${course}`, '_blank'),
     });
   }
 
@@ -131,13 +123,13 @@ const VideoDetails = ({
     if (isLesson) {
       axios
         .get(`/api/resources/${processedEvent.d}`)
-        .then((res) => {
+        .then(res => {
           if (res.data && res.data.lessons[0]?.courseId) {
             setCourse(res.data.lessons[0]?.courseId);
           }
         })
-        .catch((err) => {
-          console.error("err", err);
+        .catch(err => {
+          console.error('err', err);
         });
     }
   }, [processedEvent.d, isLesson]);
@@ -151,7 +143,7 @@ const VideoDetails = ({
 
   useEffect(() => {
     if (session?.user?.privkey) {
-      const privkeyBuffer = Buffer.from(session.user.privkey, "hex");
+      const privkeyBuffer = Buffer.from(session.user.privkey, 'hex');
       setNsec(nip19.nsecEncode(privkeyBuffer));
     } else if (session?.user?.pubkey) {
       setNpub(nip19.npubEncode(session.user.pubkey));
@@ -162,7 +154,7 @@ const VideoDetails = ({
     if (session?.user && session.user?.role?.subscribed && decryptedContent) {
       return (
         <GenericButton
-          tooltipOptions={{ position: "top" }}
+          tooltipOptions={{ position: 'top' }}
           tooltip={`You are subscribed so you can access all paid content`}
           icon="pi pi-check"
           label="Subscribed"
@@ -177,21 +169,17 @@ const VideoDetails = ({
     if (
       isLesson &&
       course &&
-      session?.user?.purchased?.some((purchase) => purchase.courseId === course)
+      session?.user?.purchased?.some(purchase => purchase.courseId === course)
     ) {
       return (
         <GenericButton
-          tooltipOptions={{ position: "top" }}
+          tooltipOptions={{ position: 'top' }}
           tooltip={`You have this lesson through purchasing the course it belongs to. You paid ${
-            session?.user?.purchased?.find(
-              (purchase) => purchase.courseId === course
-            )?.course?.price
+            session?.user?.purchased?.find(purchase => purchase.courseId === course)?.course?.price
           } sats for the course.`}
           icon="pi pi-check"
           label={`Paid ${
-            session?.user?.purchased?.find(
-              (purchase) => purchase.courseId === course
-            )?.course?.price
+            session?.user?.purchased?.find(purchase => purchase.courseId === course)?.course?.price
           } sats`}
           severity="success"
           outlined
@@ -220,14 +208,10 @@ const VideoDetails = ({
       );
     }
 
-    if (
-      paidResource &&
-      author &&
-      processedEvent?.pubkey === session?.user?.pubkey
-    ) {
+    if (paidResource && author && processedEvent?.pubkey === session?.user?.pubkey) {
       return (
         <GenericButton
-          tooltipOptions={{ position: "top" }}
+          tooltipOptions={{ position: 'top' }}
           tooltip={`You created this paid content, users must pay ${processedEvent.price} sats to access it`}
           icon="pi pi-check"
           label={`Price ${processedEvent.price} sats`}
@@ -244,12 +228,7 @@ const VideoDetails = ({
 
   const renderContent = () => {
     if (decryptedContent) {
-      return (
-        <MDDisplay
-          className="p-0 rounded-lg w-full"
-          source={decryptedContent}
-        />
-      );
+      return <MDDisplay className="p-0 rounded-lg w-full" source={decryptedContent} />;
     }
     if (paidResource && !decryptedContent) {
       return (
@@ -258,8 +237,8 @@ const VideoDetails = ({
             className="absolute inset-0 opacity-50"
             style={{
               backgroundImage: `url(${image})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
             }}
           ></div>
           <div className="absolute inset-0 bg-black bg-opacity-50"></div>
@@ -282,12 +261,7 @@ const VideoDetails = ({
       );
     }
     if (processedEvent?.content) {
-      return (
-        <MDDisplay
-          className="p-0 rounded-lg w-full"
-          source={processedEvent.content}
-        />
-      );
+      return <MDDisplay className="p-0 rounded-lg w-full" source={processedEvent.content} />;
     }
     return null;
   };
@@ -297,9 +271,7 @@ const VideoDetails = ({
       <Toast ref={toastRef} />
       {renderContent()}
       <div className="bg-gray-800/90 rounded-lg p-4 m-4 max-mob:m-0 max-tab:m-0 max-mob:rounded-t-none max-tab:rounded-t-none">
-        <div
-          className={`w-full flex flex-col items-start justify-start mt-2 px-2`}
-        >
+        <div className={`w-full flex flex-col items-start justify-start mt-2 px-2`}>
           <div className="flex flex-col items-start gap-2 w-full">
             <div className="flex flex-row items-center justify-between gap-2 w-full">
               <h1 className="text-4xl flex-grow">{title}</h1>
@@ -313,18 +285,14 @@ const VideoDetails = ({
               {topics &&
                 topics.length > 0 &&
                 topics.map((topic, index) => (
-                  <Tag
-                    className="mt-2 text-white"
-                    key={index}
-                    value={topic}
-                  ></Tag>
+                  <Tag className="mt-2 text-white" key={index} value={topic}></Tag>
                 ))}
               {isLesson && <Tag className="mt-2 text-white" value="lesson" />}
             </div>
           </div>
           <div className="flex flex-row items-center justify-between w-full">
             <div className="my-4 max-mob:text-base max-tab:text-base">
-              {summary?.split("\n").map((line, index) => (
+              {summary?.split('\n').map((line, index) => (
                 <p key={index}>{line}</p>
               ))}
             </div>
@@ -339,7 +307,7 @@ const VideoDetails = ({
                 className="rounded-full mr-4"
               />
               <p className="text-lg text-white">
-                By{" "}
+                By{' '}
                 <a
                   rel="noreferrer noopener"
                   target="_blank"
@@ -358,26 +326,22 @@ const VideoDetails = ({
             </div>
           </div>
         </div>
-        <div className="w-full flex justify-start mt-4">
-          {renderPaymentMessage()}
-        </div>
+        <div className="w-full flex justify-start mt-4">{renderPaymentMessage()}</div>
         {nAddress && (
           <div className="mt-8">
-            {!paidResource ||
-            decryptedContent ||
-            session?.user?.role?.subscribed ? (
+            {!paidResource || decryptedContent || session?.user?.role?.subscribed ? (
               <ZapThreadsWrapper
                 anchor={nAddress}
                 user={session?.user ? nsec || npub : null}
-                relays={appConfig.defaultRelayUrls.join(",")}
+                relays={appConfig.defaultRelayUrls.join(',')}
                 disable="zaps"
                 isAuthorized={true}
               />
             ) : (
               <div className="text-center p-4 bg-gray-800/50 rounded-lg">
                 <p className="text-gray-400">
-                  Comments are only available to content purchasers,
-                  subscribers, and the content creator.
+                  Comments are only available to content purchasers, subscribers, and the content
+                  creator.
                 </p>
               </div>
             )}

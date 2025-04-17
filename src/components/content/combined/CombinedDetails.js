@@ -1,25 +1,25 @@
-import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
-import { useToast } from "@/hooks/useToast";
-import { Tag } from "primereact/tag";
-import Image from "next/image";
-import { useRouter } from "next/router";
-import ResourcePaymentButton from "@/components/bitcoinConnect/ResourcePaymentButton";
-import ZapDisplay from "@/components/zaps/ZapDisplay";
-import GenericButton from "@/components/buttons/GenericButton";
-import { useImageProxy } from "@/hooks/useImageProxy";
-import { useZapsSubscription } from "@/hooks/nostrQueries/zaps/useZapsSubscription";
-import { getTotalFromZaps } from "@/utils/lightning";
-import { useSession } from "next-auth/react";
-import useWindowWidth from "@/hooks/useWindowWidth";
-import dynamic from "next/dynamic";
-import { Toast } from "primereact/toast";
-import MoreOptionsMenu from "@/components/ui/MoreOptionsMenu";
-import ZapThreadsWrapper from "@/components/ZapThreadsWrapper";
-import appConfig from "@/config/appConfig";
-import { nip19 } from "nostr-tools";
+import React, { useEffect, useState, useRef } from 'react';
+import axios from 'axios';
+import { useToast } from '@/hooks/useToast';
+import { Tag } from 'primereact/tag';
+import Image from 'next/image';
+import { useRouter } from 'next/router';
+import ResourcePaymentButton from '@/components/bitcoinConnect/ResourcePaymentButton';
+import ZapDisplay from '@/components/zaps/ZapDisplay';
+import GenericButton from '@/components/buttons/GenericButton';
+import { useImageProxy } from '@/hooks/useImageProxy';
+import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscription';
+import { getTotalFromZaps } from '@/utils/lightning';
+import { useSession } from 'next-auth/react';
+import useWindowWidth from '@/hooks/useWindowWidth';
+import dynamic from 'next/dynamic';
+import { Toast } from 'primereact/toast';
+import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
+import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
+import appConfig from '@/config/appConfig';
+import { nip19 } from 'nostr-tools';
 
-const MDDisplay = dynamic(() => import("@uiw/react-markdown-preview"), {
+const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
   ssr: false,
 });
 
@@ -57,65 +57,57 @@ const CombinedDetails = ({
     try {
       const response = await axios.delete(`/api/resources/${processedEvent.d}`);
       if (response.status === 204) {
-        showToast("success", "Success", "Resource deleted successfully.");
-        router.push("/");
+        showToast('success', 'Success', 'Resource deleted successfully.');
+        router.push('/');
       }
     } catch (error) {
-      if (
-        error.response?.data?.error?.includes(
-          "Invalid `prisma.resource.delete()`"
-        )
-      ) {
+      if (error.response?.data?.error?.includes('Invalid `prisma.resource.delete()`')) {
         showToast(
-          "error",
-          "Error",
-          "Resource cannot be deleted because it is part of a course, delete the course first."
+          'error',
+          'Error',
+          'Resource cannot be deleted because it is part of a course, delete the course first.'
         );
       } else {
-        showToast(
-          "error",
-          "Error",
-          "Failed to delete resource. Please try again."
-        );
+        showToast('error', 'Error', 'Failed to delete resource. Please try again.');
       }
     }
   };
 
   const authorMenuItems = [
     {
-      label: "Edit",
-      icon: "pi pi-pencil",
+      label: 'Edit',
+      icon: 'pi pi-pencil',
       command: () => router.push(`/details/${processedEvent.id}/edit`),
     },
     {
-      label: "Delete",
-      icon: "pi pi-trash",
+      label: 'Delete',
+      icon: 'pi pi-trash',
       command: handleDelete,
     },
     {
-      label: "View Nostr note",
-      icon: "pi pi-globe",
+      label: 'View Nostr note',
+      icon: 'pi pi-globe',
       command: () => {
-        window.open(`https://habla.news/a/${nAddress}`, "_blank");
+        window.open(`https://habla.news/a/${nAddress}`, '_blank');
       },
     },
   ];
 
   const userMenuItems = [
     {
-      label: "View Nostr note",
-      icon: "pi pi-globe",
+      label: 'View Nostr note',
+      icon: 'pi pi-globe',
       command: () => {
-        window.open(`https://habla.news/a/${nAddress}`, "_blank");
+        window.open(`https://habla.news/a/${nAddress}`, '_blank');
       },
     },
   ];
 
   if (course) {
     userMenuItems.unshift({
-      label: isMobileView ? "Course" : "Open Course",
-      icon: "pi pi-external-link",
-      command: () => window.open(`/course/${course}`, "_blank"),
+      label: isMobileView ? 'Course' : 'Open Course',
+      icon: 'pi pi-external-link',
+      command: () => window.open(`/course/${course}`, '_blank'),
     });
   }
 
@@ -123,13 +115,13 @@ const CombinedDetails = ({
     if (isLesson) {
       axios
         .get(`/api/resources/${processedEvent.d}`)
-        .then((res) => {
+        .then(res => {
           if (res.data && res.data.lessons[0]?.courseId) {
             setCourse(res.data.lessons[0]?.courseId);
           }
         })
-        .catch((err) => {
-          console.error("err", err);
+        .catch(err => {
+          console.error('err', err);
         });
     }
   }, [processedEvent.d, isLesson]);
@@ -143,7 +135,7 @@ const CombinedDetails = ({
 
   useEffect(() => {
     if (session?.user?.privkey) {
-      const privkeyBuffer = Buffer.from(session.user.privkey, "hex");
+      const privkeyBuffer = Buffer.from(session.user.privkey, 'hex');
       setNsec(nip19.nsecEncode(privkeyBuffer));
     } else if (session?.user?.pubkey) {
       setNpub(nip19.npubEncode(session.user.pubkey));
@@ -154,7 +146,7 @@ const CombinedDetails = ({
     if (session?.user?.role?.subscribed && decryptedContent) {
       return (
         <GenericButton
-          tooltipOptions={{ position: "top" }}
+          tooltipOptions={{ position: 'top' }}
           tooltip="You are subscribed so you can access all paid content"
           icon="pi pi-check"
           label="Subscribed"
@@ -169,14 +161,14 @@ const CombinedDetails = ({
     if (
       isLesson &&
       course &&
-      session?.user?.purchased?.some((purchase) => purchase.courseId === course)
+      session?.user?.purchased?.some(purchase => purchase.courseId === course)
     ) {
       const coursePurchase = session?.user?.purchased?.find(
-        (purchase) => purchase.courseId === course
+        purchase => purchase.courseId === course
       );
       return (
         <GenericButton
-          tooltipOptions={{ position: "top" }}
+          tooltipOptions={{ position: 'top' }}
           tooltip={`You have this lesson through purchasing the course it belongs to. You paid ${coursePurchase?.course?.price} sats for the course.`}
           icon="pi pi-check"
           label={`Paid ${coursePurchase?.course?.price} sats`}
@@ -207,14 +199,10 @@ const CombinedDetails = ({
       );
     }
 
-    if (
-      paidResource &&
-      author &&
-      processedEvent?.pubkey === session?.user?.pubkey
-    ) {
+    if (paidResource && author && processedEvent?.pubkey === session?.user?.pubkey) {
       return (
         <GenericButton
-          tooltipOptions={{ position: "top" }}
+          tooltipOptions={{ position: 'top' }}
           tooltip={`You created this paid content, users must pay ${processedEvent.price} sats to access it`}
           icon="pi pi-check"
           label={`Price ${processedEvent.price} sats`}
@@ -231,12 +219,7 @@ const CombinedDetails = ({
 
   const renderContent = () => {
     if (decryptedContent) {
-      return (
-        <MDDisplay
-          className="p-2 rounded-lg w-full"
-          source={decryptedContent}
-        />
-      );
+      return <MDDisplay className="p-2 rounded-lg w-full" source={decryptedContent} />;
     }
 
     if (paidResource && !decryptedContent) {
@@ -264,12 +247,7 @@ const CombinedDetails = ({
     }
 
     if (processedEvent?.content) {
-      return (
-        <MDDisplay
-          className="p-4 rounded-lg w-full"
-          source={processedEvent.content}
-        />
-      );
+      return <MDDisplay className="p-4 rounded-lg w-full" source={processedEvent.content} />;
     }
 
     return null;
@@ -279,12 +257,7 @@ const CombinedDetails = ({
     <div className="w-full">
       <Toast ref={toastRef} />
       <div className="relative w-full h-[400px] mb-8">
-        <Image
-          alt="background image"
-          src={returnImageProxy(image)}
-          fill
-          className="object-cover"
-        />
+        <Image alt="background image" src={returnImageProxy(image)} fill className="object-cover" />
         <div className="absolute inset-0 bg-black bg-opacity-20"></div>
       </div>
       <div className="w-full mx-auto px-4 py-8 -mt-32 relative z-10 max-mob:px-0 max-tab:px-0">
@@ -301,11 +274,9 @@ const CombinedDetails = ({
             {topics?.map((topic, index) => (
               <Tag className="text-[#f8f8ff]" key={index} value={topic} />
             ))}
-            {isLesson && (
-              <Tag size="small" className="text-[#f8f8ff]" value="lesson" />
-            )}
+            {isLesson && <Tag size="small" className="text-[#f8f8ff]" value="lesson" />}
           </div>
-          {summary?.split("\n").map((line, index) => (
+          {summary?.split('\n').map((line, index) => (
             <p key={index}>{line}</p>
           ))}
           <div className="flex items-center justify-between mt-8">
@@ -318,7 +289,7 @@ const CombinedDetails = ({
                 className="rounded-full mr-4"
               />
               <p className="text-lg text-white">
-                By{" "}
+                By{' '}
                 <a
                   rel="noreferrer noopener"
                   target="_blank"
@@ -339,21 +310,19 @@ const CombinedDetails = ({
           <div className="w-full mt-4">{renderPaymentMessage()}</div>
           {nAddress && (
             <div className="mt-8">
-              {!paidResource ||
-              decryptedContent ||
-              session?.user?.role?.subscribed ? (
+              {!paidResource || decryptedContent || session?.user?.role?.subscribed ? (
                 <ZapThreadsWrapper
                   anchor={nAddress}
                   user={session?.user ? nsec || npub : null}
-                  relays={appConfig.defaultRelayUrls.join(",")}
+                  relays={appConfig.defaultRelayUrls.join(',')}
                   disable="zaps"
                   isAuthorized={true}
                 />
               ) : (
                 <div className="text-center p-4 bg-gray-800/50 rounded-lg">
                   <p className="text-gray-400">
-                    Comments are only available to content purchasers,
-                    subscribers, and the content creator.
+                    Comments are only available to content purchasers, subscribers, and the content
+                    creator.
                   </p>
                 </div>
               )}

@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/card';
 import { Tag } from 'primereact/tag';
 import ZapDisplay from '@/components/zaps/ZapDisplay';
+import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import { nip19 } from 'nostr-tools';
 import Image from 'next/image';
 import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscription';
@@ -22,7 +23,7 @@ import useWindowWidth from '@/hooks/useWindowWidth';
 import GenericButton from '@/components/buttons/GenericButton';
 import appConfig from '@/config/appConfig';
 import { BookOpen } from 'lucide-react';
-import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
+import { useSession } from 'next-auth/react';
 
 export function CourseTemplate({ course, showMetaTags = true }) {
   const { zaps, zapsLoading, zapsError } = useZapsSubscription({
@@ -74,6 +75,15 @@ export function CourseTemplate({ course, showMetaTags = true }) {
     }
   }, [course]);
 
+  useEffect(() => {
+    if (session?.user?.privkey) {
+      const privkeyBuffer = Buffer.from(session.user.privkey, 'hex');
+      setNsec(nip19.nsecEncode(privkeyBuffer));
+    } else if (session?.user?.pubkey) {
+      setNpub(nip19.npubEncode(session.user.pubkey));
+    }
+  }, [session]);
+
   const shouldShowMetaTags = topic => {
     if (!showMetaTags) {
       return !['lesson', 'document', 'video', 'course'].includes(topic);
@@ -112,9 +122,7 @@ export function CourseTemplate({ course, showMetaTags = true }) {
       </div>
       <CardHeader className="flex flex-row justify-between items-center p-4 border-b border-gray-700">
         <div className="flex items-center gap-4">
-          <CardTitle className="text-xl sm:text-2xl text-[#f8f8ff]">
-            {course.name}
-          </CardTitle>
+          <CardTitle className="text-xl sm:text-2xl text-[#f8f8ff]">{course.name}</CardTitle>
         </div>
         <div className="text-[#f8f8ff]">
           <ZapDisplay
@@ -125,7 +133,9 @@ export function CourseTemplate({ course, showMetaTags = true }) {
         </div>
       </CardHeader>
       <CardContent
-        className={`${isMobile ? 'px-3' : ''} pt-4 pb-2 w-full flex flex-row justify-between items-center`}
+        className={`${
+          isMobile ? 'px-3' : ''
+        } pt-4 pb-2 w-full flex flex-row justify-between items-center`}
       >
         <div className="flex flex-wrap gap-2 max-w-[65%]">
           {course &&
@@ -156,7 +166,9 @@ export function CourseTemplate({ course, showMetaTags = true }) {
         )}
       </CardContent>
       <CardDescription
-        className={`${isMobile ? 'w-full p-3' : 'p-6'} py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center max-w-[100%]`}
+        className={`${
+          isMobile ? 'w-full p-3' : 'p-6'
+        } py-2 pt-0 text-base text-neutral-50/90 dark:text-neutral-900/90 overflow-hidden min-h-[4em] flex items-center max-w-[100%]`}
         style={{
           overflow: 'hidden',
           display: '-webkit-box',
@@ -173,7 +185,9 @@ export function CourseTemplate({ course, showMetaTags = true }) {
         </p>
       </CardDescription>
       <CardFooter
-        className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4 ${isMobile ? 'px-3' : ''}`}
+        className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-700 pt-4 ${
+          isMobile ? 'px-3' : ''
+        }`}
       >
         <p className="text-sm text-gray-300">
           {course?.published_at && course.published_at !== ''
@@ -194,22 +208,20 @@ export function CourseTemplate({ course, showMetaTags = true }) {
         (!course?.price ||
           course.price === 0 ||
           session?.user?.role?.subscribed ||
-          session?.user?.purchased?.some(
-            (purchase) => purchase.resourceId === course.d
-          )) && (
+          session?.user?.purchased?.some(purchase => purchase.resourceId === course.d)) && (
           <div className="px-4 pb-4">
             {nsec || npub ? (
               <ZapThreadsWrapper
                 anchor={nAddress}
                 user={nsec || npub || null}
-                relays={appConfig.defaultRelayUrls.join(",")}
+                relays={appConfig.defaultRelayUrls.join(',')}
                 disable="zaps"
               />
             ) : (
               <ZapThreadsWrapper
                 anchor={nAddress}
                 user={npub}
-                relays={appConfig.defaultRelayUrls.join(",")}
+                relays={appConfig.defaultRelayUrls.join(',')}
                 disable="zaps"
               />
             )}
