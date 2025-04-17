@@ -42,7 +42,7 @@ export function CourseTemplate({ course, showMetaTags = true }) {
 
   useEffect(() => {
     if (session?.user?.privkey) {
-      const privkeyBuffer = Buffer.from(session.user.privkey, "hex");
+      const privkeyBuffer = Buffer.from(session.user.privkey, 'hex');
       setNsec(nip19.nsecEncode(privkeyBuffer));
     } else if (session?.user?.pubkey) {
       setNpub(nip19.npubEncode(session.user.pubkey));
