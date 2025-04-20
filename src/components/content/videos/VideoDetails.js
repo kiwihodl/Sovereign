@@ -15,12 +15,11 @@ import useWindowWidth from '@/hooks/useWindowWidth';
 import dynamic from 'next/dynamic';
 import { Toast } from 'primereact/toast';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
-import React, { useEffect, useState, useRef } from 'react';
-// Needed for nip19 encoding on the client
 import { Buffer } from 'buffer';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import appConfig from '@/config/appConfig';
 import { nip19 } from 'nostr-tools';
+
 const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
   ssr: false,
 });
