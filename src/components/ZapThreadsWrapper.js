@@ -9,6 +9,9 @@ const ZapThreadsWrapper = ({ anchor, user, relays, disable, className, isAuthori
     if (!isAuthorized) {
       return;
     }
+    
+    // Store the current value of zapRef to use in the cleanup function
+    const currentZapRef = zapRef.current;
 
     // Create a new <script> element
     const script = document.createElement('script');
@@ -45,15 +48,15 @@ const ZapThreadsWrapper = ({ anchor, user, relays, disable, className, isAuthori
       });
 
       // Remove any existing <zap-threads> element
-      if (zapRef.current) {
-        while (zapRef.current.firstChild) {
-          zapRef.current.removeChild(zapRef.current.firstChild);
+      if (currentZapRef) {
+        while (currentZapRef.firstChild) {
+          currentZapRef.removeChild(currentZapRef.firstChild);
         }
       }
 
       // Append the new element
-      if (zapRef.current) {
-        zapRef.current.appendChild(zapElement);
+      if (currentZapRef) {
+        currentZapRef.appendChild(zapElement);
       }
     };
 
@@ -68,9 +71,9 @@ const ZapThreadsWrapper = ({ anchor, user, relays, disable, className, isAuthori
 
     // Cleanup function to remove the <zap-threads> element and the <script> element when the component is unmounted
     return () => {
-      if (zapRef.current) {
-        while (zapRef.current.firstChild) {
-          zapRef.current.removeChild(zapRef.current.firstChild);
+      if (currentZapRef) {
+        while (currentZapRef.firstChild) {
+          currentZapRef.removeChild(currentZapRef.firstChild);
         }
       }
       // Remove the <script> element from the <body> of the document
