@@ -20,11 +20,8 @@ const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
 
 const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted }) => {
   const [zapAmount, setZapAmount] = useState(0);
-  const [nAddress, setNAddress] = useState(null);
-  const { zaps, zapsLoading, zapsError } = useZapsQuery({
-    event: lesson,
-    type: 'lesson',
-  });
+  const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: lesson,
+    type: 'lesson' });
   const { returnImageProxy } = useImageProxy();
   const menuRef = useRef(null);
   const toastRef = useRef(null);
@@ -115,18 +112,6 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setComplete
       setCompleted(lesson.id);
     }
   }, [isCompleted, isTracking, lesson.id, setCompleted]);
-
-  useEffect(() => {
-    if (lesson) {
-      const addr = nip19.naddrEncode({
-        pubkey: lesson.pubkey,
-        kind: lesson.kind,
-        identifier: lesson.d,
-        relays: appConfig.defaultRelayUrls,
-      });
-      setNAddress(addr);
-    }
-  }, [lesson]);
 
   const renderContent = () => {
     if (isPaid && decryptionPerformed) {
