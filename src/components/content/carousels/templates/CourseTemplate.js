@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/card';
 import { Tag } from 'primereact/tag';
 import ZapDisplay from '@/components/zaps/ZapDisplay';
-import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import { nip19 } from 'nostr-tools';
 import Image from 'next/image';
 import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscription';
@@ -32,22 +31,11 @@ export function CourseTemplate({ course, showMetaTags = true }) {
   const [zapAmount, setZapAmount] = useState(0);
   const [lessonCount, setLessonCount] = useState(0);
   const [nAddress, setNAddress] = useState(null);
-  const [npub, setNpub] = useState(null);
-  const [nsec, setNsec] = useState(null);
   const router = useRouter();
   const { returnImageProxy } = useImageProxy();
   const windowWidth = useWindowWidth();
   const isMobile = windowWidth < 768;
   const { data: session } = useSession();
-
-  useEffect(() => {
-    if (session?.user?.privkey) {
-      const privkeyBuffer = Buffer.from(session.user.privkey, 'hex');
-      setNsec(nip19.nsecEncode(privkeyBuffer));
-    } else if (session?.user?.pubkey) {
-      setNpub(nip19.npubEncode(session.user.pubkey));
-    }
-  }, [session]);
 
   useEffect(() => {
     if (zaps.length > 0) {
@@ -74,15 +62,6 @@ export function CourseTemplate({ course, showMetaTags = true }) {
       setNAddress(nAddress);
     }
   }, [course]);
-
-  useEffect(() => {
-    if (session?.user?.privkey) {
-      const privkeyBuffer = Buffer.from(session.user.privkey, 'hex');
-      setNsec(nip19.nsecEncode(privkeyBuffer));
-    } else if (session?.user?.pubkey) {
-      setNpub(nip19.npubEncode(session.user.pubkey));
-    }
-  }, [session]);
 
   const shouldShowMetaTags = topic => {
     if (!showMetaTags) {
@@ -204,29 +183,6 @@ export function CourseTemplate({ course, showMetaTags = true }) {
           className="items-center py-2"
         />
       </CardFooter>
-      {nAddress !== null &&
-        (!course?.price ||
-          course.price === 0 ||
-          session?.user?.role?.subscribed ||
-          session?.user?.purchased?.some(purchase => purchase.resourceId === course.d)) && (
-          <div className="px-4 pb-4">
-            {nsec || npub ? (
-              <ZapThreadsWrapper
-                anchor={nAddress}
-                user={nsec || npub || null}
-                relays={appConfig.defaultRelayUrls.join(',')}
-                disable="zaps"
-              />
-            ) : (
-              <ZapThreadsWrapper
-                anchor={nAddress}
-                user={npub}
-                relays={appConfig.defaultRelayUrls.join(',')}
-                disable="zaps"
-              />
-            )}
-          </div>
-        )}
     </Card>
   );
 }
