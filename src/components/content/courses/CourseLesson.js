@@ -123,8 +123,13 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setComplete
     if (session?.user?.privkey) {
       const privkeyBuffer = Buffer.from(session.user.privkey, 'hex');
       setNsec(nip19.nsecEncode(privkeyBuffer));
+      setNpub(null);
     } else if (session?.user?.pubkey) {
+      setNsec(null);
       setNpub(nip19.npubEncode(session.user.pubkey));
+    } else {
+      setNsec(null);
+      setNpub(null);
     }
   }, [session]);
 
