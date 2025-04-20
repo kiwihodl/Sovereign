@@ -13,7 +13,6 @@ import { nip19 } from 'nostr-tools';
 import appConfig from '@/config/appConfig';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
 import { useSession } from 'next-auth/react';
-import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 
 const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
   ssr: false,
@@ -22,8 +21,6 @@ const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
 const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted }) => {
   const [zapAmount, setZapAmount] = useState(0);
   const [nAddress, setNAddress] = useState(null);
-  const [nsec, setNsec] = useState(null);
-  const [npub, setNpub] = useState(null);
   const { zaps, zapsLoading, zapsError } = useZapsQuery({
     event: lesson,
     type: 'lesson',
@@ -118,20 +115,6 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setComplete
       setCompleted(lesson.id);
     }
   }, [isCompleted, isTracking, lesson.id, setCompleted]);
-
-  useEffect(() => {
-    if (session?.user?.privkey) {
-      const privkeyBuffer = Buffer.from(session.user.privkey, 'hex');
-      setNsec(nip19.nsecEncode(privkeyBuffer));
-      setNpub(null);
-    } else if (session?.user?.pubkey) {
-      setNsec(null);
-      setNpub(nip19.npubEncode(session.user.pubkey));
-    } else {
-      setNsec(null);
-      setNpub(null);
-    }
-  }, [session]);
 
   useEffect(() => {
     if (lesson) {
@@ -236,25 +219,6 @@ const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setComplete
       <div className="w-[75vw] mx-auto mt-12 p-12 border-t-2 border-gray-300 max-tab:p-0 max-mob:p-0 max-tab:max-w-[100vw] max-mob:max-w-[100vw]">
         {renderContent()}
       </div>
-      {nAddress !== null && (!isPaid || decryptionPerformed || session?.user?.role?.subscribed) && (
-        <div className="px-4">
-          {nsec || npub ? (
-            <ZapThreadsWrapper
-              anchor={nAddress}
-              user={nsec || npub || null}
-              relays={appConfig.defaultRelayUrls.join(',')}
-              disable="zaps"
-            />
-          ) : (
-            <ZapThreadsWrapper
-              anchor={nAddress}
-              user={npub}
-              relays={appConfig.defaultRelayUrls.join(',')}
-              disable="zaps"
-            />
-          )}
-        </div>
-      )}
     </div>
   );
 };
