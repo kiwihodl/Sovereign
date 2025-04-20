@@ -134,6 +134,10 @@ const CombinedDetails = ({
   }, [zaps, processedEvent]);
 
   useEffect(() => {
+    // reset first to avoid key‑leak across session changes
+    setNsec(null);
+    setNpub(null);
+
     if (session?.user?.privkey) {
       const privkeyBuffer = Buffer.from(session.user.privkey, 'hex');
       setNsec(nip19.nsecEncode(privkeyBuffer));
