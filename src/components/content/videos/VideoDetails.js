@@ -19,6 +19,7 @@ import { Buffer } from 'buffer';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import appConfig from '@/config/appConfig';
 import { nip19 } from 'nostr-tools';
+import { Buffer } from 'buffer';
 
 const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
   ssr: false,
