@@ -220,7 +220,9 @@ const Details = () => {
             user={nsec || npub || null}
             relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.primal.net/, wss://nostrue.com/, wss://purplerelay.com/, wss://relay.devs.tools/"
             disable="zaps"
-            isAuthorized={!event.price || decryptedContent || session?.user?.role?.subscribed || authorView}
+            isAuthorized={
+              !event.price || decryptedContent || session?.user?.role?.subscribed || authorView
+            }
           />
         </div>
       ) : nAddress !== null ? (
@@ -230,7 +232,9 @@ const Details = () => {
             user={npub}
             relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.primal.net/, wss://nostrue.com/, wss://purplerelay.com/, wss://relay.devs.tools/"
             disable="zaps"
-            isAuthorized={!event.price || decryptedContent || session?.user?.role?.subscribed || authorView}
+            isAuthorized={
+              !event.price || decryptedContent || session?.user?.role?.subscribed || authorView
+            }
           />
         </div>
       ) : null}

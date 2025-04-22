@@ -20,8 +20,7 @@ const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
 
 const CourseLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted }) => {
   const [zapAmount, setZapAmount] = useState(0);
-  const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: lesson,
-    type: 'lesson' });
+  const { zaps, zapsLoading, zapsError } = useZapsQuery({ event: lesson, type: 'lesson' });
   const { returnImageProxy } = useImageProxy();
   const menuRef = useRef(null);
   const toastRef = useRef(null);

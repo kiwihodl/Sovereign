@@ -9,7 +9,7 @@ const ZapThreadsWrapper = ({ anchor, user, relays, disable, className, isAuthori
     if (!isAuthorized) {
       return;
     }
-    
+
     // Store the current value of zapRef to use in the cleanup function
     const currentZapRef = zapRef.current;
 
