@@ -193,10 +193,12 @@ const Course = () => {
       if (slug.includes('naddr')) {
         setNAddress(slug);
       } else {
-        // todo: no naddress?
+        console.warn('No naddress found in slug');
+        showToast('error', 'Error', 'Course identifier not found in URL');
+        router.push('/courses'); // Redirect to courses page
       }
     }
-  }, [router.isReady, router.query.slug]);
+  }, [router.isReady, router.query.slug, showToast, router]);
 
   useEffect(() => {
     if (router.isReady) {
