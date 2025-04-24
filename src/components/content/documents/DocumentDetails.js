@@ -327,26 +327,6 @@ const DocumentDetails = ({
             </div>
           </div>
           <div className="w-full mt-4">{renderPaymentMessage()}</div>
-          {nAddress && (
-            <div className="mt-8">
-              {!paidResource || decryptedContent || session?.user?.role?.subscribed ? (
-                <ZapThreadsWrapper
-                  anchor={nAddress}
-                  user={session?.user ? nsec || npub : null}
-                  relays={appConfig.defaultRelayUrls.join(',')}
-                  disable="zaps"
-                  isAuthorized={true}
-                />
-              ) : (
-                <div className="text-center p-4 bg-gray-800/50 rounded-lg">
-                  <p className="text-gray-400">
-                    Comments are only available to content purchasers, subscribers, and the content
-                    creator.
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
         </div>
         {renderContent()}
       </div>

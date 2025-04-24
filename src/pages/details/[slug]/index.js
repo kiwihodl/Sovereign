@@ -195,6 +195,9 @@ const Details = () => {
 
   const DetailComponent = getDetailComponent();
 
+  const isAuthorized =
+    !event.price || decryptedContent || session?.user?.role?.subscribed || authorView;
+
   return (
     <>
       <DetailComponent
@@ -213,31 +216,23 @@ const Details = () => {
         handlePaymentError={handlePaymentError}
         authorView={authorView}
       />
-      {nAddress !== null && (nsec || npub) ? (
+      {nAddress !== null && isAuthorized ? (
         <div className="px-4">
           <ZapThreadsWrapper
             anchor={nAddress}
             user={nsec || npub || null}
             relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.primal.net/, wss://nostrue.com/, wss://purplerelay.com/, wss://relay.devs.tools/"
             disable="zaps"
-            isAuthorized={
-              !event.price || decryptedContent || session?.user?.role?.subscribed || authorView
-            }
+            isAuthorized={isAuthorized}
           />
         </div>
-      ) : nAddress !== null ? (
-        <div className="px-4">
-          <ZapThreadsWrapper
-            anchor={nAddress}
-            user={npub}
-            relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.primal.net/, wss://nostrue.com/, wss://purplerelay.com/, wss://relay.devs.tools/"
-            disable="zaps"
-            isAuthorized={
-              !event.price || decryptedContent || session?.user?.role?.subscribed || authorView
-            }
-          />
+      ) : (
+        <div className="text-center p-4 mx-4 bg-gray-800/50 rounded-lg">
+          <p className="text-gray-400">
+            Comments are only available to content purchasers, subscribers, and the content creator.
+          </p>
         </div>
-      ) : null}
+      )}
     </>
   );
 };
