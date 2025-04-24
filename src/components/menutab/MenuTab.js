@@ -6,19 +6,17 @@ export default function MenuTab({ items, activeIndex, onTabChange, sidebarVisibl
   return (
     <div className="w-[100%] relative">
       <TabMenu
-        className="w-full bg-transparent border-none"
+        className="w-full"
         model={items}
         activeIndex={activeIndex}
         onTabChange={e => onTabChange(e.index)}
         pt={{
-          tabmenu: {
-            menu: ({ context }) => ({
-              className: 'bg-transparent border-none',
-            }),
-            action: ({ context }) => ({
-              className: 'bg-transparent border-none',
-            }),
-          },
+          menu: { className: 'bg-transparent border-none my-2 py-1' },
+          action: ({ context, parent }) => ({
+            className:
+              'cursor-pointer select-none flex items-center relative no-underline overflow-hidden p-4 font-bold rounded-t-lg',
+            style: { top: '2px' },
+          })
         }}
       />
       

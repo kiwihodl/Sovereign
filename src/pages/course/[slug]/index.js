@@ -515,9 +515,9 @@ const Course = () => {
 
   return (
     <>
-      <div className="mx-auto px-8 max-mob:px-0 mb-12 mt-4">
+      <div className="mx-auto px-8 max-mob:px-0 mb-12 mt-2">
         {/* Tab navigation using MenuTab component */}
-        <div className="z-10 bg-transparent border-b border-gray-700/30"
+        <div className="z-10 bg-transparent"
              style={{ 
                top: `${navbarHeight}px`,
                height: `${navbarHeight}px`
