@@ -252,14 +252,6 @@ const Course = () => {
     setLessons
   );
 
-  // Check if course is completed - moved after course is initialized
-  const isCourseCompleted = useMemo(() => {
-    if (!course || !completedLessons.length) return false;
-    // A course is completed if at least one lesson is completed
-    // You can change this logic if needed (e.g., all lessons must be completed)
-    return completedLessons.length > 0;
-  }, [completedLessons, course]);
-
   useEffect(() => {
     if (uniqueLessons.length > 0) {
       const addresses = {};
@@ -289,7 +281,13 @@ const Course = () => {
       setNpub(null);
     }
   }, [session]);
-  
+
+  const isAuthorized = 
+    session?.user?.role?.subscribed || 
+    session?.user?.pubkey === course?.pubkey || 
+    !paidCourse || 
+    session?.user?.purchased?.some(purchase => purchase.courseId === course?.d)
+
   const handleLessonSelect = index => {
     setActiveIndex(index);
     router.push(`/course/${router.query.slug}?active=${index}`, undefined, { shallow: true });
@@ -406,23 +404,23 @@ const Course = () => {
     return (
       <div className="rounded-lg p-8 mt-4 bg-gray-800">
         <h2 className="text-xl font-bold mb-4">Comments</h2>
-        {nAddress !== null ? (
+        {nAddress !== null && isAuthorized ? (
+        <div className="px-4">
           <ZapThreadsWrapper
             anchor={nAddress}
-            user={session?.user?.pubkey ? nip19.npubEncode(session?.user?.pubkey) : null}
+            user={nsec || npub || null}
             relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.primal.net/, wss://nostrue.com/, wss://purplerelay.com/, wss://relay.devs.tools/"
             disable="zaps"
+            isAuthorized={isAuthorized}
           />
-        ) : course?.d ? (
-          <ZapThreadsWrapper
-            anchor={course.d}
-            user={session?.user?.pubkey ? nip19.npubEncode(session?.user?.pubkey) : null}
-            relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.primal.net/, wss://nostrue.com/, wss://purplerelay.com/, wss://relay.devs.tools/"
-            disable="zaps"
-          />
-        ) : (
-          <p>Loading comments...</p>
-        )}
+        </div>
+      ) : (
+        <div className="text-center p-4 mx-4 bg-gray-800/50 rounded-lg">
+          <p className="text-gray-400">
+            Comments are only available to content purchasers, subscribers, and the content creator.
+          </p>
+        </div>
+      )}
       </div>
     );
   };
