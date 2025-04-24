@@ -100,10 +100,8 @@ export default function DesktopCourseDetails({
         <div className="lg:col-span-2">
           <h2 className="text-xl font-semibold mb-3 text-white">About This Course</h2>
           <div className="text-gray-300 mb-4">
-            {processedEvent.description &&
-              processedEvent?.description
-                .split('\n')
-                .map((line, index) => <p key={index} className="mb-2">{line}</p>)}
+            {processedEvent?.description?.split('\n')
+               .map((line, index) => <p key={index} className="mb-2">{line}</p>)}
           </div>
           
           {/* Payment section */}
