@@ -82,6 +82,7 @@ export default function DesktopCourseDetails({
               <a
                 rel="noreferrer noopener"
                 target="_blank"
+                href={`/profile/${author?.pubkey}`}
                 className="text-blue-300 hover:underline"
               >
                 {author?.username || author?.name || author?.pubkey}
