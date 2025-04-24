@@ -272,7 +272,7 @@ const VideoDetails = ({
     <div className="w-full">
       <Toast ref={toastRef} />
       {renderContent()}
-      <div className="bg-gray-800/90 rounded-lg p-4 m-4 max-mob:m-0 max-tab:m-0 max-mob:rounded-t-none max-tab:rounded-t-none">
+      <div className="bg-gray-800/90 rounded-lg p-4 m-4 max-mob:px-2 max-tab:px-2 max-mob:m-0 max-tab:m-0 max-mob:rounded-t-none max-tab:rounded-t-none">
         <div className={`w-full flex flex-col items-start justify-start mt-2 px-2`}>
           <div className="flex flex-col items-start gap-2 w-full">
             <div className="flex flex-row items-center justify-between gap-2 w-full">

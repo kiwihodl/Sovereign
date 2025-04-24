@@ -34,13 +34,16 @@ const Navbar = () => {
       const fetchCourse = async () => {
         try {
           const { slug } = router.query;
+          if (!slug) return;                     // still preparing
+          
+          const slugStr = Array.isArray(slug) ? slug[0] : slug;
           let identifier;
           
-          if (slug.includes('naddr')) {
-            const { data } = nip19.decode(slug);
+          if (slugStr.includes('naddr')) {
+            const { data } = nip19.decode(slugStr);
             identifier = data?.identifier;
           } else {
-            identifier = slug;
+            identifier = slugStr;
           }
           
           if (identifier) {

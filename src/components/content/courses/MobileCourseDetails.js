@@ -1,7 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
 import { Tag } from 'primereact/tag';
-import { useRouter } from 'next/router';
 import ZapDisplay from '@/components/zaps/ZapDisplay';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
 import { Divider } from 'primereact/divider';
@@ -20,8 +19,6 @@ export default function MobileCourseDetails({
   isCompleted,
   showCompletedTag
 }) {
-  const router = useRouter();
-  
   return (
     <>
       {/* Mobile-specific layout */}
@@ -33,6 +30,9 @@ export default function MobileCourseDetails({
             processedEvent.topics.map((topic, index) => (
               <Tag className="text-white" key={index} value={topic}></Tag>
             ))}
+          {isCompleted && showCompletedTag && (
+            <Tag severity="success" value="Completed" />
+          )}
         </div>
         
         {/* Title and zaps in same row */}

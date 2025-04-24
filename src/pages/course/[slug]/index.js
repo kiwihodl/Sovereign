@@ -402,10 +402,10 @@ const Course = () => {
   // Render the QA section (empty for now)
   const renderQASection = () => {
     return (
-      <div className="rounded-lg p-8 mt-4 bg-gray-800">
+      <div className="rounded-lg p-8 mt-4 bg-gray-800 max-mob:px-4">
         <h2 className="text-xl font-bold mb-4">Comments</h2>
         {nAddress !== null && isAuthorized ? (
-        <div className="px-4">
+        <div className="px-4 max-mob:px-0">
           <ZapThreadsWrapper
             anchor={nAddress}
             user={nsec || npub || null}
@@ -513,7 +513,7 @@ const Course = () => {
     <>
       <div className="mx-auto px-8 max-mob:px-0 mb-12 mt-4">
         {/* Tab navigation using MenuTab component */}
-        <div className="sticky z-10 bg-transparent border-b border-gray-700/30"
+        <div className="z-10 bg-transparent border-b border-gray-700/30"
              style={{ 
                top: `${navbarHeight}px`,
                height: `${navbarHeight}px`

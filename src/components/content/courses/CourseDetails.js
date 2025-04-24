@@ -217,7 +217,7 @@ export default function CourseDetails({
   };
 
   return (
-    <div className="w-full bg-gray-800 p-4 rounded-lg">
+    <div className="w-full bg-gray-800 p-4 max-mob:px-0 rounded-lg">
       <Toast ref={toastRef} />
       <WelcomeModal />
       

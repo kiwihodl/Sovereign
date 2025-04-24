@@ -239,7 +239,7 @@ const CombinedLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
         </>
       )}
       <div
-        className={`${isVideo ? 'bg-gray-800/90 rounded-lg p-4 m-4' : 'w-full mx-auto px-4 py-8 -mt-32 relative z-10'}`}
+        className={`${isVideo ? 'bg-gray-800/90 rounded-lg p-4 m-4 max-mob:px-0' : 'w-full mx-auto px-4 py-8 -mt-32 relative z-10'}`}
       >
         <div className={`${!isVideo && 'mb-8 bg-gray-800/70 rounded-lg p-4'}`}>
           <div className="flex flex-row items-center justify-between w-full">
