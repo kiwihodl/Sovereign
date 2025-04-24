@@ -15,8 +15,12 @@ import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Tag } from 'primereact/tag';
 import { useDecryptContent } from '@/hooks/encryption/useDecryptContent';
 import dynamic from 'next/dynamic';
+import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
+import appConfig from '@/config/appConfig';
 
-const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), { ssr: false });
+const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
+  ssr: false,
+});
 
 const useCourseData = (ndk, fetchAuthor, router) => {
   const [course, setCourse] = useState(null);
@@ -94,7 +98,11 @@ const useLessons = (ndk, fetchAuthor, lessonIds, pubkey) => {
       const fetchLesson = async lessonId => {
         try {
           await ndk.connect();
-          const filter = { '#d': [lessonId], kinds: [30023, 30402], authors: [pubkey] };
+          const filter = {
+            '#d': [lessonId],
+            kinds: [30023, 30402],
+            authors: [pubkey],
+          };
           const event = await ndk.fetchEvent(filter);
           if (event) {
             const author = await fetchAuthor(event.pubkey);
@@ -171,6 +179,9 @@ const Course = () => {
   const { showToast } = useToast();
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [completedLessons, setCompletedLessons] = useState([]);
+  const [nAddresses, setNAddresses] = useState({});
+  const [nsec, setNsec] = useState(null);
+  const [npub, setNpub] = useState(null);
 
   const setCompleted = useCallback(lessonId => {
     setCompletedLessons(prev => [...prev, lessonId]);
@@ -216,6 +227,36 @@ const Course = () => {
       }
     }
   }, [router.isReady, router.query]);
+
+  useEffect(() => {
+    if (uniqueLessons.length > 0) {
+      const addresses = {};
+      uniqueLessons.forEach(lesson => {
+        const addr = nip19.naddrEncode({
+          pubkey: lesson.pubkey,
+          kind: lesson.kind,
+          identifier: lesson.d,
+          relays: appConfig.defaultRelayUrls,
+        });
+        addresses[lesson.id] = addr;
+      });
+      setNAddresses(addresses);
+    }
+  }, [uniqueLessons]);
+
+  useEffect(() => {
+    if (session?.user?.privkey) {
+      const privkeyBuffer = Buffer.from(session.user.privkey, 'hex');
+      setNsec(nip19.nsecEncode(privkeyBuffer));
+      setNpub(null);
+    } else if (session?.user?.pubkey) {
+      setNsec(null);
+      setNpub(nip19.npubEncode(session.user.pubkey));
+    } else {
+      setNsec(null);
+      setNpub(null);
+    }
+  }, [session]);
 
   const handleAccordionChange = e => {
     const newIndex = e.index === expandedIndex ? null : e.index;
@@ -327,7 +368,29 @@ const Course = () => {
                 </div>
               }
             >
-              <div className="w-full py-4 rounded-b-lg">{renderLesson(lesson)}</div>
+              <div className="w-full py-4 rounded-b-lg">
+                {renderLesson(lesson)}
+                {nAddresses[lesson.id] && (
+                  <div className="mt-8">
+                    {!paidCourse || decryptionPerformed || session?.user?.role?.subscribed ? (
+                      <ZapThreadsWrapper
+                        anchor={nAddresses[lesson.id]}
+                        user={session?.user ? nsec || npub : null}
+                        relays={appConfig.defaultRelayUrls.join(',')}
+                        disable="zaps"
+                        isAuthorized={true}
+                      />
+                    ) : (
+                      <div className="text-center p-4 bg-gray-800/50 rounded-lg">
+                        <p className="text-gray-400">
+                          Comments are only available to course purchasers, subscribers, and the
+                          course creator.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </AccordionTab>
           ))}
       </Accordion>

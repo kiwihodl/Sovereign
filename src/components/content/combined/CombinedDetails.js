@@ -15,8 +15,13 @@ import useWindowWidth from '@/hooks/useWindowWidth';
 import dynamic from 'next/dynamic';
 import { Toast } from 'primereact/toast';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
+import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
+import appConfig from '@/config/appConfig';
+import { nip19 } from 'nostr-tools';
 
-const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), { ssr: false });
+const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
+  ssr: false,
+});
 
 const CombinedDetails = ({
   processedEvent,
@@ -45,6 +50,8 @@ const CombinedDetails = ({
   const isMobileView = windowWidth <= 768;
   const menuRef = useRef(null);
   const toastRef = useRef(null);
+  const [nsec, setNsec] = useState(null);
+  const [npub, setNpub] = useState(null);
 
   const handleDelete = async () => {
     try {
@@ -125,6 +132,24 @@ const CombinedDetails = ({
       setZapAmount(total);
     }
   }, [zaps, processedEvent]);
+
+  useEffect(() => {
+    // reset first to avoid key‑leak across session changes
+    setNsec(null);
+    setNpub(null);
+
+    if (session?.user?.privkey) {
+      const privkeyBuffer = Buffer.from(session.user.privkey, 'hex');
+      setNsec(nip19.nsecEncode(privkeyBuffer));
+      setNpub(null);
+    } else if (session?.user?.pubkey) {
+      setNsec(null);
+      setNpub(nip19.npubEncode(session.user.pubkey));
+    } else {
+      setNsec(null);
+      setNpub(null);
+    }
+  }, [session]);
 
   const renderPaymentMessage = () => {
     if (session?.user?.role?.subscribed && decryptedContent) {
@@ -292,6 +317,26 @@ const CombinedDetails = ({
             </div>
           </div>
           <div className="w-full mt-4">{renderPaymentMessage()}</div>
+          {nAddress && (
+            <div className="mt-8">
+              {!paidResource || decryptedContent || session?.user?.role?.subscribed ? (
+                <ZapThreadsWrapper
+                  anchor={nAddress}
+                  user={session?.user ? nsec || npub : null}
+                  relays={appConfig.defaultRelayUrls.join(',')}
+                  disable="zaps"
+                  isAuthorized={true}
+                />
+              ) : (
+                <div className="text-center p-4 bg-gray-800/50 rounded-lg">
+                  <p className="text-gray-400">
+                    Comments are only available to content purchasers, subscribers, and the content
+                    creator.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
         {renderContent()}
       </div>

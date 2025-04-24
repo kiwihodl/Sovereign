@@ -15,6 +15,10 @@ import useWindowWidth from '@/hooks/useWindowWidth';
 import dynamic from 'next/dynamic';
 import { Toast } from 'primereact/toast';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
+import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
+import appConfig from '@/config/appConfig';
+import { nip19 } from 'nostr-tools';
+import { Buffer } from 'buffer';
 
 const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
   ssr: false,
@@ -40,13 +44,17 @@ const VideoDetails = ({
   const [course, setCourse] = useState(null);
   const router = useRouter();
   const { returnImageProxy } = useImageProxy();
-  const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: processedEvent });
+  const { zaps, zapsLoading, zapsError } = useZapsSubscription({
+    event: processedEvent,
+  });
   const { data: session, status } = useSession();
   const { showToast } = useToast();
   const windowWidth = useWindowWidth();
   const isMobileView = windowWidth <= 768;
   const menuRef = useRef(null);
   const toastRef = useRef(null);
+  const [nsec, setNsec] = useState(null);
+  const [npub, setNpub] = useState(null);
 
   const handleDelete = async () => {
     try {
@@ -134,6 +142,20 @@ const VideoDetails = ({
     }
   }, [zaps, processedEvent]);
 
+  useEffect(() => {
+    if (session?.user?.privkey) {
+      const privkeyBuffer = Buffer.from(session.user.privkey, 'hex');
+      setNsec(nip19.nsecEncode(privkeyBuffer));
+      setNpub(null);
+    } else if (session?.user?.pubkey) {
+      setNsec(null);
+      setNpub(nip19.npubEncode(session.user.pubkey));
+    } else {
+      setNsec(null);
+      setNpub(null);
+    }
+  }, [session]);
+
   const renderPaymentMessage = () => {
     if (session?.user && session.user?.role?.subscribed && decryptedContent) {
       return (
@@ -158,9 +180,13 @@ const VideoDetails = ({
       return (
         <GenericButton
           tooltipOptions={{ position: 'top' }}
-          tooltip={`You have this lesson through purchasing the course it belongs to. You paid ${session?.user?.purchased?.find(purchase => purchase.courseId === course)?.course?.price} sats for the course.`}
+          tooltip={`You have this lesson through purchasing the course it belongs to. You paid ${
+            session?.user?.purchased?.find(purchase => purchase.courseId === course)?.course?.price
+          } sats for the course.`}
           icon="pi pi-check"
-          label={`Paid ${session?.user?.purchased?.find(purchase => purchase.courseId === course)?.course?.price} sats`}
+          label={`Paid ${
+            session?.user?.purchased?.find(purchase => purchase.courseId === course)?.course?.price
+          } sats`}
           severity="success"
           outlined
           size="small"
