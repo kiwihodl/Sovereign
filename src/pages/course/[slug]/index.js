@@ -188,14 +188,16 @@ const Course = () => {
   const navbarHeight = 60; // Match the height from Navbar component
 
   useEffect(() => {
-    if (router.isReady) {
+    if (router.isReady && router.query.slug) {
       const { slug } = router.query;
       if (slug.includes('naddr')) {
         setNAddress(slug);
       } else {
         console.warn('No naddress found in slug');
         showToast('error', 'Error', 'Course identifier not found in URL');
-        router.push('/courses'); // Redirect to courses page
+        setTimeout(() => {
+          router.push('/courses'); // Redirect to courses page
+        }, 3000);
       }
     }
   }, [router.isReady, router.query.slug, showToast, router]);
