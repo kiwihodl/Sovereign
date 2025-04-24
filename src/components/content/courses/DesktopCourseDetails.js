@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Image from 'next/image';
 import { Tag } from 'primereact/tag';
-import { useRouter } from 'next/router';
 import ZapDisplay from '@/components/zaps/ZapDisplay';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
 import { Divider } from 'primereact/divider';
@@ -20,7 +19,10 @@ export default function DesktopCourseDetails({
   isCompleted,
   showCompletedTag
 }) {
-  const router = useRouter();
+
+useEffect(() => {
+  console.log('menuItems', menuItems);
+}, [menuItems]);
 
   return (
     <>
