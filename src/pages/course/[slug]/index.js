@@ -604,9 +604,12 @@ const Course = () => {
                 activeIndex={activeIndex}
                 onLessonSelect={(index) => {
                   handleLessonSelect(index);
-                  if (isMobileView) {
-                    toggleTab(getTabItems().findIndex(item => item.label === 'Content'));
-                  }
+onLessonSelect={(index) => {
+  handleLessonSelect(index);
+  if (isMobileView) {
+    setActiveTab('content'); // Use the tab name directly
+  }
+}}
                 }}
                 completedLessons={completedLessons}
                 isMobileView={isMobileView}
