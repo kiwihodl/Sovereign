@@ -186,6 +186,17 @@ const Course = () => {
   const [activeTab, setActiveTab] = useState('overview'); // Default to overview tab
   const navbarHeight = 60; // Match the height from Navbar component
 
+  // Memoized function to get the tab map based on view mode
+  const getTabMap = useMemo(() => {
+    const baseTabMap = ['overview', 'content', 'qa'];
+    if (isMobileView) {
+      const mobileTabMap = [...baseTabMap];
+      mobileTabMap.splice(2, 0, 'lessons');
+      return mobileTabMap;
+    }
+    return baseTabMap;
+  }, [isMobileView]);
+
   useEffect(() => {
     if (router.isReady && router.query.slug) {
       const { slug } = router.query;
@@ -320,22 +331,12 @@ const Course = () => {
   };
 
   const toggleTab = (index) => {
-    const tabMap = ['overview', 'content', 'qa'];
-    // If mobile and we have the lessons tab, insert it at index 2
-    if (isMobileView) {
-      tabMap.splice(2, 0, 'lessons');
-    }
-    
-    const tabName = tabMap[index];
+    const tabName = getTabMap[index];
     setActiveTab(tabName);
     
     // Only show/hide sidebar on mobile - desktop keeps sidebar visible
     if (isMobileView) {
-      if (tabName === 'lessons') {
-        setSidebarVisible(true);
-      } else {
-        setSidebarVisible(false);
-      }
+      setSidebarVisible(tabName === 'lessons');
     }
   };
 
@@ -345,12 +346,7 @@ const Course = () => {
 
   // Map active tab name back to index for MenuTab
   const getActiveTabIndex = () => {
-    const tabMap = ['overview', 'content', 'qa'];
-    if (isMobileView) {
-      tabMap.splice(2, 0, 'lessons');
-    }
-    
-    return tabMap.indexOf(activeTab);
+    return getTabMap.indexOf(activeTab);
   };
 
   // Create tab items for MenuTab
@@ -387,11 +383,11 @@ const Course = () => {
     const handleKeyDown = (e) => {
       if (e.key === 'ArrowRight') {
         const currentIndex = getActiveTabIndex();
-        const nextIndex = (currentIndex + 1) % getTabItems().length;
+        const nextIndex = (currentIndex + 1) % getTabMap.length;
         toggleTab(nextIndex);
       } else if (e.key === 'ArrowLeft') {
         const currentIndex = getActiveTabIndex();
-        const prevIndex = (currentIndex - 1 + getTabItems().length) % getTabItems().length;
+        const prevIndex = (currentIndex - 1 + getTabMap.length) % getTabMap.length;
         toggleTab(prevIndex);
       }
     };
@@ -400,7 +396,7 @@ const Course = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [activeTab]);
+  }, [activeTab, getTabMap, toggleTab]);
 
   // Render the QA section (empty for now)
   const renderQASection = () => {
@@ -586,7 +582,12 @@ const Course = () => {
               <CourseSidebar
                 lessons={uniqueLessons}
                 activeIndex={activeIndex}
-                onLessonSelect={handleLessonSelect}
+                onLessonSelect={(index) => {
+                  handleLessonSelect(index);
+                  if (isMobileView) {
+                    setActiveTab('content'); // Use the tab name directly
+                  }
+                }}
                 completedLessons={completedLessons}
                 isMobileView={isMobileView}
                 sidebarVisible={sidebarVisible}
@@ -604,12 +605,9 @@ const Course = () => {
                 activeIndex={activeIndex}
                 onLessonSelect={(index) => {
                   handleLessonSelect(index);
-onLessonSelect={(index) => {
-  handleLessonSelect(index);
-  if (isMobileView) {
-    setActiveTab('content'); // Use the tab name directly
-  }
-}}
+                  if (isMobileView) {
+                    setActiveTab('content'); // Use the tab name directly
+                  }
                 }}
                 completedLessons={completedLessons}
                 isMobileView={isMobileView}
