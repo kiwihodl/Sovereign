@@ -6,7 +6,6 @@ import VideoLesson from '@/components/content/courses/VideoLesson';
 import DocumentLesson from '@/components/content/courses/DocumentLesson';
 import CombinedLesson from '@/components/content/courses/CombinedLesson';
 import CourseSidebar from '@/components/content/courses/CourseSidebar';
-import CourseHeader from '@/components/content/courses/CourseHeader';
 import { useNDKContext } from '@/context/NDKContext';
 import { useSession } from 'next-auth/react';
 import { nip19 } from 'nostr-tools';
