@@ -133,8 +133,18 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
   const handleContentSelect = content => {
     if (selectedSearchOption.code === 'content') {
       if (content?.type === 'course') {
-        router.push(`/course/${content?.d || content?.id}`);
+        if (content?.naddress) {
+          // Use naddress for course if available
+          router.push(`/course/${content.naddress}`);
+        } else {
+          // Fallback to d or id
+          router.push(`/course/${content?.d || content?.id}`);
+        }
+      } else if (content?.naddress) {
+        // Use naddress for other content if available
+        router.push(`/details/${content.naddress}`);
       } else {
+        // Fallback to ID if naddress is not available
         router.push(`/details/${content.id}`);
       }
     } else if (selectedSearchOption.code === 'community') {
