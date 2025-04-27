@@ -7,16 +7,49 @@ import { Message } from 'primereact/message';
 import GenericButton from '@/components/buttons/GenericButton';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import { BookOpen } from 'lucide-react';
+import { highlightText, getTextWithMatchContext } from '@/utils/text';
+import { generateNaddr } from '@/utils/nostr';
 
 const ContentDropdownItem = ({ content, onSelect }) => {
   const { returnImageProxy } = useImageProxy();
   const windowWidth = useWindowWidth();
   const isMobile = windowWidth <= 600;
+  
+  // Get match information if available
+  const matches = content?._matches || {};
+  
+  // Handle content selection with naddress
+  const handleSelect = () => {
+    // Create a copy of the content object with naddress information
+    const contentWithNaddr = { ...content };
+    
+    // If content has pubkey, kind, and identifier (d tag), generate naddr
+    if (content.pubkey && content.kind && (content.d || content.identifier)) {
+      // Use the appropriate identifier (d tag value)
+      const identifier = content.d || content.identifier;
+      
+      // Generate naddress
+      contentWithNaddr.naddress = generateNaddr(
+        content.pubkey,
+        content.kind,
+        identifier
+      );
+      
+      // Log success or failure
+      if (contentWithNaddr.naddress) {
+        console.log(`Generated naddress for ${content.type || 'content'}: ${contentWithNaddr.naddress}`);
+      } else {
+        console.warn('Failed to generate naddress:', { pubkey: content.pubkey, kind: content.kind, identifier });
+      }
+    }
+    
+    onSelect(contentWithNaddr);
+  };
 
   return (
     <div
       className="group px-6 py-5 border-b border-gray-700/50 cursor-pointer hover:bg-gray-800/30 transition-colors duration-200"
-      onClick={() => onSelect(content)}
+      onClick={handleSelect}
     >
       <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-5`}>
         <div
@@ -39,7 +72,13 @@ const ContentDropdownItem = ({ content, onSelect }) => {
           <div>
             <div className="flex justify-between items-start gap-4 mb-2">
               <h3 className="text-xl font-bold text-[#f8f8ff] group-hover:text-white transition-colors duration-200">
-                {content?.title || content?.name}
+                {matches.title 
+                  ? highlightText(
+                      content?.title || content?.name, 
+                      matches.title.term, 
+                      'bg-yellow-500/30 text-white font-bold px-0.5 rounded'
+                    )
+                  : (content?.title || content?.name)}
               </h3>
 
               {content?.price > 0 ? (
@@ -59,7 +98,13 @@ const ContentDropdownItem = ({ content, onSelect }) => {
 
             {content?.summary && (
               <p className="text-neutral-50/80 line-clamp-2 mb-3 text-sm leading-relaxed group-hover:text-neutral-50/90 transition-colors duration-200">
-                {content.summary}
+                {matches.description 
+                  ? highlightText(
+                      getTextWithMatchContext(content.summary, matches.description.term, 60),
+                      matches.description.term,
+                      'bg-yellow-500/30 text-white font-medium px-0.5 rounded'
+                    )
+                  : content.summary}
               </p>
             )}
           </div>
@@ -91,7 +136,7 @@ const ContentDropdownItem = ({ content, onSelect }) => {
                   iconPos="right"
                   onClick={e => {
                     e.stopPropagation();
-                    onSelect(content);
+                    handleSelect();
                   }}
                   className="items-center py-1 shadow-sm hover:shadow-md transition-shadow duration-200"
                 />

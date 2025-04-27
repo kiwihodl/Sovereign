@@ -20,7 +20,7 @@ export const useContentSearch = () => {
       };
       const events = await ndk.fetchEvents(filter);
 
-      const parsedEvents = new Set();
+      const parsedEvents = [];
       events.forEach(event => {
         let parsed;
         if (event.kind === 30004) {
@@ -28,7 +28,7 @@ export const useContentSearch = () => {
         } else {
           parsed = parseEvent(event);
         }
-        parsedEvents.add(parsed);
+        parsedEvents.push(parsed);
       });
       setAllContent(parsedEvents);
     } catch (error) {
@@ -44,17 +44,36 @@ export const useContentSearch = () => {
 
   const searchContent = term => {
     if (term.length > 2) {
-      const filtered = Array.from(allContent).filter(content => {
+      const searchTerm = term.toLowerCase();
+      const filtered = allContent.filter(content => {
+        // Prepare fields to search in
         const searchableTitle = (content?.title || content?.name || '').toLowerCase();
-        const searchableDescription = (
-          content?.summary ||
-          content?.description ||
-          ''
-        ).toLowerCase();
-        const searchTerm = term.toLowerCase();
-
-        return searchableTitle.includes(searchTerm) || searchableDescription.includes(searchTerm);
+        const searchableDescription = (content?.summary || content?.description || '').toLowerCase();
+        
+        // Find matches in title
+        const titleMatch = searchableTitle.includes(searchTerm);
+        
+        // Find matches in description
+        const descriptionMatch = searchableDescription.includes(searchTerm);
+        
+        // Store match information (only for title and description)
+        if (titleMatch || descriptionMatch) {
+          content._matches = {
+            title: titleMatch ? {
+              text: content?.title || content?.name || '',
+              term: searchTerm
+            } : null,
+            description: descriptionMatch ? {
+              text: content?.summary || content?.description || '',
+              term: searchTerm
+            } : null
+          };
+          return true;
+        }
+        
+        return false;
       });
+      
       setSearchResults(filtered);
     } else {
       setSearchResults([]);

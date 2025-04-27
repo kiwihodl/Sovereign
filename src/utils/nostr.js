@@ -221,6 +221,44 @@ export const hexToNpub = hex => {
   return nip19.npubEncode(hex);
 };
 
+/**
+ * Generates a Nostr address (naddr) from event details
+ * 
+ * @param {string} pubkey - The public key of the content creator
+ * @param {number} kind - The event kind
+ * @param {string} identifier - The 'd' tag value
+ * @param {Array} relays - Optional array of relay URLs
+ * @returns {string} - The naddr string
+ */
+export const generateNaddr = (pubkey, kind, identifier, relays = []) => {
+  try {
+    // Convert npub to hex if needed
+    let hexPubkey = pubkey;
+    if (pubkey.startsWith('npub')) {
+      try {
+        const { data } = nip19.decode(pubkey);
+        hexPubkey = data;
+      } catch (e) {
+        console.error('Error decoding npub:', e);
+      }
+    }
+
+    // Create the address data
+    const addressData = {
+      pubkey: hexPubkey,
+      kind: parseInt(kind),
+      identifier,
+      relays
+    };
+
+    // Generate and return the naddr
+    return nip19.naddrEncode(addressData);
+  } catch (error) {
+    console.error('Error generating naddr:', error);
+    return null;
+  }
+};
+
 export function validateEvent(event) {
   if (typeof event.kind !== 'number') return 'Invalid kind';
   if (typeof event.content !== 'string') return 'Invalid content';

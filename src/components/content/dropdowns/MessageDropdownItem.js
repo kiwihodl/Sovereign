@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { formatTimestampToHowLongAgo } from '@/utils/time';
 import NostrIcon from '/public/images/nostr.png';
 import { useImageProxy } from '@/hooks/useImageProxy';
+import { highlightText, getTextWithMatchContext } from '@/utils/text';
 
 const MessageDropdownItem = ({ message, onSelect }) => {
   const { ndk } = useNDKContext();
@@ -20,6 +21,9 @@ const MessageDropdownItem = ({ message, onSelect }) => {
 
   // Stable reference to message to prevent infinite loops
   const messageRef = useMemo(() => message, [message?.id]);
+  
+  // Get match information
+  const matches = useMemo(() => message?._matches || {}, [message]);
 
   // Determine the platform once when component mounts or message changes
   const determinePlatform = useCallback(() => {
@@ -85,6 +89,7 @@ const MessageDropdownItem = ({ message, onSelect }) => {
               avatarProxy: authorPicture ? returnImageProxy(authorPicture) : null,
               type: 'nostr',
               id: messageRef.id,
+              _matches: messageRef._matches
             });
           }
         } else if (currentPlatform === 'discord') {
@@ -104,6 +109,7 @@ const MessageDropdownItem = ({ message, onSelect }) => {
               channel: messageRef?.channel || 'discord',
               type: 'discord',
               id: messageRef.id,
+              _matches: messageRef._matches
             });
           }
         } else if (currentPlatform === 'stackernews') {
@@ -122,6 +128,7 @@ const MessageDropdownItem = ({ message, onSelect }) => {
               channel: '~devs',
               type: 'stackernews',
               id: messageRef.id,
+              _matches: messageRef._matches
             });
           }
         }
@@ -164,6 +171,16 @@ const MessageDropdownItem = ({ message, onSelect }) => {
     const messageDate = messageData.timestamp
       ? formatTimestampToHowLongAgo(messageData.timestamp)
       : '';
+    
+    // Get the content with highlighting if there's a match
+    const contentMatches = messageData._matches?.content || messageData._matches?.title;
+    const displayContent = contentMatches
+      ? highlightText(
+          getTextWithMatchContext(messageData.content, contentMatches.term, 60),
+          contentMatches.term,
+          'bg-yellow-500/30 text-white font-medium px-0.5 rounded'
+        )
+      : messageData.content;
 
     return (
       <div className="flex flex-col">
@@ -190,7 +207,7 @@ const MessageDropdownItem = ({ message, onSelect }) => {
               <div className="text-xs text-gray-400">{messageDate}</div>
             </div>
             <p className="text-neutral-50/90 whitespace-pre-wrap mb-3 line-clamp-3">
-              {messageData.content}
+              {displayContent}
             </p>
 
             <div className="flex flex-wrap gap-2">
@@ -254,8 +271,19 @@ const MessageDropdownItem = ({ message, onSelect }) => {
                   {messageData?.timestamp ? formatTimestampToHowLongAgo(messageData.timestamp) : ''}
                 </div>
               </div>
+              
               <p className="text-neutral-50/80 whitespace-pre-wrap mb-3 text-sm leading-relaxed group-hover:text-neutral-50/90 transition-colors duration-200">
-                {messageData?.content}
+                {messageData?._matches?.content || messageData?._matches?.title
+                  ? highlightText(
+                      getTextWithMatchContext(
+                        messageData?.content,
+                        messageData?._matches?.content?.term || messageData?._matches?.title?.term,
+                        80
+                      ),
+                      messageData?._matches?.content?.term || messageData?._matches?.title?.term,
+                      'bg-yellow-500/30 text-white font-medium px-0.5 rounded'
+                    )
+                  : messageData?.content}
               </p>
 
               <div className="flex flex-wrap gap-2">
