@@ -277,10 +277,10 @@ const MessageDropdownItem = ({ message, onSelect }) => {
                   ? highlightText(
                       getTextWithMatchContext(
                         messageData?.content,
-                        (messageData?._matches?.content || messageData?._matches?.title).term,
+                        messageData?._matches?.content?.term || messageData?._matches?.title?.term,
                         80
                       ),
-                      (messageData?._matches?.content || messageData?._matches?.title).term,
+                      messageData?._matches?.content?.term || messageData?._matches?.title?.term,
                       'bg-yellow-500/30 text-white font-medium px-0.5 rounded'
                     )
                   : messageData?.content}
