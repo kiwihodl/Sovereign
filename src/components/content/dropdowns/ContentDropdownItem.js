@@ -7,11 +7,15 @@ import { Message } from 'primereact/message';
 import GenericButton from '@/components/buttons/GenericButton';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import { BookOpen } from 'lucide-react';
+import { highlightText, getTextWithMatchContext } from '@/utils/text';
 
 const ContentDropdownItem = ({ content, onSelect }) => {
   const { returnImageProxy } = useImageProxy();
   const windowWidth = useWindowWidth();
   const isMobile = windowWidth <= 600;
+  
+  // Get match information if available
+  const matches = content?._matches || {};
 
   return (
     <div
@@ -39,7 +43,13 @@ const ContentDropdownItem = ({ content, onSelect }) => {
           <div>
             <div className="flex justify-between items-start gap-4 mb-2">
               <h3 className="text-xl font-bold text-[#f8f8ff] group-hover:text-white transition-colors duration-200">
-                {content?.title || content?.name}
+                {matches.title 
+                  ? highlightText(
+                      content?.title || content?.name, 
+                      matches.title.term, 
+                      'bg-yellow-500/30 text-white font-bold px-0.5 rounded'
+                    )
+                  : (content?.title || content?.name)}
               </h3>
 
               {content?.price > 0 ? (
@@ -59,7 +69,13 @@ const ContentDropdownItem = ({ content, onSelect }) => {
 
             {content?.summary && (
               <p className="text-neutral-50/80 line-clamp-2 mb-3 text-sm leading-relaxed group-hover:text-neutral-50/90 transition-colors duration-200">
-                {content.summary}
+                {matches.description 
+                  ? highlightText(
+                      getTextWithMatchContext(content.summary, matches.description.term, 60),
+                      matches.description.term,
+                      'bg-yellow-500/30 text-white font-medium px-0.5 rounded'
+                    )
+                  : content.summary}
               </p>
             )}
           </div>

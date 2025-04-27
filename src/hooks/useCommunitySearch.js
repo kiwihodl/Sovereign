@@ -26,29 +26,56 @@ export const useCommunitySearch = () => {
 
     const lowercaseTerm = term.toLowerCase();
 
-    // Discord search
+    // Discord search - match only on message content
     const filteredDiscord = (discordData || [])
       .filter(message => {
         if (!message.content) return false;
         return message.content.toLowerCase().includes(lowercaseTerm);
       })
-      .map(message => ({ ...message, type: 'discord' }));
+      .map(message => ({ 
+        ...message, 
+        type: 'discord',
+        _matches: {
+          content: {
+            text: message.content,
+            term: lowercaseTerm
+          }
+        }
+      }));
 
-    // Nostr search
+    // Nostr search - match only on message content
     const filteredNostr = (nostrData || [])
       .filter(message => {
         if (!message.content) return false;
         return message.content.toLowerCase().includes(lowercaseTerm);
       })
-      .map(message => ({ ...message, type: 'nostr' }));
+      .map(message => ({ 
+        ...message, 
+        type: 'nostr',
+        _matches: {
+          content: {
+            text: message.content,
+            term: lowercaseTerm
+          }
+        }
+      }));
 
-    // StackerNews search
+    // StackerNews search - match only on title
     const filteredStackerNews = (stackerNewsData || [])
       .filter(item => {
         if (!item.title) return false;
         return item.title.toLowerCase().includes(lowercaseTerm);
       })
-      .map(item => ({ ...item, type: 'stackernews' }));
+      .map(item => ({ 
+        ...item, 
+        type: 'stackernews',
+        _matches: {
+          title: {
+            text: item.title,
+            term: lowercaseTerm
+          }
+        }
+      }));
 
     // Combine and sort the results
     const combinedResults = [...filteredDiscord, ...filteredNostr, ...filteredStackerNews].sort(

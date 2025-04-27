@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { OverlayPanel } from 'primereact/overlaypanel';
@@ -11,20 +11,20 @@ import useWindowWidth from '@/hooks/useWindowWidth';
 import { useNDKContext } from '@/context/NDKContext';
 import { ProgressSpinner } from 'primereact/progressspinner';
 
+const SEARCH_OPTIONS = [
+  { name: 'Content', code: 'content', icon: 'pi pi-video' },
+  { name: 'Community', code: 'community', icon: 'pi pi-users' },
+];
+
+const SEARCH_DELAY = 300; // ms
+const MIN_SEARCH_LENGTH = 3;
+
 const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
   const { searchContent, searchResults: contentResults } = useContentSearch();
   const { searchCommunity, searchResults: communityResults } = useCommunitySearch();
   const router = useRouter();
   const windowWidth = useWindowWidth();
-  const [selectedSearchOption, setSelectedSearchOption] = useState({
-    name: 'Content',
-    code: 'content',
-    icon: 'pi pi-video',
-  });
-  const searchOptions = [
-    { name: 'Content', code: 'content', icon: 'pi pi-video' },
-    { name: 'Community', code: 'community', icon: 'pi pi-users' },
-  ];
+  const [selectedSearchOption, setSelectedSearchOption] = useState(SEARCH_OPTIONS[0]);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -32,6 +32,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
   const { ndk, reInitializeNDK } = useNDKContext();
   const searchTimeout = useRef(null);
 
+  // Handle search option template rendering
   const selectedOptionTemplate = (option, props) => {
     if (isDesktopNav) {
       // For desktop nav bar, just show the icon
@@ -53,6 +54,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
     return <i className={option.icon + ' text-transparent text-xs'} />;
   };
 
+  // Handle search input changes
   const handleSearch = e => {
     const term = e.target.value;
     setSearchTerm(term);
@@ -63,13 +65,13 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
     }
 
     // Set loading state if term length is sufficient
-    if (term.length > 2) {
+    if (term.length >= MIN_SEARCH_LENGTH) {
       setIsSearching(true);
     }
 
     // Set a timeout to avoid searching on each keystroke
     searchTimeout.current = setTimeout(() => {
-      if (term.length > 2) {
+      if (term.length >= MIN_SEARCH_LENGTH) {
         if (selectedSearchOption.code === 'content') {
           searchContent(term);
         } else if (selectedSearchOption.code === 'community' && ndk) {
@@ -78,15 +80,17 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
       } else {
         setIsSearching(false);
       }
-    }, 300);
+    }, SEARCH_DELAY);
 
-    if (!isMobileSearch && term.length > 2) {
+    // Show/hide overlay panel based on search term length
+    if (!isMobileSearch && term.length >= MIN_SEARCH_LENGTH) {
       op.current.show(e);
     } else if (!isMobileSearch) {
       op.current.hide();
     }
   };
 
+  // Update search results when option or results change
   useEffect(() => {
     if (selectedSearchOption.code === 'content') {
       setSearchResults(contentResults);
@@ -95,7 +99,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
     }
     
     // Once we have results, set isSearching to false
-    if (searchTerm.length > 2) {
+    if (searchTerm.length >= MIN_SEARCH_LENGTH) {
       setIsSearching(false);
     }
   }, [selectedSearchOption, contentResults, communityResults, searchTerm]);
@@ -109,6 +113,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
     };
   }, []);
 
+  // Handle WebSocket errors and reinitialize NDK if needed
   useEffect(() => {
     const handleError = event => {
       if (event.message && event.message.includes('wss://relay.devs.tools')) {
@@ -124,6 +129,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
     };
   }, [reInitializeNDK]);
 
+  // Handle item selection from search results
   const handleContentSelect = content => {
     if (selectedSearchOption.code === 'content') {
       if (content?.type === 'course') {
@@ -143,6 +149,12 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
       }
     }
 
+    // Reset search state
+    resetSearch();
+  };
+
+  // Reset search state
+  const resetSearch = () => {
     setSearchTerm('');
     searchContent('');
     searchCommunity('');
@@ -166,6 +178,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
     }
   };
 
+  // Render search results
   const renderSearchResults = () => {
     // Show loading spinner while searching
     if (isSearching) {
@@ -177,10 +190,11 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
     }
     
     // Show no results message
-    if (searchResults.length === 0 && searchTerm.length > 2) {
+    if (searchResults.length === 0 && searchTerm.length >= MIN_SEARCH_LENGTH) {
       return <div className="p-4 text-center text-gray-400">No results found</div>;
     }
 
+    // Render appropriate item component based on type
     return searchResults.map((item, index) =>
       item.type === 'discord' || item.type === 'nostr' || item.type === 'stackernews' ? (
         <MessageDropdownItem key={index} message={item} onSelect={handleContentSelect} />
@@ -195,7 +209,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
     setSelectedSearchOption(e.value);
     
     // If there's a search term, run the search again with the new option
-    if (searchTerm.length > 2) {
+    if (searchTerm.length >= MIN_SEARCH_LENGTH) {
       setIsSearching(true);
       if (e.value.code === 'content') {
         searchContent(searchTerm);
@@ -204,6 +218,13 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
       }
     }
   };
+
+  // Derived styles based on screen size
+  const searchWidth = useMemo(() => {
+    if (windowWidth > 845) return 'w-[300px]';
+    if (isMobileSearch || windowWidth <= 600) return 'w-full';
+    return 'w-[160px]';
+  }, [windowWidth, isMobileSearch]);
 
   return (
     <>
@@ -244,7 +265,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
                 }}
                 value={selectedSearchOption}
                 onChange={handleSearchOptionChange}
-                options={searchOptions}
+                options={SEARCH_OPTIONS}
                 optionLabel="name"
                 dropdownIcon={<i className="pi pi-chevron-down text-gray-400 ml-1" />}
                 valueTemplate={selectedOptionTemplate}
@@ -266,9 +287,9 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
               <i className="pi pi-search text-gray-400 absolute left-4 z-10" />
               <InputText
                 className={`
-                                    ${windowWidth > 845 ? 'w-[300px]' : isMobileSearch || windowWidth <= 600 ? 'w-full' : 'w-[160px]'}
-                                    ${isMobileSearch ? 'bg-transparent border-none pl-12 text-lg' : ''}
-                                `}
+                  ${searchWidth}
+                  ${isMobileSearch ? 'bg-transparent border-none pl-12 text-lg' : ''}
+                `}
                 value={searchTerm}
                 onChange={handleSearch}
                 placeholder={`Search ${selectedSearchOption.name.toLowerCase()}`}
@@ -282,7 +303,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
 
             {isMobileSearch && (
               <div className="flex items-center gap-2 mb-3">
-                {searchOptions.map(option => (
+                {SEARCH_OPTIONS.map(option => (
                   <button
                     key={option.code}
                     onClick={() => handleSearchOptionChange({ value: option })}
@@ -312,7 +333,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
                 }}
                 value={selectedSearchOption}
                 onChange={handleSearchOptionChange}
-                options={searchOptions}
+                options={SEARCH_OPTIONS}
                 optionLabel="name"
                 placeholder="Search"
                 dropdownIcon={
@@ -338,7 +359,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
       )}
 
       {/* Mobile Search Results */}
-      {isMobileSearch && searchTerm.length > 2 && (
+      {isMobileSearch && searchTerm.length >= MIN_SEARCH_LENGTH && (
         <div
           className="fixed inset-x-0 bottom-0 top-[165px] bg-gray-900 overflow-y-auto"
           style={{ touchAction: 'pan-y' }}

@@ -46,21 +46,32 @@ export const useContentSearch = () => {
     if (term.length > 2) {
       const searchTerm = term.toLowerCase();
       const filtered = allContent.filter(content => {
-        // Search in title/name
+        // Prepare fields to search in
         const searchableTitle = (content?.title || content?.name || '').toLowerCase();
-        if (searchableTitle.includes(searchTerm)) return true;
+        const searchableDescription = (content?.summary || content?.description || '').toLowerCase();
         
-        // Search in summary/description
-        const searchableDescription = (
-          content?.summary ||
-          content?.description ||
-          ''
-        ).toLowerCase();
-        if (searchableDescription.includes(searchTerm)) return true;
+        // Find matches in title
+        const titleMatch = searchableTitle.includes(searchTerm);
         
-        // Search in topics/tags
-        const topics = content?.topics || [];
-        return topics.some(topic => topic.toLowerCase().includes(searchTerm));
+        // Find matches in description
+        const descriptionMatch = searchableDescription.includes(searchTerm);
+        
+        // Store match information (only for title and description)
+        if (titleMatch || descriptionMatch) {
+          content._matches = {
+            title: titleMatch ? {
+              text: content?.title || content?.name || '',
+              term: searchTerm
+            } : null,
+            description: descriptionMatch ? {
+              text: content?.summary || content?.description || '',
+              term: searchTerm
+            } : null
+          };
+          return true;
+        }
+        
+        return false;
       });
       
       setSearchResults(filtered);
