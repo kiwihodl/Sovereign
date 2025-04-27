@@ -20,7 +20,7 @@ export const useContentSearch = () => {
       };
       const events = await ndk.fetchEvents(filter);
 
-      const parsedEvents = new Set();
+      const parsedEvents = [];
       events.forEach(event => {
         let parsed;
         if (event.kind === 30004) {
@@ -28,7 +28,7 @@ export const useContentSearch = () => {
         } else {
           parsed = parseEvent(event);
         }
-        parsedEvents.add(parsed);
+        parsedEvents.push(parsed);
       });
       setAllContent(parsedEvents);
     } catch (error) {
@@ -44,17 +44,25 @@ export const useContentSearch = () => {
 
   const searchContent = term => {
     if (term.length > 2) {
-      const filtered = Array.from(allContent).filter(content => {
+      const searchTerm = term.toLowerCase();
+      const filtered = allContent.filter(content => {
+        // Search in title/name
         const searchableTitle = (content?.title || content?.name || '').toLowerCase();
+        if (searchableTitle.includes(searchTerm)) return true;
+        
+        // Search in summary/description
         const searchableDescription = (
           content?.summary ||
           content?.description ||
           ''
         ).toLowerCase();
-        const searchTerm = term.toLowerCase();
-
-        return searchableTitle.includes(searchTerm) || searchableDescription.includes(searchTerm);
+        if (searchableDescription.includes(searchTerm)) return true;
+        
+        // Search in topics/tags
+        const topics = content?.topics || [];
+        return topics.some(topic => topic.toLowerCase().includes(searchTerm));
       });
+      
       setSearchResults(filtered);
     } else {
       setSearchResults([]);

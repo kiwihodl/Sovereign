@@ -9,6 +9,7 @@ import { useCommunitySearch } from '@/hooks/useCommunitySearch';
 import { useRouter } from 'next/router';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import { useNDKContext } from '@/context/NDKContext';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
   const { searchContent, searchResults: contentResults } = useContentSearch();
@@ -26,8 +27,10 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
   ];
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
   const op = useRef(null);
   const { ndk, reInitializeNDK } = useNDKContext();
+  const searchTimeout = useRef(null);
 
   const selectedOptionTemplate = (option, props) => {
     if (isDesktopNav) {
@@ -54,13 +57,28 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
     const term = e.target.value;
     setSearchTerm(term);
 
-    if (selectedSearchOption.code === 'content') {
-      searchContent(term);
-      setSearchResults(contentResults);
-    } else if (selectedSearchOption.code === 'community' && ndk) {
-      searchCommunity(term);
-      setSearchResults(communityResults);
+    // Clear any existing timeout to avoid unnecessary API calls
+    if (searchTimeout.current) {
+      clearTimeout(searchTimeout.current);
     }
+
+    // Set loading state if term length is sufficient
+    if (term.length > 2) {
+      setIsSearching(true);
+    }
+
+    // Set a timeout to avoid searching on each keystroke
+    searchTimeout.current = setTimeout(() => {
+      if (term.length > 2) {
+        if (selectedSearchOption.code === 'content') {
+          searchContent(term);
+        } else if (selectedSearchOption.code === 'community' && ndk) {
+          searchCommunity(term);
+        }
+      } else {
+        setIsSearching(false);
+      }
+    }, 300);
 
     if (!isMobileSearch && term.length > 2) {
       op.current.show(e);
@@ -75,7 +93,21 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
     } else if (selectedSearchOption.code === 'community') {
       setSearchResults(communityResults);
     }
-  }, [selectedSearchOption, contentResults, communityResults]);
+    
+    // Once we have results, set isSearching to false
+    if (searchTerm.length > 2) {
+      setIsSearching(false);
+    }
+  }, [selectedSearchOption, contentResults, communityResults, searchTerm]);
+
+  // Cleanup the timeout on component unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeout.current) {
+        clearTimeout(searchTimeout.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const handleError = event => {
@@ -115,6 +147,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
     searchContent('');
     searchCommunity('');
     setSearchResults([]);
+    setIsSearching(false);
 
     if (op.current) {
       op.current.hide();
@@ -134,6 +167,16 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
   };
 
   const renderSearchResults = () => {
+    // Show loading spinner while searching
+    if (isSearching) {
+      return (
+        <div className="flex items-center justify-center p-6">
+          <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+        </div>
+      );
+    }
+    
+    // Show no results message
     if (searchResults.length === 0 && searchTerm.length > 2) {
       return <div className="p-4 text-center text-gray-400">No results found</div>;
     }
@@ -145,6 +188,21 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
         <ContentDropdownItem key={index} content={item} onSelect={handleContentSelect} />
       )
     );
+  };
+
+  // When search option changes, trigger search with current term
+  const handleSearchOptionChange = e => {
+    setSelectedSearchOption(e.value);
+    
+    // If there's a search term, run the search again with the new option
+    if (searchTerm.length > 2) {
+      setIsSearching(true);
+      if (e.value.code === 'content') {
+        searchContent(searchTerm);
+      } else if (e.value.code === 'community' && ndk) {
+        searchCommunity(searchTerm);
+      }
+    }
   };
 
   return (
@@ -185,7 +243,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
                   },
                 }}
                 value={selectedSearchOption}
-                onChange={e => setSelectedSearchOption(e.value)}
+                onChange={handleSearchOptionChange}
                 options={searchOptions}
                 optionLabel="name"
                 dropdownIcon={<i className="pi pi-chevron-down text-gray-400 ml-1" />}
@@ -227,7 +285,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
                 {searchOptions.map(option => (
                   <button
                     key={option.code}
-                    onClick={() => setSelectedSearchOption(option)}
+                    onClick={() => handleSearchOptionChange({ value: option })}
                     className={`flex items-center gap-2 px-4 py-2 rounded-full ${
                       selectedSearchOption.code === option.code
                         ? 'bg-gray-700 text-white'
@@ -253,7 +311,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
                   },
                 }}
                 value={selectedSearchOption}
-                onChange={e => setSelectedSearchOption(e.value)}
+                onChange={handleSearchOptionChange}
                 options={searchOptions}
                 optionLabel="name"
                 placeholder="Search"
