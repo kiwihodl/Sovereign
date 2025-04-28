@@ -20,10 +20,6 @@ export default function DesktopCourseDetails({
   showCompletedTag
 }) {
 
-useEffect(() => {
-  console.log('menuItems', menuItems);
-}, [menuItems]);
-
   return (
     <>
       {/* Header with course image, title and options */}

@@ -90,34 +90,41 @@ const useLessons = (ndk, fetchAuthor, lessonIds, pubkey) => {
   const [lessons, setLessons] = useState([]);
   const [uniqueLessons, setUniqueLessons] = useState([]);
   const { showToast } = useToast();
+  
   useEffect(() => {
-    if (lessonIds.length > 0) {
-      const fetchLesson = async lessonId => {
+    if (lessonIds.length > 0 && pubkey) {
+      const fetchLessons = async () => {
         try {
           await ndk.connect();
+          
+          // Create a single filter with all lesson IDs to avoid multiple calls
           const filter = {
-            '#d': [lessonId],
+            '#d': lessonIds,
             kinds: [30023, 30402],
             authors: [pubkey],
           };
-          const event = await ndk.fetchEvent(filter);
-          if (event) {
+          
+          const events = await ndk.fetchEvents(filter);
+          const newLessons = [];
+          
+          // Process events without duplicating
+          for (const event of events) {
             const author = await fetchAuthor(event.pubkey);
             const parsedLesson = { ...parseEvent(event), author };
-            setLessons(prev => {
-              // Check if the lesson already exists in the array
-              const exists = prev.some(lesson => lesson.id === parsedLesson.id);
-              if (!exists) {
-                return [...prev, parsedLesson];
-              }
-              return prev;
-            });
+            
+            // Only add if not already in newLessons array
+            if (!newLessons.some(lesson => lesson.id === parsedLesson.id)) {
+              newLessons.push(parsedLesson);
+            }
           }
+          
+          setLessons(newLessons);
         } catch (error) {
-          console.error('Error fetching event:', error);
+          console.error('Error fetching events:', error);
         }
       };
-      lessonIds.forEach(lessonId => fetchLesson(lessonId));
+      
+      fetchLessons();
     }
   }, [lessonIds, ndk, fetchAuthor, pubkey]);
 
