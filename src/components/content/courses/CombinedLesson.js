@@ -7,18 +7,13 @@ import { useZapsQuery } from '@/hooks/nostrQueries/zaps/useZapsQuery';
 import { nip19 } from 'nostr-tools';
 import { Divider } from 'primereact/divider';
 import { getTotalFromZaps } from '@/utils/lightning';
-import dynamic from 'next/dynamic';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import appConfig from '@/config/appConfig';
 import useTrackVideoLesson from '@/hooks/tracking/useTrackVideoLesson';
-import { Menu } from 'primereact/menu';
 import { Toast } from 'primereact/toast';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
 import { useSession } from 'next-auth/react';
-
-const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
-  ssr: false,
-});
+import MarkdownDisplay from '@/components/markdown/MarkdownDisplay';
 
 const CombinedLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted }) => {
   const [zapAmount, setZapAmount] = useState(0);
@@ -175,7 +170,7 @@ const CombinedLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
     if (isPaid && decryptionPerformed) {
       return (
         <div ref={mdDisplayRef}>
-          <MDDisplay className={'p-4 rounded-lg w-full'} source={lesson.content} />
+          <MarkdownDisplay content={lesson.content} className="p-4 rounded-lg w-full" />
         </div>
       );
     }
@@ -217,7 +212,7 @@ const CombinedLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
     if (lesson?.content) {
       return (
         <div ref={mdDisplayRef}>
-          <MDDisplay className={'p-4 rounded-lg w-full'} source={lesson.content} />
+          <MarkdownDisplay content={lesson.content} className="p-4 rounded-lg w-full" />
         </div>
       );
     }
@@ -244,7 +239,7 @@ const CombinedLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
         </>
       )}
       <div
-        className={`${isVideo ? 'bg-gray-800/90 rounded-lg p-4 m-4' : 'w-full mx-auto px-4 py-8 -mt-32 relative z-10'}`}
+        className={`${isVideo ? 'bg-gray-800/90 rounded-lg p-4 m-4 max-mob:px-0' : 'w-full mx-auto px-4 py-8 -mt-32 relative z-10'}`}
       >
         <div className={`${!isVideo && 'mb-8 bg-gray-800/70 rounded-lg p-4'}`}>
           <div className="flex flex-row items-center justify-between w-full">

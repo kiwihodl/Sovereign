@@ -1,11 +1,8 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { useToast } from '@/hooks/useToast';
-import { Tag } from 'primereact/tag';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 import CoursePaymentButton from '@/components/bitcoinConnect/CoursePaymentButton';
-import ZapDisplay from '@/components/zaps/ZapDisplay';
 import GenericButton from '@/components/buttons/GenericButton';
 import { nip19 } from 'nostr-tools';
 import { useImageProxy } from '@/hooks/useImageProxy';
@@ -20,7 +17,10 @@ import useTrackCourse from '@/hooks/tracking/useTrackCourse';
 import WelcomeModal from '@/components/onboarding/WelcomeModal';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Toast } from 'primereact/toast';
-import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
+
+// Import the desktop and mobile components
+import DesktopCourseDetails from './DesktopCourseDetails';
+import MobileCourseDetails from './MobileCourseDetails';
 
 export default function CourseDetails({
   processedEvent,
@@ -29,6 +29,8 @@ export default function CourseDetails({
   decryptionPerformed,
   handlePaymentSuccess,
   handlePaymentError,
+  isMobileView,
+  showCompletedTag = true,
 }) {
   const [zapAmount, setZapAmount] = useState(0);
   const [author, setAuthor] = useState(null);
@@ -39,7 +41,8 @@ export default function CourseDetails({
   const { data: session, status } = useSession();
   const { showToast } = useToast();
   const windowWidth = useWindowWidth();
-  const isMobileView = windowWidth <= 768;
+  const localIsMobileView = windowWidth <= 768; // Use as fallback
+  const isPhone = isMobileView || localIsMobileView;
   const { ndk } = useNDKContext();
   const menuRef = useRef(null);
   const toastRef = useRef(null);
@@ -197,77 +200,33 @@ export default function CourseDetails({
     );
   }
 
+  // Shared props for both mobile and desktop components
+  const detailsProps = {
+    processedEvent,
+    paidCourse,
+    lessons,
+    decryptionPerformed,
+    author,
+    zapAmount,
+    zapsLoading,
+    menuItems,
+    returnImageProxy,
+    renderPaymentMessage,
+    isCompleted,
+    showCompletedTag
+  };
+
   return (
-    <div className="w-full">
+    <div className="w-full bg-gray-800 p-4 max-mob:px-0 rounded-lg">
       <Toast ref={toastRef} />
       <WelcomeModal />
-      <div className="relative w-full h-[400px] mb-8">
-        <Image
-          alt="course image"
-          src={returnImageProxy(processedEvent.image)}
-          fill
-          className="object-cover rounded-b-lg"
-        />
-        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-      </div>
-      <div className="w-full mx-auto px-4 py-8 -mt-32 relative z-10 max-mob:px-0 max-tab:px-0">
-        <i
-          className={`pi pi-arrow-left cursor-pointer hover:opacity-75 absolute top-0 left-4`}
-          onClick={() => router.push('/')}
-        />
-        <div className="mb-8 bg-gray-800/70 rounded-lg p-4 max-mob:rounded-t-none max-tab:rounded-t-none">
-          {isCompleted && <Tag severity="success" value="Completed" />}
-          <div className="flex flex-row items-center justify-between w-full">
-            <h1 className="text-4xl font-bold text-white">{processedEvent.name}</h1>
-            <ZapDisplay
-              zapAmount={zapAmount}
-              event={processedEvent}
-              zapsLoading={zapsLoading && zapAmount === 0}
-            />
-          </div>
-          <div className="flex flex-wrap gap-2 mt-2 mb-4">
-            {processedEvent.topics &&
-              processedEvent.topics.length > 0 &&
-              processedEvent.topics.map((topic, index) => (
-                <Tag className="text-white" key={index} value={topic}></Tag>
-              ))}
-          </div>
-          <div className="text-xl text-gray-200 mb-4 mt-4 max-mob:text-base">
-            {processedEvent.description &&
-              processedEvent.description
-                .split('\n')
-                .map((line, index) => <p key={index}>{line}</p>)}
-          </div>
-          <div className="flex items-center justify-between mt-8">
-            <div className="flex items-center">
-              <Image
-                alt="avatar image"
-                src={returnImageProxy(author?.avatar, author?.pubkey)}
-                width={50}
-                height={50}
-                className="rounded-full mr-4"
-              />
-              <p className="text-lg text-white">
-                By{' '}
-                <a
-                  rel="noreferrer noopener"
-                  target="_blank"
-                  className="text-blue-300 hover:underline"
-                >
-                  {author?.username || author?.name || author?.pubkey}
-                </a>
-              </p>
-            </div>
-            <div className="flex justify-end">
-              <MoreOptionsMenu
-                menuItems={menuItems}
-                additionalLinks={processedEvent?.additionalLinks || []}
-                isMobileView={isMobileView}
-              />
-            </div>
-          </div>
-          <div className="w-full mt-4">{renderPaymentMessage()}</div>
-        </div>
+      
+      <div className="flex flex-col">
+        {isPhone ? (
+          <MobileCourseDetails {...detailsProps} />
+        ) : (
+          <DesktopCourseDetails {...detailsProps} />
+        )}
       </div>
     </div>
   );

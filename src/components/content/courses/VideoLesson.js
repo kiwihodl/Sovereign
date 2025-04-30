@@ -6,7 +6,6 @@ import { useImageProxy } from '@/hooks/useImageProxy';
 import { useZapsQuery } from '@/hooks/nostrQueries/zaps/useZapsQuery';
 import { nip19 } from 'nostr-tools';
 import { getTotalFromZaps } from '@/utils/lightning';
-import dynamic from 'next/dynamic';
 import { Divider } from 'primereact/divider';
 import appConfig from '@/config/appConfig';
 import useWindowWidth from '@/hooks/useWindowWidth';
@@ -14,10 +13,7 @@ import useTrackVideoLesson from '@/hooks/tracking/useTrackVideoLesson';
 import { Toast } from 'primereact/toast';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
 import { useSession } from 'next-auth/react';
-
-const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
-  ssr: false,
-});
+import MarkdownDisplay from '@/components/markdown/MarkdownDisplay';
 
 const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted }) => {
   const [zapAmount, setZapAmount] = useState(0);
@@ -170,7 +166,7 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
     if (isPaid && decryptionPerformed) {
       return (
         <div ref={mdDisplayRef}>
-          <MDDisplay className="p-0 rounded-lg w-full" source={lesson.content} />
+          <MarkdownDisplay content={lesson.content} className="p-0 rounded-lg w-full" />
         </div>
       );
     } else if (isPaid && !decryptionPerformed) {
@@ -196,7 +192,7 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
     } else if (lesson?.content) {
       return (
         <div ref={mdDisplayRef}>
-          <MDDisplay className="p-0 rounded-lg w-full" source={lesson.content} />
+          <MarkdownDisplay content={lesson.content} className="p-0 rounded-lg w-full" />
         </div>
       );
     }
@@ -208,7 +204,7 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
       <Toast ref={toastRef} />
       {renderContent()}
       <Divider />
-      <div className="bg-gray-800/90 rounded-lg p-4 m-4">
+      <div className="bg-gray-800/90 rounded-lg p-4 m-4 max-mob:px-2">
         <div className="w-full flex flex-col items-start justify-start mt-2 px-2">
           <div className="flex flex-row items-center justify-between w-full">
             <h1 className="text-3xl text-white">{lesson.title}</h1>

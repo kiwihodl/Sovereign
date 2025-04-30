@@ -12,16 +12,12 @@ import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscripti
 import { getTotalFromZaps } from '@/utils/lightning';
 import { useSession } from 'next-auth/react';
 import useWindowWidth from '@/hooks/useWindowWidth';
-import dynamic from 'next/dynamic';
 import { Toast } from 'primereact/toast';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import appConfig from '@/config/appConfig';
 import { nip19 } from 'nostr-tools';
-
-const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
-  ssr: false,
-});
+import MarkdownDisplay from '@/components/markdown/MarkdownDisplay';
 
 const CombinedDetails = ({
   processedEvent,
@@ -228,7 +224,7 @@ const CombinedDetails = ({
 
   const renderContent = () => {
     if (decryptedContent) {
-      return <MDDisplay className="p-2 rounded-lg w-full" source={decryptedContent} />;
+      return <MarkdownDisplay content={decryptedContent} className="p-2 rounded-lg w-full" />;
     }
 
     if (paidResource && !decryptedContent) {
@@ -256,7 +252,7 @@ const CombinedDetails = ({
     }
 
     if (processedEvent?.content) {
-      return <MDDisplay className="p-4 rounded-lg w-full" source={processedEvent.content} />;
+      return <MarkdownDisplay content={processedEvent.content} className="p-4 rounded-lg w-full" />;
     }
 
     return null;

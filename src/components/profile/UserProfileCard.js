@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import { Menu } from 'primereact/menu';
-import { Tooltip } from 'primereact/tooltip';
 import { Dialog } from 'primereact/dialog';
 import { nip19 } from 'nostr-tools';
 import { useImageProxy } from '@/hooks/useImageProxy';

@@ -191,7 +191,7 @@ export default function Home() {
             className="w-full"
           />
         </div>
-        <div className="w-full px-4">
+        <div className="w-full px-4 max-mob:px-0">
           <CoursesCarousel />
           <VideosCarousel />
           <DocumentsCarousel />

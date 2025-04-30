@@ -7,17 +7,13 @@ import { useZapsQuery } from '@/hooks/nostrQueries/zaps/useZapsQuery';
 import { nip19 } from 'nostr-tools';
 import { Divider } from 'primereact/divider';
 import { getTotalFromZaps } from '@/utils/lightning';
-import dynamic from 'next/dynamic';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import appConfig from '@/config/appConfig';
 import useTrackDocumentLesson from '@/hooks/tracking/useTrackDocumentLesson';
 import { Toast } from 'primereact/toast';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
 import { useSession } from 'next-auth/react';
-
-const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
-  ssr: false,
-});
+import MarkdownDisplay from '@/components/markdown/MarkdownDisplay';
 
 const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted }) => {
   const [zapAmount, setZapAmount] = useState(0);
@@ -118,11 +114,11 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
 
   const renderContent = () => {
     if (isPaid && decryptionPerformed) {
-      return <MDDisplay className="p-4 rounded-lg w-full" source={lesson.content} />;
+      return <MarkdownDisplay content={lesson.content} className="p-4 rounded-lg w-full" />;
     }
     if (isPaid && !decryptionPerformed) {
       return (
-        <div className="w-full p-8 rounded-lg flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-800">
+        <div className="w-full p-8 rounded-lg flex flex-col items-center justify-center">
           <div className="mx-auto py-auto">
             <i className="pi pi-lock text-[60px] text-red-500"></i>
           </div>
@@ -133,7 +129,7 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
       );
     }
     if (lesson?.content) {
-      return <MDDisplay className="p-4 rounded-lg w-full" source={lesson.content} />;
+      return <MarkdownDisplay content={lesson.content} className="p-4 rounded-lg w-full" />;
     }
     return null;
   };

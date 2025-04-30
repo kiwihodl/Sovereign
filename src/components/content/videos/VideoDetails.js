@@ -12,17 +12,13 @@ import { useZapsSubscription } from '@/hooks/nostrQueries/zaps/useZapsSubscripti
 import { getTotalFromZaps } from '@/utils/lightning';
 import { useSession } from 'next-auth/react';
 import useWindowWidth from '@/hooks/useWindowWidth';
-import dynamic from 'next/dynamic';
 import { Toast } from 'primereact/toast';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
 import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
 import appConfig from '@/config/appConfig';
 import { nip19 } from 'nostr-tools';
 import { Buffer } from 'buffer';
-
-const MDDisplay = dynamic(() => import('@uiw/react-markdown-preview'), {
-  ssr: false,
-});
+import MarkdownDisplay from '@/components/markdown/MarkdownDisplay';
 
 const VideoDetails = ({
   processedEvent,
@@ -234,7 +230,7 @@ const VideoDetails = ({
 
   const renderContent = () => {
     if (decryptedContent) {
-      return <MDDisplay className="p-0 rounded-lg w-full" source={decryptedContent} />;
+      return <MarkdownDisplay content={decryptedContent} className="p-0 rounded-lg w-full" />;
     }
     if (paidResource && !decryptedContent) {
       return (
@@ -267,7 +263,7 @@ const VideoDetails = ({
       );
     }
     if (processedEvent?.content) {
-      return <MDDisplay className="p-0 rounded-lg w-full" source={processedEvent.content} />;
+      return <MarkdownDisplay content={processedEvent.content} className="p-0 rounded-lg w-full" />;
     }
     return null;
   };
@@ -276,7 +272,7 @@ const VideoDetails = ({
     <div className="w-full">
       <Toast ref={toastRef} />
       {renderContent()}
-      <div className="bg-gray-800/90 rounded-lg p-4 m-4 max-mob:m-0 max-tab:m-0 max-mob:rounded-t-none max-tab:rounded-t-none">
+      <div className="bg-gray-800/90 rounded-lg p-4 m-4 max-mob:px-2 max-tab:px-2 max-mob:m-0 max-tab:m-0 max-mob:rounded-t-none max-tab:rounded-t-none">
         <div className={`w-full flex flex-col items-start justify-start mt-2 px-2`}>
           <div className="flex flex-col items-start gap-2 w-full">
             <div className="flex flex-row items-center justify-between gap-2 w-full">
