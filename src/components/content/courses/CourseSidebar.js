@@ -36,7 +36,10 @@ const CourseSidebar = ({
                 }
                 ${isMobileView ? 'mb-3' : 'mb-2'}
             `}
-      onClick={() => onLessonSelect(index)}
+      onClick={() => {
+        // Force full page refresh to trigger proper decryption
+        window.location.href = `/course/${window.location.pathname.split('/').pop()}?active=${index}`;
+      }}
     >
       <div className={`flex items-start p-3 cursor-pointer ${isMobileView ? 'p-4' : 'p-3'}`}>
         {lesson.image && (
