@@ -113,9 +113,14 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
   }, [isCompleted, lesson.id, setCompleted, isTracking]);
 
   const renderContent = () => {
-    if (isPaid && decryptionPerformed) {
-      return <MarkdownDisplay content={lesson.content} className="p-4 rounded-lg w-full" />;
+    if (!lesson?.content) {
+      return (
+        <div className="w-full p-8 rounded-lg flex flex-col items-center justify-center bg-gray-800">
+          <p className="text-center text-gray-400">No content available for this lesson.</p>
+        </div>
+      );
     }
+    
     if (isPaid && !decryptionPerformed) {
       return (
         <div className="w-full p-8 rounded-lg flex flex-col items-center justify-center">
@@ -128,10 +133,8 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
         </div>
       );
     }
-    if (lesson?.content) {
-      return <MarkdownDisplay content={lesson.content} className="p-4 rounded-lg w-full" />;
-    }
-    return null;
+    
+    return <MarkdownDisplay content={lesson.content} className="p-4 rounded-lg w-full" />;
   };
 
   return (

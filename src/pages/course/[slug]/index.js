@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { parseCourseEvent, parseEvent, findKind0Fields } from '@/utils/nostr';
 import CourseDetails from '@/components/content/courses/CourseDetails';
@@ -135,42 +135,151 @@ const useLessons = (ndk, fetchAuthor, lessonIds, pubkey) => {
   return { lessons, uniqueLessons, setLessons };
 };
 
-const useDecryption = (session, paidCourse, course, lessons, setLessons) => {
-  const [decryptionPerformed, setDecryptionPerformed] = useState(false);
-  const [loading, setLoading] = useState(true);
+const useDecryption = (session, paidCourse, course, lessons, setLessons, router) => {
+  const [decryptedLessonIds, setDecryptedLessonIds] = useState({});
+  const [loading, setLoading] = useState(false);
   const { decryptContent } = useDecryptContent();
-
+  const processingRef = useRef(false);
+  const lastLessonIdRef = useRef(null);
+  const retryCountRef = useRef({});
+  const MAX_RETRIES = 3;
+  
+  // Get the current active lesson
+  const currentLessonIndex = router.query.active ? parseInt(router.query.active, 10) : 0;
+  const currentLesson = lessons.length > 0 ? lessons[currentLessonIndex] : null;
+  const currentLessonId = currentLesson?.id;
+  
+  // Check if the current lesson has been decrypted
+  const isCurrentLessonDecrypted = 
+    !paidCourse || 
+    (currentLessonId && decryptedLessonIds[currentLessonId]);
+  
+  // Check user access
+  const hasAccess = useMemo(() => {
+    if (!session?.user || !paidCourse || !course) return false;
+    
+    return (
+      session.user.purchased?.some(purchase => purchase.courseId === course?.d) ||
+      session.user?.role?.subscribed ||
+      session.user?.pubkey === course?.pubkey
+    );
+  }, [session, paidCourse, course]);
+  
+  // Reset retry count when lesson changes
   useEffect(() => {
-    const decrypt = async () => {
-      if (session?.user && paidCourse && !decryptionPerformed) {
-        setLoading(true);
-        const canAccess =
-          session.user.purchased?.some(purchase => purchase.courseId === course?.d) ||
-          session.user?.role?.subscribed ||
-          session.user?.pubkey === course?.pubkey;
-
-        if (canAccess && lessons.length > 0) {
-          try {
-            const decryptedLessons = await Promise.all(
-              lessons.map(async lesson => {
-                const decryptedContent = await decryptContent(lesson.content);
-                return { ...lesson, content: decryptedContent };
-              })
-            );
-            setLessons(decryptedLessons);
-            setDecryptionPerformed(true);
-          } catch (error) {
-            console.error('Error decrypting lessons:', error);
+    if (currentLessonId && lastLessonIdRef.current !== currentLessonId) {
+      retryCountRef.current[currentLessonId] = 0;
+    }
+  }, [currentLessonId]);
+  
+  // Simplified decrypt function
+  const decryptCurrentLesson = useCallback(async () => {
+    if (!currentLesson || !hasAccess || !paidCourse) return;
+    if (processingRef.current) return;
+    if (decryptedLessonIds[currentLesson.id]) return;
+    if (!currentLesson.content) return;
+    
+    // Check retry count
+    if (!retryCountRef.current[currentLesson.id]) {
+      retryCountRef.current[currentLesson.id] = 0;
+    }
+    
+    // Limit maximum retries
+    if (retryCountRef.current[currentLesson.id] >= MAX_RETRIES) {
+      return;
+    }
+    
+    // Increment retry count
+    retryCountRef.current[currentLesson.id]++;
+    
+    try {
+      processingRef.current = true;
+      setLoading(true);
+      
+      // Start the decryption process
+      const decryptionPromise = decryptContent(currentLesson.content);
+      
+      // Add safety timeout to prevent infinite processing
+      let timeoutId;
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+          // Cancel the in-flight request when timeout occurs
+          if (decryptionPromise.cancel) {
+            decryptionPromise.cancel();
           }
-        }
-        setLoading(false);
+          reject(new Error('Decryption timeout'));
+        }, 10000);
+      });
+      
+      // Use a separate try-catch for the race
+      let decryptedContent;
+      try {
+        // Race between decryption and timeout
+        decryptedContent = await Promise.race([
+          decryptionPromise,
+          timeoutPromise
+        ]);
+        
+        // Clear the timeout if decryption wins
+        clearTimeout(timeoutId);
+      } catch (error) {
+        // If timeout or network error, schedule a retry
+        setTimeout(() => {
+          processingRef.current = false;
+          decryptCurrentLesson();
+        }, 5000);
+        throw error;
       }
+      
+      if (!decryptedContent) {
+        return;
+      }
+      
+      // Update the lessons array with decrypted content
+      const updatedLessons = lessons.map(lesson => 
+        lesson.id === currentLesson.id 
+          ? { ...lesson, content: decryptedContent } 
+          : lesson
+      );
+      
+      setLessons(updatedLessons);
+      
+      // Mark this lesson as decrypted
+      setDecryptedLessonIds(prev => ({
+        ...prev,
+        [currentLesson.id]: true
+      }));
+      
+      // Reset retry counter on success
+      retryCountRef.current[currentLesson.id] = 0;
+    } catch (error) {
+      // Silent error handling to prevent UI disruption
+    } finally {
       setLoading(false);
-    };
-    decrypt();
-  }, [session, paidCourse, course, lessons, decryptionPerformed, setLessons]);
-
-  return { decryptionPerformed, loading };
+      processingRef.current = false;
+    }
+  }, [currentLesson, hasAccess, paidCourse, decryptContent, lessons, setLessons, decryptedLessonIds]);
+  
+  // Run decryption when lesson changes
+  useEffect(() => {
+    if (!currentLessonId) return;
+    
+    // Skip if the lesson hasn't changed, unless it failed decryption previously
+    if (lastLessonIdRef.current === currentLessonId && decryptedLessonIds[currentLessonId]) return;
+    
+    // Update the last processed lesson id
+    lastLessonIdRef.current = currentLessonId;
+    
+    if (hasAccess && paidCourse && !decryptedLessonIds[currentLessonId]) {
+      decryptCurrentLesson();
+    }
+  }, [currentLessonId, hasAccess, paidCourse, decryptedLessonIds, decryptCurrentLesson]);
+  
+  return {
+    decryptionPerformed: isCurrentLessonDecrypted,
+    loading,
+    decryptedLessonIds
+  };
 };
 
 const Course = () => {
@@ -262,12 +371,13 @@ const Course = () => {
     course?.pubkey
   );
   
-  const { decryptionPerformed, loading: decryptionLoading } = useDecryption(
+  const { decryptionPerformed, loading: decryptionLoading, decryptedLessonIds } = useDecryption(
     session,
     paidCourse,
     course,
     lessons,
-    setLessons
+    setLessons,
+    router
   );
 
   useEffect(() => {
@@ -478,23 +588,27 @@ const Course = () => {
   }
 
   const renderLesson = lesson => {
+    if (!lesson) return null;
+    
+    // Check if this specific lesson is decrypted
+    const lessonDecrypted = !paidCourse || decryptedLessonIds[lesson.id] || false;
+    
     if (lesson.topics?.includes('video') && lesson.topics?.includes('document')) {
       return (
         <CombinedLesson
           lesson={lesson}
           course={course}
-          decryptionPerformed={decryptionPerformed}
+          decryptionPerformed={lessonDecrypted}
           isPaid={paidCourse}
           setCompleted={setCompleted}
         />
-        
       );
     } else if (lesson.type === 'video' && !lesson.topics?.includes('document')) {
       return (
         <VideoLesson
           lesson={lesson}
           course={course}
-          decryptionPerformed={decryptionPerformed}
+          decryptionPerformed={lessonDecrypted}
           isPaid={paidCourse}
           setCompleted={setCompleted}
         />
@@ -504,7 +618,7 @@ const Course = () => {
         <DocumentLesson
           lesson={lesson}
           course={course}
-          decryptionPerformed={decryptionPerformed}
+          decryptionPerformed={lessonDecrypted}
           isPaid={paidCourse}
           setCompleted={setCompleted}
         />
@@ -545,7 +659,9 @@ const Course = () => {
             <div className={`${activeTab === 'content' ? 'block' : 'hidden'}`}>
               {uniqueLessons.length > 0 && uniqueLessons[activeIndex] ? (
                 <div className="bg-gray-800 rounded-lg shadow-sm overflow-hidden">
-                  {renderLesson(uniqueLessons[activeIndex])}
+                  <div key={`lesson-${uniqueLessons[activeIndex].id}`}>
+                    {renderLesson(uniqueLessons[activeIndex])}
+                  </div>
                 </div>
               ) : (
                 <div className="text-center bg-gray-800 rounded-lg p-8">

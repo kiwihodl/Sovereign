@@ -163,13 +163,17 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
   }, [decryptionPerformed, isPaid, checkDuration]);
 
   const renderContent = () => {
-    if (isPaid && decryptionPerformed) {
+    // Content not available
+    if (!lesson?.content) {
       return (
-        <div ref={mdDisplayRef}>
-          <MarkdownDisplay content={lesson.content} className="p-0 rounded-lg w-full" />
+        <div className="w-full aspect-video rounded-lg flex flex-col items-center justify-center bg-gray-800">
+          <p className="text-center text-gray-400">No content available for this lesson.</p>
         </div>
       );
-    } else if (isPaid && !decryptionPerformed) {
+    }
+    
+    // Paid content that needs to be purchased
+    if (isPaid && !decryptionPerformed) {
       return (
         <div className="w-full aspect-video rounded-lg flex flex-col items-center justify-center relative overflow-hidden">
           <div
@@ -189,14 +193,14 @@ const VideoLesson = ({ lesson, course, decryptionPerformed, isPaid, setCompleted
           </p>
         </div>
       );
-    } else if (lesson?.content) {
-      return (
-        <div ref={mdDisplayRef}>
-          <MarkdownDisplay content={lesson.content} className="p-0 rounded-lg w-full" />
-        </div>
-      );
     }
-    return null;
+    
+    // Content is available and decrypted (or free)
+    return (
+      <div ref={mdDisplayRef}>
+        <MarkdownDisplay content={lesson.content} className="p-0 rounded-lg w-full" />
+      </div>
+    );
   };
 
   return (

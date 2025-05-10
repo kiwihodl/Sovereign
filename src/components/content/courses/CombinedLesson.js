@@ -167,10 +167,17 @@ const CombinedLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
   }, [videoCompleted, videoTracking, lesson.id, setCompleted, isVideo]);
 
   const renderContent = () => {
-    if (isPaid && decryptionPerformed) {
+    if (!lesson?.content) {
+      if (isVideo) {
+        return (
+          <div className="w-full aspect-video rounded-lg flex flex-col items-center justify-center bg-gray-800">
+            <p className="text-center text-gray-400">No content available for this lesson.</p>
+          </div>
+        );
+      }
       return (
-        <div ref={mdDisplayRef}>
-          <MarkdownDisplay content={lesson.content} className="p-4 rounded-lg w-full" />
+        <div className="w-full p-8 rounded-lg flex flex-col items-center justify-center bg-gray-800">
+          <p className="text-center text-gray-400">No content available for this lesson.</p>
         </div>
       );
     }
@@ -209,15 +216,11 @@ const CombinedLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
       );
     }
 
-    if (lesson?.content) {
-      return (
-        <div ref={mdDisplayRef}>
-          <MarkdownDisplay content={lesson.content} className="p-4 rounded-lg w-full" />
-        </div>
-      );
-    }
-
-    return null;
+    return (
+      <div ref={mdDisplayRef}>
+        <MarkdownDisplay content={lesson.content} className="p-4 rounded-lg w-full" />
+      </div>
+    );
   };
 
   return (
