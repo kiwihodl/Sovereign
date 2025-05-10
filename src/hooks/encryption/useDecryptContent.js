@@ -4,7 +4,8 @@ import axios from 'axios';
 export const useDecryptContent = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const inProgressRef = useRef(false);
+  // Map of in-progress decryption promises, keyed by content hash
+  const inProgressMap = useRef(new Map());
   const cachedResults = useRef({});
   
   const decryptContent = async (encryptedContent) => {
@@ -13,49 +14,63 @@ export const useDecryptContent = () => {
       return null;
     }
     
-    // Prevent multiple simultaneous calls
-    if (inProgressRef.current) {
-      // Wait for a small delay to prevent tight loop
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Return a cached result if we have one
-      const firstChars = encryptedContent.substring(0, 20);
-      if (cachedResults.current[firstChars]) {
-        return cachedResults.current[firstChars];
-      }
-      
-      return null;
-    }
+    // Use first 20 chars as our cache/lock key
+    const cacheKey = encryptedContent.substring(0, 20);
     
     // Check if we've already decrypted this content
-    const firstChars = encryptedContent.substring(0, 20);
-    if (cachedResults.current[firstChars]) {
-      return cachedResults.current[firstChars];
+    if (cachedResults.current[cacheKey]) {
+      return cachedResults.current[cacheKey];
     }
     
-    try {
-      inProgressRef.current = true;
-      setIsLoading(true);
-      setError(null);
-      
-      const response = await axios.post('/api/decrypt', { encryptedContent });
-      
-      if (response.status !== 200) {
-        throw new Error(`Failed to decrypt: ${response.statusText}`);
+    // Check if this specific content is already being decrypted
+    if (inProgressMap.current.has(cacheKey)) {
+      // Return the existing promise for this content
+      try {
+        return await inProgressMap.current.get(cacheKey);
+      } catch (error) {
+        // If the existing promise rejects, we'll try again below
+        console.warn('Previous decryption attempt failed, retrying');
       }
-      
-      const decryptedContent = response.data.decryptedContent;
-      
-      // Cache the result
-      cachedResults.current[firstChars] = decryptedContent;
-      
-      return decryptedContent;
+    }
+    
+    // Create a new decryption promise for this content
+    const decryptPromise = (async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const response = await axios.post('/api/decrypt', { encryptedContent });
+        
+        if (response.status !== 200) {
+          throw new Error(`Failed to decrypt: ${response.statusText}`);
+        }
+        
+        const decryptedContent = response.data.decryptedContent;
+        
+        // Cache the successful result
+        cachedResults.current[cacheKey] = decryptedContent;
+        
+        return decryptedContent;
+      } catch (error) {
+        setError(error.message || 'Decryption failed');
+        // Re-throw to signal failure to awaiter
+        throw error;
+      } finally {
+        setIsLoading(false);
+        // Remove this promise from the in-progress map
+        inProgressMap.current.delete(cacheKey);
+      }
+    })();
+    
+    // Store the promise in our map
+    inProgressMap.current.set(cacheKey, decryptPromise);
+    
+    // Return the promise
+    try {
+      return await decryptPromise;
     } catch (error) {
-      setError(error.message || 'Decryption failed');
+      // We've already set the error state in the promise
       return null;
-    } finally {
-      setIsLoading(false);
-      inProgressRef.current = false;
     }
   };
   
