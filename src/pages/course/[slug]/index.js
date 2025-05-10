@@ -196,19 +196,32 @@ const useDecryption = (session, paidCourse, course, lessons, setLessons, router)
       processingRef.current = true;
       setLoading(true);
       
+      // Start the decryption process
+      const decryptionPromise = decryptContent(currentLesson.content);
+      
       // Add safety timeout to prevent infinite processing
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Decryption timeout')), 10000)
-      );
+      let timeoutId;
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+          // Cancel the in-flight request when timeout occurs
+          if (decryptionPromise.cancel) {
+            decryptionPromise.cancel();
+          }
+          reject(new Error('Decryption timeout'));
+        }, 10000);
+      });
       
       // Use a separate try-catch for the race
       let decryptedContent;
       try {
         // Race between decryption and timeout
         decryptedContent = await Promise.race([
-          decryptContent(currentLesson.content),
+          decryptionPromise,
           timeoutPromise
         ]);
+        
+        // Clear the timeout if decryption wins
+        clearTimeout(timeoutId);
       } catch (error) {
         // If timeout or network error, schedule a retry
         setTimeout(() => {

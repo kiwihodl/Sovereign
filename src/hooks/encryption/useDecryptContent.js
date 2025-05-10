@@ -29,9 +29,14 @@ export const useDecryptContent = () => {
         return await inProgressMap.current.get(cacheKey);
       } catch (error) {
         // If the existing promise rejects, we'll try again below
-        console.warn('Previous decryption attempt failed, retrying');
+        if (error.name !== 'AbortError') {
+          console.warn('Previous decryption attempt failed, retrying');
+        }
       }
     }
+    
+    // Create abort controller for this request
+    const abortController = new AbortController();
     
     // Create a new decryption promise for this content
     const decryptPromise = (async () => {
@@ -39,7 +44,10 @@ export const useDecryptContent = () => {
         setIsLoading(true);
         setError(null);
         
-        const response = await axios.post('/api/decrypt', { encryptedContent });
+        const response = await axios.post('/api/decrypt', 
+          { encryptedContent }, 
+          { signal: abortController.signal }
+        );
         
         if (response.status !== 200) {
           throw new Error(`Failed to decrypt: ${response.statusText}`);
@@ -52,6 +60,11 @@ export const useDecryptContent = () => {
         
         return decryptedContent;
       } catch (error) {
+        // Handle abort errors specifically
+        if (axios.isCancel(error)) {
+          throw new DOMException('Decryption aborted', 'AbortError');
+        }
+        
         setError(error.message || 'Decryption failed');
         // Re-throw to signal failure to awaiter
         throw error;
@@ -62,8 +75,18 @@ export const useDecryptContent = () => {
       }
     })();
     
-    // Store the promise in our map
+    // Store the promise and abort controller in our map
+    const abortablePromise = {
+      promise: decryptPromise,
+      abort: () => abortController.abort()
+    };
+    
     inProgressMap.current.set(cacheKey, decryptPromise);
+    
+    // Function to handle timeouts from parent callers
+    decryptPromise.cancel = () => {
+      abortController.abort();
+    };
     
     // Return the promise
     try {
