@@ -141,6 +141,8 @@ const useDecryption = (session, paidCourse, course, lessons, setLessons, router)
   const { decryptContent } = useDecryptContent();
   const processingRef = useRef(false);
   const lastLessonIdRef = useRef(null);
+  const retryCountRef = useRef({});
+  const MAX_RETRIES = 3;
   
   // Get the current active lesson
   const currentLessonIndex = router.query.active ? parseInt(router.query.active, 10) : 0;
@@ -163,12 +165,32 @@ const useDecryption = (session, paidCourse, course, lessons, setLessons, router)
     );
   }, [session, paidCourse, course]);
   
+  // Reset retry count when lesson changes
+  useEffect(() => {
+    if (currentLessonId && lastLessonIdRef.current !== currentLessonId) {
+      retryCountRef.current[currentLessonId] = 0;
+    }
+  }, [currentLessonId]);
+  
   // Simplified decrypt function
   const decryptCurrentLesson = useCallback(async () => {
     if (!currentLesson || !hasAccess || !paidCourse) return;
     if (processingRef.current) return;
     if (decryptedLessonIds[currentLesson.id]) return;
     if (!currentLesson.content) return;
+    
+    // Check retry count
+    if (!retryCountRef.current[currentLesson.id]) {
+      retryCountRef.current[currentLesson.id] = 0;
+    }
+    
+    // Limit maximum retries
+    if (retryCountRef.current[currentLesson.id] >= MAX_RETRIES) {
+      return;
+    }
+    
+    // Increment retry count
+    retryCountRef.current[currentLesson.id]++;
     
     try {
       processingRef.current = true;
@@ -179,11 +201,22 @@ const useDecryption = (session, paidCourse, course, lessons, setLessons, router)
         setTimeout(() => reject(new Error('Decryption timeout')), 10000)
       );
       
-      // Race between decryption and timeout
-      const decryptedContent = await Promise.race([
-        decryptContent(currentLesson.content),
-        timeoutPromise
-      ]);
+      // Use a separate try-catch for the race
+      let decryptedContent;
+      try {
+        // Race between decryption and timeout
+        decryptedContent = await Promise.race([
+          decryptContent(currentLesson.content),
+          timeoutPromise
+        ]);
+      } catch (error) {
+        // If timeout or network error, schedule a retry
+        setTimeout(() => {
+          processingRef.current = false;
+          decryptCurrentLesson();
+        }, 5000);
+        throw error;
+      }
       
       if (!decryptedContent) {
         return;
@@ -203,6 +236,9 @@ const useDecryption = (session, paidCourse, course, lessons, setLessons, router)
         ...prev,
         [currentLesson.id]: true
       }));
+      
+      // Reset retry counter on success
+      retryCountRef.current[currentLesson.id] = 0;
     } catch (error) {
       // Silent error handling to prevent UI disruption
     } finally {
@@ -215,8 +251,8 @@ const useDecryption = (session, paidCourse, course, lessons, setLessons, router)
   useEffect(() => {
     if (!currentLessonId) return;
     
-    // Skip if the lesson hasn't changed
-    if (lastLessonIdRef.current === currentLessonId) return;
+    // Skip if the lesson hasn't changed, unless it failed decryption previously
+    if (lastLessonIdRef.current === currentLessonId && decryptedLessonIds[currentLessonId]) return;
     
     // Update the last processed lesson id
     lastLessonIdRef.current = currentLessonId;
