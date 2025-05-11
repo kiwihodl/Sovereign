@@ -1,23 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/router';
-import { useToast } from '@/hooks/useToast';
-import { useSession } from 'next-auth/react';
-import { useNDKContext } from '@/context/NDKContext';
-import GenericButton from '@/components/buttons/GenericButton';
-import { NDKEvent } from '@nostr-dev-kit/ndk';
-import { validateEvent } from '@/utils/nostr';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputSwitch } from 'primereact/inputswitch';
+import GenericButton from '@/components/buttons/GenericButton';
+import { useRouter } from 'next/router';
+import { useSession } from 'next-auth/react';
+import { useToast } from '@/hooks/useToast';
+import { useNDKContext } from '@/context/NDKContext';
+import { NDKEvent } from '@nostr-dev-kit/ndk';
+import { validateEvent } from '@/utils/nostr';
 import { useEncryptContent } from '@/hooks/encryption/useEncryptContent';
 import MoreInfo from '@/components/MoreInfo';
-import dynamic from 'next/dynamic';
-
-const MDEditor = dynamic(() => import('@uiw/react-md-editor'), {
-  ssr: false,
-});
+import 'primeicons/primeicons.css';
+import { Tooltip } from 'primereact/tooltip';
+import 'primereact/resources/primereact.min.css';
+import MarkdownEditor from '@/components/markdown/MarkdownEditor';
 
 const EditPublishedCombinedResourceForm = ({ event }) => {
   const router = useRouter();
@@ -220,9 +219,7 @@ const EditPublishedCombinedResourceForm = ({ event }) => {
 
       <div className="p-inputgroup flex-1 flex-col mt-4">
         <span>Video Embed</span>
-        <div data-color-mode="dark">
-          <MDEditor value={videoEmbed} onChange={handleVideoEmbedChange} height={250} />
-        </div>
+        <MarkdownEditor value={videoEmbed} onChange={handleVideoEmbedChange} height={250} />
         <small className="text-gray-400 mt-2">
           You can customize your video embed using markdown or HTML. For example, paste iframe
           embeds from YouTube or Vimeo, or use video tags for direct video files.
@@ -239,9 +236,7 @@ const EditPublishedCombinedResourceForm = ({ event }) => {
 
       <div className="p-inputgroup flex-1 flex-col mt-4">
         <span>Content</span>
-        <div data-color-mode="dark">
-          <MDEditor value={content} onChange={handleContentChange} height={350} />
-        </div>
+        <MarkdownEditor value={content} onChange={handleContentChange} height={350} />
       </div>
 
       <div className="mt-8 flex-col w-full">

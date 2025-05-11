@@ -8,14 +8,10 @@ import GenericButton from '@/components/buttons/GenericButton';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import { useToast } from '@/hooks/useToast';
-import dynamic from 'next/dynamic';
-import 'primeicons/primeicons.css';
 import { Tooltip } from 'primereact/tooltip';
+import 'primeicons/primeicons.css';
 import 'primereact/resources/primereact.min.css';
-
-const MDEditor = dynamic(() => import('@uiw/react-md-editor'), {
-  ssr: false,
-});
+import MarkdownEditor from '@/components/markdown/MarkdownEditor';
 
 const DocumentForm = () => {
   const [title, setTitle] = useState('');
@@ -149,9 +145,11 @@ const DocumentForm = () => {
       </div>
       <div className="p-inputgroup flex-1 flex-col mt-4">
         <span>Content</span>
-        <div data-color-mode="dark">
-          <MDEditor value={content} onChange={handleContentChange} height={350} />
-        </div>
+        <MarkdownEditor 
+          value={content} 
+          onChange={handleContentChange} 
+          height={350} 
+        />
       </div>
       <div className="mt-8 flex-col w-full">
         <span className="pl-1 flex items-center">
