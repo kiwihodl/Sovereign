@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { parseCourseEvent } from '@/utils/nostr';
+import { useState, useEffect } from 'react';
 import { nip19 } from 'nostr-tools';
-import { useToast } from '../useToast';
+import { parseCourseEvent } from '@/utils/nostr';
+import { useToast } from '@/hooks/useToast';
 
 /**
  * Hook to fetch and manage course data
@@ -21,7 +21,8 @@ const useCourseData = (ndk, fetchAuthor, router) => {
     if (!router.isReady) return;
 
     const { slug } = router.query;
-    
+    let id;
+
     const fetchCourseId = async () => {
       if (slug.includes('naddr')) {
         const { data } = nip19.decode(slug);
@@ -54,7 +55,7 @@ const useCourseData = (ndk, fetchAuthor, router) => {
 
     const initializeCourse = async () => {
       setLoading(true);
-      const id = await fetchCourseId();
+      id = await fetchCourseId();
       if (!id) {
         setLoading(false);
         return;

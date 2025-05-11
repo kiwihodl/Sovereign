@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import useWindowWidth from '@/hooks/useWindowWidth';
-import CourseHeader from '../content/courses/CourseHeader';
+import CourseHeader from '../content/courses/layout/CourseHeader';
 import { useNDKContext } from '@/context/NDKContext';
 import { nip19 } from 'nostr-tools';
 import { parseCourseEvent } from '@/utils/nostr';

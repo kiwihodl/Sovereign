@@ -30,7 +30,7 @@ const useLessons = (ndk, fetchAuthor, lessonIds, pubkey) => {
           const events = await ndk.fetchEvents(filter);
           const newLessons = [];
           
-          // Process events
+          // Process events (no need to check for duplicates here)
           for (const event of events) {
             const author = await fetchAuthor(event.pubkey);
             const parsedLesson = { ...parseEvent(event), author };
@@ -47,7 +47,7 @@ const useLessons = (ndk, fetchAuthor, lessonIds, pubkey) => {
     }
   }, [lessonIds, ndk, fetchAuthor, pubkey]);
 
-  // Deduplicate lessons
+  // Keep this deduplication logic using Map
   useEffect(() => {
     const newUniqueLessons = Array.from(
       new Map(lessons.map(lesson => [lesson.id, lesson])).values()
