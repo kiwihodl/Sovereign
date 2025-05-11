@@ -34,6 +34,7 @@ const Course = () => {
   const [nsec, setNsec] = useState(null);
   const [npub, setNpub] = useState(null);
   const [nAddress, setNAddress] = useState(null);
+  const [isDecrypting, setIsDecrypting] = useState(false);
   const windowWidth = useWindowWidth();
   const isMobileView = windowWidth <= 968;
   const navbarHeight = 60; // Match the height from Navbar component
@@ -100,8 +101,22 @@ const Course = () => {
     course,
     lessons,
     setLessons,
-    router
+    router,
+    activeIndex
   );
+
+  useEffect(() => {
+    if (paidCourse && uniqueLessons.length > 0) {
+      const currentLesson = uniqueLessons[activeIndex];
+      if (currentLesson && !decryptedLessonIds[currentLesson.id]) {
+        setIsDecrypting(true);
+      } else {
+        setIsDecrypting(false);
+      }
+    } else {
+      setIsDecrypting(false);
+    }
+  }, [activeIndex, uniqueLessons, decryptedLessonIds, paidCourse]);
 
   useEffect(() => {
     if (uniqueLessons.length > 0) {
@@ -156,7 +171,7 @@ const Course = () => {
     );
   };
 
-  if (courseLoading || decryptionLoading) {
+  if (courseLoading) {
     return (
       <div className="w-full h-full flex items-center justify-center">
         <ProgressSpinner />
@@ -204,14 +219,23 @@ const Course = () => {
             
             {/* Content tab content */}
             <div className={`${activeTab === 'content' ? 'block' : 'hidden'}`}>
-              <CourseContent 
-                lessons={uniqueLessons}
-                activeIndex={activeIndex}
-                course={course}
-                paidCourse={paidCourse} 
-                decryptedLessonIds={decryptedLessonIds}
-                setCompleted={setCompleted}
-              />
+              {isDecrypting || decryptionLoading ? (
+                <div className="w-full py-12 bg-gray-800 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} />
+                    <p className="mt-4 text-gray-300">Decrypting lesson content...</p>
+                  </div>
+                </div>
+              ) : (
+                <CourseContent 
+                  lessons={uniqueLessons}
+                  activeIndex={activeIndex}
+                  course={course}
+                  paidCourse={paidCourse} 
+                  decryptedLessonIds={decryptedLessonIds}
+                  setCompleted={setCompleted}
+                />
+              )}
             </div>
 
             {/* QA tab content */}

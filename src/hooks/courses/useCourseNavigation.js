@@ -44,7 +44,10 @@ const useCourseNavigation = (router, isMobileView) => {
   // Function to handle lesson selection
   const handleLessonSelect = (index) => {
     setActiveIndex(index);
-    router.push(`/course/${router.query.slug}?active=${index}`, undefined, { shallow: true });
+    
+    // Update URL without causing a page reload (for bookmarking purposes)
+    const newUrl = `/course/${router.query.slug}?active=${index}`;
+    window.history.replaceState({ url: newUrl, as: newUrl, options: { shallow: true } }, '', newUrl);
 
     // On mobile, switch to content tab after selection
     if (isMobileView) {

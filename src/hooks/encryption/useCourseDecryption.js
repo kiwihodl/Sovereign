@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useDecryptContent } from './useDecryptContent';
 
-const useCourseDecryption = (session, paidCourse, course, lessons, setLessons, router) => {
+const useCourseDecryption = (session, paidCourse, course, lessons, setLessons, router, activeIndex = 0) => {
   const [decryptedLessonIds, setDecryptedLessonIds] = useState({});
   const [loading, setLoading] = useState(false);
   const { decryptContent } = useDecryptContent();
@@ -10,8 +10,8 @@ const useCourseDecryption = (session, paidCourse, course, lessons, setLessons, r
   const retryCountRef = useRef({});
   const MAX_RETRIES = 3;
   
-  // Get the current active lesson
-  const currentLessonIndex = router.query.active ? parseInt(router.query.active, 10) : 0;
+  // Get the current active lesson using the activeIndex prop instead of router.query
+  const currentLessonIndex = activeIndex;
   const currentLesson = lessons.length > 0 ? lessons[currentLessonIndex] : null;
   const currentLessonId = currentLesson?.id;
   
@@ -35,8 +35,9 @@ const useCourseDecryption = (session, paidCourse, course, lessons, setLessons, r
   useEffect(() => {
     if (currentLessonId && lastLessonIdRef.current !== currentLessonId) {
       retryCountRef.current[currentLessonId] = 0;
+      lastLessonIdRef.current = currentLessonId;
     }
-  }, [currentLessonId]);
+  }, [currentLessonId, activeIndex]);
   
   // Simplified decrypt function
   const decryptCurrentLesson = useCallback(async () => {
@@ -120,6 +121,7 @@ const useCourseDecryption = (session, paidCourse, course, lessons, setLessons, r
       retryCountRef.current[currentLesson.id] = 0;
     } catch (error) {
       // Silent error handling to prevent UI disruption
+      console.error('Decryption error:', error);
     } finally {
       setLoading(false);
       processingRef.current = false;
@@ -130,16 +132,11 @@ const useCourseDecryption = (session, paidCourse, course, lessons, setLessons, r
   useEffect(() => {
     if (!currentLessonId) return;
     
-    // Skip if the lesson hasn't changed, unless it failed decryption previously
-    if (lastLessonIdRef.current === currentLessonId && decryptedLessonIds[currentLessonId]) return;
-    
-    // Update the last processed lesson id
-    lastLessonIdRef.current = currentLessonId;
-    
+    // Always attempt decryption when activeIndex changes
     if (hasAccess && paidCourse && !decryptedLessonIds[currentLessonId]) {
       decryptCurrentLesson();
     }
-  }, [currentLessonId, hasAccess, paidCourse, decryptedLessonIds, decryptCurrentLesson]);
+  }, [currentLessonId, hasAccess, paidCourse, decryptedLessonIds, decryptCurrentLesson, activeIndex]);
   
   return {
     decryptionPerformed: isCurrentLessonDecrypted,
