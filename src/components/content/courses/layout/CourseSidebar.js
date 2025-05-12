@@ -37,8 +37,8 @@ const CourseSidebar = ({
                 ${isMobileView ? 'mb-3' : 'mb-2'}
             `}
       onClick={() => {
-        // Force full page refresh to trigger proper decryption
-        window.location.href = `/course/${window.location.pathname.split('/').pop()}?active=${index}`;
+        // Use smooth navigation function instead of forcing page refresh
+        onLessonSelect(index);
       }}
     >
       <div className={`flex items-start p-3 cursor-pointer ${isMobileView ? 'p-4' : 'p-3'}`}>

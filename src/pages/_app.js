@@ -31,7 +31,9 @@ export default function MyApp({ Component, pageProps: { session, ...pageProps } 
                     <Component {...pageProps} />
                     <Analytics />
                   </main>
-                  <BottomBar />
+                  <div className="mt-12 min-bottom-bar:mt-0">
+                    <BottomBar />
+                  </div>
                 </div>
               </Layout>
             </ToastProvider>

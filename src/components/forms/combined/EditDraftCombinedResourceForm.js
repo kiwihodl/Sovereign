@@ -1,19 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/router';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputSwitch } from 'primereact/inputswitch';
 import GenericButton from '@/components/buttons/GenericButton';
-import { useToast } from '@/hooks/useToast';
+import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
-import dynamic from 'next/dynamic';
-import { Tooltip } from 'primereact/tooltip';
+import { useToast } from '@/hooks/useToast';
 import 'primeicons/primeicons.css';
+import { Tooltip } from 'primereact/tooltip';
 import 'primereact/resources/primereact.min.css';
-
-const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
+import MarkdownEditor from '@/components/markdown/MarkdownEditor';
 
 const CDN_ENDPOINT = process.env.NEXT_PUBLIC_CDN_ENDPOINT;
 
@@ -242,9 +240,7 @@ const EditDraftCombinedResourceForm = ({ draft }) => {
 
       <div className="p-inputgroup flex-1 flex-col mt-4">
         <span>Content</span>
-        <div data-color-mode="dark">
-          <MDEditor value={content} onChange={handleContentChange} height={350} />
-        </div>
+        <MarkdownEditor value={content} onChange={handleContentChange} height={350} />
       </div>
 
       <div className="mt-8 flex-col w-full">

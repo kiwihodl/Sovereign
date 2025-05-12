@@ -7,15 +7,10 @@ import { useSession } from 'next-auth/react';
 import { useToast } from '@/hooks/useToast';
 import { useNDKContext } from '@/context/NDKContext';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
-import dynamic from 'next/dynamic';
-import { useEncryptContent } from '@/hooks/encryption/useEncryptContent';
-
-const MDEditor = dynamic(() => import('@uiw/react-md-editor'), {
-  ssr: false,
-});
 import 'primeicons/primeicons.css';
-import { Tooltip } from 'primereact/tooltip';
 import 'primereact/resources/primereact.min.css';
+import { useEncryptContent } from '@/hooks/encryption/useEncryptContent';
+import MarkdownEditor from '@/components/markdown/MarkdownEditor';
 
 const EmbeddedDocumentForm = ({ draft = null, isPublished = false, onSave, isPaid }) => {
   const [title, setTitle] = useState(draft?.title || '');
@@ -183,9 +178,7 @@ const EmbeddedDocumentForm = ({ draft = null, isPublished = false, onSave, isPai
       </div>
       <div className="p-inputgroup flex-1 flex-col mt-4">
         <span>Content</span>
-        <div data-color-mode="dark">
-          <MDEditor value={content} onChange={handleContentChange} height={350} />
-        </div>
+        <MarkdownEditor value={content} onChange={handleContentChange} height={350} />
       </div>
       <div className="mt-8 flex-col w-full">
         <span className="pl-1 flex items-center">
@@ -219,7 +212,6 @@ const EmbeddedDocumentForm = ({ draft = null, isPublished = false, onSave, isPai
         <div className="w-full flex flex-row items-end justify-end py-2">
           <GenericButton icon="pi pi-plus" onClick={addAdditionalLink} />
         </div>
-        <Tooltip target=".pi-info-circle" />
       </div>
       <div className="mt-8 flex-col w-full">
         {topics.map((topic, index) => (

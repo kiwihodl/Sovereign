@@ -19,7 +19,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { Toast } from 'primereact/toast';
 
 // Import the desktop and mobile components
-import DesktopCourseDetails from './DesktopCourseDetails';
+import DesktopCourseDetails from '@/components/content/courses/details/DesktopCourseDetails';
 import MobileCourseDetails from './MobileCourseDetails';
 
 export default function CourseDetails({

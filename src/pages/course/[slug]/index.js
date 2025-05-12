@@ -1,314 +1,56 @@
-import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { parseCourseEvent, parseEvent, findKind0Fields } from '@/utils/nostr';
-import CourseDetails from '@/components/content/courses/CourseDetails';
-import VideoLesson from '@/components/content/courses/VideoLesson';
-import DocumentLesson from '@/components/content/courses/DocumentLesson';
-import CombinedLesson from '@/components/content/courses/CombinedLesson';
-import CourseSidebar from '@/components/content/courses/CourseSidebar';
+import { findKind0Fields } from '@/utils/nostr';
 import { useNDKContext } from '@/context/NDKContext';
 import { useSession } from 'next-auth/react';
 import { nip19 } from 'nostr-tools';
 import { useToast } from '@/hooks/useToast';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { useDecryptContent } from '@/hooks/encryption/useDecryptContent';
-import ZapThreadsWrapper from '@/components/ZapThreadsWrapper';
-import appConfig from '@/config/appConfig';
+import { Buffer } from 'buffer';
+
+// Hooks
+import useCourseDecryption from '@/hooks/encryption/useCourseDecryption';
+import useCourseData from '@/hooks/courses/useCourseData';
+import useLessons from '@/hooks/courses/useLessons';
+import useCourseNavigation from '@/hooks/courses/useCourseNavigation';
 import useWindowWidth from '@/hooks/useWindowWidth';
+
+// Components
+import CourseSidebar from '@/components/content/courses/layout/CourseSidebar';
+import CourseContent from '@/components/content/courses/tabs/CourseContent';
+import CourseQA from '@/components/content/courses/tabs/CourseQA';
+import CourseOverview from '@/components/content/courses/tabs/CourseOverview';
 import MenuTab from '@/components/menutab/MenuTab';
-import { Tag } from 'primereact/tag';
-import MarkdownDisplay from '@/components/markdown/MarkdownDisplay';
 
-const useCourseData = (ndk, fetchAuthor, router) => {
-  const [course, setCourse] = useState(null);
-  const [lessonIds, setLessonIds] = useState([]);
-  const [paidCourse, setPaidCourse] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const { showToast } = useToast();
-
-  useEffect(() => {
-    if (!router.isReady) return;
-
-    const { slug } = router.query;
-    let id;
-
-    const fetchCourseId = async () => {
-      if (slug.includes('naddr')) {
-        const { data } = nip19.decode(slug);
-        if (!data?.identifier) {
-          showToast('error', 'Error', 'Resource not found');
-          return null;
-        }
-        return data.identifier;
-      } else {
-        return slug;
-      }
-    };
-
-    const fetchCourse = async courseId => {
-      try {
-        await ndk.connect();
-        const event = await ndk.fetchEvent({ '#d': [courseId] });
-        if (!event) return null;
-
-        const author = await fetchAuthor(event.pubkey);
-        const lessonIds = event.tags.filter(tag => tag[0] === 'a').map(tag => tag[1].split(':')[2]);
-
-        const parsedCourse = { ...parseCourseEvent(event), author };
-        return { parsedCourse, lessonIds };
-      } catch (error) {
-        console.error('Error fetching event:', error);
-        return null;
-      }
-    };
-
-    const initializeCourse = async () => {
-      setLoading(true);
-      id = await fetchCourseId();
-      if (!id) {
-        setLoading(false);
-        return;
-      }
-
-      const courseData = await fetchCourse(id);
-      if (courseData) {
-        const { parsedCourse, lessonIds } = courseData;
-        setCourse(parsedCourse);
-        setLessonIds(lessonIds);
-        setPaidCourse(parsedCourse.price && parsedCourse.price > 0);
-      }
-      setLoading(false);
-    };
-
-    initializeCourse();
-  }, [router.isReady, router.query, ndk, fetchAuthor, showToast]);
-
-  return { course, lessonIds, paidCourse, loading };
-};
-
-const useLessons = (ndk, fetchAuthor, lessonIds, pubkey) => {
-  const [lessons, setLessons] = useState([]);
-  const [uniqueLessons, setUniqueLessons] = useState([]);
-  const { showToast } = useToast();
-  
-  useEffect(() => {
-    if (lessonIds.length > 0 && pubkey) {
-      const fetchLessons = async () => {
-        try {
-          await ndk.connect();
-          
-          // Create a single filter with all lesson IDs to avoid multiple calls
-          const filter = {
-            '#d': lessonIds,
-            kinds: [30023, 30402],
-            authors: [pubkey],
-          };
-          
-          const events = await ndk.fetchEvents(filter);
-          const newLessons = [];
-          
-          // Process events (no need to check for duplicates here)
-          for (const event of events) {
-            const author = await fetchAuthor(event.pubkey);
-            const parsedLesson = { ...parseEvent(event), author };
-            newLessons.push(parsedLesson);
-          }
-          
-          setLessons(newLessons);
-        } catch (error) {
-          console.error('Error fetching events:', error);
-        }
-      };
-      
-      fetchLessons();
-    }
-  }, [lessonIds, ndk, fetchAuthor, pubkey]);
-
-  // Keep this deduplication logic using Map
-  useEffect(() => {
-    const newUniqueLessons = Array.from(
-      new Map(lessons.map(lesson => [lesson.id, lesson])).values()
-    );
-    setUniqueLessons(newUniqueLessons);
-  }, [lessons]);
-
-  return { lessons, uniqueLessons, setLessons };
-};
-
-const useDecryption = (session, paidCourse, course, lessons, setLessons, router) => {
-  const [decryptedLessonIds, setDecryptedLessonIds] = useState({});
-  const [loading, setLoading] = useState(false);
-  const { decryptContent } = useDecryptContent();
-  const processingRef = useRef(false);
-  const lastLessonIdRef = useRef(null);
-  const retryCountRef = useRef({});
-  const MAX_RETRIES = 3;
-  
-  // Get the current active lesson
-  const currentLessonIndex = router.query.active ? parseInt(router.query.active, 10) : 0;
-  const currentLesson = lessons.length > 0 ? lessons[currentLessonIndex] : null;
-  const currentLessonId = currentLesson?.id;
-  
-  // Check if the current lesson has been decrypted
-  const isCurrentLessonDecrypted = 
-    !paidCourse || 
-    (currentLessonId && decryptedLessonIds[currentLessonId]);
-  
-  // Check user access
-  const hasAccess = useMemo(() => {
-    if (!session?.user || !paidCourse || !course) return false;
-    
-    return (
-      session.user.purchased?.some(purchase => purchase.courseId === course?.d) ||
-      session.user?.role?.subscribed ||
-      session.user?.pubkey === course?.pubkey
-    );
-  }, [session, paidCourse, course]);
-  
-  // Reset retry count when lesson changes
-  useEffect(() => {
-    if (currentLessonId && lastLessonIdRef.current !== currentLessonId) {
-      retryCountRef.current[currentLessonId] = 0;
-    }
-  }, [currentLessonId]);
-  
-  // Simplified decrypt function
-  const decryptCurrentLesson = useCallback(async () => {
-    if (!currentLesson || !hasAccess || !paidCourse) return;
-    if (processingRef.current) return;
-    if (decryptedLessonIds[currentLesson.id]) return;
-    if (!currentLesson.content) return;
-    
-    // Check retry count
-    if (!retryCountRef.current[currentLesson.id]) {
-      retryCountRef.current[currentLesson.id] = 0;
-    }
-    
-    // Limit maximum retries
-    if (retryCountRef.current[currentLesson.id] >= MAX_RETRIES) {
-      return;
-    }
-    
-    // Increment retry count
-    retryCountRef.current[currentLesson.id]++;
-    
-    try {
-      processingRef.current = true;
-      setLoading(true);
-      
-      // Start the decryption process
-      const decryptionPromise = decryptContent(currentLesson.content);
-      
-      // Add safety timeout to prevent infinite processing
-      let timeoutId;
-      const timeoutPromise = new Promise((_, reject) => {
-        timeoutId = setTimeout(() => {
-          // Cancel the in-flight request when timeout occurs
-          if (decryptionPromise.cancel) {
-            decryptionPromise.cancel();
-          }
-          reject(new Error('Decryption timeout'));
-        }, 10000);
-      });
-      
-      // Use a separate try-catch for the race
-      let decryptedContent;
-      try {
-        // Race between decryption and timeout
-        decryptedContent = await Promise.race([
-          decryptionPromise,
-          timeoutPromise
-        ]);
-        
-        // Clear the timeout if decryption wins
-        clearTimeout(timeoutId);
-      } catch (error) {
-        // If timeout or network error, schedule a retry
-        setTimeout(() => {
-          processingRef.current = false;
-          decryptCurrentLesson();
-        }, 5000);
-        throw error;
-      }
-      
-      if (!decryptedContent) {
-        return;
-      }
-      
-      // Update the lessons array with decrypted content
-      const updatedLessons = lessons.map(lesson => 
-        lesson.id === currentLesson.id 
-          ? { ...lesson, content: decryptedContent } 
-          : lesson
-      );
-      
-      setLessons(updatedLessons);
-      
-      // Mark this lesson as decrypted
-      setDecryptedLessonIds(prev => ({
-        ...prev,
-        [currentLesson.id]: true
-      }));
-      
-      // Reset retry counter on success
-      retryCountRef.current[currentLesson.id] = 0;
-    } catch (error) {
-      // Silent error handling to prevent UI disruption
-    } finally {
-      setLoading(false);
-      processingRef.current = false;
-    }
-  }, [currentLesson, hasAccess, paidCourse, decryptContent, lessons, setLessons, decryptedLessonIds]);
-  
-  // Run decryption when lesson changes
-  useEffect(() => {
-    if (!currentLessonId) return;
-    
-    // Skip if the lesson hasn't changed, unless it failed decryption previously
-    if (lastLessonIdRef.current === currentLessonId && decryptedLessonIds[currentLessonId]) return;
-    
-    // Update the last processed lesson id
-    lastLessonIdRef.current = currentLessonId;
-    
-    if (hasAccess && paidCourse && !decryptedLessonIds[currentLessonId]) {
-      decryptCurrentLesson();
-    }
-  }, [currentLessonId, hasAccess, paidCourse, decryptedLessonIds, decryptCurrentLesson]);
-  
-  return {
-    decryptionPerformed: isCurrentLessonDecrypted,
-    loading,
-    decryptedLessonIds
-  };
-};
+// Config
+import appConfig from '@/config/appConfig';
 
 const Course = () => {
   const router = useRouter();
   const { ndk, addSigner } = useNDKContext();
   const { data: session, update } = useSession();
   const { showToast } = useToast();
-  const [activeIndex, setActiveIndex] = useState(0);
   const [completedLessons, setCompletedLessons] = useState([]);
   const [nAddresses, setNAddresses] = useState({});
   const [nsec, setNsec] = useState(null);
   const [npub, setNpub] = useState(null);
-  const [sidebarVisible, setSidebarVisible] = useState(false);
   const [nAddress, setNAddress] = useState(null);
   const windowWidth = useWindowWidth();
   const isMobileView = windowWidth <= 968;
-  const [activeTab, setActiveTab] = useState('overview'); // Default to overview tab
   const navbarHeight = 60; // Match the height from Navbar component
 
-  // Memoized function to get the tab map based on view mode
-  const getTabMap = useMemo(() => {
-    const baseTabMap = ['overview', 'content', 'qa'];
-    if (isMobileView) {
-      const mobileTabMap = [...baseTabMap];
-      mobileTabMap.splice(2, 0, 'lessons');
-      return mobileTabMap;
-    }
-    return baseTabMap;
-  }, [isMobileView]);
+  // Use our navigation hook
+  const {
+    activeIndex,
+    activeTab,
+    sidebarVisible,
+    setSidebarVisible,
+    handleLessonSelect,
+    toggleTab,
+    toggleSidebar,
+    getActiveTabIndex,
+    getTabItems,
+  } = useCourseNavigation(router, isMobileView);
 
   useEffect(() => {
     if (router.isReady && router.query.slug) {
@@ -325,27 +67,43 @@ const Course = () => {
     }
   }, [router.isReady, router.query.slug, showToast, router]);
 
+  // Load completed lessons from localStorage when course is loaded
   useEffect(() => {
-    if (router.isReady) {
-      const { active } = router.query;
-      if (active !== undefined) {
-        setActiveIndex(parseInt(active, 10));
-        // If we have an active lesson, switch to content tab
-        setActiveTab('content');
-      } else {
-        setActiveIndex(0);
-        // Default to overview tab when no active parameter
-        setActiveTab('overview');
+    if (router.isReady && router.query.slug && session?.user) {
+      const courseId = router.query.slug;
+      const storageKey = `course_${courseId}_${session.user.pubkey}_completed`;
+      const savedCompletedLessons = localStorage.getItem(storageKey);
+      
+      if (savedCompletedLessons) {
+        try {
+          const parsedLessons = JSON.parse(savedCompletedLessons);
+          setCompletedLessons(parsedLessons);
+        } catch (error) {
+          console.error('Error parsing completed lessons from storage:', error);
+        }
       }
-
-      // Auto-open sidebar on desktop, close on mobile
-      setSidebarVisible(!isMobileView);
     }
-  }, [router.isReady, router.query, isMobileView]);
+  }, [router.isReady, router.query.slug, session]);
 
   const setCompleted = useCallback(lessonId => {
-    setCompletedLessons(prev => [...prev, lessonId]);
-  }, []);
+    setCompletedLessons(prev => {
+      // Avoid duplicates
+      if (prev.includes(lessonId)) {
+        return prev;
+      }
+      
+      const newCompletedLessons = [...prev, lessonId];
+      
+      // Save to localStorage
+      if (router.query.slug && session?.user) {
+        const courseId = router.query.slug;
+        const storageKey = `course_${courseId}_${session.user.pubkey}_completed`;
+        localStorage.setItem(storageKey, JSON.stringify(newCompletedLessons));
+      }
+      
+      return newCompletedLessons;
+    });
+  }, [router.query.slug, session]);
 
   const fetchAuthor = useCallback(
     async pubkey => {
@@ -371,14 +129,22 @@ const Course = () => {
     course?.pubkey
   );
   
-  const { decryptionPerformed, loading: decryptionLoading, decryptedLessonIds } = useDecryption(
+  const { decryptionPerformed, loading: decryptionLoading, decryptedLessonIds } = useCourseDecryption(
     session,
     paidCourse,
     course,
     lessons,
     setLessons,
-    router
+    router,
+    activeIndex
   );
+
+  // Replace useState + useEffect with useMemo for derived state
+  const isDecrypting = useMemo(() => {
+    if (!paidCourse || uniqueLessons.length === 0) return false;
+    const current = uniqueLessons[activeIndex];
+    return current && !decryptedLessonIds[current.id];
+  }, [paidCourse, uniqueLessons, activeIndex, decryptedLessonIds]);
 
   useEffect(() => {
     if (uniqueLessons.length > 0) {
@@ -414,18 +180,7 @@ const Course = () => {
     session?.user?.role?.subscribed || 
     session?.user?.pubkey === course?.pubkey || 
     !paidCourse || 
-    session?.user?.purchased?.some(purchase => purchase.courseId === course?.d)
-
-  const handleLessonSelect = index => {
-    setActiveIndex(index);
-    router.push(`/course/${router.query.slug}?active=${index}`, undefined, { shallow: true });
-
-    // On mobile, switch to content tab after selection
-    if (isMobileView) {
-      setActiveTab('content');
-      setSidebarVisible(false);
-    }
-  };
+    session?.user?.purchased?.some(purchase => purchase.courseId === course?.d);
 
   const handlePaymentSuccess = async response => {
     if (response && response?.preimage) {
@@ -444,187 +199,13 @@ const Course = () => {
     );
   };
 
-  const toggleTab = (index) => {
-    const tabName = getTabMap[index];
-    setActiveTab(tabName);
-    
-    // Only show/hide sidebar on mobile - desktop keeps sidebar visible
-    if (isMobileView) {
-      setSidebarVisible(tabName === 'lessons');
-    }
-  };
-
-  const handleToggleSidebar = () => {
-    setSidebarVisible(!sidebarVisible);
-  };
-
-  // Map active tab name back to index for MenuTab
-  const getActiveTabIndex = () => {
-    return getTabMap.indexOf(activeTab);
-  };
-
-  // Create tab items for MenuTab
-  const getTabItems = () => {
-    const items = [
-      {
-        label: 'Overview',
-        icon: 'pi pi-home',
-      },
-      {
-        label: 'Content',
-        icon: 'pi pi-book',
-      }
-    ];
-    
-    // Add lessons tab only on mobile
-    if (isMobileView) {
-      items.push({
-        label: 'Lessons',
-        icon: 'pi pi-list',
-      });
-    }
-    
-    items.push({
-      label: 'Comments',
-      icon: 'pi pi-comments',
-    });
-    
-    return items;
-  };
-
-  // Add keyboard navigation support for tabs
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'ArrowRight') {
-        const currentIndex = getActiveTabIndex();
-        const nextIndex = (currentIndex + 1) % getTabMap.length;
-        toggleTab(nextIndex);
-      } else if (e.key === 'ArrowLeft') {
-        const currentIndex = getActiveTabIndex();
-        const prevIndex = (currentIndex - 1 + getTabMap.length) % getTabMap.length;
-        toggleTab(prevIndex);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [activeTab, getTabMap, toggleTab]);
-
-  // Render the QA section (empty for now)
-  const renderQASection = () => {
-    return (
-      <div className="rounded-lg p-8 mt-4 bg-gray-800 max-mob:px-4">
-        <h2 className="text-xl font-bold mb-4">Comments</h2>
-        {nAddress !== null && isAuthorized ? (
-        <div className="px-4 max-mob:px-0">
-          <ZapThreadsWrapper
-            anchor={nAddress}
-            user={nsec || npub || null}
-            relays="wss://nos.lol/, wss://relay.damus.io/, wss://relay.snort.social/, wss://relay.nostr.band/, wss://relay.primal.net/, wss://nostrue.com/, wss://purplerelay.com/, wss://relay.devs.tools/"
-            disable="zaps"
-            isAuthorized={isAuthorized}
-          />
-        </div>
-      ) : (
-        <div className="text-center p-4 mx-4 bg-gray-800/50 rounded-lg">
-          <p className="text-gray-400">
-            Comments are only available to content purchasers, subscribers, and the content creator.
-          </p>
-        </div>
-      )}
-      </div>
-    );
-  };
-  // Render Course Overview section
-  const renderOverviewSection = () => {
-    // Get isCompleted status for use in the component
-    const isCompleted = completedLessons.length > 0;
-    
-    return (
-      <div className={`bg-gray-800 rounded-lg border border-gray-800 shadow-md ${isMobileView ? 'p-4' : 'p-6'}`}>
-        {isMobileView && course && (
-          <div className="mb-2">
-            {/* Completed tag above image in mobile view */}
-            {isCompleted && (
-              <div className="mb-2">
-                <Tag severity="success" value="Completed" />
-              </div>
-            )}
-            
-            {/* Course image */}
-            {course.image && (
-              <div className="w-full h-48 relative rounded-lg overflow-hidden mb-3">
-                <img 
-                  src={course.image} 
-                  alt={course.title} 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
-          </div>
-        )}
-        <CourseDetails
-          processedEvent={course}
-          paidCourse={paidCourse}
-          lessons={uniqueLessons}
-          decryptionPerformed={decryptionPerformed}
-          handlePaymentSuccess={handlePaymentSuccess}
-          handlePaymentError={handlePaymentError}
-          isMobileView={isMobileView}
-          showCompletedTag={!isMobileView}
-        />
-      </div>
-    );
-  };
-
-  if (courseLoading || decryptionLoading) {
+  if (courseLoading) {
     return (
       <div className="w-full h-full flex items-center justify-center">
         <ProgressSpinner />
       </div>
     );
   }
-
-  const renderLesson = lesson => {
-    if (!lesson) return null;
-    
-    // Check if this specific lesson is decrypted
-    const lessonDecrypted = !paidCourse || decryptedLessonIds[lesson.id] || false;
-    
-    if (lesson.topics?.includes('video') && lesson.topics?.includes('document')) {
-      return (
-        <CombinedLesson
-          lesson={lesson}
-          course={course}
-          decryptionPerformed={lessonDecrypted}
-          isPaid={paidCourse}
-          setCompleted={setCompleted}
-        />
-      );
-    } else if (lesson.type === 'video' && !lesson.topics?.includes('document')) {
-      return (
-        <VideoLesson
-          lesson={lesson}
-          course={course}
-          decryptionPerformed={lessonDecrypted}
-          isPaid={paidCourse}
-          setCompleted={setCompleted}
-        />
-      );
-    } else if (lesson.type === 'document' && !lesson.topics?.includes('video')) {
-      return (
-        <DocumentLesson
-          lesson={lesson}
-          course={course}
-          decryptionPerformed={lessonDecrypted}
-          isPaid={paidCourse}
-          setCompleted={setCompleted}
-        />
-      );
-    }
-  };
 
   return (
     <>
@@ -640,45 +221,59 @@ const Course = () => {
             activeIndex={getActiveTabIndex()}
             onTabChange={(index) => toggleTab(index)}
             sidebarVisible={sidebarVisible}
-            onToggleSidebar={handleToggleSidebar}
+            onToggleSidebar={toggleSidebar}
             isMobileView={isMobileView}
           />
         </div>
 
-        {/* Revised layout structure to prevent content flexing */}
+        {/* Main content area with fixed width */}
         <div className="relative mt-4">
-          {/* Main content area with fixed width */}
           <div className={`transition-all duration-500 ease-in-out ${isMobileView ? 'w-full' : 'w-full'}`} 
               style={!isMobileView && sidebarVisible ? {paddingRight: '320px'} : {}}>
+            
             {/* Overview tab content */}
             <div className={`${activeTab === 'overview' ? 'block' : 'hidden'}`}>
-              {renderOverviewSection()}
+              <CourseOverview 
+                course={course}
+                paidCourse={paidCourse}
+                lessons={uniqueLessons}
+                decryptionPerformed={decryptionPerformed}
+                handlePaymentSuccess={handlePaymentSuccess}
+                handlePaymentError={handlePaymentError}
+                isMobileView={isMobileView}
+                completedLessons={completedLessons}
+              />
             </div>
             
             {/* Content tab content */}
             <div className={`${activeTab === 'content' ? 'block' : 'hidden'}`}>
-              {uniqueLessons.length > 0 && uniqueLessons[activeIndex] ? (
-                <div className="bg-gray-800 rounded-lg shadow-sm overflow-hidden">
-                  <div key={`lesson-${uniqueLessons[activeIndex].id}`}>
-                    {renderLesson(uniqueLessons[activeIndex])}
+              {isDecrypting || decryptionLoading ? (
+                <div className="w-full py-12 bg-gray-800 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} />
+                    <p className="mt-4 text-gray-300">Decrypting lesson content...</p>
                   </div>
                 </div>
               ) : (
-                <div className="text-center bg-gray-800 rounded-lg p-8">
-                  <p>Select a lesson from the sidebar to begin learning.</p>
-                </div>
-              )}
-
-              {course?.content && (
-                <div className="mt-8 bg-gray-800 rounded-lg shadow-sm">
-                  <MarkdownDisplay content={course.content} className="p-4 rounded-lg" />
-                </div>
+                <CourseContent 
+                  lessons={uniqueLessons}
+                  activeIndex={activeIndex}
+                  course={course}
+                  paidCourse={paidCourse} 
+                  decryptedLessonIds={decryptedLessonIds}
+                  setCompleted={setCompleted}
+                />
               )}
             </div>
 
             {/* QA tab content */}
             <div className={`${activeTab === 'qa' ? 'block' : 'hidden'}`}>
-              {renderQASection()}
+              <CourseQA 
+                nAddress={nAddress}
+                isAuthorized={isAuthorized}
+                nsec={nsec}
+                npub={npub}
+              />
             </div>
           </div>
 
@@ -702,12 +297,7 @@ const Course = () => {
               <CourseSidebar
                 lessons={uniqueLessons}
                 activeIndex={activeIndex}
-                onLessonSelect={(index) => {
-                  handleLessonSelect(index);
-                  if (isMobileView) {
-                    setActiveTab('content'); // Use the tab name directly
-                  }
-                }}
+                onLessonSelect={handleLessonSelect}
                 completedLessons={completedLessons}
                 isMobileView={isMobileView}
                 sidebarVisible={sidebarVisible}
@@ -723,17 +313,12 @@ const Course = () => {
               <CourseSidebar
                 lessons={uniqueLessons}
                 activeIndex={activeIndex}
-                onLessonSelect={(index) => {
-                  handleLessonSelect(index);
-                  if (isMobileView) {
-                    setActiveTab('content'); // Use the tab name directly
-                  }
-                }}
+                onLessonSelect={handleLessonSelect}
                 completedLessons={completedLessons}
                 isMobileView={isMobileView}
                 onClose={() => {
                   setSidebarVisible(false);
-                  setActiveTab('content');
+                  toggleTab(getActiveTabIndex());
                 }}
                 sidebarVisible={sidebarVisible}
                 setSidebarVisible={setSidebarVisible}
