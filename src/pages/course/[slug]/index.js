@@ -278,11 +278,23 @@ const Course = () => {
           </div>
 
           {/* Course Sidebar - positioned absolutely on desktop when visible */}
-          {!isMobileView && (
-            <div
-              className={`transition-all duration-500 ease-in-out absolute top-0 right-0 w-[320px] h-full z-[999] overflow-visible
-                ${sidebarVisible ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-full pointer-events-none'}
-              `}
+          {!isMobileView ? (
+            <div 
+              className={`transition-all duration-500 ease-in-out ${
+                sidebarVisible ? 'opacity-100 translate-x-0 shadow-2xl' : 'opacity-0 translate-x-full pointer-events-none'
+              }`}
+              style={{
+                position: 'absolute',
+                top: '0',
+                right: '0',
+                width: '320px',
+                height: '100%',
+                zIndex: 999,
+                overflow: 'visible',
+                transformOrigin: 'right center',
+                transform: `translateX(${sidebarVisible ? '0' : '10px'}) scale(${sidebarVisible ? '1' : '0.97'})`,
+                transition: 'transform 1000ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 300ms ease-in-out, box-shadow 1200ms ease'
+              }}
             >
               <CourseSidebar
                 lessons={uniqueLessons}
@@ -290,6 +302,30 @@ const Course = () => {
                 onLessonSelect={handleLessonSelect}
                 completedLessons={completedLessons}
                 isMobileView={isMobileView}
+                sidebarVisible={sidebarVisible}
+                setSidebarVisible={setSidebarVisible}
+                hideToggleButton={true}
+              />
+            </div>
+          ) : (
+            <div className={`flex-shrink-0 transition-all duration-300 z-[999] ${
+              (isMobileView && activeTab === 'lessons') ? 'ml-0 w-auto opacity-100 scale-100' : 
+              'w-0 ml-0 opacity-0 scale-95 overflow-hidden'
+            }`}
+            style={{
+              transformOrigin: 'top center',
+              transition: 'opacity 300ms ease, transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1), width 300ms ease-in-out'
+            }}>
+              <CourseSidebar
+                lessons={uniqueLessons}
+                activeIndex={activeIndex}
+                onLessonSelect={handleLessonSelect}
+                completedLessons={completedLessons}
+                isMobileView={isMobileView}
+                onClose={() => {
+                  setSidebarVisible(false);
+                  toggleTab(getActiveTabIndex());
+                }}
                 sidebarVisible={sidebarVisible}
                 setSidebarVisible={setSidebarVisible}
                 hideToggleButton={true}
