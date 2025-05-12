@@ -283,17 +283,6 @@ const Course = () => {
               className={`transition-all duration-500 ease-in-out absolute top-0 right-0 w-[320px] h-full z-[999] overflow-visible
                 ${sidebarVisible ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-full pointer-events-none'}
               `}
-              style={{
-                // You can keep these if you want, but they're now in the className above
-                // position: 'absolute',
-                // top: '0',
-                // right: '0',
-                // width: '320px',
-                // height: '100%',
-                // zIndex: 999,
-                // overflow: 'visible',
-                // pointerEvents: sidebarVisible ? 'auto' : 'none'
-              }}
             >
               <CourseSidebar
                 lessons={uniqueLessons}
