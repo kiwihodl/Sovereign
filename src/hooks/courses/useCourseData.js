@@ -24,8 +24,22 @@ const useCourseData = (ndk, fetchAuthor, router) => {
     let id;
 
     const fetchCourseId = async () => {
-      if (slug.includes('naddr')) {
-        const { data } = nip19.decode(slug);
+      // Normalise slug to a string and exit early if it’s still falsy
+      const slugStr = Array.isArray(slug) ? slug[0] : slug;
+      if (!slugStr) {
+        showToast('error', 'Error', 'Invalid course identifier');
+        return null;
+      }
+
+      if (slugStr.includes('naddr')) {
+        let data;
+        try {
+          ({ data } = nip19.decode(slugStr));
+        } catch (err) {
+          showToast('error', 'Error', 'Malformed naddr');
+          return null;
+        }
+
         if (!data?.identifier) {
           showToast('error', 'Error', 'Resource not found');
           return null;
