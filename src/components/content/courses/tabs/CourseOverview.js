@@ -16,7 +16,7 @@ const CourseOverview = ({
   completedLessons 
 }) => {
   // Determine if course is completed
-  const isCompleted = completedLessons.length > 0;
+  const isCompleted = lessons && lessons.length > 0 && completedLessons.length === lessons.length;
   
   return (
     <div className={`bg-gray-800 rounded-lg border border-gray-800 shadow-md ${isMobileView ? 'p-4' : 'p-6'}`}>
