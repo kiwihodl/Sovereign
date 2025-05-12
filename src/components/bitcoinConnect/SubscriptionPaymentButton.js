@@ -4,7 +4,7 @@ import { initializeBitcoinConnect } from './BitcoinConnect';
 import { LightningAddress } from '@getalby/lightning-tools';
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
-import { webln, nwc } from '@getalby/sdk';
+import { webln } from '@getalby/sdk';
 import { useRouter } from 'next/router';
 import { Divider } from 'primereact/divider';
 import dynamic from 'next/dynamic';
@@ -30,6 +30,7 @@ const SubscriptionPaymentButtons = ({
   const [invoice, setInvoice] = useState(null);
   const [showRecurringOptions, setShowRecurringOptions] = useState(false);
   const [nwcInput, setNwcInput] = useState('');
+  const [bitcoinConnectClient, setBitcoinConnectClient] = useState(null);
   const { showToast } = useToast();
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -38,7 +39,18 @@ const SubscriptionPaymentButtons = ({
   const amount = 50000;
 
   useEffect(() => {
-    initializeBitcoinConnect();
+    // Initialize Bitcoin Connect as early as possible
+    const initBC = async () => {
+      try {
+        const client = await initializeBitcoinConnect();
+        console.log("Client in SubscriptionPaymentButton:", client);
+        setBitcoinConnectClient(client);
+      } catch (err) {
+        console.error("Error initializing Bitcoin Connect in SubscriptionPaymentButton:", err);
+      }
+    };
+    
+    initBC();
   }, []);
 
   useEffect(() => {
@@ -95,11 +107,35 @@ const SubscriptionPaymentButtons = ({
 
   const handleRecurringSubscription = async () => {
     setIsProcessing(true);
-    const newNwc = nwc.NWCClient.withNewSecret();
-    const yearFromNow = new Date();
-    yearFromNow.setFullYear(yearFromNow.getFullYear() + 1);
-
+    
+    // Re-initialize if not already initialized
+    if (!bitcoinConnectClient) {
+      try {
+        console.log("Client not found, reinitializing");
+        const client = await initializeBitcoinConnect();
+        setBitcoinConnectClient(client);
+        
+        if (!client) {
+          showToast('error', 'Connection Error', 'Failed to initialize Bitcoin Connect client');
+          setIsProcessing(false);
+          return;
+        }
+      } catch (err) {
+        console.error("Error reinitializing Bitcoin Connect:", err);
+        showToast('error', 'Connection Error', 'Failed to initialize Bitcoin Connect client');
+        setIsProcessing(false);
+        return;
+      }
+    }
+    
     try {
+      // Import the SDK directly to avoid client issues
+      const { nwc } = await import('@getalby/sdk');
+      const newNwc = nwc.NWCClient.withNewSecret();
+      
+      const yearFromNow = new Date();
+      yearFromNow.setFullYear(yearFromNow.getFullYear() + 1);
+
       const initNwcOptions = {
         name: 'plebdevs.com',
         requestMethods: ['pay_invoice'],
@@ -108,28 +144,34 @@ const SubscriptionPaymentButtons = ({
         budgetRenewal: 'monthly',
         expiresAt: yearFromNow,
       };
+      
+      // Initialize NWC directly with the SDK
       await newNwc.initNWC(initNwcOptions);
       showToast('info', 'Alby', 'Alby connection window opened.');
+      
+      // Get NWC URL directly
       const newNWCUrl = newNwc.getNostrWalletConnectUrl();
 
       if (newNWCUrl) {
-        const nwc = new webln.NostrWebLNProvider({
+        const nwcProvider = new webln.NostrWebLNProvider({
           nostrWalletConnectUrl: newNWCUrl,
         });
 
-        await nwc.enable();
+        await nwcProvider.enable();
 
         const invoice = await fetchInvoice();
 
         if (!invoice || !invoice.paymentRequest) {
           showToast('error', 'NWC', `Failed to fetch invoice from ${lnAddress}`);
+          setIsProcessing(false);
           return;
         }
 
-        const paymentResponse = await nwc.sendPayment(invoice.paymentRequest);
+        const paymentResponse = await nwcProvider.sendPayment(invoice.paymentRequest);
 
         if (!paymentResponse || !paymentResponse?.preimage) {
           showToast('error', 'NWC', 'Payment failed');
+          setIsProcessing(false);
           return;
         }
 

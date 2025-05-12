@@ -6,20 +6,25 @@ const Button = dynamic(() => import('@getalby/bitcoin-connect-react').then(mod =
 });
 
 let initialized = false;
+let bitcoinConnectClient = null;
 
 export async function initializeBitcoinConnect() {
   if (!initialized) {
     try {
-      const { init } = await import('@getalby/bitcoin-connect-react');
-      // Check if custom elements are already registered
-      if (!customElements.get('bc-balance')) {
-        init({
-          appName: 'PlebDevs',
-          filters: ['nwc'],
-          showBalance: false,
-        });
-        initialized = true;
-      }
+      // Import the full module
+      const bc = await import('@getalby/bitcoin-connect-react');
+      
+      // Initialize with the config options
+      bc.init({
+        appName: 'PlebDevs',
+        filters: ['nwc'],
+        showBalance: false,
+      });
+      
+      // Store the client for use in components
+      bitcoinConnectClient = bc.client;
+      initialized = true;
+      console.log('Bitcoin Connect initialized successfully, client:', bitcoinConnectClient);
     } catch (error) {
       // If the error is about custom element already being defined, we can ignore it
       // as it means the component is already initialized
@@ -27,7 +32,10 @@ export async function initializeBitcoinConnect() {
         console.error('Error initializing Bitcoin Connect:', error);
       }
     }
+  } else {
+    console.log('Bitcoin Connect already initialized');
   }
+  return bitcoinConnectClient;
 }
 
 const BitcoinConnectButton = () => {
