@@ -125,12 +125,10 @@ const CourseSidebar = ({
       )}
       
       {/* Desktop sidebar */}
-      {!isMobileView && (
+      {!isMobileView && sidebarVisible && (
         <div className="relative flex flex-row-reverse z-[999]">
           <div 
-            className={`transition-all duration-500 ease-in-out flex ${
-              sidebarVisible ? 'w-80 opacity-100' : 'w-0 opacity-0 overflow-hidden'
-            }`}
+            className={`transition-all duration-500 ease-in-out flex w-80 opacity-100`}
           >
             <div className="ml-2 w-80 h-[calc(100vh-400px)] sticky overflow-hidden rounded-lg border border-gray-800 shadow-md bg-gray-800"
                  style={{ top: `${navbarHeight + 70}px` }}> {/* Adjusted to match new header spacing */}
