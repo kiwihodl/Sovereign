@@ -34,11 +34,23 @@ const useCoursePayment = (course) => {
   
   // Handler for successful payment
   const handlePaymentSuccess = useCallback(async (response) => {
-    if (response && response?.preimage) {
-      // Update session to reflect purchase
-      const updated = await update();
-      showToast('success', 'Payment Success', 'You have successfully purchased this course');
-      return true;
+    if (response?.preimage) {
+      try {
+        await update(); // refresh session
+        showToast(
+          'success',
+          'Payment Success',
+          'You have successfully purchased this course'
+        );
+        return true;
+      } catch (err) {
+        showToast(
+          'warn',
+          'Session Refresh Failed',
+          'Purchase succeeded but we could not refresh your session automatically. Please reload the page.'
+        );
+        return false;
+      }
     } else {
       showToast('error', 'Error', 'Failed to purchase course. Please try again.');
       return false;
