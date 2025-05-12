@@ -67,9 +67,43 @@ const Course = () => {
     }
   }, [router.isReady, router.query.slug, showToast, router]);
 
+  // Load completed lessons from localStorage when course is loaded
+  useEffect(() => {
+    if (router.isReady && router.query.slug && session?.user) {
+      const courseId = router.query.slug;
+      const storageKey = `course_${courseId}_${session.user.pubkey}_completed`;
+      const savedCompletedLessons = localStorage.getItem(storageKey);
+      
+      if (savedCompletedLessons) {
+        try {
+          const parsedLessons = JSON.parse(savedCompletedLessons);
+          setCompletedLessons(parsedLessons);
+        } catch (error) {
+          console.error('Error parsing completed lessons from storage:', error);
+        }
+      }
+    }
+  }, [router.isReady, router.query.slug, session]);
+
   const setCompleted = useCallback(lessonId => {
-    setCompletedLessons(prev => [...prev, lessonId]);
-  }, []);
+    setCompletedLessons(prev => {
+      // Avoid duplicates
+      if (prev.includes(lessonId)) {
+        return prev;
+      }
+      
+      const newCompletedLessons = [...prev, lessonId];
+      
+      // Save to localStorage
+      if (router.query.slug && session?.user) {
+        const courseId = router.query.slug;
+        const storageKey = `course_${courseId}_${session.user.pubkey}_completed`;
+        localStorage.setItem(storageKey, JSON.stringify(newCompletedLessons));
+      }
+      
+      return newCompletedLessons;
+    });
+  }, [router.query.slug, session]);
 
   const fetchAuthor = useCallback(
     async pubkey => {
