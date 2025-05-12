@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import useCourseTabsState from './useCourseTabsState';
 
 /**
  * Hook to manage course navigation and tab logic
@@ -8,19 +9,20 @@ import { useState, useEffect, useMemo } from 'react';
  */
 const useCourseNavigation = (router, isMobileView) => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [sidebarVisible, setSidebarVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview'); // Default to overview tab
-
-  // Memoized function to get the tab map based on view mode
-  const tabMap = useMemo(() => {
-    const baseTabMap = ['overview', 'content', 'qa'];
-    if (isMobileView) {
-      const mobileTabMap = [...baseTabMap];
-      mobileTabMap.splice(2, 0, 'lessons');
-      return mobileTabMap;
-    }
-    return baseTabMap;
-  }, [isMobileView]);
+  
+  // Use the base hook for core tab state functionality
+  const {
+    activeTab,
+    setActiveTab,
+    sidebarVisible,
+    setSidebarVisible,
+    tabMap,
+    getActiveTabIndex,
+    getTabItems,
+    toggleSidebar: baseToggleSidebar
+  } = useCourseTabsState({
+    isMobileView
+  });
 
   // Initialize navigation state based on router
   useEffect(() => {
@@ -39,10 +41,10 @@ const useCourseNavigation = (router, isMobileView) => {
       // Auto-open sidebar on desktop, close on mobile
       setSidebarVisible(!isMobileView);
     }
-  }, [router.isReady, router.query, isMobileView]);
+  }, [router.isReady, router.query, isMobileView, setActiveTab, setSidebarVisible]);
 
   // Function to handle lesson selection
-  const handleLessonSelect = (index) => {
+  const handleLessonSelect = useCallback((index) => {
     setActiveIndex(index);
     
     // Update URL without causing a page reload (for bookmarking purposes)
@@ -54,10 +56,10 @@ const useCourseNavigation = (router, isMobileView) => {
       setActiveTab('content');
       setSidebarVisible(false);
     }
-  };
+  }, [router.query.slug, isMobileView, setActiveTab, setSidebarVisible]);
 
-  // Function to toggle tab
-  const toggleTab = (index) => {
+  // Function to toggle tab with lesson state integration
+  const toggleTab = useCallback((index) => {
     const tabName = tabMap[index];
     setActiveTab(tabName);
     
@@ -65,66 +67,7 @@ const useCourseNavigation = (router, isMobileView) => {
     if (isMobileView) {
       setSidebarVisible(tabName === 'lessons');
     }
-  };
-
-  // Function to toggle sidebar visibility
-  const toggleSidebar = () => {
-    setSidebarVisible(!sidebarVisible);
-  };
-
-  // Map active tab name back to index for MenuTab
-  const getActiveTabIndex = () => {
-    return tabMap.indexOf(activeTab);
-  };
-
-  // Create tab items for MenuTab
-  const getTabItems = () => {
-    const items = [
-      {
-        label: 'Overview',
-        icon: 'pi pi-home',
-      },
-      {
-        label: 'Content',
-        icon: 'pi pi-book',
-      }
-    ];
-    
-    // Add lessons tab only on mobile
-    if (isMobileView) {
-      items.push({
-        label: 'Lessons',
-        icon: 'pi pi-list',
-      });
-    }
-    
-    items.push({
-      label: 'Comments',
-      icon: 'pi pi-comments',
-    });
-    
-    return items;
-  };
-
-  // Add keyboard navigation support for tabs
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'ArrowRight') {
-        const currentIndex = getActiveTabIndex();
-        const nextIndex = (currentIndex + 1) % tabMap.length;
-        toggleTab(nextIndex);
-      } else if (e.key === 'ArrowLeft') {
-        const currentIndex = getActiveTabIndex();
-        const prevIndex = (currentIndex - 1 + tabMap.length) % tabMap.length;
-        toggleTab(prevIndex);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [activeTab, tabMap]);
+  }, [tabMap, isMobileView, setActiveTab, setSidebarVisible]);
 
   return {
     activeIndex,
@@ -135,7 +78,7 @@ const useCourseNavigation = (router, isMobileView) => {
     setSidebarVisible,
     handleLessonSelect,
     toggleTab,
-    toggleSidebar,
+    toggleSidebar: baseToggleSidebar,
     getActiveTabIndex,
     getTabItems,
     tabMap

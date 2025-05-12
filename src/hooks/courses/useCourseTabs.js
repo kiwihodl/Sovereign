@@ -1,8 +1,10 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import useWindowWidth from '../useWindowWidth';
+import useCourseTabsState from './useCourseTabsState';
 
 /**
+ * @deprecated Use useCourseTabsState for pure state or useCourseNavigation for router integration
  * Hook to manage course tabs, navigation, and sidebar visibility
  * @param {Object} options - Configuration options
  * @param {Array} options.tabMap - Optional custom tab map to use
@@ -13,49 +15,42 @@ const useCourseTabs = (options = {}) => {
   const router = useRouter();
   const windowWidth = useWindowWidth();
   const isMobileView = typeof windowWidth === 'number' ? windowWidth <= 968 : false;
-  // Tab management state
-  const [activeTab, setActiveTab] = useState('overview');
-  const [sidebarVisible, setSidebarVisible] = useState(
-    options.initialSidebarVisible !== undefined ? options.initialSidebarVisible : !isMobileView
-  );
   
-  // Get tab map based on view mode
-  const tabMap = useMemo(() => {
-    const baseTabMap = options.tabMap || ['overview', 'content', 'qa'];
-    if (isMobileView) {
-      const mobileTabMap = [...baseTabMap];
-      // Insert lessons tab before qa in mobile view
-      if (!mobileTabMap.includes('lessons')) {
-        mobileTabMap.splice(2, 0, 'lessons');
-      }
-      return mobileTabMap;
-    }
-    return baseTabMap;
-  }, [isMobileView, options.tabMap]);
+  // Use the base hook for core tab state functionality
+  const {
+    activeTab,
+    setActiveTab,
+    sidebarVisible,
+    setSidebarVisible,
+    tabMap,
+    getActiveTabIndex,
+    getTabItems,
+    toggleSidebar
+  } = useCourseTabsState({
+    tabMap: options.tabMap,
+    initialSidebarVisible: options.initialSidebarVisible,
+    isMobileView
+  });
   
   // Update tabs and sidebar based on router query
   useEffect(() => {
     if (router.isReady) {
-      const { active } = router.query;
-      if (active !== undefined) {
+      const { active, tab } = router.query;
+      
+      // If tab is specified in the URL, use that
+      if (tab && tabMap.includes(tab)) {
+        setActiveTab(tab);
+      } else if (active !== undefined) {
         // If we have an active lesson, switch to content tab
         setActiveTab('content');
       } else {
-        // Default to overview tab when no active parameter
+        // Default to overview tab when no parameters
         setActiveTab('overview');
       }
-
-      // Auto-open sidebar on desktop, close on mobile
-      setSidebarVisible(!isMobileView);
     }
-  }, [router.isReady, router.query, isMobileView]);
+  }, [router.isReady, router.query, tabMap, setActiveTab]);
   
-  // Get active tab index
-  const getActiveTabIndex = useCallback(() => {
-    return tabMap.indexOf(activeTab);
-  }, [activeTab, tabMap]);
-  
-  // Toggle between tabs
+  // Toggle between tabs with router integration
   const toggleTab = useCallback((indexOrName) => {
     const tabName = typeof indexOrName === 'number' 
       ? tabMap[indexOrName] 
@@ -67,61 +62,18 @@ const useCourseTabs = (options = {}) => {
     if (isMobileView) {
       setSidebarVisible(tabName === 'lessons');
     }
-  }, [tabMap, isMobileView]);
-  
-  // Toggle sidebar visibility
-  const toggleSidebar = useCallback(() => {
-    setSidebarVisible(prev => !prev);
-  }, []);
-  
-  // Generate tab items for MenuTab component
-  const getTabItems = useCallback(() => {
-    const items = [
-      {
-        label: 'Overview',
-        icon: 'pi pi-home',
-      },
-      {
-        label: 'Content',
-        icon: 'pi pi-book',
-      }
-    ];
     
-    // Add lessons tab only on mobile
-    if (isMobileView) {
-      items.push({
-        label: 'Lessons',
-        icon: 'pi pi-list',
-      });
-    }
-    
-    items.push({
-      label: 'Comments',
-      icon: 'pi pi-comments',
-    });
-    
-    return items;
-  }, [isMobileView]);
-  
-  // Setup keyboard navigation for tabs
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'ArrowRight') {
-        const currentIndex = getActiveTabIndex();
-        const nextIndex = (currentIndex + 1) % tabMap.length;
-        toggleTab(nextIndex);
-      } else if (e.key === 'ArrowLeft') {
-        const currentIndex = getActiveTabIndex();
-        const prevIndex = (currentIndex - 1 + tabMap.length) % tabMap.length;
-        toggleTab(prevIndex);
-      }
+    // Sync URL with tab change using shallow routing
+    const newQuery = {
+      ...router.query,
+      tab: tabName === 'overview' ? undefined : tabName
     };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [getActiveTabIndex, tabMap, toggleTab]);
+    router.push(
+      { pathname: router.pathname, query: newQuery },
+      undefined,
+      { shallow: true }
+    );
+  }, [tabMap, isMobileView, router, setActiveTab, setSidebarVisible]);
   
   return {
     activeTab,
