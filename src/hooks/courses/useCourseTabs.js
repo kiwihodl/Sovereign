@@ -12,8 +12,7 @@ import useWindowWidth from '../useWindowWidth';
 const useCourseTabs = (options = {}) => {
   const router = useRouter();
   const windowWidth = useWindowWidth();
-  const isMobileView = windowWidth <= 968;
-  
+  const isMobileView = typeof windowWidth === 'number' ? windowWidth <= 968 : false;
   // Tab management state
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarVisible, setSidebarVisible] = useState(
