@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import { nip19 } from 'nostr-tools';
 import { useToast } from '@/hooks/useToast';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { Buffer } from 'buffer';
 
 // Hooks
 import useCourseDecryption from '@/hooks/encryption/useCourseDecryption';

@@ -1,12 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import { InputText } from 'primereact/inputtext';
-import { InputTextarea } from 'primereact/inputtextarea';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputSwitch } from 'primereact/inputswitch';
-import { Calendar } from 'primereact/calendar';
 import GenericButton from '@/components/buttons/GenericButton';
-import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import { useToast } from '@/hooks/useToast';
 import { useNDKContext } from '@/context/NDKContext';
