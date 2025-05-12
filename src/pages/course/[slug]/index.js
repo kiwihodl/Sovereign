@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { findKind0Fields } from '@/utils/nostr';
 import { useNDKContext } from '@/context/NDKContext';
@@ -35,7 +35,6 @@ const Course = () => {
   const [nsec, setNsec] = useState(null);
   const [npub, setNpub] = useState(null);
   const [nAddress, setNAddress] = useState(null);
-  const [isDecrypting, setIsDecrypting] = useState(false);
   const windowWidth = useWindowWidth();
   const isMobileView = windowWidth <= 968;
   const navbarHeight = 60; // Match the height from Navbar component
@@ -140,18 +139,12 @@ const Course = () => {
     activeIndex
   );
 
-  useEffect(() => {
-    if (paidCourse && uniqueLessons.length > 0) {
-      const currentLesson = uniqueLessons[activeIndex];
-      if (currentLesson && !decryptedLessonIds[currentLesson.id]) {
-        setIsDecrypting(true);
-      } else {
-        setIsDecrypting(false);
-      }
-    } else {
-      setIsDecrypting(false);
-    }
-  }, [activeIndex, uniqueLessons, decryptedLessonIds, paidCourse]);
+  // Replace useState + useEffect with useMemo for derived state
+  const isDecrypting = useMemo(() => {
+    if (!paidCourse || uniqueLessons.length === 0) return false;
+    const current = uniqueLessons[activeIndex];
+    return current && !decryptedLessonIds[current.id];
+  }, [paidCourse, uniqueLessons, activeIndex, decryptedLessonIds]);
 
   useEffect(() => {
     if (uniqueLessons.length > 0) {

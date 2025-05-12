@@ -93,6 +93,7 @@ const useCourseDecryption = (session, paidCourse, course, lessons, setLessons, r
         clearTimeout(timeoutId);
         decryptTimeoutRef.current = null;
       } catch (error) {
+        clearTimeout(timeoutId);
         // If timeout or network error, schedule a retry
         retryTimeoutRef.current = setTimeout(() => {
           processingRef.current = false;
