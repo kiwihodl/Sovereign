@@ -8,6 +8,8 @@ const useCourseDecryption = (session, paidCourse, course, lessons, setLessons, r
   const processingRef = useRef(false);
   const lastLessonIdRef = useRef(null);
   const retryCountRef = useRef({});
+  const retryTimeoutRef = useRef(null);
+  const decryptTimeoutRef = useRef(null);
   const MAX_RETRIES = 3;
   
   // Get the current active lesson using the activeIndex prop instead of router.query
@@ -70,12 +72,12 @@ const useCourseDecryption = (session, paidCourse, course, lessons, setLessons, r
       let timeoutId;
       const timeoutPromise = new Promise((_, reject) => {
         timeoutId = setTimeout(() => {
-          // Cancel the in-flight request when timeout occurs
           if (decryptionPromise.cancel) {
             decryptionPromise.cancel();
           }
           reject(new Error('Decryption timeout'));
         }, 10000);
+        decryptTimeoutRef.current = timeoutId;
       });
       
       // Use a separate try-catch for the race
@@ -89,9 +91,10 @@ const useCourseDecryption = (session, paidCourse, course, lessons, setLessons, r
         
         // Clear the timeout if decryption wins
         clearTimeout(timeoutId);
+        decryptTimeoutRef.current = null;
       } catch (error) {
         // If timeout or network error, schedule a retry
-        setTimeout(() => {
+        retryTimeoutRef.current = setTimeout(() => {
           processingRef.current = false;
           decryptCurrentLesson();
         }, 5000);
@@ -137,6 +140,19 @@ const useCourseDecryption = (session, paidCourse, course, lessons, setLessons, r
       decryptCurrentLesson();
     }
   }, [currentLessonId, hasAccess, paidCourse, decryptedLessonIds, decryptCurrentLesson, activeIndex]);
+  
+  useEffect(() => {
+    return () => {
+      if (decryptTimeoutRef.current) {
+        clearTimeout(decryptTimeoutRef.current);
+        decryptTimeoutRef.current = null;
+      }
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
+    };
+  }, []);
   
   return {
     decryptionPerformed: isCurrentLessonDecrypted,
