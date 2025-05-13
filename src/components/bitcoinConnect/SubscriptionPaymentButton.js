@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { track } from '@vercel/analytics';
-import { initializeBitcoinConnect } from './BitcoinConnect';
+import { initializeBitcoinConnect, getSDK } from './BitcoinConnect';
 import { LightningAddress } from '@getalby/lightning-tools';
 import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
-import { webln, nwc } from '@getalby/sdk';
 import { useRouter } from 'next/router';
 import { Divider } from 'primereact/divider';
 import dynamic from 'next/dynamic';
@@ -38,23 +37,28 @@ const SubscriptionPaymentButtons = ({
   const amount = 50000;
 
   useEffect(() => {
-    initializeBitcoinConnect();
+    // Initialize Bitcoin Connect as early as possible
+    initializeBitcoinConnect().catch(err => {
+      console.error("Error initializing Bitcoin Connect:", err);
+    });
   }, []);
 
   useEffect(() => {
     let intervalId;
     if (invoice) {
       intervalId = setInterval(async () => {
-        const paid = await invoice.verifyPayment();
-
-        if (paid && invoice.preimage) {
+        try {
+          const paid = await invoice.verifyPayment();
+          if (paid) {
+            clearInterval(intervalId);
+            // handle success
+            onSuccess();
+          }
+        } catch (error) {
+          console.error("Error verifying payment:", error);
           clearInterval(intervalId);
-          // handle success
-          onSuccess();
         }
       }, 1000);
-    } else {
-      console.error('no invoice');
     }
 
     return () => {
@@ -62,7 +66,7 @@ const SubscriptionPaymentButtons = ({
         clearInterval(intervalId);
       }
     };
-  }, [invoice]);
+  }, [invoice, onSuccess]);
 
   const fetchInvoice = async () => {
     try {
@@ -94,12 +98,22 @@ const SubscriptionPaymentButtons = ({
   };
 
   const handleRecurringSubscription = async () => {
-    setIsProcessing(true);
-    const newNwc = nwc.NWCClient.withNewSecret();
-    const yearFromNow = new Date();
-    yearFromNow.setFullYear(yearFromNow.getFullYear() + 1);
-
+    if (!setIsProcessing) {
+      console.warn("setIsProcessing is not defined");
+    } else {
+      setIsProcessing(true);
+    }
+    
     try {
+      // Get SDK directly to avoid client issues
+      const sdk = await getSDK();
+      
+      // Create NWC client
+      const newNwc = sdk.nwc.NWCClient.withNewSecret();
+      
+      const yearFromNow = new Date();
+      yearFromNow.setFullYear(yearFromNow.getFullYear() + 1);
+
       const initNwcOptions = {
         name: 'plebdevs.com',
         requestMethods: ['pay_invoice'],
@@ -108,31 +122,44 @@ const SubscriptionPaymentButtons = ({
         budgetRenewal: 'monthly',
         expiresAt: yearFromNow,
       };
+      
+      console.log("Initializing NWC with options:", initNwcOptions);
+      
+      // Initialize NWC
       await newNwc.initNWC(initNwcOptions);
       showToast('info', 'Alby', 'Alby connection window opened.');
+      
+      // Get NWC URL
       const newNWCUrl = newNwc.getNostrWalletConnectUrl();
 
       if (newNWCUrl) {
-        const nwc = new webln.NostrWebLNProvider({
+        const nwcProvider = new sdk.webln.NostrWebLNProvider({
           nostrWalletConnectUrl: newNWCUrl,
         });
 
-        await nwc.enable();
+        await nwcProvider.enable();
+        console.log("NWC provider enabled");
 
         const invoice = await fetchInvoice();
+        console.log("Invoice fetched for recurring payment:", !!invoice);
 
         if (!invoice || !invoice.paymentRequest) {
           showToast('error', 'NWC', `Failed to fetch invoice from ${lnAddress}`);
+          if (setIsProcessing) setIsProcessing(false);
           return;
         }
 
-        const paymentResponse = await nwc.sendPayment(invoice.paymentRequest);
+        console.log("Sending payment with NWC provider");
+        const paymentResponse = await nwcProvider.sendPayment(invoice.paymentRequest);
+        console.log("Payment response:", paymentResponse?.preimage);
 
         if (!paymentResponse || !paymentResponse?.preimage) {
           showToast('error', 'NWC', 'Payment failed');
+          if (setIsProcessing) setIsProcessing(false);
           return;
         }
 
+        console.log("Updating subscription in API");
         const subscriptionResponse = await axios.put('/api/users/subscription', {
           userId: session.user.id,
           isSubscribed: true,
@@ -154,7 +181,7 @@ const SubscriptionPaymentButtons = ({
       showToast('error', 'Subscription Setup Failed', `Error: ${error.message}`);
       if (onError) onError(error);
     } finally {
-      setIsProcessing(false);
+      if (setIsProcessing) setIsProcessing(false);
     }
   };
 
@@ -164,29 +191,40 @@ const SubscriptionPaymentButtons = ({
       return;
     }
 
-    setIsProcessing(true);
+    if (setIsProcessing) setIsProcessing(true);
+    
     try {
-      const nwc = new webln.NostrWebLNProvider({
+      const sdk = await getSDK();
+      const nwc = new sdk.webln.NostrWebLNProvider({
         nostrWalletConnectUrl: nwcInput,
       });
 
       await nwc.enable();
+      console.log("Manual NWC provider enabled");
 
       const invoice = await fetchInvoice();
+      console.log("Invoice fetched for manual NWC:", !!invoice);
+      
       if (!invoice || !invoice.paymentRequest) {
         showToast('error', 'NWC', `Failed to fetch invoice from ${lnAddress}`);
+        if (setIsProcessing) setIsProcessing(false);
         return;
       }
 
+      console.log("Sending payment with manual NWC");
       const payResponse = await nwc.sendPayment(invoice.paymentRequest);
+      console.log("Payment response:", payResponse?.preimage);
+      
       if (!payResponse || !payResponse.preimage) {
         showToast('error', 'NWC', 'Payment failed');
+        if (setIsProcessing) setIsProcessing(false);
         return;
       }
 
       showToast('success', 'NWC', 'Payment successful!');
 
       try {
+        console.log("Updating subscription in API (manual)");
         const subscriptionResponse = await axios.put('/api/users/subscription', {
           userId: session.user.id,
           isSubscribed: true,
@@ -210,7 +248,7 @@ const SubscriptionPaymentButtons = ({
       showToast('error', 'NWC', `An error occurred: ${error.message}`);
       if (onError) onError(error);
     } finally {
-      setIsProcessing(false);
+      if (setIsProcessing) setIsProcessing(false);
     }
   };
 

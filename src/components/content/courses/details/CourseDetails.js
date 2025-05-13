@@ -127,7 +127,7 @@ export default function CourseDetails({
     if (session?.user && session.user?.role?.subscribed && decryptionPerformed) {
       return (
         <GenericButton
-          tooltipOptions={{ position: 'top' }}
+          tooltipOptions={{ position: 'right' }}
           tooltip={`You are subscribed so you can access all paid content`}
           icon="pi pi-check"
           label="Subscribed"
@@ -154,7 +154,7 @@ export default function CourseDetails({
           outlined
           size="small"
           tooltip={`You paid ${processedEvent.price} sats to access this course (or potentially less if a discount was applied)`}
-          tooltipOptions={{ position: 'top' }}
+          tooltipOptions={{ position: 'right' }}
           className="cursor-default hover:opacity-100 hover:bg-transparent focus:ring-0"
         />
       );
@@ -163,7 +163,7 @@ export default function CourseDetails({
     if (paidCourse && author && processedEvent?.pubkey === session?.user?.pubkey) {
       return (
         <GenericButton
-          tooltipOptions={{ position: 'top' }}
+          tooltipOptions={{ position: 'right' }}
           tooltip={`You created this paid course, users must pay ${processedEvent.price} sats to access it`}
           icon="pi pi-check"
           label={`Price ${processedEvent.price} sats`}
