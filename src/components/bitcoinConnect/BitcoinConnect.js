@@ -7,10 +7,15 @@ const Button = dynamic(() => import('@getalby/bitcoin-connect-react').then(mod =
 
 // Module-level state
 let initialized = false;
+let initializationPromise = null;
 let bitcoinConnectClient = null;
 
 export async function initializeBitcoinConnect() {
-  if (!initialized) {
+  if (initialized) return bitcoinConnectClient;      // fast path
+
+  if (initializationPromise) return initializationPromise; // someone else is already doing the work
+
+  initializationPromise = (async () => {
     try {
       // Import the required modules
       const bc = await import('@getalby/bitcoin-connect-react');
@@ -38,18 +43,20 @@ export async function initializeBitcoinConnect() {
       
       initialized = true;
       console.log('Bitcoin Connect initialized successfully, client:', bitcoinConnectClient);
+      return bitcoinConnectClient;
     } catch (error) {
       // If the error is about custom element already being defined, we can ignore it
       // as it means the component is already initialized
       if (!error.message?.includes('has already been defined as a custom element')) {
         console.error('Error initializing Bitcoin Connect:', error);
       }
+      throw error;                                    // re-throw so callers see the failure
+    } finally {
+      initializationPromise = null;                   // allow retry after failure
     }
-  } else {
-    console.log('Bitcoin Connect already initialized');
-  }
-  
-  return bitcoinConnectClient;
+  })();
+
+  return initializationPromise;
 }
 
 // Export the SDK for direct usage

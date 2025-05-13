@@ -76,7 +76,6 @@ const SubscriptionPaymentButtons = ({
         satoshi: amount,
         comment: `Subscription Purchase. User: ${session?.user?.id}`,
       });
-      console.log("Invoice fetched successfully:", newInvoice);
       return newInvoice;
     } catch (error) {
       console.error('Error fetching invoice:', error);
@@ -132,7 +131,6 @@ const SubscriptionPaymentButtons = ({
       
       // Get NWC URL
       const newNWCUrl = newNwc.getNostrWalletConnectUrl();
-      console.log("NWC URL generated:", !!newNWCUrl);
 
       if (newNWCUrl) {
         const nwcProvider = new sdk.webln.NostrWebLNProvider({
@@ -153,7 +151,7 @@ const SubscriptionPaymentButtons = ({
 
         console.log("Sending payment with NWC provider");
         const paymentResponse = await nwcProvider.sendPayment(invoice.paymentRequest);
-        console.log("Payment response:", paymentResponse);
+        console.log("Payment response:", paymentResponse?.preimage);
 
         if (!paymentResponse || !paymentResponse?.preimage) {
           showToast('error', 'NWC', 'Payment failed');
@@ -215,7 +213,7 @@ const SubscriptionPaymentButtons = ({
 
       console.log("Sending payment with manual NWC");
       const payResponse = await nwc.sendPayment(invoice.paymentRequest);
-      console.log("Payment response:", payResponse);
+      console.log("Payment response:", payResponse?.preimage);
       
       if (!payResponse || !payResponse.preimage) {
         showToast('error', 'NWC', 'Payment failed');
