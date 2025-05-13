@@ -5,14 +5,16 @@ const Button = dynamic(() => import('@getalby/bitcoin-connect-react').then(mod =
   ssr: false,
 });
 
+// Module-level state
 let initialized = false;
 let bitcoinConnectClient = null;
 
 export async function initializeBitcoinConnect() {
   if (!initialized) {
     try {
-      // Import the full module
+      // Import the required modules
       const bc = await import('@getalby/bitcoin-connect-react');
+      const sdkModule = await import('@getalby/sdk');
       
       // Initialize with the config options
       bc.init({
@@ -23,6 +25,17 @@ export async function initializeBitcoinConnect() {
       
       // Store the client for use in components
       bitcoinConnectClient = bc.client;
+      
+      // Export NWC functionality directly
+      if (!bitcoinConnectClient) {
+        console.log('Creating backup NWC client instance');
+        // Create fallback if client isn't available
+        bitcoinConnectClient = {
+          nwc: sdkModule.nwc,
+          webln: sdkModule.webln
+        };
+      }
+      
       initialized = true;
       console.log('Bitcoin Connect initialized successfully, client:', bitcoinConnectClient);
     } catch (error) {
@@ -35,8 +48,14 @@ export async function initializeBitcoinConnect() {
   } else {
     console.log('Bitcoin Connect already initialized');
   }
+  
   return bitcoinConnectClient;
 }
+
+// Export the SDK for direct usage
+export const getSDK = async () => {
+  return import('@getalby/sdk');
+};
 
 const BitcoinConnectButton = () => {
   useEffect(() => {
