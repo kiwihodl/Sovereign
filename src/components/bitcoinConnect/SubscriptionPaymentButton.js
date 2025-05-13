@@ -49,7 +49,7 @@ const SubscriptionPaymentButtons = ({
       intervalId = setInterval(async () => {
         try {
           const paid = await invoice.verifyPayment();
-          if (paid && invoice.preimage) {
+          if (paid) {
             clearInterval(intervalId);
             // handle success
             onSuccess();
