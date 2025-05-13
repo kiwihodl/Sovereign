@@ -247,7 +247,16 @@ const Course = () => {
             
             {/* Content tab content */}
             <div className={`${activeTab === 'content' ? 'block' : 'hidden'}`}>
-              {isDecrypting || decryptionLoading ? (
+              {!isAuthorized ? (
+                <div className="w-full py-12 bg-gray-800 rounded-lg flex flex-col items-center justify-center">
+                  <div className="mx-auto py-auto z-10">
+                    <i className="pi pi-lock text-[100px] text-red-500"></i>
+                  </div>
+                  <p className="text-center text-xl text-red-500 z-10 mt-4">
+                    This content is paid and needs to be purchased before viewing.
+                  </p>
+                </div>
+              ) : isDecrypting || decryptionLoading ? (
                 <div className="w-full py-12 bg-gray-800 rounded-lg flex items-center justify-center">
                   <div className="text-center">
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} />
