@@ -175,7 +175,7 @@ export default function MobileCourseDetails({
                 icon="pi pi-play"
                 onClick={handleContinueClick}
                 outlined={true}
-                disabled={paidCourse && !decryptionPerformed}
+                disabled={paidCourse && (!decryptionPerformed || paidCourse === 'loading')}
               />
             </div>
           )}

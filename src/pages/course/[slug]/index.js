@@ -133,7 +133,7 @@ const Course = () => {
     session,
     paidCourse,
     course,
-    lessons,
+    uniqueLessons,
     setLessons,
     router,
     activeIndex
@@ -143,7 +143,7 @@ const Course = () => {
   const isDecrypting = useMemo(() => {
     if (!paidCourse || uniqueLessons.length === 0) return false;
     const current = uniqueLessons[activeIndex];
-    return current && !decryptedLessonIds[current.id];
+    return current && decryptedLessonIds && !decryptedLessonIds[current.id];
   }, [paidCourse, uniqueLessons, activeIndex, decryptedLessonIds]);
 
   useEffect(() => {
@@ -242,13 +242,7 @@ const Course = () => {
                 handlePaymentError={handlePaymentError}
                 isMobileView={isMobileView}
                 completedLessons={completedLessons}
-                onLessonSelect={(index) => {
-                  handleLessonSelect(index);
-                  // Update URL with active parameter
-                  const url = new URL(window.location.href);
-                  url.searchParams.set('active', index);
-                  router.push(url, undefined, { shallow: true });
-                }}
+                onLessonSelect={handleLessonSelect}
                 toggleToContentTab={() => toggleTab(1)} // Assuming content tab is at index 1
               />
             </div>
@@ -277,7 +271,7 @@ const Course = () => {
                   activeIndex={activeIndex}
                   course={course}
                   paidCourse={paidCourse} 
-                  decryptedLessonIds={decryptedLessonIds}
+                  decryptedLessonIds={decryptedLessonIds || {}}
                   setCompleted={setCompleted}
                 />
               )}
