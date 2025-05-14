@@ -17,6 +17,7 @@ import Nip05Form from '@/components/profile/subscription/Nip05Form';
 import LightningAddressForm from '@/components/profile/subscription/LightningAddressForm';
 import RenewSubscription from '@/components/profile/subscription/RenewSubscription';
 import { SelectButton } from 'primereact/selectbutton';
+import { SUBSCRIPTION_PERIODS, calculateExpirationDate } from '@/constants/subscriptionPeriods';
 
 const UserSubscription = () => {
   const { data: session, update } = useSession();
@@ -52,13 +53,18 @@ const UserSubscription = () => {
   useEffect(() => {
     if (user && user.role) {
       setSubscribed(user.role.subscribed);
-      const subscribedAt = new Date(user.role.lastPaymentAt);
       
-      // Calculate subscription end date based on type
-      const daysToAdd = user.role.subscriptionType === 'yearly' ? 365 : 31;
-      const subscribedUntil = new Date(subscribedAt.getTime() + daysToAdd * 24 * 60 * 60 * 1000);
+      if (user.role.lastPaymentAt) {
+        const subscribedAt = new Date(user.role.lastPaymentAt);
+        
+        // Use the common helper to calculate expiration date
+        const subscribedUntil = calculateExpirationDate(subscribedAt, user.role.subscriptionType || 'monthly');
+        
+        setSubscribedUntil(subscribedUntil);
+      } else {
+        setSubscribedUntil(null);
+      }
       
-      setSubscribedUntil(subscribedUntil);
       if (user.role.subscriptionExpiredAt) {
         const expiredAt = new Date(user.role.subscriptionExpiredAt);
         setSubscriptionExpiredAt(expiredAt);
@@ -243,7 +249,7 @@ const UserSubscription = () => {
                         <span className="font-semibold">Current Plan:</span> {user?.role?.subscriptionType || 'monthly'} subscription
                       </p>
                       <p className="text-gray-300">
-                        <span className="font-semibold">Renews on:</span> {subscribedUntil?.toLocaleDateString()}
+                        <span className="font-semibold">Renews on:</span> {subscribedUntil ? subscribedUntil.toLocaleDateString() : 'N/A'}
                       </p>
                     </div>
                     <div className="flex flex-col gap-4">
