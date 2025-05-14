@@ -18,6 +18,7 @@ import NostrIcon from '../../../../public/images/nostr.png';
 import Image from 'next/image';
 import RenewSubscription from '@/components/profile/subscription/RenewSubscription';
 import { SelectButton } from 'primereact/selectbutton';
+import { calculateExpirationDate } from '@/constants/subscriptionPeriods';
 
 const SubscribeModal = ({ user }) => {
   const { data: session, update } = useSession();
@@ -45,13 +46,20 @@ const SubscribeModal = ({ user }) => {
     if (user && user.role) {
       setSubscribed(user.role.subscribed);
       setSubscriptionType(user.role.subscriptionType || 'monthly');
-      const subscribedAt = new Date(user.role.lastPaymentAt);
       
-      // Calculate subscription end date based on type
-      const daysToAdd = subscriptionType === 'yearly' ? 365 : 31;
-      const subscribedUntil = new Date(subscribedAt.getTime() + daysToAdd * 24 * 60 * 60 * 1000);
+      // Only calculate dates if lastPaymentAt exists
+      if (user.role.lastPaymentAt) {
+        const subscribedAt = new Date(user.role.lastPaymentAt);
+        
+        // Use the shared helper to calculate expiration date
+        const subscribedUntil = calculateExpirationDate(subscribedAt, subscriptionType);
+        
+        setSubscribedUntil(subscribedUntil);
+      } else {
+        // Reset the subscribedUntil value if no lastPaymentAt
+        setSubscribedUntil(null);
+      }
       
-      setSubscribedUntil(subscribedUntil);
       if (user.role.subscriptionExpiredAt) {
         const expiredAt = new Date(user.role.subscriptionExpiredAt);
         setSubscriptionExpiredAt(expiredAt);
@@ -174,7 +182,7 @@ const SubscribeModal = ({ user }) => {
             <Message className="w-fit" severity="success" text="Subscribed!" />
             <p className="mt-3">Thank you for your support 🎉</p>
             <p className="text-sm text-gray-400">
-              Pay-as-you-go {user?.role?.subscriptionType || 'monthly'} subscription will renew on {subscribedUntil?.toLocaleDateString()}
+              Pay-as-you-go {user?.role?.subscriptionType || 'monthly'} subscription will renew on {subscribedUntil ? subscribedUntil.toLocaleDateString() : 'N/A'}
             </p>
           </div>
         )}
@@ -183,7 +191,7 @@ const SubscribeModal = ({ user }) => {
             <Message className="w-fit" severity="success" text="Subscribed!" />
             <p className="mt-3">Thank you for your support 🎉</p>
             <p className="text-sm text-gray-400">
-              Recurring {user?.role?.subscriptionType || 'monthly'} subscription will AUTO renew on {subscribedUntil?.toLocaleDateString()}
+              Recurring {user?.role?.subscriptionType || 'monthly'} subscription will AUTO renew on {subscribedUntil ? subscribedUntil.toLocaleDateString() : 'N/A'}
             </p>
           </div>
         )}

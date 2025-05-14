@@ -1,4 +1,5 @@
 import prisma from '../prisma';
+import { SUBSCRIPTION_PERIODS } from '@/constants/subscriptionPeriods';
 
 export const getAllUsers = async () => {
   return await prisma.user.findMany({
@@ -205,12 +206,16 @@ export const findExpiredSubscriptions = async () => {
   try {
     const now = new Date();
     
-    // Define expiration periods
+    // Use the constants for expiration periods
     const monthlyExpiration = new Date(
-      now.getTime() - 30 * 24 * 60 * 60 * 1000 - 1 * 60 * 60 * 1000
+      now.getTime() - 
+      (SUBSCRIPTION_PERIODS.MONTHLY.DAYS * 24 * 60 * 60 * 1000) - 
+      (SUBSCRIPTION_PERIODS.MONTHLY.BUFFER_HOURS * 60 * 60 * 1000)
     );
     const yearlyExpiration = new Date(
-      now.getTime() - 365 * 24 * 60 * 60 * 1000 - 1 * 60 * 60 * 1000
+      now.getTime() - 
+      (SUBSCRIPTION_PERIODS.YEARLY.DAYS * 24 * 60 * 60 * 1000) - 
+      (SUBSCRIPTION_PERIODS.YEARLY.BUFFER_HOURS * 60 * 60 * 1000)
     );
 
     // Find expired subscriptions of both types
