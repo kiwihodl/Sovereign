@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog } from 'primereact/dialog';
+import Modal from '@/components/ui/Modal';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { useToast } from '@/hooks/useToast';
@@ -31,7 +31,11 @@ const CancelSubscription = ({ visible, onHide }) => {
   };
 
   return (
-    <Dialog header="Cancel Subscription" visible={visible} onHide={onHide}>
+    <Modal
+      header="Cancel Subscription"
+      visible={visible}
+      onHide={onHide}
+    >
       <p>Are you sure you want to cancel your subscription?</p>
       <div className="flex flex-row justify-center mt-6">
         {isProcessing ? (
@@ -46,7 +50,7 @@ const CancelSubscription = ({ visible, onHide }) => {
           />
         )}
       </div>
-    </Dialog>
+    </Modal>
   );
 };
 

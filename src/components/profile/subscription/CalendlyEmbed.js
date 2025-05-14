@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Dialog } from 'primereact/dialog';
+import Modal from '@/components/ui/Modal';
 import { Button } from 'primereact/button';
 import useWindowWidth from '@/hooks/useWindowWidth';
 
@@ -25,10 +25,10 @@ const CalendlyEmbed = ({ visible, onHide, userId, userEmail, userName }) => {
   );
 
   return (
-    <Dialog
+    <Modal
       header="Schedule a Meeting"
       visible={visible}
-      style={{ width: windowWidth < 768 ? '100vw' : '50vw' }}
+      width={windowWidth < 768 ? '100vw' : '50vw'}
       footer={dialogFooter}
       onHide={onHide}
     >
@@ -37,7 +37,7 @@ const CalendlyEmbed = ({ visible, onHide, userId, userEmail, userName }) => {
         data-url={`https://calendly.com/plebdevs/30min?hide_event_type_details=1&hide_gdpr_banner=1&email=${encodeURIComponent(userEmail)}&name=${encodeURIComponent(userName)}&custom_data=${encodeURIComponent(JSON.stringify({ user_id: userId }))}`}
         style={{ minWidth: '320px', height: '700px' }}
       />
-    </Dialog>
+    </Modal>
   );
 };
 

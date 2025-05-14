@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Dialog } from 'primereact/dialog';
+import Modal from '@/components/ui/Modal';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import SubscriptionPaymentButtons from '@/components/bitcoinConnect/SubscriptionPaymentButton';
 import axios from 'axios';
@@ -216,11 +216,10 @@ const SubscribeModal = ({ user }) => {
           </div>
         )}
       </Card>
-      <Dialog
+      <Modal
         header="Subscribe to PlebDevs"
         visible={visible}
         onHide={onHide}
-        className="p-fluid pb-0 w-fit"
       >
         {isProcessing ? (
           <div className="w-full flex flex-col mx-auto justify-center items-center mt-4">
@@ -230,7 +229,7 @@ const SubscribeModal = ({ user }) => {
             <span className="ml-2">Processing subscription...</span>
           </div>
         ) : (
-          <Card className="shadow-lg">
+          <Card className="shadow-none">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-primary mb-2">Unlock Premium Benefits</h2>
               <p className="text-gray-400">Subscribe now and elevate your development journey!</p>
@@ -295,7 +294,7 @@ const SubscribeModal = ({ user }) => {
             </div>
           </Card>
         )}
-      </Dialog>
+      </Modal>
       <CalendlyEmbed
         visible={calendlyVisible}
         onHide={() => setCalendlyVisible(false)}

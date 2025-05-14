@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import { Menu } from 'primereact/menu';
-import { Dialog } from 'primereact/dialog';
+import Modal from '@/components/ui/Modal';
 import { nip19 } from 'nostr-tools';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { useToast } from '@/hooks/useToast';
@@ -284,12 +284,12 @@ const UserProfileCard = ({ user }) => {
     <>
       {windowWidth <= 1440 ? <MobileProfileCard /> : <DesktopProfileCard />}
       <UserBadges visible={showBadges} onHide={() => setShowBadges(false)} />
-      <Dialog
+      <Modal
         visible={showRelaysModal}
         onHide={() => setShowRelaysModal(false)}
         header="Manage Relays"
-        className="w-[90vw] max-w-[800px]"
-        modal
+        width="full"
+        className="max-w-[800px]"
       >
         <UserRelaysTable
           ndk={ndk}
@@ -297,7 +297,7 @@ const UserProfileCard = ({ user }) => {
           setUserRelays={setUserRelays}
           reInitializeNDK={reInitializeNDK}
         />
-      </Dialog>
+      </Modal>
     </>
   );
 };

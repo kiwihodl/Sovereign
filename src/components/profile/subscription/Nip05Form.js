@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog } from 'primereact/dialog';
+import Modal from '@/components/ui/Modal';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { useToast } from '@/hooks/useToast';
@@ -82,11 +82,11 @@ const Nip05Form = ({ visible, onHide }) => {
   };
 
   return (
-    <Dialog
+    <Modal
       header="NIP-05"
       visible={visible}
       onHide={onHide}
-      style={{ width: windowWidth < 768 ? '100vw' : '60vw' }}
+      width={windowWidth < 768 ? '100vw' : '60vw'}
     >
       {existingNip05 ? <p>Update your Pubkey and Name</p> : <p>Confirm your Pubkey and Name</p>}
       <div className="flex flex-col gap-2 max-mob:min-w-[80vw] max-tab:min-w-[60vw] min-w-[40vw]">
@@ -126,7 +126,7 @@ const Nip05Form = ({ visible, onHide }) => {
           />
         </div>
       )}
-    </Dialog>
+    </Modal>
   );
 };
 

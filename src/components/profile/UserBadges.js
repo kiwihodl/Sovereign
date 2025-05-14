@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Dialog } from 'primereact/dialog';
+import Modal from '@/components/ui/Modal';
 import Image from 'next/image';
 import { useNDKContext } from '@/context/NDKContext';
 import { useSession } from 'next-auth/react';
@@ -99,7 +99,13 @@ const UserBadges = ({ visible, onHide }) => {
   };
 
   return (
-    <Dialog header="Your Badges" visible={visible} onHide={onHide} className="w-full max-w-3xl">
+    <Modal
+      header="Your Badges"
+      visible={visible}
+      onHide={onHide}
+      width="full"
+      className="max-w-3xl"
+    >
       <div className="p-4">
         {loading ? (
           <div className="flex justify-center items-center h-40">
@@ -147,7 +153,7 @@ const UserBadges = ({ visible, onHide }) => {
           </div>
         )}
       </div>
-    </Dialog>
+    </Modal>
   );
 };
 
