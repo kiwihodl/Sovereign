@@ -242,6 +242,14 @@ const Course = () => {
                 handlePaymentError={handlePaymentError}
                 isMobileView={isMobileView}
                 completedLessons={completedLessons}
+                onLessonSelect={(index) => {
+                  handleLessonSelect(index);
+                  // Update URL with active parameter
+                  const url = new URL(window.location.href);
+                  url.searchParams.set('active', index);
+                  router.push(url, undefined, { shallow: true });
+                }}
+                toggleToContentTab={() => toggleTab(1)} // Assuming content tab is at index 1
               />
             </div>
             

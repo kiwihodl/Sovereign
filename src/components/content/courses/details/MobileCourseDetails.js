@@ -4,6 +4,7 @@ import { Tag } from 'primereact/tag';
 import ZapDisplay from '@/components/zaps/ZapDisplay';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
 import { Divider } from 'primereact/divider';
+import GenericButton from '@/components/buttons/GenericButton';
 
 export default function MobileCourseDetails({
   processedEvent,
@@ -17,8 +18,45 @@ export default function MobileCourseDetails({
   returnImageProxy,
   renderPaymentMessage,
   isCompleted,
-  showCompletedTag
+  showCompletedTag,
+  completedLessons,
+  onLessonSelect,
+  toggleToContentTab
 }) {
+  // Calculate next lesson to start/continue
+  const getNextLessonIndex = () => {
+    if (!lessons || lessons.length === 0) return 0;
+
+    // If no completed lessons, start with the first one
+    if (completedLessons.length === 0) return 0;
+
+    // Find the highest completed lesson index
+    const lessonIndices = lessons.map((lesson, index) => {
+      return { id: lesson.id, index };
+    });
+
+    // Get indices of completed lessons
+    const completedIndices = lessonIndices
+      .filter(item => completedLessons.includes(item.id))
+      .map(item => item.index);
+
+    // Get the max completed index
+    const maxCompletedIndex = Math.max(...completedIndices);
+
+    // Return the next lesson index (or the last one if all completed)
+    return Math.min(maxCompletedIndex + 1, lessons.length - 1);
+  };
+
+  const nextLessonIndex = getNextLessonIndex();
+  const buttonLabel = completedLessons.length === 0
+    ? "Start Lesson 1"
+    : `Continue to Lesson ${nextLessonIndex + 1}`;
+
+  const handleContinueClick = () => {
+    onLessonSelect(nextLessonIndex);
+    toggleToContentTab();
+  };
+
   return (
     <>
       {/* Mobile-specific layout */}
@@ -128,6 +166,19 @@ export default function MobileCourseDetails({
               </div>
             )}
           </div>
+          
+          {/* Continue/Start button */}
+          {lessons && lessons.length > 0 && !isCompleted && (
+            <div className="mt-4 flex justify-start">
+              <GenericButton
+                label={buttonLabel}
+                icon="pi pi-play"
+                onClick={handleContinueClick}
+                outlined={true}
+                disabled={paidCourse && !decryptionPerformed}
+              />
+            </div>
+          )}
         </div>
       </div>
     </>

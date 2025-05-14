@@ -4,6 +4,7 @@ import { Tag } from 'primereact/tag';
 import ZapDisplay from '@/components/zaps/ZapDisplay';
 import MoreOptionsMenu from '@/components/ui/MoreOptionsMenu';
 import { Divider } from 'primereact/divider';
+import GenericButton from '@/components/buttons/GenericButton';
 
 export default function DesktopCourseDetails({
   processedEvent,
@@ -17,8 +18,45 @@ export default function DesktopCourseDetails({
   returnImageProxy,
   renderPaymentMessage,
   isCompleted,
-  showCompletedTag
+  showCompletedTag,
+  completedLessons,
+  onLessonSelect,
+  toggleToContentTab
 }) {
+
+  // Calculate next lesson to start/continue
+  const getNextLessonIndex = () => {
+    if (!lessons || lessons.length === 0) return 0;
+
+    // If no completed lessons, start with the first one
+    if (completedLessons.length === 0) return 0;
+
+    // Find the highest completed lesson index
+    const lessonIndices = lessons.map((lesson, index) => {
+      return { id: lesson.id, index };
+    });
+
+    // Get indices of completed lessons
+    const completedIndices = lessonIndices
+      .filter(item => completedLessons.includes(item.id))
+      .map(item => item.index);
+
+    // Get the max completed index
+    const maxCompletedIndex = Math.max(...completedIndices);
+
+    // Return the next lesson index (or the last one if all completed)
+    return Math.min(maxCompletedIndex + 1, lessons.length - 1);
+  };
+
+  const nextLessonIndex = getNextLessonIndex();
+  const buttonLabel = completedLessons.length === 0
+    ? "Start Lesson 1"
+    : `Continue to Lesson ${nextLessonIndex + 1}`;
+
+  const handleContinueClick = () => {
+    onLessonSelect(nextLessonIndex);
+    toggleToContentTab();
+  };
 
   return (
     <>
@@ -33,7 +71,7 @@ export default function DesktopCourseDetails({
             className="object-cover"
           />
         </div>
-        
+
         {/* Title and options */}
         <div className="flex-1">
           <div className="flex items-start justify-between mb-2">
@@ -56,7 +94,7 @@ export default function DesktopCourseDetails({
               />
             </div>
           </div>
-          
+
           {/* Topics/tags */}
           <div className="flex flex-wrap gap-2 mb-3">
             {processedEvent.topics &&
@@ -65,7 +103,7 @@ export default function DesktopCourseDetails({
                 <Tag className="text-white" key={index} value={topic}></Tag>
               ))}
           </div>
-          
+
           {/* Author info */}
           <div className="flex items-center">
             <Image
@@ -89,9 +127,9 @@ export default function DesktopCourseDetails({
           </div>
         </div>
       </div>
-      
+
       <Divider className="my-4" />
-      
+
       {/* Course details */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left column: Description */}
@@ -99,19 +137,19 @@ export default function DesktopCourseDetails({
           <h2 className="text-xl font-semibold mb-3 text-white">About This Course</h2>
           <div className="text-gray-300 mb-4">
             {processedEvent?.description?.split('\n')
-               .map((line, index) => <p key={index} className="mb-2">{line}</p>)}
+              .map((line, index) => <p key={index} className="mb-2">{line}</p>)}
           </div>
-          
+
           {/* Payment section */}
           <div className="mt-4">
             {renderPaymentMessage()}
           </div>
         </div>
-        
+
         {/* Right column: Course details */}
         <div className="bg-gray-800 rounded-lg h-fit p-4">
           <h2 className="text-xl font-semibold mb-3 text-white">Course Information</h2>
-          
+
           <div className="space-y-4">
             <div>
               <h3 className="text-gray-300 font-medium mb-2">Course Content</h3>
@@ -128,7 +166,7 @@ export default function DesktopCourseDetails({
                 )}
               </div>
             </div>
-            
+
             {processedEvent.published && (
               <div>
                 <h3 className="text-gray-300 font-medium mb-2">Details</h3>
@@ -141,6 +179,18 @@ export default function DesktopCourseDetails({
               </div>
             )}
           </div>
+          {/* Continue/Start button */}
+          {lessons && lessons.length > 0 && !isCompleted && (
+            <div className="mt-4 flex justify-start">
+              <GenericButton
+                label={buttonLabel}
+                icon="pi pi-play"
+                onClick={handleContinueClick}
+                outlined={true}
+                disabled={paidCourse && !decryptionPerformed}
+              />
+            </div>
+          )}
         </div>
       </div>
     </>

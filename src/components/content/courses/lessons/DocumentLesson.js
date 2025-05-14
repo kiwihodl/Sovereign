@@ -120,7 +120,7 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
         </div>
       );
     }
-    
+
     if (isPaid && !decryptionPerformed) {
       return (
         <div className="w-full p-8 rounded-lg flex flex-col items-center justify-center">
@@ -133,7 +133,7 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
         </div>
       );
     }
-    
+
     return <MarkdownDisplay content={lesson.content} className="p-4 rounded-lg w-full" />;
   };
 
@@ -141,13 +141,15 @@ const DocumentLesson = ({ lesson, course, decryptionPerformed, isPaid, setComple
     <div className="w-full">
       <Toast ref={toastRef} />
       <div className="relative w-[80%] h-[200px] mx-auto mb-24">
-        <Image
-          alt="lesson background image"
-          src={returnImageProxy(lesson.image)}
-          fill
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+        <div className="relative w-full h-full mt-2 rounded-lg">
+          <Image
+            alt="lesson background image"
+            src={returnImageProxy(lesson.image)}
+            fill
+            className="object-cover rounded-lg"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gray-800 bg-opacity-20"></div>
       </div>
       <div className="w-full mx-auto px-4 py-8 -mt-32 relative z-10">
         <div className="mb-8 bg-gray-800/70 rounded-lg p-4">

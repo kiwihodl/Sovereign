@@ -31,6 +31,9 @@ export default function CourseDetails({
   handlePaymentError,
   isMobileView,
   showCompletedTag = true,
+  completedLessons,
+  onLessonSelect,
+  toggleToContentTab
 }) {
   const [zapAmount, setZapAmount] = useState(0);
   const [author, setAuthor] = useState(null);
@@ -213,7 +216,10 @@ export default function CourseDetails({
     returnImageProxy,
     renderPaymentMessage,
     isCompleted,
-    showCompletedTag
+    showCompletedTag,
+    completedLessons,
+    onLessonSelect,
+    toggleToContentTab
   };
 
   return (

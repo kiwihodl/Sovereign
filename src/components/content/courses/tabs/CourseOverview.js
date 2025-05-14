@@ -1,6 +1,7 @@
 import React from 'react';
 import { Tag } from 'primereact/tag';
 import CourseDetails from '../details/CourseDetails';
+import GenericButton from '@/components/buttons/GenericButton';
 
 /**
  * Component to display course overview with details
@@ -13,12 +14,15 @@ const CourseOverview = ({
   handlePaymentSuccess,
   handlePaymentError,
   isMobileView,
-  completedLessons 
+  completedLessons,
+  onLessonSelect,
+  toggleToContentTab
 }) => {
   // Determine if course is completed
   const isCompleted = lessons && lessons.length > 0 && completedLessons.length === lessons.length;
   
   return (
+    <>
     <div className={`bg-gray-800 rounded-lg border border-gray-800 shadow-md ${isMobileView ? 'p-4' : 'p-6'}`}>
       {isMobileView && course && (
         <div className="mb-2">
@@ -50,8 +54,12 @@ const CourseOverview = ({
         handlePaymentError={handlePaymentError}
         isMobileView={isMobileView}
         showCompletedTag={!isMobileView}
+        completedLessons={completedLessons}
+        onLessonSelect={onLessonSelect}
+        toggleToContentTab={toggleToContentTab}
       />
     </div>
+    </>
   );
 };
 
