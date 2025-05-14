@@ -117,11 +117,6 @@ const UserSubscription = () => {
     }
   };
 
-  // Calculate the subscription amount based on type
-  const getAmount = () => {
-    return subscriptionType === 'yearly' ? 500 : 50;
-  };
-
   return (
     <div className="py-4 px-1">
       {windowWidth < 768 && <h1 className="text-3xl font-bold mb-6">Subscription Management</h1>}

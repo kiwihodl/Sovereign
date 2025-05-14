@@ -11,7 +11,7 @@ const lnAddress = process.env.LIGHTNING_ADDRESS;
 // Calculate subscription amount based on type
 const getAmount = (subscriptionType) => {
   // 500K for yearly (saves ~17% compared to monthly), 50K for monthly
-  return subscriptionType === 'yearly' ? 500 : 50;
+  return subscriptionType === 'yearly' ? 500000 : 50000;
 };
 
 export default async function handler(req, res) {

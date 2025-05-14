@@ -38,7 +38,7 @@ const SubscriptionPaymentButtons = ({
   
   // Calculate the amount based on the subscription type
   const getAmount = () => {
-    return subscriptionType === 'yearly' ? 500 : 50;
+    return subscriptionType === 'yearly' ? 500000 : 50000;
   };
   
   const amount = getAmount();
