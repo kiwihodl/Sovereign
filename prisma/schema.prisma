@@ -1,13 +1,13 @@
-// datasource db {
-//     provider = "postgresql"
-//     url      = env("DATABASE_URL")
-// }
-
 datasource db {
-  provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
+
+// datasource db {
+//   provider = "postgresql"
+//   url = env("POSTGRES_PRISMA_URL")
+//   directUrl = env("POSTGRES_URL_NON_POOLING")
+// }
 
 generator client {
     provider = "prisma-client-js"
@@ -83,6 +83,7 @@ model Role {
     userId                String    @unique
     subscribed            Boolean   @default(false)
     admin                 Boolean   @default(false)
+    subscriptionType      String    @default("monthly")
     subscriptionStartDate DateTime?
     lastPaymentAt         DateTime?
     subscriptionExpiredAt DateTime?

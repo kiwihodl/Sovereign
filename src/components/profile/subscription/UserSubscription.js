@@ -16,6 +16,7 @@ import CalendlyEmbed from '@/components/profile/subscription/CalendlyEmbed';
 import Nip05Form from '@/components/profile/subscription/Nip05Form';
 import LightningAddressForm from '@/components/profile/subscription/LightningAddressForm';
 import RenewSubscription from '@/components/profile/subscription/RenewSubscription';
+import { SelectButton } from 'primereact/selectbutton';
 
 const UserSubscription = () => {
   const { data: session, update } = useSession();
@@ -32,10 +33,19 @@ const UserSubscription = () => {
   const [nip05Visible, setNip05Visible] = useState(false);
   const [cancelSubscriptionVisible, setCancelSubscriptionVisible] = useState(false);
   const [renewSubscriptionVisible, setRenewSubscriptionVisible] = useState(false);
+  const [subscriptionType, setSubscriptionType] = useState('monthly');
+
+  const subscriptionOptions = [
+    { label: 'Monthly', value: 'monthly' },
+    { label: 'Yearly', value: 'yearly' },
+  ];
 
   useEffect(() => {
     if (session && session?.user) {
       setUser(session.user);
+      if (session.user.role?.subscriptionType) {
+        setSubscriptionType(session.user.role.subscriptionType);
+      }
     }
   }, [session]);
 
@@ -43,7 +53,11 @@ const UserSubscription = () => {
     if (user && user.role) {
       setSubscribed(user.role.subscribed);
       const subscribedAt = new Date(user.role.lastPaymentAt);
-      const subscribedUntil = new Date(subscribedAt.getTime() + 31 * 24 * 60 * 60 * 1000);
+      
+      // Calculate subscription end date based on type
+      const daysToAdd = user.role.subscriptionType === 'yearly' ? 365 : 31;
+      const subscribedUntil = new Date(subscribedAt.getTime() + daysToAdd * 24 * 60 * 60 * 1000);
+      
       setSubscribedUntil(subscribedUntil);
       if (user.role.subscriptionExpiredAt) {
         const expiredAt = new Date(user.role.subscriptionExpiredAt);
@@ -58,6 +72,7 @@ const UserSubscription = () => {
       const apiResponse = await axios.put('/api/users/subscription', {
         userId: session.user.id,
         isSubscribed: true,
+        subscriptionType: subscriptionType,
       });
       if (apiResponse.data) {
         await update();
@@ -94,6 +109,11 @@ const UserSubscription = () => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  // Calculate the subscription amount based on type
+  const getAmount = () => {
+    return subscriptionType === 'yearly' ? 500 : 50;
   };
 
   return (
@@ -134,37 +154,66 @@ const UserSubscription = () => {
                 </div>
               ) : (
                 <div className="flex flex-col">
-                  <div className="mb-2">
+                  <div className="mb-4">
                     <p className="text-gray-400">
                       Subscribe now and elevate your development journey!
                     </p>
                   </div>
-                  <div className="flex flex-col gap-4 mb-1">
+                  <div className="flex flex-col gap-5 mb-5">
                     <div className="flex items-center">
-                      <i className="pi pi-book text-2xl text-primary mr-2 text-blue-400"></i>
+                      <i className="pi pi-book text-2xl text-primary mr-3 text-blue-400"></i>
                       <span>Access ALL current and future PlebDevs content</span>
                     </div>
                     <div className="flex items-center">
-                      <i className="pi pi-calendar text-2xl text-primary mr-2 text-red-400"></i>
+                      <i className="pi pi-calendar text-2xl text-primary mr-3 text-red-400"></i>
                       <span>
                         Personal mentorship & guidance and access to exclusive 1:1 booking calendar
                       </span>
                     </div>
                     <div className="flex items-center">
-                      <i className="pi pi-bolt text-2xl text-primary mr-2 text-yellow-500"></i>
+                      <i className="pi pi-bolt text-2xl text-primary mr-3 text-yellow-500"></i>
                       <span>Claim your own personal plebdevs.com Lightning Address</span>
                     </div>
                     <div className="flex items-center">
-                      <Image src={NostrIcon} alt="Nostr" width={25} height={25} className="mr-2" />
+                      <Image src={NostrIcon} alt="Nostr" width={25} height={25} className="mr-3" />
                       <span>Claim your own personal plebdevs.com Nostr NIP-05 identity</span>
                     </div>
                   </div>
+                  
+                  <div className="subscription-plan-selector my-6">
+                    <div className="flex flex-col items-center mb-4">
+                      <h3 className="text-xl font-bold mb-3">Select Your Plan</h3>
+                      <SelectButton 
+                        value={subscriptionType} 
+                        options={subscriptionOptions} 
+                        onChange={(e) => setSubscriptionType(e.value)} 
+                        className="mb-3 w-full max-w-[300px] mx-auto"
+                        pt={{
+                          button: { className: 'text-base px-8 py-2 text-white' },
+                          root: { className: 'flex justify-center' }
+                        }}
+                      />
+                      {subscriptionType === 'yearly' && (
+                        <div className="savings-message text-sm text-green-500 font-semibold mt-2">
+                          Save ~17% with yearly subscription!
+                        </div>
+                      )}
+                      <div className="price-display text-2xl font-bold mt-3">
+                        {subscriptionType === 'yearly' ? '500,000' : '50,000'} sats
+                        <span className="text-sm text-gray-400 ml-2">
+                          ({subscriptionType === 'yearly' ? 'yearly' : 'monthly'})
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
                   <SubscriptionPaymentButtons
                     onSuccess={handleSubscriptionSuccess}
                     onRecurringSubscriptionSuccess={handleRecurringSubscriptionSuccess}
                     onError={handleSubscriptionError}
                     setIsProcessing={setIsProcessing}
                     layout={windowWidth < 768 ? 'col' : 'row'}
+                    subscriptionType={subscriptionType}
                   />
                 </div>
               )}
@@ -176,6 +225,9 @@ const UserSubscription = () => {
               <Card
                 title="Subscription Benefits"
                 className="h-[330px] border border-gray-700 rounded-lg"
+                pt={{
+                  content: { className: 'py-0' },
+                }}
               >
                 {isProcessing ? (
                   <div className="w-full flex flex-col mx-auto justify-center items-center mt-4">
@@ -186,6 +238,14 @@ const UserSubscription = () => {
                   </div>
                 ) : (
                   <div className="flex flex-col">
+                    <div className="mb-1">
+                      <p className="text-gray-300 mb-1">
+                        <span className="font-semibold">Current Plan:</span> {user?.role?.subscriptionType || 'monthly'} subscription
+                      </p>
+                      <p className="text-gray-300">
+                        <span className="font-semibold">Renews on:</span> {subscribedUntil?.toLocaleDateString()}
+                      </p>
+                    </div>
                     <div className="flex flex-col gap-4">
                       <GenericButton
                         severity="info"
@@ -249,28 +309,35 @@ const UserSubscription = () => {
             title="Frequently Asked Questions"
             className="mt-2 border border-gray-700 rounded-lg"
           >
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-5">
               <div>
                 <h3 className="text-lg font-semibold">How does the subscription work?</h3>
                 <p>
-                  Think of the subscriptions as a paetreon type model. You pay a monthly fee and in
+                  Think of the subscriptions as a paetreon type model. You pay a monthly or yearly fee and in
                   return you get access to premium features and all of the paid content. You can
                   cancel at any time.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">What&apos;s the difference between monthly and yearly?</h3>
+                <p>
+                  The yearly subscription offers a ~17% discount compared to paying monthly for a year.
+                  Both plans give you the same access to all features and content.
                 </p>
               </div>
               <div>
                 <h3 className="text-lg font-semibold">How do I Subscribe? (Pay as you go)</h3>
                 <p>
                   The pay as you go subscription is a one-time payment that gives you access to all
-                  of the premium features for one month. You will need to manually renew your
-                  subscription every month.
+                  of the premium features for one month or year, depending on your selected plan. You will need to manually renew your
+                  subscription when it expires.
                 </p>
               </div>
               <div>
                 <h3 className="text-lg font-semibold">How do I Subscribe? (Recurring)</h3>
                 <p>
                   The recurring subscription option allows you to submit a Nostr Wallet Connect URI
-                  that will be used to automatically send the subscription fee every month. You can
+                  that will be used to automatically send the subscription fee on your chosen schedule. You can
                   cancel at any time.
                 </p>
               </div>

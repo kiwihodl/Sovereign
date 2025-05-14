@@ -12,8 +12,8 @@ export default async function handler(req, res) {
 
   if (req.method === 'PUT') {
     try {
-      const { userId, isSubscribed, nwc } = req.body;
-      const updatedUser = await updateUserSubscription(userId, isSubscribed, nwc);
+      const { userId, isSubscribed, nwc, subscriptionType = 'monthly' } = req.body;
+      const updatedUser = await updateUserSubscription(userId, isSubscribed, nwc, subscriptionType);
 
       res.status(200).json(updatedUser);
     } catch (error) {

@@ -165,7 +165,7 @@ export const deleteUser = async id => {
   });
 };
 
-export const updateUserSubscription = async (userId, isSubscribed, nwc) => {
+export const updateUserSubscription = async (userId, isSubscribed, nwc, subscriptionType = 'monthly') => {
   try {
     const now = new Date();
     return await prisma.user.update({
@@ -175,6 +175,7 @@ export const updateUserSubscription = async (userId, isSubscribed, nwc) => {
           upsert: {
             create: {
               subscribed: isSubscribed,
+              subscriptionType: subscriptionType,
               subscriptionStartDate: isSubscribed ? now : null,
               lastPaymentAt: isSubscribed ? now : null,
               nwc: nwc ? nwc : null,
@@ -182,6 +183,7 @@ export const updateUserSubscription = async (userId, isSubscribed, nwc) => {
             },
             update: {
               subscribed: isSubscribed,
+              subscriptionType: subscriptionType,
               subscriptionStartDate: isSubscribed ? { set: now } : { set: null },
               lastPaymentAt: isSubscribed ? now : { set: null },
               nwc: nwc ? nwc : null,
@@ -202,20 +204,34 @@ export const updateUserSubscription = async (userId, isSubscribed, nwc) => {
 export const findExpiredSubscriptions = async () => {
   try {
     const now = new Date();
-    const oneMonthAndOneHourAgo = new Date(
-      now.getTime() - 1 * 30 * 24 * 60 * 60 * 1000 - 1 * 60 * 60 * 1000
+    
+    // Define expiration periods
+    const monthlyExpiration = new Date(
+      now.getTime() - 30 * 24 * 60 * 60 * 1000 - 1 * 60 * 60 * 1000
+    );
+    const yearlyExpiration = new Date(
+      now.getTime() - 365 * 24 * 60 * 60 * 1000 - 1 * 60 * 60 * 1000
     );
 
+    // Find expired subscriptions of both types
     const result = await prisma.role.findMany({
       where: {
         subscribed: true,
-        lastPaymentAt: {
-          lt: oneMonthAndOneHourAgo,
-        },
+        OR: [
+          {
+            subscriptionType: 'monthly',
+            lastPaymentAt: { lt: monthlyExpiration }
+          },
+          {
+            subscriptionType: 'yearly', 
+            lastPaymentAt: { lt: yearlyExpiration }
+          }
+        ]
       },
       select: {
         userId: true,
         nwc: true,
+        subscriptionType: true,
         subscriptionExpiredAt: true,
         subscriptionStartDate: true,
         admin: true,
@@ -231,6 +247,24 @@ export const findExpiredSubscriptions = async () => {
 export const expireUserSubscriptions = async userIds => {
   try {
     const now = new Date();
+    
+    // First, get the subscription types for each userId
+    const subscriptions = await prisma.role.findMany({
+      where: {
+        userId: { in: userIds },
+      },
+      select: {
+        userId: true,
+        subscriptionType: true,
+      },
+    });
+    
+    // Create a map of userId to subscription type
+    const subscriptionTypes = {};
+    subscriptions.forEach(sub => {
+      subscriptionTypes[sub.userId] = sub.subscriptionType || 'monthly';
+    });
+    
     const updatePromises = userIds.map(userId =>
       prisma.role.update({
         where: { userId },
@@ -240,6 +274,8 @@ export const expireUserSubscriptions = async userIds => {
           lastPaymentAt: null,
           nwc: null,
           subscriptionExpiredAt: now,
+          // Keep the subscription type for historical data and easy renewal
+          // subscriptionType: Don't change the existing value
         },
       })
     );

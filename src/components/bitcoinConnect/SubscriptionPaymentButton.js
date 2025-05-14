@@ -25,6 +25,7 @@ const SubscriptionPaymentButtons = ({
   oneTime = false,
   recurring = false,
   layout = 'row',
+  subscriptionType = 'monthly',
 }) => {
   const [invoice, setInvoice] = useState(null);
   const [showRecurringOptions, setShowRecurringOptions] = useState(false);
@@ -34,7 +35,13 @@ const SubscriptionPaymentButtons = ({
   const router = useRouter();
 
   const lnAddress = process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS;
-  const amount = 50000;
+  
+  // Calculate the amount based on the subscription type
+  const getAmount = () => {
+    return subscriptionType === 'yearly' ? 500 : 50;
+  };
+  
+  const amount = getAmount();
 
   useEffect(() => {
     // Initialize Bitcoin Connect as early as possible
@@ -74,7 +81,7 @@ const SubscriptionPaymentButtons = ({
       await ln.fetch();
       const newInvoice = await ln.requestInvoice({
         satoshi: amount,
-        comment: `Subscription Purchase. User: ${session?.user?.id}`,
+        comment: `${subscriptionType.charAt(0).toUpperCase() + subscriptionType.slice(1)} Subscription Purchase. User: ${session?.user?.id}`,
       });
       return newInvoice;
     } catch (error) {
@@ -86,7 +93,7 @@ const SubscriptionPaymentButtons = ({
   };
 
   const handlePaymentSuccess = async response => {
-    track('Subscription Payment', { method: 'pay_as_you_go', userId: session?.user?.id });
+    track('Subscription Payment', { method: 'pay_as_you_go', type: subscriptionType, userId: session?.user?.id });
     showToast('success', 'Payment Successful', 'Your payment has been processed successfully.');
     if (onSuccess) onSuccess(response);
   };
@@ -117,9 +124,9 @@ const SubscriptionPaymentButtons = ({
       const initNwcOptions = {
         name: 'plebdevs.com',
         requestMethods: ['pay_invoice'],
-        maxAmount: 50000,
+        maxAmount: amount,
         editable: false,
-        budgetRenewal: 'monthly',
+        budgetRenewal: subscriptionType === 'yearly' ? 'yearly' : 'monthly',
         expiresAt: yearFromNow,
       };
       
@@ -164,10 +171,11 @@ const SubscriptionPaymentButtons = ({
           userId: session.user.id,
           isSubscribed: true,
           nwc: newNWCUrl,
+          subscriptionType: subscriptionType,
         });
 
         if (subscriptionResponse.status === 200) {
-          track('Subscription Payment', { method: 'recurring', userId: session?.user?.id });
+          track('Subscription Payment', { method: 'recurring', type: subscriptionType, userId: session?.user?.id });
           showToast('success', 'Subscription Setup', 'Recurring subscription setup successful!');
           if (onRecurringSubscriptionSuccess) onRecurringSubscriptionSuccess();
         } else {
@@ -229,10 +237,11 @@ const SubscriptionPaymentButtons = ({
           userId: session.user.id,
           isSubscribed: true,
           nwc: nwcInput,
+          subscriptionType: subscriptionType,
         });
 
         if (subscriptionResponse.status === 200) {
-          track('Subscription Payment', { method: 'recurring-manual', userId: session?.user?.id });
+          track('Subscription Payment', { method: 'recurring-manual', type: subscriptionType, userId: session?.user?.id });
           showToast('success', 'NWC', 'Subscription setup successful!');
           if (onRecurringSubscriptionSuccess) onRecurringSubscriptionSuccess();
         } else {
@@ -256,11 +265,11 @@ const SubscriptionPaymentButtons = ({
     <>
       {!invoice && (
         <div
-          className={`w-full flex ${layout === 'row' ? 'flex-row justify-between' : 'flex-col items-center'}`}
+          className={`w-full flex ${layout === 'row' ? 'flex-row justify-between' : 'flex-col items-center gap-4'}`}
         >
           {(oneTime || (!oneTime && !recurring)) && (
             <GenericButton
-              label="Pay as you go"
+              label={`Pay as you go (${(amount).toLocaleString()} sats)`}
               icon="pi pi-bolt"
               onClick={async () => {
                 if (status === 'unauthenticated') {
@@ -272,12 +281,12 @@ const SubscriptionPaymentButtons = ({
                 }
               }}
               severity="primary"
-              className="w-fit mt-4 text-[#f8f8ff]"
+              className={`mt-4 text-[#f8f8ff] ${layout === 'col' ? 'w-full max-w-md' : 'w-fit'}`}
             />
           )}
           {(recurring || (!oneTime && !recurring)) && (
             <GenericButton
-              label="Setup Recurring Subscription"
+              label={`Setup Recurring ${subscriptionType.charAt(0).toUpperCase() + subscriptionType.slice(1)} Subscription`}
               icon={
                 <Image
                   src="/images/nwc-logo.svg"
@@ -288,7 +297,7 @@ const SubscriptionPaymentButtons = ({
                 />
               }
               severity="help"
-              className="w-fit mt-4 text-[#f8f8ff] bg-purple-600"
+              className={`mt-4 text-[#f8f8ff] bg-purple-600 ${layout === 'col' ? 'w-full max-w-md' : 'w-fit'}`}
               onClick={() => {
                 if (status === 'unauthenticated') {
                   console.log('unauthenticated');
@@ -309,7 +318,7 @@ const SubscriptionPaymentButtons = ({
             <span className="my-4 text-lg font-bold">or</span>
             <p className="text-lg font-bold">Manually enter NWC URL</p>
             <span className="text-sm text-gray-500">
-              *make sure you set a budget of at least 50000 sats and set budget renewal to monthly
+              *make sure you set a budget of at least {(amount).toLocaleString()} sats and set budget renewal to {subscriptionType}
             </span>
             <input
               type="text"
@@ -333,7 +342,7 @@ const SubscriptionPaymentButtons = ({
             onPaid={handlePaymentSuccess}
             onError={handlePaymentError}
             paymentMethods="external"
-            title={`Pay ${amount} sats`}
+            title={`Pay ${(amount).toLocaleString()} sats`}
           />
         </div>
       )}
