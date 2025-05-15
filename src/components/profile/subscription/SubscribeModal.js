@@ -65,7 +65,7 @@ const SubscribeModal = ({ user }) => {
         setSubscriptionExpiredAt(expiredAt);
       }
     }
-  }, [user, subscriptionType]);
+  }, [user]);
 
   const handleSubscriptionSuccess = async response => {
     setIsProcessing(true);
@@ -269,7 +269,12 @@ const SubscribeModal = ({ user }) => {
                 <SelectButton 
                   value={subscriptionType} 
                   options={subscriptionOptions} 
-                  onChange={(e) => setSubscriptionType(e.value)} 
+                  onChange={(e) => {
+                    // Only update if the value actually changed
+                    if (e.value !== subscriptionType) {
+                      setSubscriptionType(e.value)
+                    }
+                  }} 
                   className="mb-3 w-full max-w-[300px] mx-auto"
                   pt={{
                     button: { className: 'text-base px-8 py-2 text-white' },

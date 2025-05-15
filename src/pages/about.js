@@ -9,7 +9,6 @@ import useWindowWidth from '@/hooks/useWindowWidth';
 import GenericButton from '@/components/buttons/GenericButton';
 import InteractivePromotionalCarousel from '@/components/content/carousels/InteractivePromotionalCarousel';
 import axios from 'axios';
-import { Menu } from 'primereact/menu';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import SubscriptionPaymentButtons from '@/components/bitcoinConnect/SubscriptionPaymentButton';
 import CalendlyEmbed from '@/components/profile/subscription/CalendlyEmbed';
@@ -18,7 +17,8 @@ import RenewSubscription from '@/components/profile/subscription/RenewSubscripti
 import Nip05Form from '@/components/profile/subscription/Nip05Form';
 import LightningAddressForm from '@/components/profile/subscription/LightningAddressForm';
 import MoreInfo from '@/components/MoreInfo';
-import { SUBSCRIPTION_PERIODS } from '@/constants/subscriptionPeriods';
+import { SUBSCRIPTION_PERIODS, calculateExpirationDate } from '@/constants/subscriptionPeriods';
+import { SelectButton } from 'primereact/selectbutton';
 
 const AboutPage = () => {
   const { data: session, update } = useSession();
@@ -37,6 +37,12 @@ const AboutPage = () => {
   const [nip05Visible, setNip05Visible] = useState(false);
   const [cancelSubscriptionVisible, setCancelSubscriptionVisible] = useState(false);
   const [renewSubscriptionVisible, setRenewSubscriptionVisible] = useState(false);
+  const [subscriptionType, setSubscriptionType] = useState('monthly');
+
+  const subscriptionOptions = [
+    { label: 'Monthly', value: 'monthly' },
+    { label: 'Yearly', value: 'yearly' },
+  ];
 
   const isTabView = windowWidth <= 1160;
   const isMobile = windowWidth < 668;
@@ -117,9 +123,16 @@ const AboutPage = () => {
   useEffect(() => {
     if (user && user.role) {
       setSubscribed(user.role.subscribed);
-      const subscribedAt = new Date(user.role.lastPaymentAt);
-      const subscribedUntil = new Date(subscribedAt.getTime() + SUBSCRIPTION_PERIODS.MONTHLY.DAYS * 24 * 60 * 60 * 1000);
-      setSubscribedUntil(subscribedUntil);
+      
+      if (user.role.lastPaymentAt) {
+        const subscribedAt = new Date(user.role.lastPaymentAt);
+        
+        // Use the shared helper to calculate expiration date
+        const subscribedUntil = calculateExpirationDate(subscribedAt, user.role.subscriptionType || 'monthly');
+        
+        setSubscribedUntil(subscribedUntil);
+      }
+      
       if (user.role.subscriptionExpiredAt) {
         const expiredAt = new Date(user.role.subscriptionExpiredAt);
         setSubscriptionExpiredAt(expiredAt);
@@ -133,6 +146,7 @@ const AboutPage = () => {
       const apiResponse = await axios.put('/api/users/subscription', {
         userId: session.user.id,
         isSubscribed: true,
+        subscriptionType: subscriptionType,
       });
       if (apiResponse.data) {
         await update();
@@ -369,13 +383,48 @@ const AboutPage = () => {
 
             {/* Payment Buttons */}
             {(!session?.user || (session?.user && !subscribed)) && (
-              <SubscriptionPaymentButtons
-                onSuccess={handleSubscriptionSuccess}
-                onRecurringSubscriptionSuccess={handleRecurringSubscriptionSuccess}
-                onError={handleSubscriptionError}
-                setIsProcessing={setIsProcessing}
-                layout={windowWidth < 768 ? 'col' : 'row'}
-              />
+              <>
+                <div className="subscription-plan-selector my-6">
+                  <div className="flex flex-col items-center mb-4">
+                    <h3 className="text-xl font-bold mb-3">Select Your Plan</h3>
+                    <SelectButton 
+                      value={subscriptionType} 
+                      options={subscriptionOptions} 
+                      onChange={(e) => {
+                        // Only update if the value actually changed
+                        if (e.value !== subscriptionType) {
+                          setSubscriptionType(e.value)
+                        }
+                      }} 
+                      className="mb-3 w-full max-w-[300px] mx-auto"
+                      pt={{
+                        button: { className: 'text-base px-8 py-2 text-white' },
+                        root: { className: 'flex justify-center' }
+                      }}
+                    />
+                    {subscriptionType === 'yearly' && (
+                      <div className="savings-message text-sm text-green-500 font-semibold mt-2">
+                        Save ~17% with yearly subscription!
+                      </div>
+                    )}
+                    <div className="price-display text-2xl font-bold mt-3">
+                      {subscriptionType === 'yearly' ? '500,000' : '50,000'} sats
+                      <span className="text-sm text-gray-400 ml-2">
+                        ({subscriptionType === 'yearly' ? 'yearly' : 'monthly'})
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <SubscriptionPaymentButtons
+                  onSuccess={handleSubscriptionSuccess}
+                  onRecurringSubscriptionSuccess={handleRecurringSubscriptionSuccess}
+                  onError={handleSubscriptionError}
+                  setIsProcessing={setIsProcessing}
+                  layout={windowWidth < 768 ? 'col' : 'row'}
+                  subscriptionType={subscriptionType}
+                />
+              </>
             )}
           </div>
         ) : (

@@ -286,7 +286,7 @@ const SubscriptionPaymentButtons = ({
           )}
           {(recurring || (!oneTime && !recurring)) && (
             <GenericButton
-              label={`Setup Recurring ${subscriptionType.charAt(0).toUpperCase() + subscriptionType.slice(1)} Subscription`}
+              label={`Setup Recurring ${subscriptionType ? (subscriptionType.charAt(0).toUpperCase() + subscriptionType.slice(1)) : 'Monthly'} Subscription`}
               icon={
                 <Image
                   src="/images/nwc-logo.svg"

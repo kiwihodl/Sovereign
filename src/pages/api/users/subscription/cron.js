@@ -49,7 +49,7 @@ export default async function handler(req, res) {
             await ln.fetch();
             const newInvoice = await ln.requestInvoice({ 
               satoshi: amount,
-              comment: `${subscriptionType.charAt(0).toUpperCase() + subscriptionType.slice(1)} Subscription Renewal for User: ${userId}`,
+              comment: `${subscriptionType ? (subscriptionType.charAt(0).toUpperCase() + subscriptionType.slice(1)) : 'Monthly'} Subscription Renewal for User: ${userId}`,
             });
 
             console.log(`Generated invoice for ${amount} sats for ${subscriptionType} subscription`);
