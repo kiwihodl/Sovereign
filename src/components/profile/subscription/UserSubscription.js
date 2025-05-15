@@ -187,7 +187,11 @@ const UserSubscription = () => {
                       <SelectButton 
                         value={subscriptionType} 
                         options={subscriptionOptions} 
-                        onChange={(e) => setSubscriptionType(e.value)} 
+                        onChange={(e) => {
+                          if (e.value !== subscriptionType) {
+                            setSubscriptionType(e.value)
+                          }
+                        }} 
                         className="mb-3 w-full max-w-[300px] mx-auto"
                         pt={{
                           button: { className: 'text-base px-8 py-2 text-white' },
