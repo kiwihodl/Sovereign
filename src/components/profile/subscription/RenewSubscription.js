@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog } from 'primereact/dialog';
+import Modal from '@/components/ui/Modal';
 import { Card } from 'primereact/card';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import SubscriptionPaymentButtons from '@/components/bitcoinConnect/SubscriptionPaymentButton';
@@ -50,11 +50,10 @@ const RenewSubscription = ({ visible, onHide, subscribedUntil }) => {
   };
 
   return (
-    <Dialog
+    <Modal
       header="Renew Your PlebDevs Subscription"
       visible={visible}
       onHide={onHide}
-      className="p-fluid pb-0 w-fit"
     >
       {isProcessing ? (
         <div className="w-full flex flex-col mx-auto justify-center items-center mt-4">
@@ -81,7 +80,7 @@ const RenewSubscription = ({ visible, onHide, subscribedUntil }) => {
           />
         </Card>
       )}
-    </Dialog>
+    </Modal>
   );
 };
 

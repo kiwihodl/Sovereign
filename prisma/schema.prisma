@@ -83,6 +83,7 @@ model Role {
     userId                String    @unique
     subscribed            Boolean   @default(false)
     admin                 Boolean   @default(false)
+    subscriptionType      String    @default("monthly")
     subscriptionStartDate DateTime?
     lastPaymentAt         DateTime?
     subscriptionExpiredAt DateTime?

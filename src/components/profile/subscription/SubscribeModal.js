@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Dialog } from 'primereact/dialog';
+import Modal from '@/components/ui/Modal';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import SubscriptionPaymentButtons from '@/components/bitcoinConnect/SubscriptionPaymentButton';
 import axios from 'axios';
@@ -17,6 +17,8 @@ import LightningAddressForm from '@/components/profile/subscription/LightningAdd
 import NostrIcon from '../../../../public/images/nostr.png';
 import Image from 'next/image';
 import RenewSubscription from '@/components/profile/subscription/RenewSubscription';
+import { SelectButton } from 'primereact/selectbutton';
+import { calculateExpirationDate } from '@/constants/subscriptionPeriods';
 
 const SubscribeModal = ({ user }) => {
   const { data: session, update } = useSession();
@@ -33,19 +35,37 @@ const SubscribeModal = ({ user }) => {
   const [nip05Visible, setNip05Visible] = useState(false);
   const [cancelSubscriptionVisible, setCancelSubscriptionVisible] = useState(false);
   const [renewSubscriptionVisible, setRenewSubscriptionVisible] = useState(false);
+  const [subscriptionType, setSubscriptionType] = useState('monthly');
+
+  const subscriptionOptions = [
+    { label: 'Monthly', value: 'monthly' },
+    { label: 'Yearly', value: 'yearly' },
+  ];
 
   useEffect(() => {
     if (user && user.role) {
       setSubscribed(user.role.subscribed);
-      const subscribedAt = new Date(user.role.lastPaymentAt);
-      const subscribedUntil = new Date(subscribedAt.getTime() + 31 * 24 * 60 * 60 * 1000);
-      setSubscribedUntil(subscribedUntil);
+      setSubscriptionType(user.role.subscriptionType || 'monthly');
+      
+      // Only calculate dates if lastPaymentAt exists
+      if (user.role.lastPaymentAt) {
+        const subscribedAt = new Date(user.role.lastPaymentAt);
+        
+        // Use the shared helper to calculate expiration date
+        const subscribedUntil = calculateExpirationDate(subscribedAt, subscriptionType);
+        
+        setSubscribedUntil(subscribedUntil);
+      } else {
+        // Reset the subscribedUntil value if no lastPaymentAt
+        setSubscribedUntil(null);
+      }
+      
       if (user.role.subscriptionExpiredAt) {
         const expiredAt = new Date(user.role.subscriptionExpiredAt);
         setSubscriptionExpiredAt(expiredAt);
       }
     }
-  }, [user]);
+  }, [user, subscriptionType]);
 
   const handleSubscriptionSuccess = async response => {
     setIsProcessing(true);
@@ -53,6 +73,7 @@ const SubscribeModal = ({ user }) => {
       const apiResponse = await axios.put('/api/users/subscription', {
         userId: session.user.id,
         isSubscribed: true,
+        subscriptionType: subscriptionType,
       });
       if (apiResponse.data) {
         await update();
@@ -161,7 +182,7 @@ const SubscribeModal = ({ user }) => {
             <Message className="w-fit" severity="success" text="Subscribed!" />
             <p className="mt-3">Thank you for your support 🎉</p>
             <p className="text-sm text-gray-400">
-              Pay-as-you-go subscription will renew on {subscribedUntil.toLocaleDateString()}
+              Pay-as-you-go {user?.role?.subscriptionType || 'monthly'} subscription will renew on {subscribedUntil ? subscribedUntil.toLocaleDateString() : 'N/A'}
             </p>
           </div>
         )}
@@ -170,7 +191,7 @@ const SubscribeModal = ({ user }) => {
             <Message className="w-fit" severity="success" text="Subscribed!" />
             <p className="mt-3">Thank you for your support 🎉</p>
             <p className="text-sm text-gray-400">
-              Recurring subscription will AUTO renew on {subscribedUntil.toLocaleDateString()}
+              Recurring {user?.role?.subscriptionType || 'monthly'} subscription will AUTO renew on {subscribedUntil ? subscribedUntil.toLocaleDateString() : 'N/A'}
             </p>
           </div>
         )}
@@ -203,11 +224,10 @@ const SubscribeModal = ({ user }) => {
           </div>
         )}
       </Card>
-      <Dialog
+      <Modal
         header="Subscribe to PlebDevs"
         visible={visible}
         onHide={onHide}
-        className="p-fluid pb-0 w-fit"
       >
         {isProcessing ? (
           <div className="w-full flex flex-col mx-auto justify-center items-center mt-4">
@@ -217,40 +237,72 @@ const SubscribeModal = ({ user }) => {
             <span className="ml-2">Processing subscription...</span>
           </div>
         ) : (
-          <Card className="shadow-lg">
-            <div className="text-center mb-4">
-              <h2 className="text-2xl font-bold text-primary">Unlock Premium Benefits</h2>
+          <Card className="shadow-none">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-primary mb-2">Unlock Premium Benefits</h2>
               <p className="text-gray-400">Subscribe now and elevate your development journey!</p>
             </div>
-            <div className="flex flex-col gap-4 mb-4 w-[60%] mx-auto">
+            <div className="flex flex-col gap-6 mb-6 w-[75%] mx-auto">
               <div className="flex items-center">
-                <i className="pi pi-book text-2xl text-primary mr-2 text-blue-400"></i>
+                <i className="pi pi-book text-2xl text-primary mr-3 text-blue-400"></i>
                 <span>Access ALL current and future PlebDevs content</span>
               </div>
               <div className="flex items-center">
-                <i className="pi pi-calendar text-2xl text-primary mr-2 text-red-400"></i>
+                <i className="pi pi-calendar text-2xl text-primary mr-3 text-red-400"></i>
                 <span>
                   Personal mentorship & guidance and access to exclusive 1:1 booking calendar
                 </span>
               </div>
               <div className="flex items-center">
-                <i className="pi pi-bolt text-2xl text-primary mr-2 text-yellow-500"></i>
+                <i className="pi pi-bolt text-2xl text-primary mr-3 text-yellow-500"></i>
                 <span>Claim your own personal plebdevs.com Lightning Address</span>
               </div>
               <div className="flex items-center">
-                <Image src={NostrIcon} alt="Nostr" width={26} height={26} className="mr-2" />
+                <Image src={NostrIcon} alt="Nostr" width={26} height={26} className="mr-3" />
                 <span>Claim your own personal plebdevs.com Nostr NIP-05 identity</span>
               </div>
             </div>
-            <SubscriptionPaymentButtons
-              onSuccess={handleSubscriptionSuccess}
-              onRecurringSubscriptionSuccess={handleRecurringSubscriptionSuccess}
-              onError={handleSubscriptionError}
-              setIsProcessing={setIsProcessing}
-            />
+            
+            <div className="subscription-plan-selector my-8">
+              <div className="flex flex-col items-center mb-4">
+                <h3 className="text-xl font-bold mb-4">Select Your Plan</h3>
+                <SelectButton 
+                  value={subscriptionType} 
+                  options={subscriptionOptions} 
+                  onChange={(e) => setSubscriptionType(e.value)} 
+                  className="mb-3 w-full max-w-[300px] mx-auto"
+                  pt={{
+                    button: { className: 'text-base px-8 py-2 text-white' },
+                    root: { className: 'flex justify-center' }
+                  }}
+                />
+                {subscriptionType === 'yearly' && (
+                  <div className="savings-message text-sm text-green-500 font-semibold mt-2">
+                    Save ~17% with yearly subscription!
+                  </div>
+                )}
+                <div className="price-display text-2xl font-bold mt-3">
+                  {subscriptionType === 'yearly' ? '500,000' : '50,000'} sats
+                  <span className="text-sm text-gray-400 ml-2">
+                    ({subscriptionType === 'yearly' ? 'yearly' : 'monthly'})
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-6">
+              <SubscriptionPaymentButtons
+                onSuccess={handleSubscriptionSuccess}
+                onRecurringSubscriptionSuccess={handleRecurringSubscriptionSuccess}
+                onError={handleSubscriptionError}
+                setIsProcessing={setIsProcessing}
+                subscriptionType={subscriptionType}
+                layout="col"
+              />
+            </div>
           </Card>
         )}
-      </Dialog>
+      </Modal>
       <CalendlyEmbed
         visible={calendlyVisible}
         onHide={() => setCalendlyVisible(false)}

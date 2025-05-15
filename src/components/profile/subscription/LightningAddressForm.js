@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog } from 'primereact/dialog';
+import Modal from '@/components/ui/Modal';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { useToast } from '@/hooks/useToast';
@@ -111,11 +111,11 @@ const LightningAddressForm = ({ visible, onHide }) => {
   };
 
   return (
-    <Dialog
+    <Modal
       header="Lightning Address"
       visible={visible}
       onHide={onHide}
-      style={{ width: windowWidth < 768 ? '100vw' : '60vw' }}
+      width={windowWidth < 768 ? '100vw' : '60vw'}
     >
       {existingLightningAddress ? (
         <p>Update your Lightning Address details</p>
@@ -216,7 +216,7 @@ const LightningAddressForm = ({ visible, onHide }) => {
           />
         </div>
       )}
-    </Dialog>
+    </Modal>
   );
 };
 

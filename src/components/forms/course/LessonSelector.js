@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dropdown } from 'primereact/dropdown';
 import GenericButton from '@/components/buttons/GenericButton';
-import { Dialog } from 'primereact/dialog';
+import Modal from '@/components/ui/Modal';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import EmbeddedDocumentForm from '@/components/forms/course/embedded/EmbeddedDocumentForm';
 import EmbeddedVideoForm from '@/components/forms/course/embedded/EmbeddedVideoForm';
@@ -233,23 +233,23 @@ const LessonSelector = ({
       </Accordion>
       <GenericButton label="Add New Lesson" onClick={addNewLesson} className="mt-4" type="button" />
 
-      <Dialog
+      <Modal
         className="w-full max-w-screen-md"
         visible={showDocumentForm}
         onHide={() => setShowDocumentForm(false)}
         header="Create New Document"
       >
         <EmbeddedDocumentForm onSave={handleNewDocumentSave} isPaid={isPaidCourse} />
-      </Dialog>
+      </Modal>
 
-      <Dialog
+      <Modal
         className="w-full max-w-screen-md"
         visible={showVideoForm}
         onHide={() => setShowVideoForm(false)}
         header="Create New Video"
       >
         <EmbeddedVideoForm onSave={handleNewVideoSave} isPaid={isPaidCourse} />
-      </Dialog>
+      </Modal>
     </div>
   );
 };

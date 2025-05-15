@@ -18,6 +18,7 @@ import RenewSubscription from '@/components/profile/subscription/RenewSubscripti
 import Nip05Form from '@/components/profile/subscription/Nip05Form';
 import LightningAddressForm from '@/components/profile/subscription/LightningAddressForm';
 import MoreInfo from '@/components/MoreInfo';
+import { SUBSCRIPTION_PERIODS } from '@/constants/subscriptionPeriods';
 
 const AboutPage = () => {
   const { data: session, update } = useSession();
@@ -117,7 +118,7 @@ const AboutPage = () => {
     if (user && user.role) {
       setSubscribed(user.role.subscribed);
       const subscribedAt = new Date(user.role.lastPaymentAt);
-      const subscribedUntil = new Date(subscribedAt.getTime() + 31 * 24 * 60 * 60 * 1000);
+      const subscribedUntil = new Date(subscribedAt.getTime() + SUBSCRIPTION_PERIODS.MONTHLY.DAYS * 24 * 60 * 60 * 1000);
       setSubscribedUntil(subscribedUntil);
       if (user.role.subscriptionExpiredAt) {
         const expiredAt = new Date(user.role.subscriptionExpiredAt);

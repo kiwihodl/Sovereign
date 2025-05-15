@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Dialog } from 'primereact/dialog';
+import Modal from '@/components/ui/Modal';
 import { track } from '@vercel/analytics';
 import { LightningAddress } from '@getalby/lightning-tools';
 import { useToast } from '@/hooks/useToast';
@@ -122,11 +122,11 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
           />
         </div>
       )}
-      <Dialog
+      <Modal
         visible={dialogVisible}
         onHide={() => setDialogVisible(false)}
         header="Make Payment"
-        style={{ width: isMobile ? '90vw' : '50vw' }}
+        width={isMobile ? '90vw' : '50vw'}
       >
         {invoice ? (
           <Payment
@@ -138,7 +138,7 @@ const ResourcePaymentButton = ({ lnAddress, amount, onSuccess, onError, resource
         ) : (
           <p>Loading payment details...</p>
         )}
-      </Dialog>
+      </Modal>
     </>
   );
 };

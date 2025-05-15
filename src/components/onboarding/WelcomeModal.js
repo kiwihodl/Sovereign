@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog } from 'primereact/dialog';
+import Modal from '@/components/ui/Modal';
 import { useRouter } from 'next/router';
 
 const WelcomeModal = () => {
@@ -26,10 +26,11 @@ const WelcomeModal = () => {
   };
 
   return (
-    <Dialog
+    <Modal
       header="Welcome to PlebDevs!"
       visible={visible}
-      style={{ width: '90vw', maxWidth: '600px' }}
+      width="90vw"
+      style={{ maxWidth: '600px' }}
       onHide={onHide}
     >
       <div className="text-center mb-4">
@@ -74,7 +75,7 @@ const WelcomeModal = () => {
           <p className="font-bold text-lg">Let&apos;s start your coding journey! 🚀</p>
         </div>
       </div>
-    </Dialog>
+    </Modal>
   );
 };
 
