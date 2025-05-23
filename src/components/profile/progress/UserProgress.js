@@ -6,7 +6,6 @@ import { useRouter } from 'next/router';
 import { useBadge } from '@/hooks/badges/useBadge';
 import GenericButton from '@/components/buttons/GenericButton';
 import UserProgressFlow from './UserProgressFlow';
-import { Tooltip } from 'primereact/tooltip';
 import RepoSelector from '@/components/profile/RepoSelector';
 import MoreInfo from '@/components/MoreInfo';
 
@@ -89,31 +88,40 @@ const UserProgress = () => {
   const generateTasks = completedCourseIds => {
     const updatedTasks = allTasks.map(task => {
       if (task.status === 'Connect GitHub') {
+        const isGithubConnected = session?.account?.provider === 'github';
         return {
           ...task,
-          completed: session?.account?.provider === 'github' ? true : false,
+          completed: isGithubConnected,
           subTasks: task.subTasks.map(subTask => ({
             ...subTask,
-            completed: session?.account?.provider === 'github' ? true : false,
+            completed: isGithubConnected,
           })),
         };
       }
 
+      // For course tasks
       const userCourse = session?.user?.userCourses?.find(uc => uc.courseId === task.courseId);
       const courseCompleted = completedCourseIds.includes(task.courseId);
       const repoSubmitted = userCourse?.submittedRepoLink ? true : false;
 
+      const updatedSubTasks = task.subTasks.map(subTask => {
+        let isSubTaskActuallyCompleted = false;
+        if (subTask.status.includes('Complete the course')) {
+          isSubTaskActuallyCompleted = courseCompleted;
+        } else if (subTask.status.includes('Submit your project repository')) {
+          isSubTaskActuallyCompleted = repoSubmitted;
+        }
+        // Add more conditions here if other types of subtasks exist in the future
+        return { ...subTask, completed: isSubTaskActuallyCompleted };
+      });
+
+      // A task is considered complete if all of its subtasks are complete.
+      const taskOverallCompleted = updatedSubTasks.every(st => st.completed);
+
       return {
         ...task,
-        completed: courseCompleted && (task.courseId === null || repoSubmitted),
-        subTasks: task.subTasks.map(subTask => ({
-          ...subTask,
-          completed: subTask.status.includes('Complete')
-            ? courseCompleted
-            : subTask.status.includes('repository')
-              ? repoSubmitted
-              : false,
-        })),
+        completed: taskOverallCompleted,
+        subTasks: updatedSubTasks,
       };
     });
 
