@@ -133,13 +133,13 @@ const Navbar = () => {
               >
                 <Image
                   alt="logo"
-                  src="/images/plebdevs-icon.png"
+                  src="/images/Sovereign-logo.png"
                   width={50}
                   height={50}
                   className="rounded-full max-tab:hidden max-mob:hidden"
                 />
                 <h1 className="text-white text-xl font-semibold max-tab:text-2xl max-mob:text-2xl pb-1 pl-2">
-                  PlebDevs
+                  StartBtc
                 </h1>
               </div>
             )}
