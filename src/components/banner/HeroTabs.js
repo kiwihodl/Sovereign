@@ -1,70 +1,53 @@
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
 
-const HeroTabs = () => {
+const HeroTabs = ({ onTabChange }) => {
   const [activeTab, setActiveTab] = useState('Bitcoin');
-  const router = useRouter();
 
-  const tabs = ['Bitcoin', 'Nostr', 'Privacy'];
-
-  const handleButtonClick = path => {
-    router.push(path);
+  const handleTabClick = tab => {
+    setActiveTab(tab);
+    onTabChange(tab);
   };
 
-  const renderTabContent = () => {
-    const buttonStyles = {
-      Bitcoin: 'bg-orange-500 hover:bg-orange-600',
-      Nostr: 'bg-purple-500 hover:bg-purple-600',
-      Privacy: 'bg-teal-500 hover:bg-teal-600',
-    };
+  const getTabStyles = tab => {
+    const isActive = activeTab === tab;
+    const baseStyles =
+      'w-64 py-4 text-center rounded-lg transition-all duration-300 border-2 uppercase text-xl font-bold tracking-wider font-satoshi';
 
-    const baseButtonClasses =
-      'text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105';
-
-    const renderButtons = type => (
-      <div className="flex flex-col gap-4 mt-4">
-        <button
-          onClick={() => handleButtonClick(`/${type.toLowerCase()}/why`)}
-          className={`${buttonStyles[type]} ${baseButtonClasses}`}
-        >
-          Why {type}?
-        </button>
-        <button
-          onClick={() => handleButtonClick(`/${type.toLowerCase()}/what`)}
-          className={`${buttonStyles[type]} ${baseButtonClasses}`}
-        >
-          What is {type}?
-        </button>
-        <button
-          onClick={() => handleButtonClick(`/${type.toLowerCase()}/how`)}
-          className={`${buttonStyles[type]} ${baseButtonClasses}`}
-        >
-          How to {type}?
-        </button>
-      </div>
-    );
-
-    return renderButtons(activeTab);
+    switch (tab) {
+      case 'Bitcoin':
+        return `${baseStyles} ${
+          isActive
+            ? 'bg-orange-400 text-black border-orange-400'
+            : 'bg-black text-orange-400/70 border-orange-400/70 hover:text-orange-400 hover:border-orange-400'
+        }`;
+      case 'NOSTR':
+        return `${baseStyles} ${
+          isActive
+            ? 'bg-purple-400 text-black border-purple-400'
+            : 'bg-black text-purple-400/70 border-purple-400/70 hover:text-purple-400 hover:border-purple-400'
+        }`;
+      case 'Privacy':
+        return `${baseStyles} ${
+          isActive
+            ? 'bg-teal-400 text-black border-teal-400'
+            : 'bg-black text-teal-400/70 border-teal-400/70 hover:text-teal-400 hover:border-teal-400'
+        }`;
+      default:
+        return baseStyles;
+    }
   };
 
   return (
-    <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 w-full">
-      <div className="flex gap-4 border-b border-gray-600">
-        {tabs.map(tab => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 font-semibold transition-all duration-300 ${
-              activeTab === tab
-                ? 'text-white border-b-2 border-white'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-      {renderTabContent()}
+    <div className="flex flex-col gap-4">
+      <button className={getTabStyles('Bitcoin')} onClick={() => handleTabClick('Bitcoin')}>
+        Bitcoin
+      </button>
+      <button className={getTabStyles('NOSTR')} onClick={() => handleTabClick('NOSTR')}>
+        NOSTR
+      </button>
+      <button className={getTabStyles('Privacy')} onClick={() => handleTabClick('Privacy')}>
+        Privacy
+      </button>
     </div>
   );
 };

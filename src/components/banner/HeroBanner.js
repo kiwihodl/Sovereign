@@ -10,6 +10,7 @@ import HeroTabs from './HeroTabs';
 
 const HeroBanner = () => {
   const [currentTech, setCurrentTech] = useState('Bitcoin');
+  const [selectedTab, setSelectedTab] = useState('Bitcoin');
   const [isAnimating, setIsAnimating] = useState(false);
   const techs = ['Bitcoin', 'NOSTR', 'Privacy'];
   const windowWidth = useWindowWidth();
@@ -40,8 +41,6 @@ const HeroBanner = () => {
     switch (tech) {
       case 'Bitcoin':
         return 'text-orange-400';
-      case 'Lightning':
-        return 'text-blue-500';
       case 'NOSTR':
         return 'text-purple-400';
       case 'Privacy':
@@ -114,17 +113,15 @@ const HeroBanner = () => {
       className={`${getHeroHeight()} ${isTabView ? 'mx-0 w-full' : 'mt-4 mx-12'} relative flex justify-center items-center overflow-hidden drop-shadow-2xl rounded-lg`}
     >
       <div className="absolute inset-0 overflow-hidden">
-        <MatrixRain />
+        <MatrixRain selectedTab={selectedTab} />
       </div>
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-black/20 to-transparent rounded-lg" />
+      <div className="absolute inset-0 bg-gradient-to-br from-black from-20% via-black/60 via-32% to-transparent rounded-lg" />
 
       <div className="absolute inset-0 grid grid-cols-2 gap-8">
         {/* Left side - Text content */}
         <div className="flex flex-col justify-center pl-8">
           <h1 className="text-4xl sm:text-4xl lg:text-6xl font-bold leading-tight mb-4">
-            <span
-              className={`block transition-opacity duration-500 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}
-            >
+            <span className="block">
               Learn{' '}
               <span
                 className={`${getColorClass(currentTech)} transition-opacity duration-500 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}
@@ -203,23 +200,11 @@ const HeroBanner = () => {
               </span>
             </div>
           </div>
-
-          <div className="space-x-4">
-            <GenericButton
-              label="Learn To Code"
-              icon={<i className="pi pi-book pr-2 text-2xl" />}
-              rounded
-              severity="success"
-              className="border-2"
-              outlined
-              onClick={handleLearnToCode}
-            />
-          </div>
         </div>
 
         {/* Right side - Tabs */}
         <div className="flex items-center justify-center pr-8">
-          <HeroTabs />
+          <HeroTabs onTabChange={setSelectedTab} />
         </div>
       </div>
     </div>
