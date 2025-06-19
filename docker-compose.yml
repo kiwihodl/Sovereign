@@ -1,17 +1,18 @@
-version: "3"
+version: '3.8'
 services:
   db:
     container_name: plebdevs-db
     image: postgres:13.2
     restart: always
-    expose:
-      - "5432"
     ports:
-      - "5432:5432"
+      - '5432:5432'
     env_file:
       - .env
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - 'postgres_data:/var/lib/postgresql/data'
+    networks:
+      - sovereign_network
+
   app:
     container_name: plebdevs
     build: .
@@ -20,11 +21,15 @@ services:
     env_file:
       - .env
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
-      - .:/app
-    links:
-      - db
+      - '.:/app'
+    networks:
+      - sovereign_network
 
 volumes:
   postgres_data:
+
+networks:
+  sovereign_network:
+    driver: bridge

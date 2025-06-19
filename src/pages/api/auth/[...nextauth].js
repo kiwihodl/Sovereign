@@ -134,7 +134,20 @@ export const authOptions = {
       },
       authorize: async credentials => {
         if (!credentials?.pubkey) return null;
-        return await syncNostrProfile(credentials.pubkey);
+
+        let pubkey = credentials.pubkey;
+        // Check if the provided key is an npub and decode it
+        if (pubkey.startsWith('npub1')) {
+          try {
+            const { data } = nip19.decode(pubkey);
+            pubkey = data;
+          } catch (error) {
+            console.error('Failed to decode npub:', error);
+            return null; // Invalid npub format
+          }
+        }
+
+        return await syncNostrProfile(pubkey);
       },
     }),
 

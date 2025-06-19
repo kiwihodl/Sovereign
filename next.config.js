@@ -1,6 +1,20 @@
 const removeImports = require('next-remove-imports')();
 
-module.exports = removeImports({
+const cspHeader = `
+    default-src 'self';
+    script-src 'self' 'unsafe-eval' 'unsafe-inline';
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' blob: data: https://authjs.dev;
+    font-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    upgrade-insecure-requests;
+`;
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
   images: {
     domains: [
@@ -10,6 +24,7 @@ module.exports = removeImports({
       'plebdevs.com',
       'plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com',
       'avatars.githubusercontent.com',
+      'i.ytimg.com',
     ],
   },
   webpack(config, options) {
@@ -34,19 +49,12 @@ module.exports = removeImports({
   async headers() {
     return [
       {
-        source: '/.well-known/:slug*',
+        source: '/(.*)',
         headers: [
           {
-            key: 'Access-Control-Allow-Origin',
-            value: '*',
-          },
-          {
-            key: 'Access-Control-Allow-Methods',
-            value: 'GET, POST, OPTIONS',
-          },
-          {
-            key: 'Access-Control-Allow-Headers',
-            value: 'Content-Type, Authorization',
+            key: 'Content-Security-Policy',
+            value:
+              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' blob: data: https://authjs.dev; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; connect-src 'self' https://vitals.vercel-insights.com;",
           },
         ],
       },
@@ -78,10 +86,6 @@ module.exports = removeImports({
             value: 'strict-origin-when-cross-origin',
           },
           {
-            key: 'Content-Security-Policy',
-            value: "default-src 'self'; frame-ancestors 'none';",
-          },
-          {
             key: 'Strict-Transport-Security',
             value: 'max-age=31536000; includeSubDomains; preload',
           },
@@ -100,4 +104,6 @@ module.exports = removeImports({
         ? 'dummy_token'
         : process.env.KV_REST_API_READ_ONLY_TOKEN,
   },
-});
+};
+
+module.exports = nextConfig;
