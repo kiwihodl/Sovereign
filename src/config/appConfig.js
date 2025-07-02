@@ -10,18 +10,17 @@ const appConfig = {
     'wss://relay.devs.tools/',
   ],
   authorPubkeys: [
-    'f33c8a9617cb15f705fc70cd461cfd6eaf22f9e24c33eabad981648e5ec6f741',
-    'c67cd3e1a83daa56cff16f635db2fdb9ed9619300298d4701a58e68e84098345'
+    '4ce527eb7971b027723f684cabd3f14eb98047533410afaaf359408b93c0e033'
   ],
   customLightningAddresses: [
     {
       // todo remove need for lowercase
       // name will appear as name@plebdevs.com (lowercase)
-      name: 'austin',
+      name: 'Kiwihodl',
       // If enabled, zaps are enabled
       allowsNostr: true,
       // make you're own lud06 metadata description
-      description: "Austin's Lightning Address",
+      description: "Kiwihodl's Lightning Address",
       // millisats
       maxSendable: 10000000000,
       // millisats
