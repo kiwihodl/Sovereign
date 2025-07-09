@@ -17,6 +17,8 @@
     "@getalby/bitcoin-connect-react": "^3.5.3",
     "@getalby/lightning-tools": "^5.0.3",
     "@getalby/sdk": "^3.6.1",
+    "@headlessui/react": "^2.2.4",
+    "@heroicons/react": "^2.2.0",
     "@next-auth/prisma-adapter": "^1.0.7",
     "@nostr-dev-kit/ndk": "^2.10.0",
     "@nostr-dev-kit/ndk-cache-dexie": "^2.5.1",
@@ -39,6 +41,7 @@
     "cors": "^2.8.5",
     "discord.js": "^14.15.3",
     "github-markdown-css": "^5.8.1",
+    "js-cookie": "^3.0.5",
     "light-bolt11-decoder": "^3.1.1",
     "lucide-react": "^0.441.0",
     "next": "^14.2.28",
@@ -60,10 +63,14 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.13",
+    "@types/js-cookie": "^3.0.6",
+    "@types/node": "^24.0.12",
+    "@types/react": "^19.1.8",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
     "postcss": "^8",
     "prettier": "^3.2.5",
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.8.3"
   }
 }

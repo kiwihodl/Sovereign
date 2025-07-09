@@ -97,7 +97,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
     } else if (selectedSearchOption.code === 'community') {
       setSearchResults(communityResults);
     }
-    
+
     // Once we have results, set isSearching to false
     if (searchTerm.length >= MIN_SEARCH_LENGTH) {
       setIsSearching(false);
@@ -116,7 +116,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
   // Handle WebSocket errors and reinitialize NDK if needed
   useEffect(() => {
     const handleError = event => {
-      if (event.message && event.message.includes('wss://relay.devs.tools')) {
+      if (event.message && event.message.includes('wss://relay.')) {
         console.warn('Nostr relay connection error detected, reinitializing NDK');
         reInitializeNDK();
       }
@@ -198,7 +198,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
         </div>
       );
     }
-    
+
     // Show no results message
     if (searchResults.length === 0 && searchTerm.length >= MIN_SEARCH_LENGTH) {
       return <div className="p-4 text-center text-gray-400">No results found</div>;
@@ -217,7 +217,7 @@ const SearchBar = ({ isMobileSearch, isDesktopNav, onCloseSearch }) => {
   // When search option changes, trigger search with current term
   const handleSearchOptionChange = e => {
     setSelectedSearchOption(e.value);
-    
+
     // If there's a search term, run the search again with the new option
     if (searchTerm.length >= MIN_SEARCH_LENGTH) {
       setIsSearching(true);

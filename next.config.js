@@ -1,18 +1,3 @@
-const removeImports = require('next-remove-imports')();
-
-const cspHeader = `
-    default-src 'self';
-    script-src 'self' 'unsafe-eval' 'unsafe-inline';
-    style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: https://authjs.dev;
-    font-src 'self';
-    object-src 'none';
-    base-uri 'self';
-    form-action 'self';
-    frame-ancestors 'none';
-    upgrade-insecure-requests;
-`;
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -25,6 +10,7 @@ const nextConfig = {
       'plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com',
       'avatars.githubusercontent.com',
       'i.ytimg.com',
+      'cdn.shopify.com',
     ],
   },
   webpack(config, options) {
@@ -54,7 +40,7 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value:
-              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' blob: data: https://authjs.dev; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; connect-src 'self' https://vitals.vercel-insights.com;",
+              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' blob: data: https://authjs.dev; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; connect-src 'self' https://vitals.vercel-insights.com wss://nos.lol/ wss://relay.damus.io/ wss://relay.snort.social/ wss://relay.nostr.band/ wss://relay.primal.net/ wss://nostrue.com/ wss://purplerelay.com/ wss://*.nostr.*;",
           },
         ],
       },

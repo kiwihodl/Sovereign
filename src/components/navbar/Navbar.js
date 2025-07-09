@@ -12,46 +12,67 @@ import CourseHeader from '../content/courses/layout/CourseHeader';
 import { useNDKContext } from '@/context/NDKContext';
 import { nip19 } from 'nostr-tools';
 import { parseCourseEvent } from '@/utils/nostr';
+import CartModal from '@/components/cart/modal';
+import { getCart } from '@/lib/shopify';
+import Cookies from 'js-cookie';
 
 const Navbar = () => {
   const router = useRouter();
   const windowWidth = useWindowWidth();
   const navbarHeight = '60px';
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [isHovered, setIsHovered] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const menu = useRef(null);
   const { ndk } = useNDKContext();
   const [course, setCourse] = useState(null);
   const [isCompleted, setIsCompleted] = useState(false);
-  
+  const [activeItem, setActiveItem] = useState(router.pathname);
+  const [cart, setCart] = useState(null);
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      const cartId = Cookies.get('cartId');
+      if (cartId) {
+        try {
+          const cartData = await getCart(cartId);
+          setCart(cartData);
+        } catch (e) {
+          console.error('Error fetching cart:', e);
+        }
+      }
+    };
+
+    fetchCart();
+  }, []);
+
   // Check if we're on a course page
   const isCoursePage = router.pathname.startsWith('/course/');
-  
+
   // Fetch course data when on a course page
   useEffect(() => {
     if (isCoursePage && router.isReady && ndk) {
       const fetchCourse = async () => {
         try {
           const { slug } = router.query;
-          if (!slug) return;                     // still preparing
-          
+          if (!slug) return; // still preparing
+
           const slugStr = Array.isArray(slug) ? slug[0] : slug;
           let identifier;
-          
+
           if (slugStr.includes('naddr')) {
             const { data } = nip19.decode(slugStr);
             identifier = data?.identifier;
           } else {
             identifier = slugStr;
           }
-          
+
           if (identifier) {
             const event = await ndk.fetchEvent({ '#d': [identifier] });
             if (event) {
               const parsedCourse = parseCourseEvent(event);
               setCourse(parsedCourse);
-              
+
               // Check if course is completed (simplified for nav display)
               if (session?.user?.completedCourses?.includes(identifier)) {
                 setIsCompleted(true);
@@ -62,7 +83,7 @@ const Navbar = () => {
           console.error('Error fetching course for navbar:', error);
         }
       };
-      
+
       fetchCourse();
     } else {
       setCourse(null);
@@ -94,6 +115,11 @@ const Navbar = () => {
       label: 'Feeds',
       icon: 'pi pi-comments',
       command: () => router.push('/feed?channel=global'),
+    },
+    {
+      label: 'Store',
+      icon: 'pi pi-shopping-cart',
+      command: () => router.push('/store'),
     },
     {
       label: 'Subscribe',
@@ -143,7 +169,7 @@ const Navbar = () => {
                 </h1>
               </div>
             )}
-            
+
             {windowWidth > 600 ? (
               <div
                 className={`ml-2 p-2 cursor-pointer transition-all duration-300 flex items-center justify-center ${isHovered ? 'bg-gray-700 rounded-full' : ''}`}
@@ -176,9 +202,10 @@ const Navbar = () => {
             </div>
           )}
 
-          {/* Right section - User Avatar */}
-          <div className="flex items-center justify-end flex-1">
-            <UserAvatar />
+          {/* Right section - User Avatar and Cart */}
+          <div className="flex items-center justify-end flex-1 gap-4">
+            <UserAvatar session={session} status={status} />
+            <CartModal cart={cart} />
           </div>
         </div>
       </div>

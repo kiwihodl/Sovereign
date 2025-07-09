@@ -78,12 +78,7 @@ const Feed = () => {
         </div>
         <Divider />
       </div>
-      <CommunityMenuTab
-        items={allTopics}
-        selectedTopic={selectedTopic}
-        onTabChange={handleTopicChange}
-        className="mb-4"
-      />
+      <CommunityMenuTab onSelectTopic={setSelectedTopic} />
       <div className="feed-content">
         {selectedTopic === 'global' && <GlobalFeed />}
         {selectedTopic === 'nostr' && <NostrFeed />}

@@ -7,7 +7,6 @@ const appConfig = {
     'wss://relay.primal.net/',
     'wss://nostrue.com/',
     'wss://purplerelay.com/',
-    'wss://relay.devs.tools/',
   ],
   authorPubkeys: [
     '4ce527eb7971b027723f684cabd3f14eb98047533410afaaf359408b93c0e033'
