@@ -92,15 +92,12 @@ const UserAvatar = () => {
             className={`flex flex-row items-center justify-between cursor-pointer hover:opacity-75`}
           >
             <Image
-              alt="logo"
               src={returnImageProxy(user.avatar, user.pubkey)}
-              width={50}
-              height={50}
-              className={styles.logo}
-              style={{
-                boxShadow: isProfile ? '0 0 10px 3px rgba(255, 255, 255, 0.7)' : 'none',
-                transition: 'box-shadow 0.3s ease-in-out',
-              }}
+              alt={session?.user?.name || 'User Avatar'}
+              width={40}
+              height={40}
+              sizes="40px"
+              className="rounded-full cursor-pointer"
             />
           </div>
         </div>

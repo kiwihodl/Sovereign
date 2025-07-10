@@ -2,7 +2,7 @@
 
 import { ProductOption, ProductVariant } from '@/lib/shopify/types';
 import { createUrl } from '@/lib/shopify/utils';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/router';
 
 type Combination = {
   id: string;
@@ -13,13 +13,36 @@ type Combination = {
 export function VariantSelector({
   options,
   variants,
+  images,
 }: {
   options: ProductOption[];
   variants: ProductVariant[];
+  images: any[];
 }) {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const { pathname, query } = router;
+  const searchParams = new URLSearchParams(query as any);
+
+  const handleVariantSelection = (optionName: string, value: string) => {
+    const optionNameLowerCase = optionName.toLowerCase();
+    const optionSearchParams = new URLSearchParams(searchParams.toString());
+    optionSearchParams.set(optionNameLowerCase, value);
+
+    if (optionNameLowerCase === 'color') {
+      const variant = variants.find(v =>
+        v.selectedOptions.some(opt => opt.name.toLowerCase() === 'color' && opt.value === value)
+      );
+      if (variant && variant.image) {
+        const imageIndex = images.findIndex(img => img.url === variant.image.url);
+        if (imageIndex !== -1) {
+          optionSearchParams.set('image', imageIndex.toString());
+        }
+      }
+    }
+
+    const optionUrl = createUrl(pathname, optionSearchParams);
+    router.push(optionUrl, undefined, { scroll: false, shallow: true });
+  };
 
   const combinations: Combination[] = variants.map(variant => ({
     id: variant.id,
@@ -36,7 +59,7 @@ export function VariantSelector({
       <dd className="flex flex-wrap gap-3">
         {option.values.map(value => {
           const optionNameLowerCase = option.name.toLowerCase();
-          const optionSearchParams = new URLSearchParams(searchParams.toString());
+          const optionSearchParams = new URLSearchParams(query as any);
           optionSearchParams.set(optionNameLowerCase, value);
           const optionUrl = createUrl(pathname, optionSearchParams);
 
@@ -53,20 +76,16 @@ export function VariantSelector({
               aria-disabled={!isAvailable}
               disabled={!isAvailable}
               onClick={() => {
-                router.replace(optionUrl, { scroll: false });
+                handleVariantSelection(option.name, value);
               }}
               title={`${option.name} ${value}${!isAvailable ? ' (Out of Stock)' : ''}`}
               className={`flex min-w-[48px] items-center justify-center rounded-full border px-2 py-1 text-sm transition-all
                 ${
                   isActive
-                    ? 'border-transparent bg-[#FF9500] text-white'
+                    ? 'border-transparent bg-[#FF9500] text-black'
                     : 'border-[#FF9500] bg-transparent text-[#FF9500]'
                 }
-                ${
-                  isAvailable
-                    ? 'cursor-pointer hover:bg-orange-600 hover:text-white'
-                    : 'cursor-not-allowed opacity-50'
-                }
+                ${isAvailable ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}
               `}
             >
               {value}

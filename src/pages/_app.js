@@ -15,12 +15,16 @@ import { Analytics } from '@vercel/analytics/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import BottomBar from '@/components/BottomBar';
 import { CartProvider } from '@/components/cart/cart-context';
+import Head from 'next/head';
 
 const queryClient = new QueryClient();
 
 export default function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   return (
     <PrimeReactProvider>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
       <SessionProvider session={session}>
         <NDKProvider>
           <QueryClientProvider client={queryClient}>

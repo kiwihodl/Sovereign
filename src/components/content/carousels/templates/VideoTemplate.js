@@ -21,7 +21,7 @@ import { Message } from 'primereact/message';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import GenericButton from '@/components/buttons/GenericButton';
 
-export function VideoTemplate({ video, isLesson, showMetaTags }) {
+export default function VideoTemplate({ video, isLesson, showMetaTags }) {
   const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: video });
   const [nAddress, setNAddress] = useState(null);
   const [zapAmount, setZapAmount] = useState(0);

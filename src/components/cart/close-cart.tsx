@@ -7,11 +7,11 @@ export function CloseCart() {
   const { dispatch } = useCart();
 
   return (
-    <div className="relative flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-black transition-colors dark:border-neutral-700 dark:text-white">
+    <div className="relative flex h-11 w-11 items-center justify-center rounded-md text-[#FF9500] transition-colors">
       <button
         type="button"
         onClick={() => dispatch({ type: 'CLOSE_CART' })}
-        className="relative flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-black transition-colors dark:border-neutral-700 dark:text-white"
+        className="relative flex h-11 w-11 items-center justify-center rounded-md text-[#FF9500] transition-colors hover:bg-gray-700"
       >
         <span className="sr-only">Close cart</span>
         <XMarkIcon className="h-6" />

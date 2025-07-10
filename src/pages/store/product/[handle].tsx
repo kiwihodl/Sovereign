@@ -1,9 +1,36 @@
 import { getProduct } from '@/lib/shopify';
 import { Product } from '@/lib/shopify/types';
-import { ProductDescription } from '@/components/product/product-description'; // We will create this next
-import { Gallery } from '@/components/product/gallery'; // And this
+import { ProductDescription } from '@/components/product/product-description';
+import { Gallery } from '@/components/product/gallery';
+import { useRouter } from 'next/router';
+import { useState, useEffect } from 'react';
 
-export default function ProductPage({ product }: { product: Product }) {
+export default function ProductPage() {
+  const router = useRouter();
+  const { handle } = router.query;
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (handle) {
+      const fetchProduct = async () => {
+        setLoading(true);
+        const productData = await getProduct(handle as string);
+        setProduct(productData);
+        setLoading(false);
+      };
+      fetchProduct();
+    }
+  }, [handle]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!product) {
+    return <div>Product not found.</div>;
+  }
+
   return (
     <div style={{ backgroundColor: '#201c24', paddingTop: '50px' }}>
       <div className="mx-auto max-w-screen-2xl px-4">
@@ -16,7 +43,6 @@ export default function ProductPage({ product }: { product: Product }) {
               }))}
             />
           </div>
-
           <div className="basis-full lg:basis-2/6">
             <ProductDescription product={product} />
           </div>
@@ -24,21 +50,4 @@ export default function ProductPage({ product }: { product: Product }) {
       </div>
     </div>
   );
-}
-
-export async function getServerSideProps(context: any) {
-  const { handle } = context.params;
-  const product = await getProduct(handle);
-
-  if (!product) {
-    return {
-      notFound: true,
-    };
-  }
-
-  return {
-    props: {
-      product,
-    },
-  };
 }

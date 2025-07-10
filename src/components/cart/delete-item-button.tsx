@@ -1,39 +1,41 @@
 'use client';
 
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { TrashIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
-
-async function removeItem(lineId: string) {
-  const res = await fetch('/api/cart', {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ lineId: lineId }),
-  });
-
-  if (!res.ok) {
-    alert('Error removing item from cart.');
-  }
-}
+import { useCart } from './cart-context';
 
 export function DeleteItemButton({ item }: { item: any }) {
-  const router = useRouter();
+  const { refreshCart, dispatch } = useCart();
+
+  async function handleRemoveItem() {
+    const res = await fetch('/api/cart', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lineId: item.id }),
+    });
+
+    if (res.ok) {
+      const responseData = await res.json();
+      if (responseData.cart) {
+        // Update cart state immediately with the returned cart data
+        dispatch({ type: 'SET_CART', payload: responseData.cart });
+      } else {
+        // Fallback to refreshing cart
+        refreshCart();
+      }
+    } else {
+      alert('Error removing item from cart.');
+    }
+  }
 
   return (
     <button
       aria-label="Remove cart item"
-      onClick={async (e: React.FormEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        await removeItem(item.id);
-        router.refresh();
-      }}
-      className={clsx(
-        'ease flex h-[17px] w-[17px] items-center justify-center rounded-full bg-neutral-500 transition-all duration-200'
-      )}
+      onClick={handleRemoveItem}
+      className="ease flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 hover:bg-gray-700"
     >
-      <XMarkIcon className="hover:text-accent-3 mx-[1px] h-4 w-4 text-white dark:text-black" />
+      <TrashIcon className="h-5 w-5 text-[#FF9500]" />
     </button>
   );
 }

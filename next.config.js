@@ -2,15 +2,18 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: [
-      'localhost',
-      'secure.gravatar.com',
-      'plebdevs-three.vercel.app',
-      'plebdevs.com',
-      'plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com',
-      'avatars.githubusercontent.com',
-      'i.ytimg.com',
-      'cdn.shopify.com',
+    remotePatterns: [
+      { protocol: 'https', hostname: 'localhost' },
+      { protocol: 'https', hostname: 'secure.gravatar.com' },
+      { protocol: 'https', hostname: 'plebdevs-three.vercel.app' },
+      { protocol: 'https', hostname: 'plebdevs.com' },
+      { protocol: 'https', hostname: 'plebdevs-bucket.nyc3.cdn.digitaloceanspaces.com' },
+      { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
+      { protocol: 'https', hostname: 'i.ytimg.com' },
+      { protocol: 'https', hostname: 'cdn.shopify.com' },
+      { protocol: 'https', hostname: 'pbs.twimg.com' },
+      { protocol: 'https', hostname: 'cdn.discordapp.com' },
+      { protocol: 'https', hostname: 'i.nostr.build' },
     ],
   },
   webpack(config, options) {
@@ -40,7 +43,7 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value:
-              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' blob: data: https://authjs.dev; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; connect-src 'self' https://vitals.vercel-insights.com wss://nos.lol/ wss://relay.damus.io/ wss://relay.snort.social/ wss://relay.nostr.band/ wss://relay.primal.net/ wss://nostrue.com/ wss://purplerelay.com/ wss://*.nostr.*;",
+              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' blob: data: https://authjs.dev cdn.shopify.com pbs.twimg.com cdn.discordapp.com i.nostr.build secure.gravatar.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; connect-src 'self' https://vitals.vercel-insights.com sovereign-university.myshopify.com wss://nos.lol wss://relay.damus.io wss://relay.snort.social wss://relay.nostr.band wss://relay.primal.net wss://nostrue.com wss://purplerelay.com wss://relay.devs.tools wss://*.nostr.com wss://*.nostr.band;",
           },
         ],
       },

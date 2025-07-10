@@ -13,8 +13,8 @@ import { useNDKContext } from '@/context/NDKContext';
 import { nip19 } from 'nostr-tools';
 import { parseCourseEvent } from '@/utils/nostr';
 import CartModal from '@/components/cart/modal';
-import { getCart } from '@/lib/shopify';
-import Cookies from 'js-cookie';
+import { useCart } from '@/components/cart/cart-context';
+import OpenCart from '@/components/cart/open-cart';
 
 const Navbar = () => {
   const router = useRouter();
@@ -28,23 +28,6 @@ const Navbar = () => {
   const [course, setCourse] = useState(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [activeItem, setActiveItem] = useState(router.pathname);
-  const [cart, setCart] = useState(null);
-
-  useEffect(() => {
-    const fetchCart = async () => {
-      const cartId = Cookies.get('cartId');
-      if (cartId) {
-        try {
-          const cartData = await getCart(cartId);
-          setCart(cartData);
-        } catch (e) {
-          console.error('Error fetching cart:', e);
-        }
-      }
-    };
-
-    fetchCart();
-  }, []);
 
   // Check if we're on a course page
   const isCoursePage = router.pathname.startsWith('/course/');
@@ -202,10 +185,10 @@ const Navbar = () => {
             </div>
           )}
 
-          {/* Right section - User Avatar and Cart */}
+          {/* Right section - Cart Icon */}
           <div className="flex items-center justify-end flex-1 gap-4">
-            <UserAvatar session={session} status={status} />
-            <CartModal cart={cart} />
+            <OpenCart />
+            <CartModal />
           </div>
         </div>
       </div>

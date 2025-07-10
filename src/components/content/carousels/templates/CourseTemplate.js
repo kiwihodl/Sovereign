@@ -23,10 +23,8 @@ import GenericButton from '@/components/buttons/GenericButton';
 import appConfig from '@/config/appConfig';
 import { BookOpen } from 'lucide-react';
 
-export function CourseTemplate({ course, showMetaTags = true }) {
-  const { zaps, zapsLoading, zapsError } = useZapsSubscription({
-    event: course,
-  });
+export default function CourseTemplate({ course }) {
+  const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: course });
   const [zapAmount, setZapAmount] = useState(0);
   const [lessonCount, setLessonCount] = useState(0);
   const [nAddress, setNAddress] = useState(null);

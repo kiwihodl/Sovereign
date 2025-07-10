@@ -7,6 +7,7 @@ import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateS
 import { useDocuments } from '@/hooks/nostr/useDocuments';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import { Divider } from 'primereact/divider';
+import { useSession } from 'next-auth/react';
 const responsiveOptions = [
   {
     breakpoint: '3000px',
@@ -26,6 +27,7 @@ const responsiveOptions = [
 ];
 
 export default function DocumentsCarousel() {
+  const { data: session } = useSession();
   const [processedDocuments, setProcessedDocuments] = useState([]);
   const [paidLessons, setPaidLessons] = useState([]);
   const [freeLessons, setFreeLessons] = useState([]);

@@ -6,6 +6,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let cartId = req.cookies.cartId;
     let cart;
 
+    console.log('API - Initial cartId:', cartId);
+
     if (cartId) {
       cart = await getCart(cartId);
     }
@@ -13,7 +15,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!cartId || !cart) {
       cart = await createCart();
       cartId = cart.id;
-      res.setHeader('Set-Cookie', `cartId=${cartId}; HttpOnly; Path=/; SameSite=Lax`);
+      console.log('API - Created new cart with ID:', cartId);
+      res.setHeader('Set-Cookie', `cartId=${cartId}; Path=/; SameSite=Lax`);
     }
 
     const { merchandiseId } = req.body;
@@ -22,8 +25,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
-      await addToCart(cartId, [{ merchandiseId, quantity: 1 }]);
-      return res.status(200).json({ success: true });
+      const newCart = await addToCart(cartId, [{ merchandiseId, quantity: 1 }]);
+      if (req.body.checkout) {
+        return res.status(200).json(newCart);
+      }
+      return res.status(200).json({ success: true, cart: newCart });
     } catch (e) {
       return res.status(500).json({ error: 'Error adding item to cart' });
     }
@@ -38,8 +44,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
-      await removeFromCart(cartId, [lineId]);
-      return res.status(200).json({ success: true });
+      const updatedCart = await removeFromCart(cartId, [lineId]);
+      return res.status(200).json({ success: true, cart: updatedCart });
     } catch (e) {
       return res.status(500).json({ error: 'Error removing item from cart' });
     }
@@ -54,8 +60,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
-      await updateCart(cartId, [{ id: lineId, merchandiseId, quantity }]);
-      return res.status(200).json({ success: true });
+      const updatedCart = await updateCart(cartId, [{ id: lineId, merchandiseId, quantity }]);
+      return res.status(200).json({ success: true, cart: updatedCart });
     } catch (e) {
       return res.status(500).json({ error: 'Error updating item quantity' });
     }

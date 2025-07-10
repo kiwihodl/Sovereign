@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -21,7 +21,7 @@ import useWindowWidth from '@/hooks/useWindowWidth';
 import GenericButton from '@/components/buttons/GenericButton';
 import { FileText } from 'lucide-react';
 
-export function DocumentTemplate({ document, isLesson, showMetaTags }) {
+export default function DocumentTemplate({ document, isLesson, showMetaTags }) {
   const { zaps, zapsLoading, zapsError } = useZapsSubscription({ event: document });
   const [nAddress, setNAddress] = useState(null);
   const [zapAmount, setZapAmount] = useState(0);

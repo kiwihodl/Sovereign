@@ -7,7 +7,6 @@ class MyDocument extends Document {
         <Head>
           {/* Essential Meta Tags */}
           <meta charSet="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
           <meta name="robots" content="index, follow" />
 
           {/* Default Meta Tags (can be overridden per page) */}

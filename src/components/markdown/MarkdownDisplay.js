@@ -33,9 +33,11 @@ const MarkdownDisplay = ({ content, className = '' }) => {
         rehypePlugins={[rehypeRaw]}
         components={{
           a: ({ node, ...props }) => <a target="_blank" rel="noopener noreferrer" {...props} />,
-          img: ({ node, ...props }) => <img {...props} className="max-w-full rounded my-2" />,
+          img: ({ node, ...props }) => (
+            <img {...props} className="max-w-full rounded my-2" alt="" />
+          ),
+          ...renderers,
         }}
-        components={renderers}
       >
         {content}
       </ReactMarkdown>
