@@ -90,14 +90,14 @@ const Navbar = () => {
 
   const menuItems = [
     {
+      label: 'About',
+      icon: 'pi pi-info-circle',
+      command: () => router.push('/about'),
+    },
+    {
       label: 'Content',
       icon: 'pi pi-play-circle',
       command: () => router.push('/content?tag=all'),
-    },
-    {
-      label: 'Feeds',
-      icon: 'pi pi-comments',
-      command: () => router.push('/feed?channel=global'),
     },
     {
       label: 'Store',
@@ -111,9 +111,9 @@ const Navbar = () => {
         session?.user ? router.push('/profile?tab=subscribe') : router.push('/about'),
     },
     {
-      label: 'About',
-      icon: 'pi pi-info-circle',
-      command: () => router.push('/about'),
+      label: 'Admin',
+      icon: 'pi pi-cog',
+      command: () => router.push('/auth/signin'),
     },
   ];
 

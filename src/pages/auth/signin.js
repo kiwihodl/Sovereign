@@ -102,20 +102,12 @@ export default function SignIn() {
       <h1 className="text-center mb-8">Sign In</h1>
       <GenericButton
         label={'login with nostr'}
-        icon={
-          <Image
-            src="/images/nostr-icon-white.png"
-            width={20}
-            height={20}
-            alt="Nostr"
-            className="mr-2"
-          />
-        }
-        className="text-[#f8f8ff] w-[250px] my-4 mx-auto"
+        icon={<Image src="/images/nostr.png" width={20} height={20} alt="Nostr" className="mr-2" />}
+        className="bg-black text-purple-400/70 border-purple-400/70 border-2 uppercase text-xl font-bold tracking-wider font-satoshi w-[400px] my-4 mx-auto hover:text-purple-400 hover:border-purple-400 transition-all duration-300"
         rounded
         onClick={handleNostrSignIn}
       />
-      <GenericButton
+      {/* <GenericButton
         label={'login with email'}
         icon="pi pi-envelope"
         className="text-[#f8f8ff] w-[250px] my-4 mx-auto"
@@ -199,7 +191,7 @@ export default function SignIn() {
             rounded
           />
         </form>
-      )}
+      )} */}
     </div>
   );
 }

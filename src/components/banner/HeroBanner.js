@@ -8,7 +8,7 @@ import GenericButton from '../buttons/GenericButton';
 import MatrixRain from './MatrixRain';
 import HeroTabs from './HeroTabs';
 
-const HeroBanner = () => {
+const HeroBanner = ({ onHeroTabChange }) => {
   const [currentTech, setCurrentTech] = useState('Bitcoin');
   const [selectedTab, setSelectedTab] = useState('Bitcoin');
   const [isAnimating, setIsAnimating] = useState(false);
@@ -36,6 +36,13 @@ const HeroBanner = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  const handleHeroTabChange = tab => {
+    setSelectedTab(tab);
+    if (onHeroTabChange) {
+      onHeroTabChange(tab);
+    }
+  };
 
   const getColorClass = tech => {
     switch (tech) {
@@ -204,7 +211,7 @@ const HeroBanner = () => {
 
         {/* Right side - Tabs */}
         <div className="flex items-center justify-center pr-8">
-          <HeroTabs onTabChange={setSelectedTab} />
+          <HeroTabs onTabChange={handleHeroTabChange} />
         </div>
       </div>
     </div>

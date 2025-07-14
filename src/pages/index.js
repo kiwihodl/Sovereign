@@ -7,87 +7,66 @@ import { parseEvent, parseCourseEvent } from '@/utils/nostr';
 import { useDocuments } from '@/hooks/nostr/useDocuments';
 import { useVideos } from '@/hooks/nostr/useVideos';
 import { useCourses } from '@/hooks/nostr/useCourses';
-import { TabMenu } from 'primereact/tabmenu';
-import 'primeicons/primeicons.css';
-import GenericButton from '@/components/buttons/GenericButton';
 import { useRouter } from 'next/router';
 import HeroBanner from '@/components/banner/HeroBanner';
 
-const MenuTab = ({ selectedTopic, onTabChange, allTopics }) => {
+const MenuTab = ({ selectedTopic, onTabChange, heroSelection = 'Bitcoin' }) => {
   const router = useRouter();
 
-  // Define the hardcoded priority items that always appear first
-  const priorityItems = ['Top', 'Courses', 'Videos', 'Documents', 'Free', 'Paid'];
-  // Items that should be filtered out from topics
-  const blacklistedItems = ['document', 'video', 'course'];
+  const getTabStyles = (tab, heroTech) => {
+    const isActive = selectedTopic === tab;
+    const baseStyles =
+      'px-8 py-4 text-center rounded-lg transition-all duration-300 border-2 uppercase text-xl font-bold tracking-wider font-satoshi';
 
-  // Get dynamic topics, excluding hardcoded and blacklisted items
-  const otherItems = allTopics.filter(
-    item => !priorityItems.includes(item) && !blacklistedItems.includes(item)
-  );
+    switch (heroTech) {
+      case 'Bitcoin':
+        return `${baseStyles} ${
+          isActive
+            ? 'bg-orange-400 text-black border-orange-400'
+            : 'bg-black text-orange-400/70 border-orange-400/70 hover:text-orange-400 hover:border-orange-400'
+        }`;
+      case 'NOSTR':
+        return `${baseStyles} ${
+          isActive
+            ? 'bg-purple-400 text-black border-purple-400'
+            : 'bg-black text-purple-400/70 border-purple-400/70 hover:text-purple-400 hover:border-purple-400'
+        }`;
+      case 'Privacy':
+        return `${baseStyles} ${
+          isActive
+            ? 'bg-teal-400 text-black border-teal-400'
+            : 'bg-black text-teal-400/70 border-teal-400/70 hover:text-teal-400 hover:border-teal-400'
+        }`;
+      default:
+        return baseStyles;
+    }
+  };
 
-  // Only take the first 4 dynamic topics to keep the menu clean
-  // Additional topics will be accessible through the "More" page
-  const limitedOtherItems = otherItems.slice(0, 8);
-
-  // Combine all menu items: priority items + up to 4 dynamic topics + More
-  const allItems = [...priorityItems, ...limitedOtherItems, 'More'];
-
-  const menuItems = allItems.map(item => {
-    let icon = 'pi pi-tag';
-    if (item === 'Top') icon = 'pi pi-star';
-    else if (item === 'Documents') icon = 'pi pi-file';
-    else if (item === 'Videos') icon = 'pi pi-video';
-    else if (item === 'Courses') icon = 'pi pi-desktop';
-    else if (item === 'Free') icon = 'pi pi-lock-open';
-    else if (item === 'Paid') icon = 'pi pi-lock';
-    else if (item === 'More') icon = 'pi pi-ellipsis-h';
-
-    const isMore = item === 'More';
-    const path = isMore
-      ? '/content?tag=all'
-      : item === 'Top'
-        ? '/'
-        : `/content?tag=${item.toLowerCase()}`;
-
-    return {
-      label: (
-        <GenericButton
-          className={`${selectedTopic === item ? 'bg-primary text-white' : ''}`}
-          onClick={() => {
-            onTabChange(item);
-            router.push(path);
-          }}
-          outlined={selectedTopic !== item}
-          rounded
-          size="small"
-          label={item}
-          icon={icon}
-        />
-      ),
-      command: () => {
-        onTabChange(item);
-        router.push(path);
-      },
-    };
-  });
+  const handleTabClick = tab => {
+    onTabChange(tab);
+    if (tab === 'What') {
+      // Scroll to the "What" section (anchor)
+      const whatSection = document.getElementById('what-section');
+      if (whatSection) {
+        whatSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   return (
-    <div className="w-full">
-      <TabMenu
-        model={menuItems}
-        activeIndex={allItems.indexOf(selectedTopic)}
-        onTabChange={e => onTabChange(allItems[e.index])}
-        pt={{
-          menu: { className: 'bg-transparent border-none my-2 py-1' },
-          action: ({ context, parent }) => ({
-            className:
-              'cursor-pointer select-none flex items-center relative no-underline overflow-hidden border-b-2 p-2 pl-1 font-bold rounded-t-lg',
-            style: { top: '2px' },
-          }),
-          menuitem: { className: 'mr-0' },
-        }}
-      />
+    <div className="flex justify-center items-center gap-4">
+      <button className={getTabStyles('Why', heroSelection)} onClick={() => handleTabClick('Why')}>
+        Why
+      </button>
+      <button
+        className={getTabStyles('What', heroSelection)}
+        onClick={() => handleTabClick('What')}
+      >
+        What
+      </button>
+      <button className={getTabStyles('How', heroSelection)} onClick={() => handleTabClick('How')}>
+        How
+      </button>
     </div>
   );
 };
@@ -102,8 +81,8 @@ export default function Home() {
   const [processedVideos, setProcessedVideos] = useState([]);
   const [processedCourses, setProcessedCourses] = useState([]);
   const [allContent, setAllContent] = useState([]);
-  const [allTopics, setAllTopics] = useState([]);
-  const [selectedTopic, setSelectedTopic] = useState('Top');
+  const [selectedTopic, setSelectedTopic] = useState('Why');
+  const [heroSelection, setHeroSelection] = useState('Bitcoin');
 
   useEffect(() => {
     if (documents && !documentsLoading) {
@@ -135,42 +114,14 @@ export default function Home() {
   useEffect(() => {
     const allContent = [...processedDocuments, ...processedVideos, ...processedCourses];
     setAllContent(allContent);
-
-    const uniqueTopics = new Set(allContent.map(item => item.topics).flat());
-    const otherTopics = Array.from(uniqueTopics).filter(
-      topic =>
-        !['Top', 'Courses', 'Videos', 'Documents', 'Free', 'Paid', 'More'].includes(topic) &&
-        !['document', 'video', 'course'].includes(topic)
-    );
-    setAllTopics(otherTopics);
-
-    filterContent(selectedTopic, allContent);
-  }, [processedDocuments, processedVideos, processedCourses, selectedTopic]);
-
-  const filterContent = (topic, content) => {
-    let filtered = content;
-    if (topic !== 'Top' && topic !== 'More') {
-      const topicLower = topic.toLowerCase();
-      if (['courses', 'videos', 'documents'].includes(topicLower)) {
-        filtered = content.filter(item => item.type === topicLower.slice(0, -1));
-      } else if (topicLower === 'free') {
-        filtered = content.filter(item => !item.price || Number(item.price) === 0);
-      } else if (topicLower === 'paid') {
-        filtered = content.filter(item => item.price && Number(item.price) > 0);
-      } else {
-        filtered = content.filter(item => item.topics && item.topics.includes(topicLower));
-      }
-    }
-  };
+  }, [processedDocuments, processedVideos, processedCourses]);
 
   const handleTopicChange = newTopic => {
     setSelectedTopic(newTopic);
-    if (newTopic === 'More') {
-      router.push('/content?tag=all');
-    } else {
-      filterContent(newTopic, allContent);
-      router.push(newTopic === 'Top' ? '/' : `/content?tag=${newTopic.toLowerCase()}`);
-    }
+  };
+
+  const handleHeroTabChange = heroTab => {
+    setHeroSelection(heroTab);
   };
 
   return (
@@ -182,13 +133,12 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <HeroBanner />
-        <div className="w-full px-4 md:px-12">
+        <HeroBanner onHeroTabChange={handleHeroTabChange} />
+        <div className="w-full px-4 md:px-12 py-8">
           <MenuTab
             selectedTopic={selectedTopic}
             onTabChange={handleTopicChange}
-            allTopics={allTopics}
-            className="w-full"
+            heroSelection={heroSelection}
           />
         </div>
         <div className="w-full px-4 max-mob:px-0">
