@@ -15,7 +15,6 @@ import { useEncryptContent } from '@/hooks/encryption/useEncryptContent';
 import MoreInfo from '@/components/MoreInfo';
 import 'primeicons/primeicons.css';
 import { Tooltip } from 'primereact/tooltip';
-import 'primereact/resources/primereact.min.css';
 import MarkdownEditor from '@/components/markdown/MarkdownEditor';
 
 const EditPublishedCombinedResourceForm = ({ event }) => {

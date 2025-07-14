@@ -10,7 +10,6 @@ import { useSession } from 'next-auth/react';
 import { useToast } from '@/hooks/useToast';
 import { Tooltip } from 'primereact/tooltip';
 import 'primeicons/primeicons.css';
-import 'primereact/resources/primereact.min.css';
 import MarkdownEditor from '@/components/markdown/MarkdownEditor';
 
 const DocumentForm = () => {
@@ -145,11 +144,7 @@ const DocumentForm = () => {
       </div>
       <div className="p-inputgroup flex-1 flex-col mt-4">
         <span>Content</span>
-        <MarkdownEditor 
-          value={content} 
-          onChange={handleContentChange} 
-          height={350} 
-        />
+        <MarkdownEditor value={content} onChange={handleContentChange} height={350} />
       </div>
       <div className="mt-8 flex-col w-full">
         <span className="pl-1 flex items-center">

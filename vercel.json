@@ -7,7 +7,7 @@
     },
     {
       "path": "/api/invoices/polling",
-      "schedule": "*/3 * * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }

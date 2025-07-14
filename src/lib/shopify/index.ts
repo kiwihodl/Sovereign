@@ -6,7 +6,10 @@ import {
   Page,
   Product,
   ShopifyCartOperation,
-  ShopifyCollectionOperation,
+  ShopifyCreateCartOperation,
+  ShopifyAddToCartOperation,
+  ShopifyRemoveFromCartOperation,
+  ShopifyUpdateCartOperation,
   ShopifyCollectionProductsOperation,
   ShopifyCollectionsOperation,
   ShopifyMenuOperation,
@@ -91,7 +94,7 @@ async function shopifyFetch<T>({
 }
 
 export async function createCart(): Promise<Cart> {
-  const res = await shopifyFetch<ShopifyCartOperation>({
+  const res = await shopifyFetch<ShopifyCreateCartOperation>({
     query: createCartMutation,
     cache: 'no-store',
   });
@@ -103,7 +106,7 @@ export async function addToCart(
   cartId: string,
   lines: { merchandiseId: string; quantity: number }[]
 ): Promise<Cart> {
-  const res = await shopifyFetch<ShopifyCartOperation>({
+  const res = await shopifyFetch<ShopifyAddToCartOperation>({
     query: addToCartMutation,
     variables: {
       cartId,
@@ -115,7 +118,7 @@ export async function addToCart(
 }
 
 export async function removeFromCart(cartId: string, lineIds: string[]): Promise<Cart> {
-  const res = await shopifyFetch<ShopifyCartOperation>({
+  const res = await shopifyFetch<ShopifyRemoveFromCartOperation>({
     query: removeFromCartMutation,
     variables: {
       cartId,
@@ -131,7 +134,7 @@ export async function updateCart(
   cartId: string,
   lines: { id: string; merchandiseId: string; quantity: number }[]
 ): Promise<Cart> {
-  const res = await shopifyFetch<ShopifyCartOperation>({
+  const res = await shopifyFetch<ShopifyUpdateCartOperation>({
     query: editCartItemsMutation,
     variables: {
       cartId,
@@ -155,6 +158,16 @@ export async function getCart(cartId: string): Promise<Cart | undefined> {
   }
 
   return reshapeCart(res.body.data.cart);
+}
+
+// Add this type for a single collection query
+interface ShopifyCollectionOperation {
+  data: {
+    collection: import('./types').ShopifyCollection;
+  };
+  variables: {
+    handle: string;
+  };
 }
 
 export async function getCollection(handle: string): Promise<Collection | undefined> {

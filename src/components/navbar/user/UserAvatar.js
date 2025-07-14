@@ -7,8 +7,6 @@ import { Menu } from 'primereact/menu';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import { useSession, signOut } from 'next-auth/react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
-import 'primereact/resources/primereact.min.css';
-import 'primeicons/primeicons.css';
 import styles from '../navbar.module.css';
 
 const UserAvatar = () => {

@@ -5,7 +5,6 @@ import { Menu } from 'primereact/menu';
 import { useRouter } from 'next/router';
 import SearchBar from '../search/SearchBar';
 import { useSession } from 'next-auth/react';
-import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import CourseHeader from '../content/courses/layout/CourseHeader';

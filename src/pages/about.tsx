@@ -123,16 +123,19 @@ const AboutPage = () => {
   useEffect(() => {
     if (user && user.role) {
       setSubscribed(user.role.subscribed);
-      
+
       if (user.role.lastPaymentAt) {
         const subscribedAt = new Date(user.role.lastPaymentAt);
-        
+
         // Use the shared helper to calculate expiration date
-        const subscribedUntil = calculateExpirationDate(subscribedAt, user.role.subscriptionType || 'monthly');
-        
+        const subscribedUntil = calculateExpirationDate(
+          subscribedAt,
+          user.role.subscriptionType || 'monthly'
+        );
+
         setSubscribedUntil(subscribedUntil);
       }
-      
+
       if (user.role.subscriptionExpiredAt) {
         const expiredAt = new Date(user.role.subscriptionExpiredAt);
         setSubscriptionExpiredAt(expiredAt);
@@ -144,7 +147,7 @@ const AboutPage = () => {
     setIsProcessing(true);
     try {
       const apiResponse = await axios.put('/api/users/subscription', {
-        userId: session.user.id,
+        userId: (session.user as any).id,
         isSubscribed: true,
         subscriptionType: subscriptionType,
       });
@@ -185,6 +188,14 @@ const AboutPage = () => {
     }
   };
 
+  const handleLightningAddressClick = () => {
+    setLightningAddressVisible(true);
+  };
+
+  const handleNip05Click = () => {
+    setNip05Visible(true);
+  };
+
   const menuItems = [
     {
       label: 'Schedule 1:1',
@@ -192,14 +203,14 @@ const AboutPage = () => {
       command: () => setCalendlyVisible(true),
     },
     {
-      label: session?.user?.platformLightningAddress
+      label: (session?.user as any)?.platformLightningAddress
         ? 'Update PlebDevs Lightning Address'
         : 'Claim PlebDevs Lightning Address',
       icon: 'pi pi-bolt',
       command: () => setLightningAddressVisible(true),
     },
     {
-      label: session?.user?.platformNip05?.name
+      label: (session?.user as any)?.platformNip05?.name
         ? 'Update PlebDevs Nostr NIP-05'
         : 'Claim PlebDevs Nostr NIP-05',
       icon: 'pi pi-at',
@@ -259,6 +270,8 @@ const AboutPage = () => {
               className="text-[#f8f8ff] w-fit"
               rounded
               icon="pi pi-user"
+              severity="primary"
+              size="normal"
             />
           </Card>
         </>
@@ -387,19 +400,19 @@ const AboutPage = () => {
                 <div className="subscription-plan-selector my-6">
                   <div className="flex flex-col items-center mb-4">
                     <h3 className="text-xl font-bold mb-3">Select Your Plan</h3>
-                    <SelectButton 
-                      value={subscriptionType} 
-                      options={subscriptionOptions} 
-                      onChange={(e) => {
+                    <SelectButton
+                      value={subscriptionType}
+                      options={subscriptionOptions}
+                      onChange={e => {
                         // Only update if the value actually changed
                         if (e.value !== subscriptionType) {
-                          setSubscriptionType(e.value)
+                          setSubscriptionType(e.value);
                         }
-                      }} 
+                      }}
                       className="mb-3 w-full max-w-[300px] mx-auto"
                       pt={{
                         button: { className: 'text-base px-8 py-2 text-white' },
-                        root: { className: 'flex justify-center' }
+                        root: { className: 'flex justify-center' },
                       }}
                     />
                     {subscriptionType === 'yearly' && (
@@ -415,7 +428,7 @@ const AboutPage = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <SubscriptionPaymentButtons
                   onSuccess={handleSubscriptionSuccess}
                   onRecurringSubscriptionSuccess={handleRecurringSubscriptionSuccess}
@@ -449,41 +462,46 @@ const AboutPage = () => {
                 label="Schedule 1:1"
                 icon="pi pi-calendar"
                 onClick={() => setCalendlyVisible(true)}
+                size="normal"
               />
               <GenericButton
                 severity="help"
                 outlined
                 className="w-fit text-start"
                 label={
-                  session?.user?.platformNip05?.name
+                  (session?.user as any)?.platformNip05?.name
                     ? 'Update Nostr NIP-05'
                     : 'Claim PlebDevs Nostr NIP-05'
                 }
                 icon="pi pi-at"
-                onClick={() => setNip05Visible(true)}
+                onClick={() => handleNip05Click()}
+                size="normal"
               />
               <GenericButton
                 severity="warning"
                 outlined
                 className="w-fit text-start"
                 label={
-                  session?.user?.platformLightningAddress
+                  (session?.user as any)?.platformLightningAddress
                     ? 'Update Lightning Address'
                     : 'Claim PlebDevs Lightning Address'
                 }
                 icon={<i style={{ color: 'orange' }} className="pi pi-bolt mr-2"></i>}
-                onClick={() => setLightningAddressVisible(true)}
+                onClick={() => handleLightningAddressClick()}
+                size="normal"
               />
             </div>
           </Card>
           <Card title="Manage Subscription" className="mb-2">
             <div className="flex flex-col gap-4">
               <GenericButton
+                severity="primary"
                 outlined
                 className="w-fit"
                 label="Renew Subscription"
                 icon="pi pi-sync"
                 onClick={() => setRenewSubscriptionVisible(true)}
+                size="normal"
               />
               <GenericButton
                 severity="danger"
@@ -492,6 +510,7 @@ const AboutPage = () => {
                 label="Cancel Subscription"
                 icon="pi pi-trash"
                 onClick={() => setCancelSubscriptionVisible(true)}
+                size="normal"
               />
             </div>
           </Card>
@@ -791,6 +810,8 @@ const AboutPage = () => {
             tooltip="Github"
             className="text-gray-300"
             onClick={() => window.open('https://github.com/austinkelsay/plebdevs', '_blank')}
+            label=""
+            size="normal"
           />
           <GenericButton
             severity="info"
@@ -798,6 +819,9 @@ const AboutPage = () => {
             icon="pi pi-twitter"
             tooltip="X"
             onClick={() => window.open('https://x.com/pleb_devs', '_blank')}
+            label=""
+            size="normal"
+            className=""
           />
           <GenericButton
             severity="help"
@@ -805,6 +829,9 @@ const AboutPage = () => {
             icon={<Image src={NostrIcon} alt="Nostr" width={20} height={20} className="mr-0" />}
             tooltip="Nostr"
             onClick={() => window.open('https://nostr.com/plebdevs@plebdevs.com', '_blank')}
+            label=""
+            size="normal"
+            className=""
           />
           <GenericButton
             severity="danger"
@@ -812,6 +839,9 @@ const AboutPage = () => {
             icon="pi pi-youtube"
             tooltip="Youtube"
             onClick={() => window.open('https://www.youtube.com/@plebdevs', '_blank')}
+            label=""
+            size="normal"
+            className=""
           />
           <GenericButton
             severity="warning"
@@ -820,6 +850,8 @@ const AboutPage = () => {
             icon="pi pi-bolt"
             tooltip="Donate"
             onClick={() => copyToClipboard('austin@bitcoinpleb.dev')}
+            label=""
+            size="normal"
           />
         </div>
       </Card>

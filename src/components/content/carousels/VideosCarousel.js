@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Carousel } from 'primereact/carousel';
 import { parseEvent } from '@/utils/nostr';
-import { VideoTemplate } from '@/components/content/carousels/templates/VideoTemplate';
+import VideoTemplate from '@/components/content/carousels/templates/VideoTemplate';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
 import { useVideos } from '@/hooks/nostr/useVideos';
 import useWindowWidth from '@/hooks/useWindowWidth';

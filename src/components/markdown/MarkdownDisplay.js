@@ -3,7 +3,6 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
-import 'github-markdown-css/github-markdown-dark.css';
 import EmbeddedProduct from '@/components/product/embedded-product';
 
 // Custom renderer for product embeds

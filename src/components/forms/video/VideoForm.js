@@ -10,7 +10,6 @@ import { useToast } from '@/hooks/useToast';
 import { useSession } from 'next-auth/react';
 import 'primeicons/primeicons.css';
 import { Tooltip } from 'primereact/tooltip';
-import 'primereact/resources/primereact.min.css';
 
 const CDN_ENDPOINT = process.env.NEXT_PUBLIC_CDN_ENDPOINT;
 

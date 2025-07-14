@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import TemplateSkeleton from '@/components/content/carousels/skeletons/TemplateSkeleton';
-import { VideoTemplate } from '@/components/content/carousels/templates/VideoTemplate';
-import { DocumentTemplate } from '@/components/content/carousels/templates/DocumentTemplate';
-import { CourseTemplate } from '@/components/content/carousels/templates/CourseTemplate';
+import { Carousel } from 'primereact/carousel';
+import { parseCourseEvent } from '@/utils/nostr';
+import { parseDocumentEvent } from '@/utils/nostr';
+import CourseTemplate from '@/components/content/carousels/templates/CourseTemplate';
+import VideoTemplate from '@/components/content/carousels/templates/VideoTemplate';
+import DocumentTemplate from '@/components/content/carousels/templates/DocumentTemplate';
 import { CombinedTemplate } from '@/components/content/carousels/templates/CombinedTemplate';
 
 export default function GenericCarousel({ items, selectedTopic, title }) {
