@@ -1,11 +1,4 @@
-# PlebDevs ⚡️
-
-A one-of-a-kind developer education, content, and community platform built on Nostr and fully Lightning integrated.
-<br />[https://plebdevs.com](https://plebdevs.com)
-
-## Overview
-
-PlebDevs is an open-source platform that combines educational content, community interaction, and Bitcoin/Lightning integration. The platform publishes content to Nostr and actively pulls from Nostr relays, creating a distributed, interoperable trail of Documents, Videos, and Courses.
+The platform publishes content to Nostr and actively pulls from Nostr relays, creating a distributed, interoperable trail of Documents, Videos, and Courses.
 
 ## Technical Implementation
 
@@ -147,11 +140,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Connect with Us 🤝
 
-- 💻 [GitHub](https://github.com/austinkelsay/plebdevs)
-- 🐦 [Twitter/X](https://x.com/pleb_devs)
-- 🟣 [Nostr](https://nostr.com/plebdevs@plebdevs.com)
-- 📺 [YouTube](https://www.youtube.com/@plebdevs)
+- 💻 [GitHub]()
+- 🐦 [Twitter/X]()
+- 🟣 [Nostr]()
+- 📺 [YouTube]()
 
 ## Support the Project ⚡️
 
-Lightning Address: plebdevs@plebdevs.com
+Lightning Address: 
