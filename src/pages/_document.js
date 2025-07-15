@@ -12,17 +12,17 @@ class MyDocument extends Document {
           {/* Default Meta Tags (can be overridden per page) */}
           <meta
             name="description"
-            content="PlebDevs - Developer education and content platform built on Nostr with Lightning integration"
+            content="Möbius BTC - Developer education and content platform built on Nostr with Lightning integration"
           />
           <meta
             name="keywords"
             content="bitcoin, lightning network, nostr, web development, programming, education, courses"
           />
-          <meta name="author" content="PlebDevs" />
+          <meta name="author" content="Möbius BTC" />
 
           {/* Open Graph / Facebook */}
           <meta property="og:type" content="website" />
-          <meta property="og:site_name" content="PlebDevs" />
+          <meta property="og:site_name" content="Möbius BTC" />
           <meta property="og:locale" content="en_US" />
 
           {/* Twitter Card */}
@@ -37,7 +37,7 @@ class MyDocument extends Document {
               __html: JSON.stringify({
                 '@context': 'https://schema.org',
                 '@type': 'EducationalOrganization',
-                name: 'PlebDevs',
+                name: 'Möbius BTC',
                 description:
                   'Developer education and content platform built on Nostr with Lightning integration',
                 url: 'https://plebdevs.com',

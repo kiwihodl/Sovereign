@@ -127,7 +127,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>PlebDevs</title>
+        <title>Möbius BTC</title>
         <meta name="description" content="Build on Bitcoin" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
