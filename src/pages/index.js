@@ -54,7 +54,7 @@ const MenuTab = ({ selectedTopic, onTabChange, heroSelection = 'Bitcoin' }) => {
   };
 
   return (
-    <div className="sticky top-0 z-40 py-4 pt-8">
+    <div className="sticky top-[90px] z-30 py-4 pt-8">
       <div className="flex justify-center items-center gap-3 sm:gap-4">
         <button
           className={getTabStyles('Why', heroSelection)}

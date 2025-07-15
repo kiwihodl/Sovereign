@@ -61,7 +61,8 @@ const HeroBanner = ({ onHeroTabChange }) => {
   const getHeroHeight = () => {
     if (isSuperWideScreen) return 'h-[700px]';
     if (isWideScreen) return 'h-[550px]';
-    if (isMobile) return 'h-[500px]';
+    if (isMobile) return 'h-[600px]';
+    if (windowWidth <= 500) return 'h-screen';
     return 'h-[500px]';
   };
 
@@ -127,11 +128,11 @@ const HeroBanner = ({ onHeroTabChange }) => {
 
       {/* Desktop Layout - Grid */}
       <div
-        className={`absolute inset-0 ${isTablet ? 'flex flex-col justify-center items-center' : 'grid grid-cols-2 gap-8'}`}
+        className={`absolute inset-0 ${isTablet ? `flex flex-col ${windowWidth <= 500 ? 'justify-start items-center pt-6' : 'justify-center items-center'}` : 'grid grid-cols-2 gap-8'}`}
       >
         {/* Left side - Text content */}
         <div
-          className={`${isTablet ? 'flex flex-col items-center text-center px-8 py-6' : 'flex flex-col justify-center pl-8'}`}
+          className={`${isTablet ? `flex flex-col items-center text-center px-8 ${windowWidth <= 500 ? 'py-4' : 'py-6'}` : 'flex flex-col justify-center pl-8'}`}
         >
           <h1 className="text-4xl sm:text-4xl lg:text-6xl font-bold leading-tight mb-4 pointer-events-none">
             <span className="block">
@@ -142,7 +143,7 @@ const HeroBanner = ({ onHeroTabChange }) => {
                 {currentTech}
               </span>
             </span>
-            <span className="block">To become sovereign</span>
+            <span className="block">Be sovereign</span>
           </h1>
 
           {/* Only show this text on desktop */}
@@ -223,7 +224,7 @@ const HeroBanner = ({ onHeroTabChange }) => {
 
         {/* Right side - Tabs */}
         <div
-          className={`${isTablet ? 'flex items-center justify-center mt-8 px-8 pb-6' : 'flex items-center justify-center pr-8'}`}
+          className={`${isTablet ? `flex items-center justify-center px-8 ${windowWidth <= 500 ? 'mt-4 pb-4' : 'mt-8 pb-6'}` : 'flex items-center justify-center pr-8'}`}
         >
           <HeroTabs onTabChange={handleHeroTabChange} />
         </div>

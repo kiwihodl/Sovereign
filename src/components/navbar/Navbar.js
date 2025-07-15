@@ -123,7 +123,7 @@ const Navbar = () => {
     <>
       <div className="w-[100vw] h-fit z-20">
         <div
-          className="px-10 py-8 bg-gray-800 border-t-0 border-l-0 border-r-0 rounded-none fixed z-10 w-[100vw] max-tab:px-[5%] max-mob:px-[5%] flex justify-between"
+          className="px-10 py-8 bg-gray-800 border-t-0 border-l-0 border-r-0 rounded-none fixed z-50 w-[100vw] max-tab:px-[5%] max-mob:px-[5%] flex justify-between"
           style={{ height: navbarHeight }}
         >
           {/* Left section */}

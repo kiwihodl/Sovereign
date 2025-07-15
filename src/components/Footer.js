@@ -44,7 +44,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="py-6 md:py-8 mt-auto">
+    <footer className="py-6 md:py-8 mt-2 mb-8">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col items-center space-y-4 md:space-y-6">
           {/* Social Media Icons */}

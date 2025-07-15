@@ -1,232 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/router';
+import React from 'react';
 import Image from 'next/image';
-import NostrIcon from '../../public/images/nostr.png';
 import { Card } from 'primereact/card';
-import { useToast } from '@/hooks/useToast';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import GenericButton from '@/components/buttons/GenericButton';
 import InteractivePromotionalCarousel from '@/components/content/carousels/InteractivePromotionalCarousel';
-import axios from 'axios';
-import { ProgressSpinner } from 'primereact/progressspinner';
-import SubscriptionPaymentButtons from '@/components/bitcoinConnect/SubscriptionPaymentButton';
-import CalendlyEmbed from '@/components/profile/subscription/CalendlyEmbed';
-import CancelSubscription from '@/components/profile/subscription/CancelSubscription';
-import RenewSubscription from '@/components/profile/subscription/RenewSubscription';
-import Nip05Form from '@/components/profile/subscription/Nip05Form';
-import LightningAddressForm from '@/components/profile/subscription/LightningAddressForm';
-import MoreInfo from '@/components/MoreInfo';
-import { SUBSCRIPTION_PERIODS, calculateExpirationDate } from '@/constants/subscriptionPeriods';
-import { SelectButton } from 'primereact/selectbutton';
+import { useToast } from '@/hooks/useToast';
 
 const AboutPage = () => {
-  const { data: session, update } = useSession();
   const { showToast } = useToast();
-  const router = useRouter();
   const windowWidth = useWindowWidth();
-  const menu = useRef(null);
-
-  const [user, setUser] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [subscribed, setSubscribed] = useState(false);
-  const [subscribedUntil, setSubscribedUntil] = useState(null);
-  const [subscriptionExpiredAt, setSubscriptionExpiredAt] = useState(null);
-  const [calendlyVisible, setCalendlyVisible] = useState(false);
-  const [lightningAddressVisible, setLightningAddressVisible] = useState(false);
-  const [nip05Visible, setNip05Visible] = useState(false);
-  const [cancelSubscriptionVisible, setCancelSubscriptionVisible] = useState(false);
-  const [renewSubscriptionVisible, setRenewSubscriptionVisible] = useState(false);
-  const [subscriptionType, setSubscriptionType] = useState('monthly');
-
-  const subscriptionOptions = [
-    { label: 'Monthly', value: 'monthly' },
-    { label: 'Yearly', value: 'yearly' },
-  ];
-
   const isTabView = windowWidth <= 1160;
   const isMobile = windowWidth < 668;
-
-  // FAQ content for the modal
-  const faqContent = (
-    <div className="flex flex-col gap-4">
-      <div>
-        <h3 className="text-lg font-semibold">How does the subscription work?</h3>
-        <p>
-          Think of the subscriptions as a Patreon-type model. You pay a monthly fee and in return
-          you get access to premium features and all of the paid content. You can cancel at any
-          time.
-        </p>
-      </div>
-      <div className="flex flex-col gap-2">
-        <h3 className="text-lg font-semibold">What are the benefits of a subscription?</h3>
-        <p>
-          The subscription gives you access to all of the premium features and all of the paid
-          content. You can cancel at any time.
-        </p>
-      </div>
-      <div className="flex flex-col gap-2">
-        <h3 className="text-lg font-semibold">How much does the subscription cost?</h3>
-        <p>The subscription is 50,000 sats per month.</p>
-      </div>
-      <div>
-        <h3 className="text-lg font-semibold">How do I Subscribe? (Pay as you go)</h3>
-        <p>
-          The pay as you go subscription is a one-time payment that gives you access to all of the
-          premium features for one month. You will need to manually renew your subscription every
-          month.
-        </p>
-      </div>
-      <div>
-        <h3 className="text-lg font-semibold">How do I Subscribe? (Recurring)</h3>
-        <p>
-          The recurring subscription option allows you to submit a Nostr Wallet Connect URI that
-          will be used to automatically send the subscription fee every month. You can cancel at any
-          time.
-        </p>
-      </div>
-      <div>
-        <h3 className="text-lg font-semibold">Can I cancel my subscription?</h3>
-        <p>
-          Yes, you can cancel your subscription at any time. Your access will remain active until
-          the end of the current billing period.
-        </p>
-      </div>
-      <div>
-        <h3 className="text-lg font-semibold">
-          What happens if I don&apos;t renew my subscription?
-        </h3>
-        <p>
-          If you don&apos;t renew your subscription, your access to 1:1 calendar and paid content
-          will be removed. However, you will still have access to your PlebDevs Lightning Address,
-          NIP-05, and any content that you paid for.
-        </p>
-      </div>
-      <div>
-        <h3 className="text-lg font-semibold">What is Nostr Wallet Connect?</h3>
-        <p>
-          Nostr Wallet Connect is a Nostr-based authentication method that allows you to connect
-          your Nostr wallet to the PlebDevs platform. This will allow you to subscribe to the
-          platform in an auto recurring manner which still gives you full control over your wallet
-          and the ability to cancel at any time from your wallet.
-        </p>
-      </div>
-    </div>
-  );
-
-  useEffect(() => {
-    if (session && session?.user) {
-      setUser(session.user);
-    }
-  }, [session]);
-
-  useEffect(() => {
-    if (user && user.role) {
-      setSubscribed(user.role.subscribed);
-
-      if (user.role.lastPaymentAt) {
-        const subscribedAt = new Date(user.role.lastPaymentAt);
-
-        // Use the shared helper to calculate expiration date
-        const subscribedUntil = calculateExpirationDate(
-          subscribedAt,
-          user.role.subscriptionType || 'monthly'
-        );
-
-        setSubscribedUntil(subscribedUntil);
-      }
-
-      if (user.role.subscriptionExpiredAt) {
-        const expiredAt = new Date(user.role.subscriptionExpiredAt);
-        setSubscriptionExpiredAt(expiredAt);
-      }
-    }
-  }, [user]);
-
-  const handleSubscriptionSuccess = async response => {
-    setIsProcessing(true);
-    try {
-      const apiResponse = await axios.put('/api/users/subscription', {
-        userId: (session.user as any).id,
-        isSubscribed: true,
-        subscriptionType: subscriptionType,
-      });
-      if (apiResponse.data) {
-        await update();
-        showToast('success', 'Subscription Successful', 'Your subscription has been activated.');
-      } else {
-        throw new Error('Failed to update subscription status');
-      }
-    } catch (error) {
-      console.error('Subscription update error:', error);
-      showToast('error', 'Subscription Update Failed', `Error: ${error.message}`);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleSubscriptionError = error => {
-    console.error('Subscription error:', error);
-    showToast('error', 'Subscription Failed', `An error occurred: ${error.message}`);
-    setIsProcessing(false);
-  };
-
-  const handleRecurringSubscriptionSuccess = async () => {
-    setIsProcessing(true);
-    try {
-      await update();
-      showToast(
-        'success',
-        'Recurring Subscription Activated',
-        'Your recurring subscription has been set up successfully.'
-      );
-    } catch (error) {
-      console.error('Session update error:', error);
-      showToast('error', 'Session Update Failed', `Error: ${error.message}`);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleLightningAddressClick = () => {
-    setLightningAddressVisible(true);
-  };
-
-  const handleNip05Click = () => {
-    setNip05Visible(true);
-  };
-
-  const menuItems = [
-    {
-      label: 'Schedule 1:1',
-      icon: 'pi pi-calendar',
-      command: () => setCalendlyVisible(true),
-    },
-    {
-      label: (session?.user as any)?.platformLightningAddress
-        ? 'Update PlebDevs Lightning Address'
-        : 'Claim PlebDevs Lightning Address',
-      icon: 'pi pi-bolt',
-      command: () => setLightningAddressVisible(true),
-    },
-    {
-      label: (session?.user as any)?.platformNip05?.name
-        ? 'Update PlebDevs Nostr NIP-05'
-        : 'Claim PlebDevs Nostr NIP-05',
-      icon: 'pi pi-at',
-      command: () => setNip05Visible(true),
-    },
-    {
-      label: 'Renew Subscription',
-      icon: 'pi pi-sync',
-      command: () => setRenewSubscriptionVisible(true),
-    },
-    {
-      label: 'Cancel Subscription',
-      icon: 'pi pi-trash',
-      command: () => setCancelSubscriptionVisible(true),
-    },
-  ];
 
   const copyToClipboard = async text => {
     try {
@@ -246,638 +30,195 @@ const AboutPage = () => {
 
   return (
     <div className={`${isTabView ? 'w-full' : 'w-full px-12'} ${isMobile ? 'p-0' : 'p-4'} mx-auto`}>
-      <InteractivePromotionalCarousel />
+      {/* Möbius BTC Philosophy Section */}
+      <Card className="mb-6 relative overflow-hidden">
+        {/* Subtle matrix-style background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black opacity-50"></div>
 
-      {/* For non-logged in users */}
-      {!session?.user && (
-        <>
-          <Card title="Start Your PlebDevs Journey" className="mb-2">
-            <p className="mb-4 text-xl">
-              The PlebDevs subscription unlocks all paid content, grants access to our 1:1 calendar
-              for tutoring, support, and mentorship, and grants you your own personal plebdevs.com
-              Lightning Address and Nostr NIP-05 identity.
-            </p>
-            <p className="text-xl mb-4">
-              Subscribe monthly with a pay-as-you-go option or set up an auto-recurring subscription
-              using Nostr Wallet Connect.
-            </p>
-          </Card>
-          <Card title="Ready to level up?" className="mb-2">
-            <p className="text-xl pb-4">Login to start your subscription!</p>
-            <GenericButton
-              label="Login"
-              onClick={() => router.push('/auth/signin')}
-              className="text-[#f8f8ff] w-fit"
-              rounded
-              icon="pi pi-user"
-              severity="primary"
-              size="normal"
-            />
-          </Card>
-        </>
-      )}
-
-      {/* Subscription Card */}
-      <Card
-        className={`mb-2 relative ${isMobile ? 'm-2' : null}`}
-        header={
-          <div className="flex justify-between items-center p-4 pb-0">
-            <h2 className="text-xl font-bold m-0">Subscribe to PlebDevs</h2>
-            <MoreInfo
-              tooltip="Subscription FAQ"
-              tooltipPosition="top"
-              modalTitle="Frequently Asked Questions"
-              modalBody={faqContent}
-              className="text-gray-400 hover:text-white"
+        <div className="flex flex-col gap-6 relative z-10">
+          {/* Möbius Strip Image */}
+          <div className="flex justify-center mb-6">
+            <Image
+              src="/MöbiusBTC.png"
+              alt="Möbius Strip representing the Hegelian dialectic"
+              width={300}
+              height={200}
+              className="rounded-lg transform hover:scale-105 transition-transform duration-300"
             />
           </div>
-        }
-      >
-        {!isProcessing ? (
-          <div className="flex flex-col">
-            {/* Only show premium benefits when not subscribed or session doesn't exist */}
-            {(!session?.user || (session?.user && !subscribed)) && (
-              <>
-                <div className="mb-4">
-                  <h3 className="text-xl font-bold text-primary">Unlock Premium Benefits</h3>
-                  <p className="text-gray-400">
-                    Subscribe now and elevate your development journey!
+
+          {/* Hegelian Dialectic Explanation */}
+          <div className="text-center mb-8">
+            <h3 className="text-3xl font-bold mb-6 bg-gradient-to-r from-orange-400 to-purple-400 bg-clip-text text-transparent">
+              The Hegelian Dialectic
+            </h3>
+            <div className="grid md:grid-cols-3 gap-6 mb-6">
+              <div className="bg-black p-6 rounded-xl border-2 border-yellow-500/50 shadow-2xl transform hover:scale-105 transition-all duration-300 hover:shadow-yellow-500/25 hover:border-yellow-400">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-yellow-500 rounded-full mx-auto mb-3 flex items-center justify-center shadow-lg">
+                    <i className="pi pi-circle-fill text-black text-xl"></i>
+                  </div>
+                  <h4 className="text-xl font-bold mb-2 text-yellow-400">Thesis</h4>
+                  <p className="text-sm font-semibold text-yellow-300">The Gold Standard</p>
+                  <p className="text-xs mt-3 text-yellow-200">
+                    Sound money, limited supply, but difficult to transmit
                   </p>
                 </div>
-                <div className="flex flex-col gap-4 mb-4">
-                  <div className="flex items-center">
-                    <i className="pi pi-book text-2xl text-primary mr-2 text-blue-400"></i>
-                    <span>Access ALL current and future PlebDevs content</span>
+              </div>
+              <div className="bg-black p-6 rounded-xl border-2 border-green-500/50 shadow-2xl transform hover:scale-105 transition-all duration-300 hover:shadow-green-500/25 hover:border-green-400">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-green-500 rounded-full mx-auto mb-3 flex items-center justify-center shadow-lg">
+                    <i className="pi pi-circle text-black text-xl"></i>
                   </div>
-                  <div className="flex items-center">
-                    <i className="pi pi-calendar text-2xl text-primary mr-2 text-red-400"></i>
-                    <span>
-                      Personal mentorship & guidance and access to exclusive 1:1 booking calendar
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    <i className="pi pi-bolt text-2xl text-primary mr-2 text-yellow-500"></i>
-                    <span>Claim your own personal plebdevs.com Lightning Address</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Image src={NostrIcon} alt="Nostr" width={25} height={25} className="mr-2" />
-                    <span>Claim your own personal plebdevs.com Nostr NIP-05 identity</span>
-                  </div>
-                </div>
-              </>
-            )}
-            <div className="mb-2 rounded-lg">
-              {/* Status Messages */}
-              {session && session?.user ? (
-                <>
-                  {subscribed && !user?.role?.nwc && (
-                    <div className="flex flex-col">
-                      <div className="flex items-center bg-green-900/50 border border-green-700 rounded p-2 text-green-300 w-fit">
-                        <i className="pi pi-check-circle mr-2"></i>
-                        <span>Subscribed!</span>
-                      </div>
-                      <p className="mt-3 font-medium">Thank you for your support 🎉</p>
-                      <p className="text-sm text-gray-400 mt-1">
-                        Pay-as-you-go subscription must be manually renewed on{' '}
-                        {subscribedUntil?.toLocaleDateString()}
-                      </p>
-                    </div>
-                  )}
-                  {subscribed && user?.role?.nwc && (
-                    <div className="flex flex-col">
-                      <div className="flex items-center bg-green-900/50 border border-green-700 rounded p-2 text-green-300 w-fit">
-                        <i className="pi pi-check-circle mr-2"></i>
-                        <span>Subscribed!</span>
-                      </div>
-                      <p className="mt-3 font-medium">Thank you for your support 🎉</p>
-                      <p className="text-sm text-gray-400 mt-1">
-                        Recurring subscription will AUTO renew on{' '}
-                        {subscribedUntil?.toLocaleDateString()}
-                      </p>
-                    </div>
-                  )}
-                  {!subscribed && !subscriptionExpiredAt && (
-                    <div className="flex flex-col">
-                      <div className="flex items-center bg-blue-900/50 border border-blue-700 rounded p-2 text-blue-300 w-fit">
-                        <i className="pi pi-info-circle mr-2"></i>
-                        <span>You currently have no active subscription</span>
-                      </div>
-                      <p className="mt-3 text-gray-400">
-                        Subscribe below to unlock all premium features and content.
-                      </p>
-                    </div>
-                  )}
-                  {subscriptionExpiredAt && (
-                    <div className="flex flex-col">
-                      <div className="flex items-center bg-yellow-900/50 border border-yellow-700 rounded p-2 text-yellow-300 w-fit">
-                        <i className="pi pi-exclamation-triangle mr-2"></i>
-                        <span>
-                          Your subscription expired on {subscriptionExpiredAt.toLocaleDateString()}
-                        </span>
-                      </div>
-                      <p className="mt-3 text-gray-400">
-                        Renew below to continue enjoying all premium benefits.
-                      </p>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="flex flex-col">
-                  <div className="flex items-center bg-blue-900/50 border border-blue-700 rounded p-2 text-blue-300 w-fit">
-                    <i className="pi pi-info-circle mr-2"></i>
-                    <span>Login to manage your subscription</span>
-                  </div>
-                  <p className="mt-3 text-gray-400">
-                    Sign in to access subscription features and management.
+                  <h4 className="text-xl font-bold mb-2 text-green-400">Antithesis</h4>
+                  <p className="text-sm font-semibold text-green-300">The Fiat Standard</p>
+                  <p className="text-xs mt-3 text-green-200">
+                    Infinite money, easy to transmit, but debased and censored
                   </p>
                 </div>
-              )}
-            </div>
-
-            {/* Payment Buttons */}
-            {(!session?.user || (session?.user && !subscribed)) && (
-              <>
-                <div className="subscription-plan-selector my-6">
-                  <div className="flex flex-col items-center mb-4">
-                    <h3 className="text-xl font-bold mb-3">Select Your Plan</h3>
-                    <SelectButton
-                      value={subscriptionType}
-                      options={subscriptionOptions}
-                      onChange={e => {
-                        // Only update if the value actually changed
-                        if (e.value !== subscriptionType) {
-                          setSubscriptionType(e.value);
-                        }
-                      }}
-                      className="mb-3 w-full max-w-[300px] mx-auto"
-                      pt={{
-                        button: { className: 'text-base px-8 py-2 text-white' },
-                        root: { className: 'flex justify-center' },
-                      }}
-                    />
-                    {subscriptionType === 'yearly' && (
-                      <div className="savings-message text-sm text-green-500 font-semibold mt-2">
-                        Save ~17% with yearly subscription!
-                      </div>
-                    )}
-                    <div className="price-display text-2xl font-bold mt-3">
-                      {subscriptionType === 'yearly' ? '500,000' : '50,000'} sats
-                      <span className="text-sm text-gray-400 ml-2">
-                        ({subscriptionType === 'yearly' ? 'yearly' : 'monthly'})
-                      </span>
-                    </div>
+              </div>
+              <div className="bg-black p-6 rounded-xl border-2 border-[#FF9500]/50 shadow-2xl transform hover:scale-105 transition-all duration-300 hover:shadow-[#FF9500]/25 hover:border-[#FF9500]">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-[#FF9500] rounded-full mx-auto mb-3 flex items-center justify-center shadow-lg">
+                    <i className="pi pi-star-fill text-black text-xl"></i>
                   </div>
+                  <h4 className="text-xl font-bold mb-2 text-[#FF9500]">Synthesis</h4>
+                  <p className="text-sm font-semibold text-[#FF9500]/80">Bitcoin</p>
+                  <p className="text-xs mt-3 text-[#FF9500]/60">
+                    Sound money that can be transmitted globally, uncensorable
+                  </p>
                 </div>
-
-                <SubscriptionPaymentButtons
-                  onSuccess={handleSubscriptionSuccess}
-                  onRecurringSubscriptionSuccess={handleRecurringSubscriptionSuccess}
-                  onError={handleSubscriptionError}
-                  setIsProcessing={setIsProcessing}
-                  layout={windowWidth < 768 ? 'col' : 'row'}
-                  subscriptionType={subscriptionType}
-                />
-              </>
-            )}
-          </div>
-        ) : (
-          <div className="w-full flex flex-col mx-auto justify-center items-center mt-4">
-            <div className="w-full h-full flex items-center justify-center">
-              <ProgressSpinner />
-            </div>
-            <span className="ml-2">Processing subscription...</span>
-          </div>
-        )}
-      </Card>
-
-      {/* Subscription Management */}
-      {session?.user && subscribed && (
-        <>
-          <Card title="Subscription Benefits" className="mb-2">
-            <div className="flex flex-col gap-4">
-              <GenericButton
-                severity="info"
-                outlined
-                className="w-fit text-start"
-                label="Schedule 1:1"
-                icon="pi pi-calendar"
-                onClick={() => setCalendlyVisible(true)}
-                size="normal"
-              />
-              <GenericButton
-                severity="help"
-                outlined
-                className="w-fit text-start"
-                label={
-                  (session?.user as any)?.platformNip05?.name
-                    ? 'Update Nostr NIP-05'
-                    : 'Claim PlebDevs Nostr NIP-05'
-                }
-                icon="pi pi-at"
-                onClick={() => handleNip05Click()}
-                size="normal"
-              />
-              <GenericButton
-                severity="warning"
-                outlined
-                className="w-fit text-start"
-                label={
-                  (session?.user as any)?.platformLightningAddress
-                    ? 'Update Lightning Address'
-                    : 'Claim PlebDevs Lightning Address'
-                }
-                icon={<i style={{ color: 'orange' }} className="pi pi-bolt mr-2"></i>}
-                onClick={() => handleLightningAddressClick()}
-                size="normal"
-              />
-            </div>
-          </Card>
-          <Card title="Manage Subscription" className="mb-2">
-            <div className="flex flex-col gap-4">
-              <GenericButton
-                severity="primary"
-                outlined
-                className="w-fit"
-                label="Renew Subscription"
-                icon="pi pi-sync"
-                onClick={() => setRenewSubscriptionVisible(true)}
-                size="normal"
-              />
-              <GenericButton
-                severity="danger"
-                outlined
-                className="w-fit"
-                label="Cancel Subscription"
-                icon="pi pi-trash"
-                onClick={() => setCancelSubscriptionVisible(true)}
-                size="normal"
-              />
-            </div>
-          </Card>
-        </>
-      )}
-
-      <Card title="Key Features" className={`mb-2 ${isMobile ? 'm-2' : null}`}>
-        <div className="flex flex-col gap-4 max-w-[80%] max-mob:max-w-full">
-          <div className="flex flex-col items-start justify-center">
-            <div className="flex items-start">
-              <i className="pi pi-cloud text-2xl text-primary mr-2 text-blue-400"></i>
-              <div>
-                <h3 className="text-lg font-semibold">Content Distribution:</h3>
-                <p className="text-lg">
-                  All content is published to Nostr and actively pulled from Nostr relays
-                </p>
-                <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
-                  <li>
-                    <span className="text-lg font-semibold">Nostr:</span> Content is stored on and
-                    read from Nostr relays however a database is used for storing metadata and
-                    filtering content.
-                  </li>
-                  <li>
-                    <span className="text-lg font-semibold">Zaps:</span> Zaps are currently initated
-                    through Zapper -{' '}
-                    <a
-                      href="https://zapper.nostrapps.org"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-400"
-                    >
-                      https://zapper.nostrapps.org
-                    </a>
-                  </li>
-                  <li>
-                    <span className="text-lg font-semibold">Comments:</span> For comments we are
-                    leveraging ZapThreads -{' '}
-                    <a
-                      href="https://zapthreads.dev/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-400"
-                    >
-                      https://zapthreads.com
-                    </a>
-                  </li>
-                </ul>
               </div>
             </div>
           </div>
-          <div className="flex items-start">
-            <i className="pi pi-file-edit text-2xl text-primary mr-2 text-green-400 mt-1"></i>
-            <div>
-              <h3 className="text-lg font-semibold">Content Types:</h3>
-              <p className="text-lg">
-                High signal, Bitcoin, Lightning, and Nostr educational content.
-              </p>
-              <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
-                <li>
-                  <span className="text-lg font-semibold">Documents:</span> Markdown documents
-                  posted as NIP-23 long-form events on Nostr.
-                </li>
-                <li>
-                  <span className="text-lg font-semibold">Videos:</span> Formatted markdown
-                  documents with rich media support, including embedded videos, also saved as NIP-23
-                  events.
-                </li>
-                <li>
-                  <span className="text-lg font-semibold">Courses:</span> Nostr lists (NIP-51) that
-                  combines multiple documents and videos into a structured learning path.
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="flex items-start">
-            <i className="pi pi-bolt text-2xl text-primary mr-2 mt-1 text-yellow-400"></i>
-            <div>
-              <h3 className="text-lg font-semibold">Content Monetization:</h3>
-              <p className="text-lg">
-                All content is zappable and some content is PAID requiring a Lightning purchase or
-                Subscription through the platform for permanent access.
-              </p>
-              <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
-                <li>
-                  <span className="text-lg font-semibold">Free:</span> Free content is available to
-                  all users. <br />{' '}
-                  <span className="pl-4">
-                    * can be viewed on PlebDevs or any nostr client that supports NIP-23 and NIP-51.
-                  </span>
-                </li>
-                <li>
-                  <span className="text-lg font-semibold">Paid:</span> Paid content is available for
-                  purchase with Lightning. <br />{' '}
-                  <span className="pl-4">
-                    * published to nostr but encrypted with plebdevs private key, currently only
-                    viewable on PlebDevs platform.
-                  </span>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="flex items-start">
-            <i className="pi pi-star text-2xl text-primary mr-2 text-orange-400 mt-1"></i>
-            <div>
-              <h3 className="text-lg font-semibold">Subscriptions:</h3>
-              <p className="text-lg">
-                The PlebDevs subscription unlocks all paid content, gives access to our 1:1 calendar
-                for tutoring/help, and grants you a plebdevs.com Lightning Address and Nostr NIP-05
-                identity.
-              </p>
-              <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
-                <li>
-                  <span className="text-lg font-semibold">Pay-as-you-go:</span> 50,000 sats - A
-                  one-time payment that gives you access to all of the premium features for one
-                  month <br />{' '}
-                  <span className="pl-4">
-                    * you will need to manually renew your subscription every month.
-                  </span>
-                </li>
-                <li>
-                  <span className="text-lg font-semibold">Recurring:</span> 50,000 sats - A
-                  subscription option allows you to submit a Nostr Wallet Connect URI that will be
-                  used to automatically send the subscription fee every month <br />{' '}
-                  <span className="pl-4">* you can cancel at any time.</span>
-                </li>
-              </ul>
-            </div>
-          </div>
 
-          <div className="flex items-start">
-            <i className="pi pi-users text-2xl text-primary mr-2 text-purple-400 mt-1"></i>
-            <div>
-              <h3 className="text-lg font-semibold">Feeds:</h3>
-              <p className="text-lg">All of the current PlebDevs Community channels.</p>
-              <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
-                <li>
-                  <span className="text-lg font-semibold">Nostr:</span> Public plebdevs nostr chat
-                  (Read / Write) <br />{' '}
-                  <span className="pl-4">
-                    * this is the only feed that you can write to from the plebdevs platform
-                    currently.
-                  </span>
-                </li>
-                <li>
-                  <span className="text-lg font-semibold">Discord:</span> PlebDevs Discord server
-                  (Read Only) <br />{' '}
-                  <span className="pl-4">
-                    * discord was the original home of the PlebDevs community, look at us now!
-                  </span>
-                </li>
-                <li>
-                  <span className="text-lg font-semibold">StackerNews:</span> StackerNews ~devs
-                  territory (Read Only) <br />{' '}
-                  <span className="pl-4">
-                    * a territory is like a &apos;subreddit&apos; on stackernews, plebdevs owns the
-                    ~devs territory.
-                  </span>
-                </li>
-              </ul>
+          {/* Core Philosophy */}
+          <div className="space-y-6">
+            <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-6 rounded-lg">
+              <h4 className="text-xl font-bold mb-4 text-orange-400">Our Mission</h4>
+              <p className="text-lg leading-relaxed">
+                We aim to teach people how to use Bitcoin, Nostr, and privacy tools to become more
+                sovereign and independent, so they can prosper in a world of infinite fiat money and
+                finite time.
+              </p>
             </div>
-          </div>
-          {/* techstack */}
-          <div className="flex items-start">
-            <i className="pi pi-cog text-2xl text-primary mr-2 text-gray-400 mt-1"></i>
-            <div>
-              <h3 className="text-lg font-semibold">Tech Stack:</h3>
-              <h4 className="text-lg font-semibold">Frontend:</h4>
-              <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
-                <li>
-                  <span className="text-lg font-semibold">Next.js:</span> A React framework for
-                  building server-side rendered (SSR) web applications.
-                </li>
-                <li>
-                  <span className="text-lg font-semibold">Tailwind CSS:</span> A utility-first CSS
-                  framework for rapidly building custom designs.
-                </li>
-                <li>
-                  <span className="text-lg font-semibold">PrimeReact:</span> A React UI library for
-                  building modern, responsive web applications.
-                </li>
-              </ul>
-              <h4 className="text-lg font-semibold">Backend:</h4>
-              <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
-                <li>
-                  <span className="text-lg font-semibold">Prisma:</span> A database toolkit for
-                  Node.js and TypeScript.
-                </li>
-                <li>
-                  <span className="text-lg font-semibold">PostgreSQL:</span> A powerful, open source
-                  object-relational database system.
-                </li>
-                <li>
-                  <span className="text-lg font-semibold">Redis:</span> An in-memory data structure
-                  store, used as a database, cache, and message broker.
-                </li>
-              </ul>
-              <h4 className="text-lg font-semibold">Infrastructure:</h4>
-              <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
-                <li>
-                  <span className="text-lg font-semibold">Vercel:</span> A cloud platform for
-                  building modern web applications.
-                </li>
-                <li>
-                  <span className="text-lg font-semibold">Docker:</span> A platform for building,
-                  shipping, and running distributed applications.
-                </li>
-                <li>
-                  <span className="text-lg font-semibold">Digital Ocean (CDN):</span> A cloud
-                  platform for building modern web applications.
-                </li>
-              </ul>
-              <h4 className="text-lg font-semibold">Open Source Tools:</h4>
-              <ul className="list-disc list-inside ml-2 mt-2 space-y-2">
-                <li>
-                  <span className="text-lg font-semibold">NDK:</span> Nostr Development Kit -{' '}
-                  <a
-                    href="https://github.com/nostr-dev-kit/ndk"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400"
-                  >
-                    https://github.com/nostr-dev-kit/ndk
-                  </a>
-                </li>
-                <li>
-                  <span className="text-lg font-semibold">nostr-tools:</span> React framework for
-                  building Nostr applications -{' '}
-                  <a
-                    href="https://github.com/fiatjaf/nostr-tools"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400"
-                  >
-                    https://github.com/fiatjaf/nostr-tools
-                  </a>
-                </li>
-                <li>
-                  <span className="text-lg font-semibold">Bitcoin Connect:</span> A simple open
-                  source tool for connecting to Lightning wallets and facilitating payments -{' '}
-                  <a
-                    href="https://github.com/getAlby/bitcoin-connect"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400"
-                  >
-                    https://github.com/getAlby/bitcoin-connect
-                  </a>
-                </li>
-                <li>
-                  <span className="text-lg font-semibold">Alby JS SDK:</span> JavaScript SDK for the
-                  Alby OAuth2 Wallet API and the Nostr Wallet Connect API. -{' '}
-                  <a
-                    href="https://github.com/getAlby/js-sdk"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400"
-                  >
-                    https://github.com/getAlby/js-sdk
-                  </a>
-                </li>
-                <li>
-                  <span className="text-lg font-semibold">Zapthreads:</span> A Nostr-based
-                  commenting system -{' '}
-                  <a
-                    href="https://github.com/franzaps/zapthreads"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400"
-                  >
-                    https://github.com/franzaps/zapthreads
-                  </a>
-                </li>
-                <li>
-                  <span className="text-lg font-semibold">Zapper:</span> A Nostr-based tipping
-                  platform -{' '}
-                  <a
-                    href="https://github.com/nostrband/zapper"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400"
-                  >
-                    https://github.com/nostrband/zapper
-                  </a>
-                </li>
-              </ul>
+
+            {/* The Problem */}
+            <div className="bg-red-900/20 border border-red-700 p-6 rounded-lg">
+              <h4 className="text-xl font-bold mb-4 text-red-400">The Problem</h4>
+              <p className="text-lg leading-relaxed">
+                This [fiat] theft funds endless wars, enriches the rich at the expense of the poor
+                and ensures the road to serfdom. Many call this the cost of a civilized society, but
+                we know better.
+              </p>
+            </div>
+
+            {/* The Solution */}
+            <div className="bg-green-900/20 border border-green-700 p-6 rounded-lg">
+              <h4 className="text-xl font-bold mb-4 text-green-400">The Solution</h4>
+              <p className="text-lg leading-relaxed">
+                I will provide a website, with tutorials and the tradeoffs as I see them. It will be
+                wrapped in an E-commerce store so that people can order what they need as they
+                learn, to their PO Box, directly from the manufacturer.
+              </p>
+            </div>
+
+            {/* Value for Value */}
+            <div className="bg-blue-900/20 border border-blue-700 p-6 rounded-lg">
+              <h4 className="text-xl font-bold mb-4 text-blue-400">Value for Value</h4>
+              <p className="text-lg leading-relaxed">
+                The way I will monetize this, is what Māori call Koha, or as the NOSTRiches call:
+                Value for value. I pray that people who find it valuable will donate, and the
+                businesses I mention and recommend will find my content so valuable, that they will
+                sponsor / donate so I can continue making it.
+              </p>
             </div>
           </div>
         </div>
       </Card>
 
-      <Card title="Connect with Us" className="max-tab:mx-2 mb-20 lg:mb-2">
-        <div className="flex flex-wrap gap-4 justify-center">
-          <GenericButton
-            severity="secondary"
-            outlined
-            icon="pi pi-github"
-            tooltip="Github"
-            className="text-gray-300"
-            onClick={() => window.open('https://github.com/austinkelsay/plebdevs', '_blank')}
-            label=""
-            size="normal"
-          />
-          <GenericButton
-            severity="info"
-            outlined
-            icon="pi pi-twitter"
-            tooltip="X"
-            onClick={() => window.open('https://x.com/pleb_devs', '_blank')}
-            label=""
-            size="normal"
-            className=""
-          />
-          <GenericButton
-            severity="help"
-            outlined
-            icon={<Image src={NostrIcon} alt="Nostr" width={20} height={20} className="mr-0" />}
-            tooltip="Nostr"
-            onClick={() => window.open('https://nostr.com/plebdevs@plebdevs.com', '_blank')}
-            label=""
-            size="normal"
-            className=""
-          />
-          <GenericButton
-            severity="danger"
-            outlined
-            icon="pi pi-youtube"
-            tooltip="Youtube"
-            onClick={() => window.open('https://www.youtube.com/@plebdevs', '_blank')}
-            label=""
-            size="normal"
-            className=""
-          />
-          <GenericButton
-            severity="warning"
-            className="text-yellow-400"
-            outlined
-            icon="pi pi-bolt"
-            tooltip="Donate"
+      {/* Sponsors Section */}
+      <Card className="mb-6 relative overflow-hidden">
+        {/* Subtle matrix-style background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black opacity-30"></div>
+
+        <div className="text-center mb-6 relative z-10">
+          <div className="mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+              <i className="pi pi-users text-white text-2xl"></i>
+            </div>
+            <p className="text-lg text-gray-300">
+              These organizations support our mission of Bitcoin education and sovereignty
+            </p>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
+          {/* Sponsor Placeholder Cards */}
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700 text-center shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-purple-500/25 hover:border-purple-500/50">
+            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+              <i className="pi pi-building text-white text-2xl"></i>
+            </div>
+            <h4 className="text-lg font-bold mb-2 text-white">Sponsor Name</h4>
+            <p className="text-sm text-gray-300">Supporting Bitcoin education and sovereignty</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700 text-center shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-blue-500/25 hover:border-blue-500/50">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-teal-500 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+              <i className="pi pi-building text-white text-2xl"></i>
+            </div>
+            <h4 className="text-lg font-bold mb-2 text-white">Sponsor Name</h4>
+            <p className="text-sm text-gray-300">Supporting Bitcoin education and sovereignty</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700 text-center shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-teal-500/25 hover:border-teal-500/50">
+            <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-green-500 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+              <i className="pi pi-building text-white text-2xl"></i>
+            </div>
+            <h4 className="text-lg font-bold mb-2 text-white">Sponsor Name</h4>
+            <p className="text-sm text-gray-300">Supporting Bitcoin education and sovereignty</p>
+          </div>
+        </div>
+
+        <div className="text-center mt-6">
+          <p className="text-sm text-gray-400 mb-4">Interested in sponsoring our mission?</p>
+          <button
             onClick={() => copyToClipboard('austin@bitcoinpleb.dev')}
-            label=""
-            size="normal"
-          />
+            className="w-64 py-4 text-center rounded-lg transition-all duration-300 border-2 uppercase text-xl font-bold tracking-wider font-satoshi bg-black text-orange-400/70 border-orange-400/70 hover:text-orange-400 hover:border-orange-400 hover:shadow-lg hover:shadow-orange-400/25 transform hover:scale-105"
+          >
+            Become a Sponsor
+          </button>
         </div>
       </Card>
 
-      {/* Dialog Components */}
-      <CalendlyEmbed
-        visible={calendlyVisible}
-        onHide={() => setCalendlyVisible(false)}
-        userId={session?.user?.id}
-        userName={session?.user?.username || user?.kind0?.username}
-        userEmail={session?.user?.email}
-      />
-      <CancelSubscription
-        visible={cancelSubscriptionVisible}
-        onHide={() => setCancelSubscriptionVisible(false)}
-      />
-      <RenewSubscription
-        visible={renewSubscriptionVisible}
-        onHide={() => setRenewSubscriptionVisible(false)}
-        subscribedUntil={subscribedUntil}
-      />
-      <Nip05Form visible={nip05Visible} onHide={() => setNip05Visible(false)} />
-      <LightningAddressForm
-        visible={lightningAddressVisible}
-        onHide={() => setLightningAddressVisible(false)}
-      />
+      {/* Donation Section */}
+      <Card className="mb-6 relative overflow-hidden">
+        {/* Subtle matrix-style background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black opacity-30"></div>
+
+        <div className="text-center mb-6 relative z-10">
+          <div className="mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+              <i className="pi pi-bolt text-white text-2xl"></i>
+            </div>
+            <p className="text-lg text-gray-300 mb-4">
+              Help us continue building and educating for Bitcoin sovereignty
+            </p>
+            <p className="text-sm text-gray-400">
+              Every donation helps us create more content and reach more people
+            </p>
+          </div>
+        </div>
+
+        <div className="flex justify-center relative z-10">
+          <button
+            onClick={() => copyToClipboard('austin@bitcoinpleb.dev')}
+            className="w-64 py-4 text-center rounded-lg transition-all duration-300 border-2 uppercase text-xl font-bold tracking-wider font-satoshi bg-black text-yellow-400/70 border-yellow-400/70 hover:text-yellow-400 hover:border-yellow-400 hover:shadow-lg hover:shadow-yellow-400/25 transform hover:scale-105"
+          >
+            Donate via Lightning
+          </button>
+        </div>
+      </Card>
     </div>
   );
 };
