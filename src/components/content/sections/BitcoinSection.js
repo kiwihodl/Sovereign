@@ -17,8 +17,8 @@ const BitcoinSection = () => {
           <div className="text-orange-400 text-3xl mb-4">💰</div>
           <h3 className="text-xl font-bold text-white mb-3">Sound Money</h3>
           <p className="text-gray-300">
-            Bitcoin's fixed supply of 21 million creates true scarcity, making it the first sound
-            money in history.
+            Bitcoin&apos;s fixed supply of 21 million creates true scarcity, making it the first
+            sound money in history.
           </p>
         </div>
 
