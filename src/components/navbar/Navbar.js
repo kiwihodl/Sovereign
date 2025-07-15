@@ -18,7 +18,7 @@ import OpenCart from '@/components/cart/open-cart';
 const Navbar = () => {
   const router = useRouter();
   const windowWidth = useWindowWidth();
-  const navbarHeight = '60px';
+  const navbarHeight = '90px';
   const { data: session, status } = useSession();
   const [isHovered, setIsHovered] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
@@ -142,13 +142,10 @@ const Navbar = () => {
                 <Image
                   alt="logo"
                   src="/images/Sovereign-logo.png"
-                  width={50}
-                  height={50}
-                  className="rounded-full max-tab:hidden max-mob:hidden"
+                  width={75}
+                  height={75}
+                  className="rounded-full"
                 />
-                <h1 className="text-white text-xl font-semibold max-tab:text-2xl max-mob:text-2xl pb-1 pl-2">
-                  StartBtc
-                </h1>
               </div>
             )}
 
@@ -158,20 +155,20 @@ const Navbar = () => {
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 onClick={e => menu.current.toggle(e)}
-                style={{ width: '40px', height: '40px' }}
+                style={{ width: '60px', height: '60px' }}
               >
                 <div className="flex flex-col items-center justify-center">
-                  <i className="pi pi-angle-up text-white text-base" />
-                  <i className="pi pi-angle-down text-white text-base" />
+                  <i className="pi pi-angle-up text-white text-xl" />
+                  <i className="pi pi-angle-down text-white text-xl" />
                 </div>
               </div>
             ) : (
               <div
                 className="ml-2 p-2 cursor-pointer transition-all duration-300 flex items-center justify-center hover:bg-gray-700 rounded-full"
                 onClick={() => setShowMobileSearch(!showMobileSearch)}
-                style={{ width: '40px', height: '40px' }}
+                style={{ width: '60px', height: '60px' }}
               >
-                <i className="pi pi-search text-white text-xl" />
+                <i className="pi pi-search text-white text-2xl" />
               </div>
             )}
             <Menu model={menuItems} popup ref={menu} />

@@ -1,14 +1,14 @@
 import Head from 'next/head';
 import React, { useEffect, useState } from 'react';
-import CoursesCarousel from '@/components/content/carousels/CoursesCarousel';
-import VideosCarousel from '@/components/content/carousels/VideosCarousel';
-import DocumentsCarousel from '@/components/content/carousels/DocumentsCarousel';
 import { parseEvent, parseCourseEvent } from '@/utils/nostr';
 import { useDocuments } from '@/hooks/nostr/useDocuments';
 import { useVideos } from '@/hooks/nostr/useVideos';
 import { useCourses } from '@/hooks/nostr/useCourses';
 import { useRouter } from 'next/router';
 import HeroBanner from '@/components/banner/HeroBanner';
+import BitcoinSection from '@/components/content/sections/BitcoinSection';
+import NostrSection from '@/components/content/sections/NostrSection';
+import PrivacySection from '@/components/content/sections/PrivacySection';
 
 const MenuTab = ({ selectedTopic, onTabChange, heroSelection = 'Bitcoin' }) => {
   const router = useRouter();
@@ -141,9 +141,25 @@ export default function Home() {
           />
         </div>
         <div className="w-full px-4 max-mob:px-0">
-          <CoursesCarousel />
-          <VideosCarousel />
-          <DocumentsCarousel />
+          {selectedTopic === 'Why' && heroSelection === 'Bitcoin' && <BitcoinSection />}
+          {selectedTopic === 'Why' && heroSelection === 'NOSTR' && <NostrSection />}
+          {selectedTopic === 'Why' && heroSelection === 'Privacy' && <PrivacySection />}
+          {selectedTopic === 'What' && heroSelection === 'Bitcoin' && <BitcoinSection />}
+          {selectedTopic === 'What' && heroSelection === 'NOSTR' && <NostrSection />}
+          {selectedTopic === 'What' && heroSelection === 'Privacy' && <PrivacySection />}
+          {selectedTopic === 'How' && (
+            <div className="w-full max-w-6xl mx-auto px-4 py-12">
+              <div className="text-center">
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                  How to Get Started
+                </h2>
+                <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+                  Coming soon: Comprehensive courses and tutorials for {heroSelection.toLowerCase()}{' '}
+                  development and usage.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </>

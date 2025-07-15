@@ -12,13 +12,13 @@ export default function OpenCart() {
 
   return (
     <div
-      className="relative flex h-11 w-11 items-center justify-center rounded-md text-white transition-colors"
+      className="relative flex h-16 w-16 items-center justify-center rounded-md text-white transition-colors"
       onClick={() => dispatch({ type: 'OPEN_CART' })}
     >
-      <ShoppingCartIcon className="h-6 transition-all ease-in-out hover:scale-110" />
+      <ShoppingCartIcon className="h-9 transition-all ease-in-out hover:scale-110" />
 
       {quantity ? (
-        <div className="absolute right-1 top-1 h-4 w-4 rounded bg-[#FF9500] text-[11px] font-medium text-black flex items-center justify-center">
+        <div className="absolute right-2 top-2 h-6 w-6 rounded bg-[#FF9500] text-[13px] font-medium text-black flex items-center justify-center">
           {quantity}
         </div>
       ) : null}

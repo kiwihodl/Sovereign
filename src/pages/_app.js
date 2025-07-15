@@ -12,6 +12,7 @@ import { NDKProvider } from '@/context/NDKContext';
 import { Analytics } from '@vercel/analytics/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import BottomBar from '@/components/BottomBar';
+import Footer from '@/components/Footer';
 import { CartProvider } from '@/components/cart/cart-context';
 import Head from 'next/head';
 
@@ -31,10 +32,11 @@ export default function MyApp({ Component, pageProps: { session, ...pageProps } 
                 <Layout>
                   <div className="flex flex-col min-h-screen">
                     <Navbar />
-                    <main>
+                    <main className="flex-1">
                       <Component {...pageProps} />
                       <Analytics />
                     </main>
+                    <Footer />
                     <div className="mt-12 min-bottom-bar:mt-0">
                       <BottomBar />
                     </div>
