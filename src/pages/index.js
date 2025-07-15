@@ -16,7 +16,7 @@ const MenuTab = ({ selectedTopic, onTabChange, heroSelection = 'Bitcoin' }) => {
   const getTabStyles = (tab, heroTech) => {
     const isActive = selectedTopic === tab;
     const baseStyles =
-      'px-8 py-4 text-center rounded-lg transition-all duration-300 border-2 uppercase text-xl font-bold tracking-wider font-satoshi';
+      'px-6 sm:px-8 py-3 sm:py-4 text-center rounded-lg transition-all duration-300 border-2 uppercase text-lg sm:text-xl font-bold tracking-wider font-satoshi';
 
     switch (heroTech) {
       case 'Bitcoin':
@@ -54,19 +54,27 @@ const MenuTab = ({ selectedTopic, onTabChange, heroSelection = 'Bitcoin' }) => {
   };
 
   return (
-    <div className="flex justify-center items-center gap-4">
-      <button className={getTabStyles('Why', heroSelection)} onClick={() => handleTabClick('Why')}>
-        Why
-      </button>
-      <button
-        className={getTabStyles('What', heroSelection)}
-        onClick={() => handleTabClick('What')}
-      >
-        What
-      </button>
-      <button className={getTabStyles('How', heroSelection)} onClick={() => handleTabClick('How')}>
-        How
-      </button>
+    <div className="sticky top-0 z-40 py-4 pt-8">
+      <div className="flex justify-center items-center gap-3 sm:gap-4">
+        <button
+          className={getTabStyles('Why', heroSelection)}
+          onClick={() => handleTabClick('Why')}
+        >
+          Why
+        </button>
+        <button
+          className={getTabStyles('What', heroSelection)}
+          onClick={() => handleTabClick('What')}
+        >
+          What
+        </button>
+        <button
+          className={getTabStyles('How', heroSelection)}
+          onClick={() => handleTabClick('How')}
+        >
+          How
+        </button>
+      </div>
     </div>
   );
 };
@@ -133,13 +141,11 @@ export default function Home() {
       </Head>
       <main>
         <HeroBanner onHeroTabChange={handleHeroTabChange} />
-        <div className="w-full px-4 md:px-12 py-8">
-          <MenuTab
-            selectedTopic={selectedTopic}
-            onTabChange={handleTopicChange}
-            heroSelection={heroSelection}
-          />
-        </div>
+        <MenuTab
+          selectedTopic={selectedTopic}
+          onTabChange={handleTopicChange}
+          heroSelection={heroSelection}
+        />
         <div className="w-full px-4 max-mob:px-0">
           {selectedTopic === 'Why' && heroSelection === 'Bitcoin' && <BitcoinSection />}
           {selectedTopic === 'Why' && heroSelection === 'NOSTR' && <NostrSection />}

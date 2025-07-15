@@ -31,6 +31,9 @@ const Navbar = () => {
   // Check if we're on a course page
   const isCoursePage = router.pathname.startsWith('/course/');
 
+  // Check if we're on the content page
+  const isContentPage = router.pathname === '/content';
+
   // Fetch course data when on a course page
   useEffect(() => {
     if (isCoursePage && router.isReady && ndk) {
@@ -163,13 +166,16 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              <div
-                className="ml-2 p-2 cursor-pointer transition-all duration-300 flex items-center justify-center hover:bg-gray-700 rounded-full"
-                onClick={() => setShowMobileSearch(!showMobileSearch)}
-                style={{ width: '60px', height: '60px' }}
-              >
-                <i className="pi pi-search text-white text-2xl" />
-              </div>
+              // Only show search icon on mobile if we're on the content page
+              isContentPage && (
+                <div
+                  className="ml-2 p-2 cursor-pointer transition-all duration-300 flex items-center justify-center hover:bg-gray-700 rounded-full"
+                  onClick={() => setShowMobileSearch(!showMobileSearch)}
+                  style={{ width: '60px', height: '60px' }}
+                >
+                  <i className="pi pi-search text-white text-2xl" />
+                </div>
+              )
             )}
             <Menu model={menuItems} popup ref={menu} />
           </div>

@@ -19,6 +19,7 @@ const HeroBanner = ({ onHeroTabChange }) => {
 
   const isTabView = windowWidth <= 1360;
   const isMobile = windowWidth <= 800;
+  const isTablet = windowWidth <= 1024;
   const isWideScreen = windowWidth >= 2200;
   const isSuperWideScreen = windowWidth >= 2600;
 
@@ -60,7 +61,7 @@ const HeroBanner = ({ onHeroTabChange }) => {
   const getHeroHeight = () => {
     if (isSuperWideScreen) return 'h-[700px]';
     if (isWideScreen) return 'h-[550px]';
-    if (isMobile) return 'h-[400px]';
+    if (isMobile) return 'h-[500px]';
     return 'h-[500px]';
   };
 
@@ -124,10 +125,15 @@ const HeroBanner = ({ onHeroTabChange }) => {
       </div>
       <div className="absolute inset-0 bg-gradient-to-br from-black from-20% via-black/60 via-32% to-transparent rounded-lg" />
 
-      <div className="absolute inset-0 grid grid-cols-2 gap-8">
+      {/* Desktop Layout - Grid */}
+      <div
+        className={`absolute inset-0 ${isTablet ? 'flex flex-col justify-center items-center' : 'grid grid-cols-2 gap-8'}`}
+      >
         {/* Left side - Text content */}
-        <div className="flex flex-col justify-center pl-8">
-          <h1 className="text-4xl sm:text-4xl lg:text-6xl font-bold leading-tight mb-4">
+        <div
+          className={`${isTablet ? 'flex flex-col items-center text-center px-8 py-6' : 'flex flex-col justify-center pl-8'}`}
+        >
+          <h1 className="text-4xl sm:text-4xl lg:text-6xl font-bold leading-tight mb-4 pointer-events-none">
             <span className="block">
               Learn{' '}
               <span
@@ -139,78 +145,86 @@ const HeroBanner = ({ onHeroTabChange }) => {
             <span className="block">To become sovereign</span>
           </h1>
 
-          <h2 className="text-[#f8f8ff] mb-6 font-semibold max-w-[90%]">
-            The root problem is all of the trust that was required.
-            <br />
-            Banks censor and debase the currency in the name of stability.
-            <br />
-            Social platforms shadow ban andcensor in the name of safety.
-            <br />
-            Devices spy on you and sell your data in the name of security.
-            <br />
-          </h2>
+          {/* Only show this text on desktop */}
+          {!isTablet && (
+            <h2 className="text-[#f8f8ff] mb-6 font-semibold max-w-[90%] pointer-events-none">
+              The root problem is all of the trust that was required.
+              <br />
+              Banks censor and debase the currency in the name of stability.
+              <br />
+              Social platforms shadow ban andcensor in the name of safety.
+              <br />
+              Devices spy on you and sell your data in the name of security.
+              <br />
+            </h2>
+          )}
 
-          <div className="mb-6 flex flex-row hover:opacity-70 cursor-pointer">
-            <AvatarGroup>
-              <Avatar
-                image={
-                  'https://pbs.twimg.com/profile_images/1674493492519751680/wxuiYCJA_400x400.jpg'
-                }
-                size={isMobile ? 'normal' : 'large'}
-                shape="circle"
-              />
-              <Avatar
-                image={
-                  'https://cdn.discordapp.com/avatars/823623334582681610/a19c596166584d2f51e444103255336d.png?size=1024'
-                }
-                size={isMobile ? 'normal' : 'large'}
-                shape="circle"
-              />
-              <Avatar
-                image={
-                  'https://pbs.twimg.com/profile_images/1724533572537880576/WBcctRHT_400x400.jpg'
-                }
-                size={isMobile ? 'normal' : 'large'}
-                shape="circle"
-              />
-              <Avatar
-                image={
-                  'https://cdn.discordapp.com/avatars/850975720872214578/37b3790a77e5c848d9489c2649420aa9.png?size=1024'
-                }
-                size={isMobile ? 'normal' : 'large'}
-                shape="circle"
-              />
-              <Avatar
-                image={'https://i.nostr.build/BksqZ8QSHxr9FGj2.webp'}
-                size={isMobile ? 'normal' : 'large'}
-                shape="circle"
-              />
-              <Avatar
-                label="500+"
-                shape="circle"
-                size={isMobile ? 'normal' : 'large'}
-                className={`${isMobile ? 'text-sm' : 'text-base'}`}
-              />
-            </AvatarGroup>
-            <div className="flex flex-col justify-between my-2 ml-4">
-              <div className="flex flex-row gap-2">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <i
-                    key={index}
-                    className={`pi pi-star-fill text-yellow-500 ${isMobile ? 'text-base' : 'text-2xl'}`}
-                  />
-                ))}
-                <p className={`text-sm ${isMobile ? 'text-base' : 'text-2xl'}`}>4.87</p>
+          {/* Only show avatar group on desktop */}
+          {!isTablet && (
+            <div className="mb-6 flex flex-row hover:opacity-70 cursor-pointer pointer-events-none">
+              <AvatarGroup>
+                <Avatar
+                  image={
+                    'https://pbs.twimg.com/profile_images/1674493492519751680/wxuiYCJA_400x400.jpg'
+                  }
+                  size={isMobile ? 'normal' : 'large'}
+                  shape="circle"
+                />
+                <Avatar
+                  image={
+                    'https://cdn.discordapp.com/avatars/823623334582681610/a19c596166584d2f51e444103255336d.png?size=1024'
+                  }
+                  size={isMobile ? 'normal' : 'large'}
+                  shape="circle"
+                />
+                <Avatar
+                  image={
+                    'https://pbs.twimg.com/profile_images/1724533572537880576/WBcctRHT_400x400.jpg'
+                  }
+                  size={isMobile ? 'normal' : 'large'}
+                  shape="circle"
+                />
+                <Avatar
+                  image={
+                    'https://cdn.discordapp.com/avatars/850975720872214578/37b3790a77e5c848d9489c2649420aa9.png?size=1024'
+                  }
+                  size={isMobile ? 'normal' : 'large'}
+                  shape="circle"
+                />
+                <Avatar
+                  image={'https://i.nostr.build/BksqZ8QSHxr9FGj2.webp'}
+                  size={isMobile ? 'normal' : 'large'}
+                  shape="circle"
+                />
+                <Avatar
+                  label="500+"
+                  shape="circle"
+                  size={isMobile ? 'normal' : 'large'}
+                  className={`${isMobile ? 'text-sm' : 'text-base'}`}
+                />
+              </AvatarGroup>
+              <div className="flex flex-col justify-between my-2 ml-4">
+                <div className="flex flex-row gap-2">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <i
+                      key={index}
+                      className={`pi pi-star-fill text-yellow-500 ${isMobile ? 'text-base' : 'text-2xl'}`}
+                    />
+                  ))}
+                  <p className={`text-sm ${isMobile ? 'text-base' : 'text-2xl'}`}>4.87</p>
+                </div>
+                <span className={`text-sm ${isMobile ? 'text-base' : 'text-2xl'}`}>
+                  500+ students enrolled
+                </span>
               </div>
-              <span className={`text-sm ${isMobile ? 'text-base' : 'text-2xl'}`}>
-                500+ students enrolled
-              </span>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Right side - Tabs */}
-        <div className="flex items-center justify-center pr-8">
+        <div
+          className={`${isTablet ? 'flex items-center justify-center mt-8 px-8 pb-6' : 'flex items-center justify-center pr-8'}`}
+        >
           <HeroTabs onTabChange={handleHeroTabChange} />
         </div>
       </div>
