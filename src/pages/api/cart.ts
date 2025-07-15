@@ -2,6 +2,22 @@ import { addToCart, createCart, getCart, removeFromCart, updateCart } from '@/li
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === 'GET') {
+    const cartId = req.cookies.cartId;
+
+    if (!cartId) {
+      return res.status(200).json({ cart: null });
+    }
+
+    try {
+      const cart = await getCart(cartId);
+      return res.status(200).json({ cart });
+    } catch (e) {
+      console.error('Error fetching cart:', e);
+      return res.status(500).json({ error: 'Error fetching cart' });
+    }
+  }
+
   if (req.method === 'POST') {
     let cartId = req.cookies.cartId;
     let cart;
@@ -67,6 +83,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
-  res.setHeader('Allow', ['POST', 'DELETE', 'PUT']);
+  res.setHeader('Allow', ['GET', 'POST', 'DELETE', 'PUT']);
   res.status(405).end(`Method ${req.method} Not Allowed`);
 }

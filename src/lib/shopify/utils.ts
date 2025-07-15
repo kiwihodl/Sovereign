@@ -35,6 +35,7 @@ export const reshapeCart = (cart: ShopifyCart): Cart => {
   return {
     ...cart,
     lines: cart.lines.edges.map(edge => edge.node),
+    totalQuantity: cart.totalQuantity || 0,
   };
 };
 

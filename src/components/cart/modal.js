@@ -2,6 +2,7 @@
 
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
+import React from 'react';
 import { useCart } from './cart-context';
 import { CloseCart } from './close-cart';
 import { DeleteItemButton } from './delete-item-button';

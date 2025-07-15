@@ -79,7 +79,7 @@ export type ShopifyProduct = {
   updatedAt: string;
 };
 
-export type Product = Omit<ShopifyProduct, "variants" | "images"> & {
+export type Product = Omit<ShopifyProduct, 'variants' | 'images'> & {
   variants: ProductVariant[];
   images: Image[];
 };
@@ -210,8 +210,9 @@ export type ShopifyRemoveFromCartOperation = {
   };
 };
 
-export type Cart = Omit<ShopifyCart, "lines"> & {
+export type Cart = Omit<ShopifyCart, 'lines'> & {
   lines: CartItem[];
+  totalQuantity: number;
 };
 
 export type ShopifyAddToCartOperation = {

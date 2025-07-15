@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useReducer, useEffect, useState, useCallback } from 'react';
 import Cookies from 'js-cookie';
-import { getCart } from '@/lib/shopify';
 
 const CartContext = createContext(null);
 
@@ -28,19 +27,23 @@ export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
   const fetchCart = useCallback(async () => {
-    const cartId = Cookies.get('cartId');
-    console.log('Fetching cart with cartId:', cartId);
-    if (cartId) {
-      try {
-        const cartData = await getCart(cartId);
-        console.log('Cart data fetched:', cartData);
-        dispatch({ type: 'SET_CART', payload: cartData });
-      } catch (e) {
-        console.error('Error fetching cart:', e);
+    try {
+      const response = await fetch('/api/cart', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        dispatch({ type: 'SET_CART', payload: data.cart });
+      } else {
+        console.error('Error fetching cart:', response.status);
+        dispatch({ type: 'SET_CART', payload: null });
       }
-    } else {
-      // Clear cart if no cartId
-      console.log('No cartId found, clearing cart');
+    } catch (e) {
+      console.error('Error fetching cart:', e);
       dispatch({ type: 'SET_CART', payload: null });
     }
   }, []);

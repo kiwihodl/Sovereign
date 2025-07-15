@@ -19,9 +19,7 @@ export function AddToCart({
   async function handleAddToCart() {
     if (!defaultVariantId) return;
 
-    console.log('Adding to cart:', defaultVariantId);
     const cartId = Cookies.get('cartId');
-    console.log('Current cartId:', cartId);
 
     const res = await fetch('/api/cart', {
       method: 'POST',
@@ -30,20 +28,14 @@ export function AddToCart({
     });
 
     if (res.ok) {
-      console.log('Item added to cart successfully');
-
       // Get the updated cart data from the response
       const responseData = await res.json();
-      console.log('Response data:', responseData);
 
       if (responseData.cart) {
         // Update cart state immediately with the returned cart data
         dispatch({ type: 'SET_CART', payload: responseData.cart });
       } else {
-        // Fallback to refreshing cart
-        setTimeout(() => {
-          refreshCart();
-        }, 100);
+        alert('Error adding item to cart.');
       }
     } else {
       console.error('Error adding item to cart');

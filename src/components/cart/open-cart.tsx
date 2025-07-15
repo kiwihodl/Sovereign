@@ -7,9 +7,6 @@ export default function OpenCart() {
   const { cart, dispatch } = useCart();
   const quantity = cart?.totalQuantity;
 
-  console.log('OpenCart - cart:', cart);
-  console.log('OpenCart - quantity:', quantity);
-
   return (
     <div
       className="relative flex h-16 w-16 items-center justify-center rounded-md text-white transition-colors"
