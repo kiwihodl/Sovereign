@@ -39,7 +39,7 @@ const AboutPage = () => {
           {/* Möbius Strip Image */}
           <div className="flex justify-center mb-6">
             <Image
-              src="/MöbiusBTC.png"
+              src="/MobiusBTC.png"
               alt="Möbius Strip representing the Hegelian dialectic"
               width={300}
               height={200}
