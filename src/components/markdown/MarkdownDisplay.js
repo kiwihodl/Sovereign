@@ -4,6 +4,7 @@ import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import EmbeddedProduct from '@/components/product/embedded-product';
+import Image from 'next/image';
 
 // Custom renderer for product embeds
 const renderers = {
@@ -33,7 +34,13 @@ const MarkdownDisplay = ({ content, className = '' }) => {
         components={{
           a: ({ node, ...props }) => <a target="_blank" rel="noopener noreferrer" {...props} />,
           img: ({ node, ...props }) => (
-            <img {...props} className="max-w-full rounded my-2" alt="" />
+            <Image
+              {...props}
+              className="max-w-full rounded my-2"
+              alt={props.alt || ''}
+              width={props.width || 500}
+              height={props.height || 300}
+            />
           ),
           ...renderers,
         }}

@@ -2,8 +2,6 @@ import React from 'react';
 import Image from 'next/image';
 import { Card } from 'primereact/card';
 import useWindowWidth from '@/hooks/useWindowWidth';
-import GenericButton from '@/components/buttons/GenericButton';
-import InteractivePromotionalCarousel from '@/components/content/carousels/InteractivePromotionalCarousel';
 import { useToast } from '@/hooks/useToast';
 
 const AboutPage = () => {

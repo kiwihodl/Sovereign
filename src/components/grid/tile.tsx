@@ -24,6 +24,7 @@ export function GridTileImage({
       {props.src ? (
         <Image
           className="relative h-full w-full object-contain transition duration-300 ease-in-out group-hover:scale-105"
+          alt={props.alt}
           {...props}
         />
       ) : null}

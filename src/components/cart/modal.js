@@ -11,6 +11,7 @@ import OpenCart from './open-cart';
 import Price from '@/components/price';
 import Link from 'next/link';
 import { ShoppingCartIcon } from '@heroicons/react/24/outline';
+import Image from 'next/image';
 
 export default function CartModal() {
   const { cart, isOpen, dispatch } = useCart();
@@ -70,10 +71,11 @@ export default function CartModal() {
                             {cart.lines.map(line => (
                               <li key={line.id} className="flex py-6">
                                 <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border border-gray-600">
-                                  <img
+                                  <Image
                                     src={line.merchandise.product.featuredImage.url}
                                     alt={line.merchandise.product.title}
-                                    className="h-full w-full object-cover object-center"
+                                    width={80}
+                                    height={80}
                                   />
                                 </div>
 

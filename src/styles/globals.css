@@ -9,9 +9,33 @@
   @tailwind utilities;
 }
 
+/* Custom styles for the app */
 body {
-  @apply font-blinker;
-  background-color: #201c24;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Force Bitcoin orange on all dropdown chevrons */
+.p-dropdown .p-dropdown-trigger-icon {
+  color: #FF9500;
+}
+
+.p-multiselect .p-multiselect-trigger-icon {
+  color: #FF9500;
+}
+
+/* Remove padding from multiselect panel list */
+.p-multiselect-panel .p-multiselect-items {
+  padding: 0 !important;
+}
+
+/* Completely remove scrollbar from multiselect panel */
+.p-multiselect-panel .p-multiselect-items-wrapper {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.p-multiselect-panel .p-multiselect-items-wrapper::-webkit-scrollbar {
+  display: none !important;
 }
 
 h1 {
@@ -55,11 +79,6 @@ div {
 .p-overlaypanel-content {
   width: 100% !important;
   height: 100% !important;
-}
-
-.p-dropdown-items-wrapper {
-  max-width: 80vw !important;
-  max-height: 400px !important;
 }
 
 /* hero banner animation */
@@ -176,4 +195,8 @@ div.react-flow__attribution {
 .p-dialog-footer {
     background: #1e1e1e;
     border-top: 1px solid #333;
+}
+
+.p-dropdown-panel .p-dropdown-items {
+  padding: 0;
 }

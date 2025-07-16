@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 const Footer = () => {
   const socialLinks = [
@@ -65,18 +66,25 @@ const Footer = () => {
                 aria-label={social.name}
               >
                 {social.isImage ? (
-                  <img
+                  <Image
                     src={social.icon}
                     alt={social.name}
+                    width={24}
+                    height={24}
                     className={`${social.iconSize} group-hover:scale-110 transition-transform duration-300`}
                   />
                 ) : (
                   <i
                     className={`${social.icon} ${social.iconColor} ${social.iconSize} group-hover:scale-110 transition-transform duration-300`}
-                  />
+                  ></i>
                 )}
               </a>
             ))}
+          </div>
+
+          {/* Copyright */}
+          <div className="text-center text-gray-400 text-sm">
+            <p>&copy; 2024 Möbius BTC. All rights reserved.</p>
           </div>
         </div>
       </div>

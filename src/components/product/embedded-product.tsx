@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { getProduct } from '@/lib/shopify';
 import { Product } from '@/lib/shopify/types';
 import { ProductDescription } from './product-description';
+import Image from 'next/image';
 
 export default function EmbeddedProduct({ handle }: { handle: string }) {
   const [product, setProduct] = useState<Product | null>(null);
@@ -28,11 +29,7 @@ export default function EmbeddedProduct({ handle }: { handle: string }) {
       <div className="flex gap-4">
         <div className="h-24 w-24 flex-shrink-0">
           {product.featuredImage && (
-            <img
-              src={product.featuredImage.url}
-              alt={product.title}
-              className="h-full w-full object-cover"
-            />
+            <Image src={product.featuredImage.url} alt={product.title} width={96} height={96} />
           )}
         </div>
         <div className="flex-grow">

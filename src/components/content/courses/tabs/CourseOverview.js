@@ -2,6 +2,7 @@ import React from 'react';
 import { Tag } from 'primereact/tag';
 import CourseDetails from '../details/CourseDetails';
 import GenericButton from '@/components/buttons/GenericButton';
+import Image from 'next/image';
 
 /**
  * Component to display course overview with details
@@ -36,9 +37,11 @@ const CourseOverview = ({
           {/* Course image */}
           {course.image && (
             <div className="w-full h-48 relative rounded-lg overflow-hidden mb-3">
-              <img 
+              <Image 
                 src={course.image} 
                 alt={course.title} 
+                width={200}
+                height={100}
                 className="w-full h-full object-cover"
               />
             </div>

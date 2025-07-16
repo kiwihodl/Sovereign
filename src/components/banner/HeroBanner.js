@@ -8,11 +8,8 @@ import GenericButton from '../buttons/GenericButton';
 import MatrixRain from './MatrixRain';
 import HeroTabs from './HeroTabs';
 
-const HeroBanner = ({ onHeroTabChange }) => {
-  const [currentTech, setCurrentTech] = useState('Bitcoin');
+const HeroBanner = ({ onHeroTabChange, onStartQuiz }) => {
   const [selectedTab, setSelectedTab] = useState('Bitcoin');
-  const [isAnimating, setIsAnimating] = useState(false);
-  const techs = ['Bitcoin', 'NOSTR', 'Privacy'];
   const windowWidth = useWindowWidth();
   const router = useRouter();
   const { data: session } = useSession();
@@ -23,21 +20,6 @@ const HeroBanner = ({ onHeroTabChange }) => {
   const isWideScreen = windowWidth >= 2200;
   const isSuperWideScreen = windowWidth >= 2600;
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsAnimating(true);
-      setTimeout(() => {
-        setCurrentTech(prev => {
-          const currentIndex = techs.indexOf(prev);
-          return techs[(currentIndex + 1) % techs.length];
-        });
-        setIsAnimating(false);
-      }, 400); // Half of the interval for smooth transition
-    }, 2800);
-
-    return () => clearInterval(interval);
-  }, []);
-
   const handleHeroTabChange = tab => {
     setSelectedTab(tab);
     if (onHeroTabChange) {
@@ -45,17 +27,8 @@ const HeroBanner = ({ onHeroTabChange }) => {
     }
   };
 
-  const getColorClass = tech => {
-    switch (tech) {
-      case 'Bitcoin':
-        return 'text-orange-400';
-      case 'NOSTR':
-        return 'text-purple-400';
-      case 'Privacy':
-        return 'text-teal-400';
-      default:
-        return 'text-white';
-    }
+  const getColorClass = () => {
+    return 'text-orange-400';
   };
 
   const getHeroHeight = () => {
@@ -122,7 +95,7 @@ const HeroBanner = ({ onHeroTabChange }) => {
       className={`${getHeroHeight()} ${isTabView ? 'mx-0 w-full' : 'mt-4 mx-12'} relative flex justify-center items-center overflow-hidden drop-shadow-2xl rounded-lg`}
     >
       <div className="absolute inset-0 overflow-hidden">
-        <MatrixRain selectedTab={selectedTab} />
+        <MatrixRain />
       </div>
       <div className="absolute inset-0 bg-gradient-to-br from-black from-20% via-black/60 via-32% to-transparent rounded-lg" />
 
@@ -137,11 +110,7 @@ const HeroBanner = ({ onHeroTabChange }) => {
           <h1 className="text-4xl sm:text-4xl lg:text-6xl font-bold leading-tight mb-4 pointer-events-none">
             <span className="block">
               Learn{' '}
-              <span
-                className={`${getColorClass(currentTech)} transition-opacity duration-500 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}
-              >
-                {currentTech}
-              </span>
+              <span className={`${getColorClass()} transition-opacity duration-500`}>Bitcoin</span>
             </span>
             <span className="block">Be sovereign</span>
           </h1>
@@ -226,7 +195,7 @@ const HeroBanner = ({ onHeroTabChange }) => {
         <div
           className={`${isTablet ? `flex items-center justify-center px-8 ${windowWidth <= 500 ? 'mt-4 pb-4' : 'mt-8 pb-6'}` : 'flex items-center justify-center pr-8'}`}
         >
-          <HeroTabs onTabChange={handleHeroTabChange} />
+          <HeroTabs onTabChange={handleHeroTabChange} onStartQuiz={onStartQuiz} />
         </div>
       </div>
     </div>

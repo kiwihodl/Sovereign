@@ -1,23 +1,12 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef } from 'react';
 
-const MatrixRain = ({ selectedTab = 'Bitcoin' }) => {
+const MatrixRain = () => {
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
   const dropsRef = useRef(null);
 
-  // Memoize the end color to prevent unnecessary recalculations
-  const endColor = useMemo(() => {
-    switch (selectedTab) {
-      case 'Bitcoin':
-        return [255, 149, 0]; // text-orange-400
-      case 'NOSTR':
-        return [192, 132, 252]; // text-purple-400
-      case 'Privacy':
-        return [45, 212, 191]; // text-teal-400
-      default:
-        return [255, 149, 0];
-    }
-  }, [selectedTab]);
+  // Fixed Bitcoin orange color
+  const endColor = [255, 149, 0]; // text-orange-400
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -104,7 +93,7 @@ const MatrixRain = ({ selectedTab = 'Bitcoin' }) => {
       }
       window.removeEventListener('resize', handleResize);
     };
-  }, [endColor]); // Only depend on endColor, not selectedTab
+  }, []); // No dependencies - animation runs once and doesn't reset
 
   return (
     <canvas
