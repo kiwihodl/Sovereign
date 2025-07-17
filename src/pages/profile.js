@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { TabView, TabPanel } from 'primereact/tabview';
 import UserProfile from '@/components/profile/UserProfile';
 import UserContent from '@/components/profile/UserContent';
-import UserSubscription from '@/components/profile/subscription/UserSubscription';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
@@ -15,7 +14,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState(0);
   const { isAdmin, isLoading } = useIsAdmin();
 
-  const tabs = ['profile', 'content', 'subscribe'];
+  const tabs = ['profile', 'content'];
 
   useEffect(() => {
     const { tab } = router.query;
@@ -90,16 +89,6 @@ const Profile = () => {
             <UserContent />
           </TabPanel>
         )}
-        <TabPanel
-          header="Subscribe"
-          pt={{
-            headerAction: {
-              className: 'bg-transparent',
-            },
-          }}
-        >
-          <UserSubscription />
-        </TabPanel>
       </TabView>
     </div>
   );

@@ -5,14 +5,12 @@ import Modal from '@/components/ui/Modal';
 import { nip19 } from 'nostr-tools';
 import { useImageProxy } from '@/hooks/useImageProxy';
 import { useToast } from '@/hooks/useToast';
-import UserBadges from '@/components/profile/UserBadges';
 import useWindowWidth from '@/hooks/useWindowWidth';
 import MoreInfo from '@/components/MoreInfo';
 import UserRelaysTable from '@/components/profile/DataTables/UserRelaysTable';
 import { useNDKContext } from '@/context/NDKContext';
 
 const UserProfileCard = ({ user }) => {
-  const [showBadges, setShowBadges] = useState(false);
   const [showRelaysModal, setShowRelaysModal] = useState(false);
   const menu = useRef(null);
   const { showToast } = useToast();
@@ -60,7 +58,7 @@ const UserProfileCard = ({ user }) => {
   ];
 
   const MobileProfileCard = () => (
-    <div className="w-full bg-gray-800 rounded-lg p-2 py-1 border border-gray-700 shadow-md h-[420px] flex flex-col justify-center items-start">
+    <div className="w-full bg-gray-800 rounded-lg p-2 py-1 border border-gray-700 shadow-md h-[280px] flex flex-col justify-center items-start">
       <div className="flex flex-col gap-2 pt-4 w-full relative">
         <div className="absolute top-8 right-[14px]">
           <i
@@ -98,84 +96,11 @@ const UserProfileCard = ({ user }) => {
           <p className="truncate">Joined: {new Date(user.createdAt).toLocaleDateString()}</p>
         )}
       </div>
-      <div className="w-full flex flex-row justify-between">
-        <div className="flex flex-col justify-between gap-4 my-2">
-          {user?.platformLightningAddress ? (
-            <h4 className="bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
-              <span className="font-bold">Lightning Address:</span>{' '}
-              {user.platformLightningAddress.name}@plebdevs.com{' '}
-              <i
-                className="pi pi-copy cursor-pointer hover:text-gray-400"
-                onClick={() =>
-                  copyToClipboard(user.platformLightningAddress.name + '@plebdevs.com')
-                }
-              />
-            </h4>
-          ) : user?.lud16 ? (
-            <h4 className="bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
-              <span className="font-bold">Lightning Address:</span> {user.lud16}{' '}
-              <i
-                className="pi pi-copy cursor-pointer hover:text-gray-400"
-                onClick={() => copyToClipboard(user.lud16)}
-              />
-            </h4>
-          ) : (
-            <div className="flex flex-row justify-between bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
-              <h4>
-                <span className="font-bold">Lightning Address:</span> None
-              </h4>
-              <MoreInfo
-                tooltip="PlebDevs Custom Lightning Address"
-                modalTitle="PlebDevs Custom Lightning Address"
-                modalBody="This is a placeholder for your PlebDevs issued Lightning Address (claimable through subscription)"
-                className="text-xs"
-              />
-            </div>
-          )}
-          {user?.platformNip05 ? (
-            <h4 className="bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
-              <span className="font-bold">NIP-05:</span> {user.platformNip05.name}@plebdevs.com{' '}
-              <i
-                className="pi pi-copy cursor-pointer hover:text-gray-400"
-                onClick={() => copyToClipboard(`${user.platformNip05.name}@plebdevs.com`)}
-              />
-            </h4>
-          ) : user?.nip05 ? (
-            <h4 className="bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
-              <span className="font-bold">NIP-05:</span> {user.nip05}{' '}
-              <i
-                className="pi pi-copy cursor-pointer hover:text-gray-400"
-                onClick={() => copyToClipboard(user.nip05)}
-              />
-            </h4>
-          ) : (
-            <div className="flex flex-row justify-between bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
-              <h4>
-                <span className="font-bold">NIP-05:</span> None
-              </h4>
-              <MoreInfo
-                tooltip="NIP-05 Info"
-                modalTitle="What is NIP-05?"
-                modalBody="NIP-05 is a verification standard in Nostr that links your identity to a domain name, similar to how Twitter verifies accounts. It helps prove ownership of your identity."
-                className="text-xs"
-              />
-            </div>
-          )}
-          <div className="flex flex-col justify-center min-w-[140px] px-2">
-            <button
-              className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full font-semibold"
-              onClick={() => setShowBadges(true)}
-            >
-              View Badges
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 
   const DesktopProfileCard = () => (
-    <div className="w-full bg-gray-800 rounded-lg p-2 py-1 border border-gray-700 shadow-md h-[330px]">
+    <div className="w-full bg-gray-800 rounded-lg p-2 py-1 border border-gray-700 shadow-md h-[200px]">
       <div className="flex flex-row w-full justify-evenly">
         <Image
           alt="user's avatar"
@@ -209,73 +134,6 @@ const UserProfileCard = ({ user }) => {
           )}
         </div>
       </div>
-      <div className="flex flex-col justify-between gap-2">
-        {user?.platformLightningAddress ? (
-          <h4 className="bg-gray-900 rounded-lg p-2 max-lap:w-fit min-w-[240px]">
-            <span className="font-bold">Lightning Address:</span>{' '}
-            {user.platformLightningAddress.name}@plebdevs.com{' '}
-            <i
-              className="pi pi-copy cursor-pointer hover:text-gray-400"
-              onClick={() => copyToClipboard(user.platformLightningAddress.name + '@plebdevs.com')}
-            />
-          </h4>
-        ) : user?.lud16 ? (
-          <h4 className="bg-gray-900 rounded-lg p-2 max-lap:w-fit min-w-[240px]">
-            <span className="font-bold">Lightning Address:</span> {user.lud16}{' '}
-            <i
-              className="pi pi-copy cursor-pointer hover:text-gray-400"
-              onClick={() => copyToClipboard(user.lud16)}
-            />
-          </h4>
-        ) : (
-          <div className="flex flex-row justify-between bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
-            <h4>
-              <span className="font-bold">Lightning Address:</span> None
-            </h4>
-            <MoreInfo
-              tooltip="Lightning Address Info"
-              modalTitle="Lightning Address"
-              modalBody="A Lightning address allows you to receive Bitcoin payments through the Lightning Network. It works similar to an email address but for Bitcoin transactions."
-              className="text-xs"
-            />
-          </div>
-        )}
-        {user?.platformNip05 ? (
-          <h4 className="bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
-            <span className="font-bold">NIP-05:</span> {user.platformNip05.name}@plebdevs.com{' '}
-            <i
-              className="pi pi-copy cursor-pointer hover:text-gray-400"
-              onClick={() => copyToClipboard(`${user.platformNip05.name}@plebdevs.com`)}
-            />
-          </h4>
-        ) : user?.nip05 ? (
-          <h4 className="bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
-            <span className="font-bold">NIP-05:</span> {user.nip05}{' '}
-            <i
-              className="pi pi-copy cursor-pointer hover:text-gray-400"
-              onClick={() => copyToClipboard(user.nip05)}
-            />
-          </h4>
-        ) : (
-          <div className="flex flex-row justify-between bg-gray-900 rounded-lg p-3 max-lap:w-fit min-w-[240px]">
-            <h4>
-              <span className="font-bold">NIP-05:</span> None
-            </h4>
-            <MoreInfo
-              tooltip="NIP-05 Info"
-              modalTitle="What is NIP-05?"
-              modalBody="NIP-05 is a verification standard in Nostr that links your identity to a domain name, similar to how Twitter verifies accounts. It helps prove ownership of your identity."
-              className="text-xs"
-            />
-          </div>
-        )}
-        <button
-          className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full font-semibold max-lap:w-fit min-w-[140px]"
-          onClick={() => setShowBadges(true)}
-        >
-          View Badges
-        </button>
-      </div>
     </div>
   );
 
@@ -283,7 +141,6 @@ const UserProfileCard = ({ user }) => {
   return (
     <>
       {windowWidth <= 1440 ? <MobileProfileCard /> : <DesktopProfileCard />}
-      <UserBadges visible={showBadges} onHide={() => setShowBadges(false)} />
       <Modal
         visible={showRelaysModal}
         onHide={() => setShowRelaysModal(false)}

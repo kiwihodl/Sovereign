@@ -15,7 +15,6 @@ const LinkAccountsCard = ({ session }) => {
     session?.user?.pubkey &&
     (!session?.user?.privkey || session?.user?.privkey === '') &&
     !localStorage.getItem('anonymousPrivkey');
-  const isGithubLinked = session?.account?.provider === 'github';
   const isEmailLinked = Boolean(session?.user?.email);
   const windowWidth = useWindowWidth();
   const { ndk, addSigner } = useNDKContext();
@@ -39,23 +38,6 @@ const LinkAccountsCard = ({ session }) => {
 
     checkEmailVerification();
   }, [router.query, update, showToast, router]);
-
-  const handleGithubLink = async () => {
-    if (!isGithubLinked) {
-      try {
-        await signIn('github', {
-          redirect: false,
-          // Pass existing user data for linking
-          userId: session?.user?.id,
-          pubkey: session?.user?.pubkey,
-          privkey: session?.user?.privkey || null,
-        });
-      } catch (error) {
-        console.error('Error linking GitHub:', error);
-        showToast('error', 'Error', 'Failed to link GitHub account');
-      }
-    }
-  };
 
   const handleNostrLink = async () => {
     if (!isNostrLinked) {
@@ -156,15 +138,6 @@ const LinkAccountsCard = ({ session }) => {
         />
 
         <GenericButton
-          label={isGithubLinked ? 'Github Linked' : 'Link Github'}
-          icon="pi pi-github"
-          onClick={handleGithubLink}
-          disabled={isGithubLinked}
-          className={`text-[#f8f8ff] w-[250px] mx-auto`}
-          rounded
-        />
-
-        <GenericButton
           label={isEmailLinked ? 'Email Linked' : 'Link Email'}
           icon="pi pi-envelope"
           onClick={handleEmailLink}
@@ -187,15 +160,6 @@ const LinkAccountsCard = ({ session }) => {
         />
       </div>
       <div className="flex flex-col gap-4 w-full">
-        <GenericButton
-          label={isGithubLinked ? 'Github Linked' : 'Link Github'}
-          icon="pi pi-github"
-          onClick={handleGithubLink}
-          disabled={isGithubLinked}
-          className={`text-[#f8f8ff] w-[250px]`}
-          rounded
-        />
-
         <GenericButton
           label={isNostrLinked ? 'Nostr Linked' : 'Link Nostr'}
           icon={
