@@ -1,12 +1,18 @@
 export const questions = [
   {
     id: 1,
-    text: 'Do you currently own Bitcoin?',
+    text: 'How would you describe your journey with Bitcoin so far?',
     type: 'dropdown',
     options: [
-      { label: 'Yes, I own Bitcoin.', value: 'answer1a' },
-      { label: 'No, I want to buy Bitcoin.', value: 'answer1b' },
-      { label: "I'm exploring options and don't own Bitcoin yet.", value: 'answer1c' },
+      { label: "I'm ready to buy my first Bitcoin.", value: 'journey_buying' },
+      {
+        label: 'I own Bitcoin on an exchange and want to learn self-custody.',
+        value: 'journey_exchange',
+      },
+      {
+        label: 'I already self-custody and want to improve my security.',
+        value: 'journey_improving',
+      },
     ],
   },
   {
@@ -14,13 +20,13 @@ export const questions = [
     text: 'What is your experience level with Bitcoin?',
     type: 'dropdown',
     options: [
-      { label: 'Beginner (new to crypto, need simple solutions).', value: 'answer2a' },
+      { label: 'Beginner - new to bitcoin, need simple solutions.', value: 'answer2a' },
       {
-        label: 'Intermediate (familiar with wallets, transactions, and basic security).',
+        label: 'Intermediate - familiar with wallets and basic security.',
         value: 'answer2b',
       },
       {
-        label: 'Advanced (comfortable with hardware wallets, nodes, or multi-sig setups).',
+        label: 'Advanced - comfortable with hardware wallets, nodes, or multi-sig.',
         value: 'answer2c',
       },
     ],
@@ -34,6 +40,7 @@ export const questions = [
       { label: 'Frequent transactions (e.g., trading or payments).', value: 'answer3b' },
       { label: 'Privacy and anonymity.', value: 'answer3c' },
       { label: 'Inheritance or estate planning.', value: 'answer3d' },
+      { label: 'Short-term investment.', value: 'answer3e' },
     ],
   },
   {

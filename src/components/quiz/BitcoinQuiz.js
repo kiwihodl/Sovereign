@@ -150,30 +150,45 @@ const BitcoinQuiz = () => {
 
           {/* Single cohesive document */}
           <div
-            className={`recommendations-content ${isDarkMode ? 'bg-gray-700' : 'bg-white'} p-6 rounded-lg border ${borderClass}`}
+            className={`recommendations-content ${
+              isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'
+            } p-6 rounded-lg border ${borderClass}`}
           >
-            {recommendations.map((rec, index) => (
-              <div key={index} className={index > 0 ? 'mt-8 pt-8 border-t border-gray-600' : ''}>
-                <div className="flex justify-between items-start mb-4">
-                  <h4 className={`text-xl font-semibold ${textClass}`}>
-                    {rec.title.split(' (')[0]}
-                  </h4>
-                  <span
-                    className={`${isDarkMode ? 'text-orange-400' : 'text-black'} text-base font-medium`}
+            {recommendations.map((report, index) => (
+              <div key={index}>
+                <h2
+                  className={`text-3xl font-bold text-center mb-8 ${
+                    isDarkMode ? 'text-white' : 'text-black'
+                  }`}
+                >
+                  {report.title}
+                </h2>
+                {report.sections.map((section, sIndex) => (
+                  <div
+                    key={sIndex}
+                    className={sIndex > 0 ? 'mt-8 pt-8 border-t ' + borderClass : ''}
                   >
-                    ({rec.title.match(/\(([^)]+)\)/)?.[1] || ''})
-                  </span>
-                </div>
-                <ul className="space-y-3">
-                  {rec.content.map((item, itemIndex) => (
-                    <li key={itemIndex} className={`${secondaryTextClass} flex items-start`}>
-                      <span className={`${isDarkMode ? 'text-orange-400' : 'text-black'} mr-2`}>
-                        •
-                      </span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+                    <h3
+                      className={`text-2xl font-semibold mb-4 text-center ${
+                        isDarkMode ? 'text-orange-400' : 'text-orange-600'
+                      }`}
+                    >
+                      {section.title}
+                    </h3>
+                    <div
+                      className={`prose prose-lg max-w-none ${isDarkMode ? 'prose-invert' : ''}`}
+                      style={
+                        isDarkMode
+                          ? {
+                              '--tw-prose-bullets': '#ffffff',
+                              '--tw-prose-li-marker': '#ffffff',
+                            }
+                          : {}
+                      }
+                      dangerouslySetInnerHTML={{ __html: section.content }}
+                    />
+                  </div>
+                ))}
               </div>
             ))}
           </div>

@@ -1,652 +1,231 @@
+const getCustodyGoalRecommendation = goals => {
+  if (!goals || goals.length === 0) return '';
+
+  let advice = '<h4>Aligning Your Setup with Your Goals</h4>';
+
+  if (goals.includes('answer3a')) {
+    advice +=
+      '<p><b>For Long-Term Storage:</b> Your focus should be on robust, offline security. A hardware wallet, ideally in a multi-sig setup for larger amounts, is non-negotiable. Your backups must be resilient (e.g., steel plates) and geographically distributed.</p>';
+  }
+  if (goals.includes('answer3b')) {
+    advice +=
+      '<p><b>For Frequent Transactions:</b> While keeping a small amount in a "hot wallet" on a mobile Lightning wallet like Wallet of Satoshi or Zeus is fine for daily spending, your main stash should remain in cold storage. Do not day-trade from your primary hardware wallet.</p>';
+  }
+  if (goals.includes('answer3c')) {
+    advice +=
+      '<p><b>For Privacy:</b> Your strategy should involve non-KYC acquisition, running your own node, and using CoinJoin. This is an advanced path, but it offers the highest level of financial confidentiality.</p>';
+  }
+  if (goals.includes('answer3d')) {
+    advice +=
+      '<p><b>For Inheritance:</b> A multi-signature setup is the gold standard for inheritance. By distributing keys to your heir(s) and perhaps a trusted lawyer, you can create a robust plan that ensures your Bitcoin can be securely passed on. This requires careful planning and clear instructions.</p>';
+  }
+  if (goals.includes('answer3e')) {
+    advice +=
+      '<p><b>For Short-Term Investment:</b> Even if you plan to sell in the short term, holding your Bitcoin on an exchange exposes you to unnecessary risk (e.g., hacks, platform insolvency). Self-custody is still the safest option. Use a hardware wallet and only send funds to an exchange when you are actively making a trade.</p>';
+  }
+
+  return advice;
+};
+
+const getWalletRecommendation = (level, amount, walletType) => {
+  let hardwareWallet = '';
+
+  if (level === 'answer2c' || amount === 'answer4d' || amount === 'answer4e') {
+    hardwareWallet = `
+      <p>Given your advanced knowledge or the significant value you're securing, consider one of the following top-tier hardware wallets for robust security:</p>
+      <ul>
+        <li><b>Passport by Foundation:</b> A stateful, air-gapped device with a secure element, offering a great user experience.</li>
+        <li><b>Coldcard Mk4 or Q by Coinkite:</b> Known for its extreme security features and air-gapped capabilities, ideal for multi-sig. The Q model adds QR code functionality.</li>
+      </ul>
+      <p>For a multi-signature setup, using a combination of different vendors (e.g., Passport, Coldcard, and Jade) is the gold standard for security, as it protects against supply-chain attacks from a single provider.</p>
+    `;
+  } else if (level === 'answer2b' || amount === 'answer4c') {
+    hardwareWallet = `
+      <p>You're at a stage where a hardware wallet is strongly recommended. This device keeps your private keys offline, protecting them from online threats. Here are some excellent options:</p>
+      <ul>
+      <li><b>ColadCard Mk4 or Q by Coinkite:</b> The most popular and trusted signing device by most bitcoiners, it is a user-friendly with optional advanced features, air-gapped wallet that is robust.</li>
+        <li><b>Passport by Foundation:</b> An excellent, user-friendly, air-gapped wallet that will serve you well for years to come.</li>
+        <li><b>Jade by Blockstream:</b> A great FOSS (Free and Open Source Software) option with a virtual secure element, backed by a highly reputable team. Its translucent case also helps in verifying the internal components.</li>
+         <li><b>SeedSigner:</b> A great FOSS (Free and Open Source Software) DIY option, to mitigate supply chain attacks. It is incredibly important to verify your downloads as they do not have secure elements.</li>
+      </ul>
+      <p>Ordering to a PO Box instead of your home address adds a simple but effective layer of privacy against potential data leaks.</p>
+    `;
+  } else {
+    hardwareWallet = `
+      <p>While you're starting out, mobile wallets like <b>BlueWallet</b> or <b>Green Wallet</b> are great for handling small amounts. However, once you accumulate an amount that is significant to you (e.g., over $1,000), you should transition to a hardware wallet.</p>
+      <p>A hardware wallet is a dedicated device that keeps your private keys completely offline, making it the most secure way to store your Bitcoin. Think of it as your personal vault.</p>
+    `;
+  }
+
+  if (walletType === 'answer6b') {
+    hardwareWallet += `
+      <h4>Multi-Signature (Multi-Sig) Setup:</h4>
+      <p>Since you've indicated an interest in multi-sig, it's crucial to understand that this is an advanced setup. It requires multiple keys (e.g., 2-of-3) to authorize a transaction, offering superior security against theft and coercion. This is the apex of security for large holdings and is best configured with guidance from an expert. Ensure you use hardware wallets from different vendors to maximize security.</p>
+    `;
+  }
+
+  return hardwareWallet;
+};
+
+const getPrivacyRecommendation = privacyLevel => {
+  if (privacyLevel === 'answer7a') {
+    return `
+      <h4>Enhancing Your Privacy</h4>
+      <p>Your focus on privacy is wise. To minimize your digital footprint, consider these strategies:</p>
+      <ul>
+        <li><b>Non-KYC Bitcoin:</b> Acquire Bitcoin through peer-to-peer platforms like <strong>Hodl Hodl</strong> or at Bitcoin meetups. This avoids linking your identity to your coins.</li>
+        <li><b>Run Your Own Node:</b> Connecting your wallet to your own Bitcoin node (using Sparrow Wallet) is the ultimate step for privacy. It prevents you from broadcasting your transaction data to public servers.</li>
+        <li><b>CoinJoin:</b> Use tools like Whirlpool with Sparrow Wallet to mix your coins, breaking the chain of transaction history and making it difficult for outsiders to track your funds.</li>
+      </ul>
+    `;
+  } else if (privacyLevel === 'answer7b') {
+    return `
+      <h4>A Balanced Approach to Privacy</h4>
+      <p>It's good to be mindful of privacy. While using reputable exchanges like <strong>River (US)</strong> or <strong>AmberApp (Australia)</strong> is convenient for purchasing Bitcoin, you can still take steps to protect your privacy after the purchase:</p>
+      <ul>
+        <li><b>Use a Fresh Address:</b> Always provide a new, unused address from your own wallet when withdrawing from an exchange.</li>
+        <li><b>Consider Coin Control:</b> Use a wallet like Sparrow that offers "coin control" (UTXO management). This prevents you from accidentally linking different sources of your Bitcoin when you make a transaction.</li>
+      </ul>
+    `;
+  }
+  return '';
+};
+
+const getBeginnerEducation = () => `
+  <h4>Step 1: Understanding the Importance of Your Seed Phrase</h4>
+  <p>Your "seed phrase" (or recovery phrase) is the master key to your Bitcoin wallet. To truly understand its power, let's do a quick, safe exercise. This will not be the wallet you use for your life savings, but a simple test.</p>
+  <ol>
+    <li>Download <strong>BlueWallet</strong> on your mobile phone.</li>
+    <li>Create a new wallet. It will show you a 12-word seed phrase. <strong>Write it down carefully.</strong></li>
+    <li>Send a very small amount of Bitcoin (e.g., $5) to this wallet from the exchange where you plan to buy.</li>
+    <li>Now, download <strong>Green Wallet</strong> on your phone.</li>
+    <li>Instead of creating a new wallet, choose "Restore a wallet" and enter the 12-word seed phrase you wrote down from BlueWallet.</li>
+  </ol>
+  <p>You will see your $5 worth of Bitcoin magically appear. This demonstrates that the private and public key pair precedes the wallet and is portable, you are not beholden to any wallet provider. <br/><br/>Anyone with your seed phrase can access the funds. This is why you must protect it above all else. With Bitcoin, knowledge is ownership.</p>
+`;
+
+const getSeedGenerationAdvice = (level, amount) => {
+  let advice = `
+    <h4>Step 2: Generating Your Master Key (Seed Phrase)</h4>
+    <p>The most crucial step in self-custody is creating your seed phrase securely. Since you cannot easily verify the code inside a hardware wallet, generating your seed phrase offline eliminates trust in the manufacturer. This ensures your key is truly random.</p>
+  `;
+
+  if (
+    level === 'answer2c' ||
+    level === 'answer2b' ||
+    amount === 'answer4d' ||
+    amount === 'answer4e'
+  ) {
+    advice += `
+      <p>We strongly recommend you generate your own 24-word seed phrase offline using one of these methods:</p>
+      <ul>
+        <li><b>SeedPicker Cards or Entropia Pills:</b> These tools use dice rolls or random pill draws to help you generate a truly random seed, removing any human bias.</li>
+        <li><b>Manual Dice Rolls:</b> You can use standard dice and a BIP39 word list to generate your seed. It's a bit more involved, but it is the ultimate in trust minimization.</li>
+      </ul>
+      <p>A 24-word seed is significantly more secure than a 12-word one, offering a vast keyspace that is computationally impossible to brute force. After generating your 23 words, you'll use a device like a SeedSigner or Coldcard to calculate the final (24th) checksum word.</p>
+      
+      <h4>Step 3: Adding a Passphrase (Your 25th Word)</h4>
+      <p>A passphrase is an optional, but highly recommended, "25th word" that creates a completely new, hidden wallet from your 24-word seed. If your seed words are ever compromised, the attacker still cannot access your funds without the passphrase. <strong>Warning: If you forget the passphrase, your Bitcoin is lost forever.</strong></p>
+      <p>Your passphrase should be strong and memorable to you, but not easily guessable. Store it separately from your seed words.</p>
+    `;
+  } else {
+    advice += `
+      <p>For your first real wallet, you can let a trusted hardware wallet generate the seed phrase for you. However, as your holdings grow, you should plan to create a new wallet using the offline-generation methods described for intermediate and advanced users.</p>
+      <p>Even as a beginner, you should add a passphrase to your hardware-wallet-generated seed. This provides a crucial layer of security.</p>
+    `;
+  }
+  return advice;
+};
+
+const getBackupRecommendation = () => `
+  <h4>Step 4: Backing Up Your Seed Phrase</h4>
+  <p>Your seed phrase should be backed up on a medium that can withstand fire, flood, and time. Paper is not sufficient.</p>
+  <ul>
+    <li><b>Steel Plates:</b> Use a steel backup product like <strong>Seed Hammer</strong> or a <strong>Blockstream Capsule</strong> to stamp or etch your 24 words into metal.</li>
+    <li><b>Geographic Distribution:</b> Do not store all your backups in one location. Consider splitting your seed phrase (e.g., two plates with 12 words each) and storing them with trusted family members or in separate, secure locations. This makes it incredibly difficult for a thief to reassemble your full key.</li>
+    <li><b>Decoy Wallet:</b> Keep a separate wallet with a small amount of Bitcoin at home. In the unfortunate event of a home invasion, you can offer this decoy wallet to the attacker, protecting your main stash. The decoy wallet can be a completely different seed phrase, or the same seed phrase with a different passphrase. Ideally it is different to reduce the chances of the attacker trying to brute force your passphrase.</li>
+  </ul>
+`;
+
 export const generateRecommendations = answers => {
-  const {
-    question1,
-    question2,
-    question3,
-    question4,
-    question5,
-    question6,
-    question7,
-    question8,
-    question9,
-    question10,
-  } = answers;
+  const { question1, question2, question3, question4, question6, question7 } = answers;
 
-  // For testing: show all recommendations regardless of answers
-  let recommendations = [];
-
-  // Question 1 logic
-  if (question1 === 'answer1a') {
-    recommendations.push({
-      title: 'Bitcoin Custody & Security',
-      content: [
-        'Consider upgrading to a hardware wallet for enhanced security',
-        'Implement multi-signature setups for large holdings',
-        'Review your current wallet security practices',
-        'Consider running your own node for privacy and validation',
-      ],
-    });
-  } else if (question1 === 'answer1b') {
-    recommendations.push({
-      title: 'Getting Started with Bitcoin',
-      content: [
-        'Start with small amounts to learn the process',
-        'Research different exchanges and their security practices',
-        'Consider using a non-custodial wallet from day one',
-        'Learn about Bitcoin security best practices before buying',
-      ],
-    });
-  } else if (question1 === 'answer1c') {
-    recommendations.push({
-      title: 'Bitcoin Education & Research',
-      content: [
-        'Read "The Bitcoin Standard" by Saifedean Ammous',
-        'Watch educational content from trusted Bitcoin educators',
-        'Join Bitcoin communities to learn from others',
-        'Start with paper wallets or small test transactions',
-      ],
-    });
+  if (!question1) {
+    return null;
   }
 
-  // Question 2 logic
-  if (question2 === 'answer2a') {
-    recommendations.push({
-      title: 'Beginner-Friendly Resources',
-      content: [
-        'Use simple mobile wallets like BlueWallet or Phoenix',
-        'Start with small amounts to build confidence',
-        'Focus on understanding basic concepts first',
-        'Consider using Bitcoin-only services for simplicity',
-      ],
-    });
-  } else if (question2 === 'answer2b') {
-    recommendations.push({
-      title: 'Intermediate Bitcoin Practices',
-      content: [
-        'Upgrade to a hardware wallet for better security',
-        'Learn about Lightning Network for faster transactions',
-        'Consider running a Bitcoin node',
-        'Explore advanced privacy techniques',
-      ],
-    });
-  } else if (question2 === 'answer2c') {
-    recommendations.push({
-      title: 'Advanced Bitcoin Strategies',
-      content: [
-        'Implement multi-signature setups',
-        'Run your own Bitcoin node',
-        'Explore Lightning Network routing',
-        'Consider contributing to Bitcoin development',
-      ],
-    });
+  let finalReport = {
+    title: 'Your Personalized Bitcoin Self-Custody Plan',
+    sections: [],
+  };
+
+  // Section 1: Introduction based on Journey
+  let intro = {
+    title: 'Your Path to Financial Sovereignty',
+    content: '',
+  };
+  if (question1 === 'journey_buying') {
+    intro.content = `
+      <p>Before you buy, it's a good idea to have a plan for securing your Bitcoin. The recommendations below will assist you through setting up your first secure wallet, so you can move your funds off the exchange immediately after purchase.</p>
+      <p>For purchasing, we recommend reputable, Bitcoin-only exchanges like <strong>AmberApp (Australia)</strong>, <strong>River (US)</strong> or <strong>Bull Bitcoin (Canada, Europe)</strong>.</p>
+      ${getBeginnerEducation()}
+    `;
+  } else if (question1 === 'journey_exchange') {
+    intro.content = `
+      <p>Congratulations on taking the most critical step: moving from an IOU on an exchange to true ownership of your Bitcoin. This journey from trusting a third party to verifying your own funds is the essence of what makes Bitcoin powerful. This plan will assist you with creating a secure vault.</p>
+      ${getBeginnerEducation()}
+    `;
+  } else if (question1 === 'journey_improving') {
+    intro.content = `
+      <p>You've already embraced the core principle of Bitcoin: self-custody. Now, it's about refining your security model to protect against a wider range of threats as your holdings and knowledge grow. This plan will focus on advanced techniques to create a fortress around your wealth.</p>
+    `;
+  }
+  finalReport.sections.push(intro);
+
+  // Section 2: Wallet & Seed Generation
+  const walletSetup = {
+    title: 'Your Custody Setup: Wallet and Keys',
+    content: `
+      ${getSeedGenerationAdvice(question2, question4)}
+      ${getWalletRecommendation(question2, question4, question6)}
+    `,
+  };
+  finalReport.sections.push(walletSetup);
+
+  // Section 2.5: Custody Goals
+  const custodyGoals = {
+    title: 'Tailoring Your Strategy to Your Goals',
+    content: getCustodyGoalRecommendation(question3),
+  };
+  if (custodyGoals.content) {
+    finalReport.sections.push(custodyGoals);
   }
 
-  // Question 3 logic (multi-select)
-  if (question3 && Array.isArray(question3) && question3.length > 0) {
-    const custodyGoals = [];
+  // Section 3: Backup Strategy
+  const backupPlan = {
+    title: 'Your Backup and Recovery Plan',
+    content: getBackupRecommendation(),
+  };
+  finalReport.sections.push(backupPlan);
 
-    if (question3.includes('answer3a')) {
-      custodyGoals.push('Long-term storage solutions');
-    }
-    if (question3.includes('answer3b')) {
-      custodyGoals.push('Frequent transaction capabilities');
-    }
-    if (question3.includes('answer3c')) {
-      custodyGoals.push('Privacy-focused solutions');
-    }
-    if (question3.includes('answer3d')) {
-      custodyGoals.push('Inheritance planning');
-    }
-
-    if (custodyGoals.length > 0) {
-      recommendations.push({
-        title: 'Custody Strategy Based on Your Goals',
-        content: custodyGoals,
-      });
-    }
+  // Section 4: Privacy
+  const privacyPlan = {
+    title: 'Privacy Considerations',
+    content: getPrivacyRecommendation(question7),
+  };
+  if (privacyPlan.content) {
+    finalReport.sections.push(privacyPlan);
   }
 
-  // Question 4 logic
-  if (question4 === 'answer4a' || question4 === 'answer4b') {
-    recommendations.push({
-      title: 'Entry-Level Security',
-      content: [
-        'Mobile wallets are suitable for smaller amounts',
-        'Consider a simple hardware wallet for enhanced security',
-        'Focus on learning best practices before scaling up',
-      ],
-    });
-  } else if (question4 === 'answer4c' || question4 === 'answer4d') {
-    recommendations.push({
-      title: 'Mid-Range Security Requirements',
-      content: [
-        'Hardware wallets are strongly recommended',
-        'Consider multi-signature setups',
-        'Implement proper backup strategies',
-      ],
-    });
-  } else if (question4 === 'answer4e') {
-    recommendations.push({
-      title: 'High-Value Security Measures',
-      content: [
-        'Multi-signature setups are essential',
-        'Consider professional custody services',
-        'Implement comprehensive backup and recovery plans',
-        'Regular security audits recommended',
-      ],
-    });
-  }
+  // Section 5: Conclusion
+  const conclusion = {
+    title: 'Next Steps and Continuous Improvement',
+    content: `
+      <p>This plan provides a robust foundation for your Bitcoin self-custody. Remember, security is not a one-time setup, but an ongoing process. As your knowledge and the value of your holdings grow, continually reassess your threat model and improve your setup.</p>
+      <p><strong>Don't trust, verify.</strong> Always verify the authenticity of any software you download. Sparrow Wallet makes this easy. Be skeptical, be diligent, and enjoy the peace of mind that comes with true financial sovereignty.</p>
+    `,
+  };
+  finalReport.sections.push(conclusion);
 
-  // Question 5 logic
-  if (question5 === 'answer5a') {
-    recommendations.push({
-      title: 'DIY Bitcoin Management',
-      content: [
-        'Learn about hardware wallet setup and usage',
-        'Understand backup and recovery procedures',
-        'Consider running your own node for full sovereignty',
-      ],
-    });
-  } else if (question5 === 'answer5b') {
-    recommendations.push({
-      title: 'Assisted Bitcoin Management',
-      content: [
-        'Consider collaborative custody solutions',
-        'Get help with initial setup and configuration',
-        'Learn gradually while maintaining some assistance',
-      ],
-    });
-  } else if (question5 === 'answer5c') {
-    recommendations.push({
-      title: 'Guided Bitcoin Setup',
-      content: [
-        'Professional setup and configuration services',
-        'Ongoing support and maintenance',
-        'Regular security reviews and updates',
-      ],
-    });
-  }
-
-  // Question 6 logic
-  if (question6 === 'answer6a') {
-    recommendations.push({
-      title: 'Single-Signature Wallet Recommendations',
-      content: [
-        'Consider ColdCard for air-gapped security',
-        'Use a strong passphrase for additional protection',
-        'Implement proper backup procedures',
-        'Consider using a dedicated device for Bitcoin only',
-      ],
-    });
-  } else if (question6 === 'answer6b') {
-    recommendations.push({
-      title: 'Multi-Signature Wallet Setup',
-      content: [
-        'Consider multi-sig with 2-of-3 or 3-of-5 setups',
-        'Distribute keys across different locations',
-        'Use hardware wallets for each key',
-        'Implement proper key management procedures',
-      ],
-    });
-  } else if (question6 === 'answer6c') {
-    recommendations.push({
-      title: 'Recommended Wallet Strategy',
-      content: [
-        'Start with single-sig for simplicity',
-        'Gradually upgrade to multi-sig as you learn',
-        'Consider your security needs and experience level',
-        'Regularly review and update your setup',
-      ],
-    });
-  }
-
-  // Question 7 logic
-  if (question7 === 'answer7a') {
-    recommendations.push({
-      title: 'Privacy-Focused Solutions',
-      content: [
-        'Consider non-KYC exchanges like Hodl Hodl',
-        'Use privacy-focused wallets and techniques',
-        'Learn about CoinJoin and other privacy tools',
-        'Consider running your own node for privacy',
-      ],
-    });
-  } else if (question7 === 'answer7b') {
-    recommendations.push({
-      title: 'Balanced Privacy Approach',
-      content: [
-        'Use reputable KYC exchanges for initial purchases',
-        'Implement privacy practices where possible',
-        'Consider privacy-focused wallets for storage',
-        'Learn about privacy techniques gradually',
-      ],
-    });
-  } else if (question7 === 'answer7c') {
-    recommendations.push({
-      title: 'Standard Security Practices',
-      content: [
-        'Use established exchanges like River or Coinbase',
-        'Focus on security over privacy initially',
-        'Implement standard backup procedures',
-        'Consider hardware wallets for long-term storage',
-      ],
-    });
-  }
-
-  // Question 8 logic
-  if (question8 === 'answer8a') {
-    recommendations.push({
-      title: 'SeedHammer Metal Backup Service',
-      content: [
-        "We'll create and send you a SeedHammer metal backup",
-        "We'll keep a secure copy for recovery purposes",
-        'Regular verification of backup integrity',
-        'Secure storage of your backup copy',
-      ],
-    });
-  } else if (question8 === 'answer8b') {
-    recommendations.push({
-      title: 'Third-Party Backup Arrangement',
-      content: [
-        'Coordinate with your financial advisor for backup storage',
-        'Ensure proper legal documentation',
-        'Regular verification of backup accessibility',
-        'Clear communication protocols for recovery',
-      ],
-    });
-  } else if (question8 === 'answer8c') {
-    recommendations.push({
-      title: 'Self-Managed Backup Strategy',
-      content: [
-        'Learn proper backup creation techniques',
-        'Use multiple backup locations',
-        'Regular testing of backup recovery',
-        'Consider fireproof and waterproof storage',
-      ],
-    });
-  } else if (question8 === 'answer8d') {
-    recommendations.push({
-      title: 'Backup Risk Assessment',
-      content: [
-        'Consider the risks of not having a backup',
-        'Learn about backup best practices',
-        'Start with simple backup methods',
-        'Re-evaluate backup needs as holdings grow',
-      ],
-    });
-  }
-
-  // Question 9 logic
-  if (question9 === 'answer9a') {
-    recommendations.push({
-      title: 'Collaborative Custody Setup',
-      content: [
-        'We can hold a key in your multi-sig setup',
-        'Implement proper legal agreements',
-        'Regular verification of key accessibility',
-        'Clear procedures for inheritance or recovery',
-      ],
-    });
-  } else if (question9 === 'answer9b') {
-    recommendations.push({
-      title: 'Full Control Strategy',
-      content: [
-        'Maintain complete control of all keys',
-        'Implement robust backup procedures',
-        'Consider inheritance planning carefully',
-        'Regular security audits of your setup',
-      ],
-    });
-  } else if (question9 === 'answer9c') {
-    recommendations.push({
-      title: 'Collaborative Custody Benefits',
-      content: [
-        'Professional key management and security',
-        'Recovery assistance if keys are lost',
-        'Inheritance planning and execution',
-        'Reduced risk of total loss',
-      ],
-    });
-  }
-
-  // Question 10 logic
-  if (question10 === 'answer10a') {
-    recommendations.push({
-      title: 'Concierge Service Benefits',
-      content: [
-        'Professional wallet and node setup',
-        'Ongoing support and maintenance',
-        'Security audits and updates',
-        '24/7 assistance for critical issues',
-      ],
-    });
-  } else if (question10 === 'answer10b') {
-    recommendations.push({
-      title: 'DIY Setup Resources',
-      content: [
-        'Comprehensive setup guides and tutorials',
-        'Community support and forums',
-        'Regular security best practices',
-        'Consider professional help for complex setups',
-      ],
-    });
-  } else if (question10 === 'answer10c') {
-    recommendations.push({
-      title: 'Concierge Service Overview',
-      content: [
-        'Professional setup and configuration',
-        'Ongoing support and maintenance',
-        'Security monitoring and updates',
-        'Peace of mind for complex setups',
-      ],
-    });
-  }
-
-  // For testing: show all possible recommendations
-  recommendations = [
-    // Question 1 recommendations
-    {
-      title: 'Bitcoin Custody & Security (Q1: Own Bitcoin)',
-      content: [
-        'Consider upgrading to a hardware wallet for enhanced security',
-        'Implement multi-signature setups for large holdings',
-        'Review your current wallet security practices',
-        'Consider running your own node for privacy and validation',
-      ],
-    },
-    {
-      title: 'Getting Started with Bitcoin (Q1: Want to Buy)',
-      content: [
-        'Start with small amounts to learn the process',
-        'Research different exchanges and their security practices',
-        'Consider using a non-custodial wallet from day one',
-        'Learn about Bitcoin security best practices before buying',
-      ],
-    },
-    {
-      title: 'Bitcoin Education & Research (Q1: Exploring)',
-      content: [
-        'Read "The Bitcoin Standard" by Saifedean Ammous',
-        'Watch educational content from trusted Bitcoin educators',
-        'Join Bitcoin communities to learn from others',
-        'Start with paper wallets or small test transactions',
-      ],
-    },
-
-    // Question 2 recommendations
-    {
-      title: 'Beginner-Friendly Resources (Q2: Beginner)',
-      content: [
-        'Use simple mobile wallets like BlueWallet or Phoenix',
-        'Start with small amounts to build confidence',
-        'Focus on understanding basic concepts first',
-        'Consider using Bitcoin-only services for simplicity',
-      ],
-    },
-    {
-      title: 'Intermediate Bitcoin Practices (Q2: Intermediate)',
-      content: [
-        'Upgrade to a hardware wallet for better security',
-        'Learn about Lightning Network for faster transactions',
-        'Consider running a Bitcoin node',
-        'Explore advanced privacy techniques',
-      ],
-    },
-    {
-      title: 'Advanced Bitcoin Strategies (Q2: Advanced)',
-      content: [
-        'Implement multi-signature setups',
-        'Run your own Bitcoin node',
-        'Explore Lightning Network routing',
-        'Consider contributing to Bitcoin development',
-      ],
-    },
-
-    // Question 3 recommendations
-    {
-      title: 'Custody Strategy: Long-term Storage (Q3: Hodling)',
-      content: [
-        'Hardware wallets for cold storage',
-        'Multi-signature setups for large amounts',
-        'Robust backup procedures',
-        'Regular security audits',
-      ],
-    },
-    {
-      title: 'Custody Strategy: Frequent Transactions (Q3: Trading)',
-      content: [
-        'Hot wallets for daily transactions',
-        'Lightning Network for speed',
-        'Mobile wallets for convenience',
-        'Regular security updates',
-      ],
-    },
-    {
-      title: 'Custody Strategy: Privacy Focus (Q3: Privacy)',
-      content: [
-        'Privacy-focused wallets',
-        'CoinJoin techniques',
-        'Running your own node',
-        'Avoiding KYC exchanges',
-      ],
-    },
-    {
-      title: 'Custody Strategy: Inheritance Planning (Q3: Estate)',
-      content: [
-        'Multi-signature with trusted parties',
-        'Legal documentation',
-        'Clear inheritance procedures',
-        'Regular key verification',
-      ],
-    },
-
-    // Question 4 recommendations
-    {
-      title: 'Entry-Level Security (Q4: <$10k)',
-      content: [
-        'Mobile wallets are suitable for smaller amounts',
-        'Consider a simple hardware wallet for enhanced security',
-        'Focus on learning best practices before scaling up',
-      ],
-    },
-    {
-      title: 'Mid-Range Security Requirements (Q4: $10k-$100k)',
-      content: [
-        'Hardware wallets are strongly recommended',
-        'Consider multi-signature setups',
-        'Implement proper backup strategies',
-      ],
-    },
-    {
-      title: 'High-Value Security Measures (Q4: >$100k)',
-      content: [
-        'Multi-signature setups are essential',
-        'Consider professional custody services',
-        'Implement comprehensive backup and recovery plans',
-        'Regular security audits recommended',
-      ],
-    },
-
-    // Question 5 recommendations
-    {
-      title: 'DIY Bitcoin Management (Q5: Full Control)',
-      content: [
-        'Learn about hardware wallet setup and usage',
-        'Understand backup and recovery procedures',
-        'Consider running your own node for full sovereignty',
-      ],
-    },
-    {
-      title: 'Assisted Bitcoin Management (Q5: Independence with Help)',
-      content: [
-        'Consider collaborative custody solutions',
-        'Get help with initial setup and configuration',
-        'Learn gradually while maintaining some assistance',
-      ],
-    },
-    {
-      title: 'Guided Bitcoin Setup (Q5: Guided Setup)',
-      content: [
-        'Professional setup and configuration services',
-        'Ongoing support and maintenance',
-        'Regular security reviews and updates',
-      ],
-    },
-
-    // Question 6 recommendations
-    {
-      title: 'Single-Signature Wallet Recommendations (Q6: Single-sig)',
-      content: [
-        'Consider ColdCard for air-gapped security',
-        'Use a strong passphrase for additional protection',
-        'Implement proper backup procedures',
-        'Consider using a dedicated device for Bitcoin only',
-      ],
-    },
-    {
-      title: 'Multi-Signature Wallet Setup (Q6: Multi-sig)',
-      content: [
-        'Consider multi-sig with 2-of-3 or 3-of-5 setups',
-        'Distribute keys across different locations',
-        'Use hardware wallets for each key',
-        'Implement proper key management procedures',
-      ],
-    },
-    {
-      title: 'Recommended Wallet Strategy (Q6: No Preference)',
-      content: [
-        'Start with single-sig for simplicity',
-        'Gradually upgrade to multi-sig as you learn',
-        'Consider your security needs and experience level',
-        'Regularly review and update your setup',
-      ],
-    },
-
-    // Question 7 recommendations
-    {
-      title: 'Privacy-Focused Solutions (Q7: Very Important)',
-      content: [
-        'Consider non-KYC exchanges like Hodl Hodl',
-        'Use privacy-focused wallets and techniques',
-        'Learn about CoinJoin and other privacy tools',
-        'Consider running your own node for privacy',
-      ],
-    },
-    {
-      title: 'Balanced Privacy Approach (Q7: Somewhat Important)',
-      content: [
-        'Use reputable KYC exchanges for initial purchases',
-        'Implement privacy practices where possible',
-        'Consider privacy-focused wallets for storage',
-        'Learn about privacy techniques gradually',
-      ],
-    },
-    {
-      title: 'Standard Security Practices (Q7: Not Important)',
-      content: [
-        'Use established exchanges like River or Coinbase',
-        'Focus on security over privacy initially',
-        'Implement standard backup procedures',
-        'Consider hardware wallets for long-term storage',
-      ],
-    },
-
-    // Question 8 recommendations
-    {
-      title: 'SeedHammer Metal Backup Service (Q8: SeedHammer)',
-      content: [
-        "We'll create and send you a SeedHammer metal backup",
-        "We'll keep a secure copy for recovery purposes",
-        'Regular verification of backup integrity',
-        'Secure storage of your backup copy',
-      ],
-    },
-    {
-      title: 'Third-Party Backup Arrangement (Q8: Financial Advisor)',
-      content: [
-        'Coordinate with your financial advisor for backup storage',
-        'Ensure proper legal documentation',
-        'Regular verification of backup accessibility',
-        'Clear communication protocols for recovery',
-      ],
-    },
-    {
-      title: 'Self-Managed Backup Strategy (Q8: Self-Managed)',
-      content: [
-        'Learn proper backup creation techniques',
-        'Use multiple backup locations',
-        'Regular testing of backup recovery',
-        'Consider fireproof and waterproof storage',
-      ],
-    },
-    {
-      title: 'Backup Risk Assessment (Q8: No Backup)',
-      content: [
-        'Consider the risks of not having a backup',
-        'Learn about backup best practices',
-        'Start with simple backup methods',
-        'Re-evaluate backup needs as holdings grow',
-      ],
-    },
-
-    // Question 9 recommendations
-    {
-      title: 'Collaborative Custody Setup (Q9: Third Party Co-sign)',
-      content: [
-        'We can hold a key in your multi-sig setup',
-        'Implement proper legal agreements',
-        'Regular verification of key accessibility',
-        'Clear procedures for inheritance or recovery',
-      ],
-    },
-    {
-      title: 'Full Control Strategy (Q9: Full Control)',
-      content: [
-        'Maintain complete control of all keys',
-        'Implement robust backup procedures',
-        'Consider inheritance planning carefully',
-        'Regular security audits of your setup',
-      ],
-    },
-    {
-      title: 'Collaborative Custody Benefits (Q9: Not Sure)',
-      content: [
-        'Professional key management and security',
-        'Recovery assistance if keys are lost',
-        'Inheritance planning and execution',
-        'Reduced risk of total loss',
-      ],
-    },
-
-    // Question 10 recommendations
-    {
-      title: 'Concierge Service Benefits (Q10: Want Help)',
-      content: [
-        'Professional wallet and node setup',
-        'Ongoing support and maintenance',
-        'Security audits and updates',
-        '24/7 assistance for critical issues',
-      ],
-    },
-    {
-      title: 'DIY Setup Resources (Q10: Self Setup)',
-      content: [
-        'Comprehensive setup guides and tutorials',
-        'Community support and forums',
-        'Regular security best practices',
-        'Consider professional help for complex setups',
-      ],
-    },
-    {
-      title: 'Concierge Service Overview (Q10: Not Sure)',
-      content: [
-        'Professional setup and configuration',
-        'Ongoing support and maintenance',
-        'Security monitoring and updates',
-        'Peace of mind for complex setups',
-      ],
-    },
-  ];
-
-  return recommendations;
+  return [finalReport]; // Return as an array to match existing structure
 };
